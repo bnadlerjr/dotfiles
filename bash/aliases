@@ -1,0 +1,32 @@
+# Bash
+alias reload="source ~/bin/dotfiles/bash/aliases"
+alias ea="gvim ~/bin/dotfiles/bash/aliases && reload"
+alias l="ls -lgoh --group-directories-first"
+alias la="ls -Algoh --group-directories-first"
+alias cls="clear"
+
+# Ruby
+alias r="rake"
+alias gemi="sudo gem install --no-rdoc --no-ri"
+
+# Rails
+alias ss="./script/server"
+alias sg="./script/generate"
+alias sp="./script/plugin install"
+alias sc="./script/console"
+alias rmig="rake db:migrate"
+
+# Git
+alias g="git status"
+alias gb="git branch"
+alias gc="git commit -v"
+alias gca="git commit -v -a"
+
+function gg() {
+    git commit -v -a -m "$*"
+}
+
+alias gco="git checkout"
+alias gd="git diff"
+alias gl="git pull"
+alias gp="git push"
