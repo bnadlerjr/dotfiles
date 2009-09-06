@@ -4,6 +4,8 @@ alias ea="gvim ~/bin/dotfiles/bash/aliases && reload"
 alias l="ls -lgoh --group-directories-first"
 alias la="ls -Algoh --group-directories-first"
 alias cls="clear"
+alias ..="cd .."
+alias cdd="cd -"
 
 # Ruby
 alias r="rake"
