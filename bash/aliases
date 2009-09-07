@@ -6,6 +6,7 @@ alias la="ls -Algoh --group-directories-first"
 alias cls="clear"
 alias ..="cd .."
 alias cdd="cd -"
+alias df="df -h"
 
 # Ruby
 alias r="rake"
