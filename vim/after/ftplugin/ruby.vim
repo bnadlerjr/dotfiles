@@ -1,7 +1,7 @@
 " Ruby FileType Plugin
 setlocal ai sts=2 sw=2 ts=2 et
 
-" Snippets
+" Abbreviations
 iab <buffer> atc attr_accessor
 iab <buffer> atr attr_reader
 iab <buffer> atw attr_writer
