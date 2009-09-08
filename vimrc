@@ -9,8 +9,10 @@ set cursorline
 set expandtab
 set hlsearch
 set nocompatible
+set number
 set ruler
 set runtimepath+=./vim/after
+set showmatch
 set showmode
 set showcmd
 set sw=4 sts=4 ts=4
