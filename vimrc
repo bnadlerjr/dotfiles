@@ -22,7 +22,7 @@ if has("win32")
     set runtimepath+=C:\Home\Bin\dotfiles\vim\after
     set guifont=Lucida_Console:h10
 else
-    set runtimepath+=./vim/after
+    set runtimepath+=~/bin/dotfiles/vim/after
 endif
 
 set showmatch
