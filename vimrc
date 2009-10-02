@@ -1,5 +1,7 @@
 " .vimrc
 " Bob Nadler, Jr.
+
+" Settings
 set autoread
 set background=dark
 set backspace=indent,eol,start
@@ -29,6 +31,17 @@ set showmatch
 set showmode
 set showcmd
 set sw=4 sts=4 ts=4
+set wildmenu
+set wildmode=list:longest,full
+
+" Mappings
+inoremap ( ()<Left>
+inoremap [ []<Left>
+inoremap { {}<Left>
+inoremap " ""<Left>
+inoremap ' ''<Left>
+
+" Misc
 colorscheme railscasts
 filetype plugin on
 syntax on
