@@ -19,6 +19,13 @@ alias sp="./script/plugin install"
 alias sc="./script/console"
 alias rmig="rake db:migrate"
 
+function railsapp {
+  template=$1
+  appname=$2
+  shift 2
+  rails $appname -m http://github.com/thethirdswitch/rails-templates/raw/master/$template.rb $@
+}
+
 # Git
 alias g="git status"
 alias ga="git add"
