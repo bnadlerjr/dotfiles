@@ -61,5 +61,17 @@ if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 
+# Tab completion for mategem shell script
+_mategem()
+{
+    local curw
+    COMPREPLY=()
+    curw=${COMP_WORDS[COMP_CWORD]}
+    local gems="$(gem environment gemdir)/gems"
+    COMPREPLY=($(compgen -W '$(ls $gems)' -- $curw));
+    return 0
+}
+complete -F _mategem -o dirnames mategem
+
 # prompt
 PS1="\n\u@\H: \w \n->"
