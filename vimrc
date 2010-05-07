@@ -18,6 +18,7 @@ if has("win32")
     set guifont=Lucida_Console:h10
 else
     set runtimepath+=~/bin/dotfiles/vim/after
+    set runtimepath+=~/bin/dotfiles/vim
 endif
 
 set showmatch
