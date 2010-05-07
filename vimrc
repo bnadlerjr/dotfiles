@@ -5,13 +5,6 @@
 set autoread
 set background=dark
 set backspace=indent,eol,start
-set backup
-
-if has("win32")
-    set backupdir=C:\Home\tmp
-else
-    set backupdir=~/tmp/
-endif
 
 set cursorline
 set expandtab
