@@ -1,3 +1,6 @@
+# MacVim
+alias vim="mvim"
+
 # Bash
 alias reload="source ~/bin/dotfiles/bash/aliases"
 alias ea="gvim ~/bin/dotfiles/bash/aliases && reload"
