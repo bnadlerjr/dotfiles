@@ -1,9 +1,6 @@
-# MacVim
-alias vim="mvim"
-
 # Bash
 alias reload="source ~/bin/dotfiles/bash/aliases"
-alias ea="gvim ~/bin/dotfiles/bash/aliases && reload"
+alias ea="vi ~/bin/dotfiles/bash/aliases && reload"
 alias l="ls -lgohG"
 alias la="ls -AlgohG"
 alias cls="clear"
