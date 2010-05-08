@@ -20,13 +20,10 @@ if has("win32")
 else
     set runtimepath+=~/bin/dotfiles/vim/after
     set runtimepath+=~/bin/dotfiles/vim
-    set runtimepath+=~/bin/dotfiles/vim/autoload
-    set runtimepath+=~/bin/dotfiles/vim/doc
-    set runtimepath+=~/bin/dotfiles/vim/ftplugin
-    set runtimepath+=~/bin/dotfiles/vim/plugin
-    set runtimepath+=~/bin/dotfiles/vim/snippets
-    set runtimepath+=~/bin/dotfiles/vim/syntax
 endif
+
+" Use pathogen to load bundles
+call pathogen#runtime_append_all_bundles()
 
 set showmatch
 set showmode
