@@ -12,6 +12,7 @@ set hlsearch
 set nocompatible
 set number
 set ruler
+set guioptions-=T
 
 if has("win32")
     set runtimepath+=C:\Home\Bin\dotfiles\vim\after
