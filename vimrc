@@ -13,7 +13,14 @@ set nocompatible
 set number
 set ruler
 set guioptions-=T
+set showmatch
+set showmode
+set showcmd
+set sw=4 sts=4 ts=4
+set wildmenu
+set wildmode=list:longest,full
 
+" Setup runtime paths
 if has("win32")
     set runtimepath+=C:\Home\Bin\dotfiles\vim\after
     set guifont=Lucida_Console:h10
@@ -25,15 +32,9 @@ endif
 " Use pathogen to load bundles
 call pathogen#runtime_append_all_bundles()
 
-set showmatch
-set showmode
-set showcmd
-set sw=4 sts=4 ts=4
-set wildmenu
-set wildmode=list:longest,full
-
 " Misc
-colorscheme railscasts
 filetype on
 filetype plugin on
 syntax on
+
+colorscheme jellybeans
