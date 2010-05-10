@@ -12,7 +12,6 @@ set hlsearch                    " Highlight matches to recent searches
 set nocompatible                " Not compatible w/ vi
 set number                      " Display line numbers
 set ruler                       " Show line and column number of cursor
-set guioptions-=T               " Turn off GUI menu
 set showmatch                   " Show matching braces
 set showmode                    " Show which mode buffer is in
 set showcmd                     " Command info in lower right
@@ -23,7 +22,6 @@ set wildmode=list:longest,full
 " Setup runtime paths
 if has("win32")
     set runtimepath+=C:\Home\Bin\dotfiles\vim\after
-    set guifont=Lucida_Console:h10
 else
     set runtimepath+=~/bin/dotfiles/vim/after
 endif
@@ -32,7 +30,11 @@ endif
 filetype on
 filetype plugin on
 syntax on
+let mapleader = ","
 colorscheme vividchalk
 
 " Use pathogen to load bundles
 call pathogen#runtime_append_all_bundles()
+
+" FuzzyFinder Mappings
+nnoremap <Leader>f :FufFile<CR>
