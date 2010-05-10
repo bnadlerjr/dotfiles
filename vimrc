@@ -2,22 +2,22 @@
 " Bob Nadler, Jr.
 
 " Settings
-set autoread
+set autoread                    " Detect file changes refresh buffer
 set background=dark
-set backspace=indent,eol,start
+set backspace=indent,eol,start  " Backspace of newlines
 
-set cursorline
-set expandtab
-set hlsearch
-set nocompatible
-set number
-set ruler
-set guioptions-=T
-set showmatch
-set showmode
-set showcmd
-set sw=4 sts=4 ts=4
-set wildmenu
+set cursorline                  " Highlight current line
+set expandtab                   " Expand tabs to spaces
+set hlsearch                    " Highlight matches to recent searches
+set nocompatible                " Not compatible w/ vi
+set number                      " Display line numbers
+set ruler                       " Show line and column number of cursor
+set guioptions-=T               " Turn off GUI menu
+set showmatch                   " Show matching braces
+set showmode                    " Show which mode buffer is in
+set showcmd                     " Command info in lower right
+set sw=4 sts=4 ts=4             " 4 spaces
+set wildmenu                    " Autocomplete filenames
 set wildmode=list:longest,full
 
 " Setup runtime paths
@@ -26,15 +26,13 @@ if has("win32")
     set guifont=Lucida_Console:h10
 else
     set runtimepath+=~/bin/dotfiles/vim/after
-    set runtimepath+=~/bin/dotfiles/vim
 endif
-
-" Use pathogen to load bundles
-call pathogen#runtime_append_all_bundles()
 
 " Misc
 filetype on
 filetype plugin on
 syntax on
+colorscheme vividchalk
 
-colorscheme jellybeans
+" Use pathogen to load bundles
+call pathogen#runtime_append_all_bundles()
