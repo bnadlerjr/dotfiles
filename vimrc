@@ -38,3 +38,20 @@ call pathogen#runtime_append_all_bundles()
 
 " FuzzyFinder Mappings
 nnoremap <Leader>f :FufFile<CR>
+
+" Buffer Navigation Mappings
+nnoremap <D-H> :bp<CR>
+nnoremap <D-L> :bn<CR>
+
+" Don't rely on arrow keys!
+noremap  <Up> <Esc>
+noremap! <Up> <Esc>
+
+noremap  <Down> <Esc>
+noremap! <Down> <Esc>
+
+noremap  <Left> <Esc>
+noremap! <Left> <Esc>
+
+noremap  <Right> <Esc>
+noremap! <Right> <Esc>
