@@ -8,6 +8,12 @@ alias ..="cd .."
 alias cdd="cd -"
 alias df="df -h"
 
+# Create directory, then enter it
+mkcd () {
+    mkdir -p "$*"
+    cd "$*"
+}
+
 # Ruby
 alias r="rake"
 alias gemi="sudo gem install --no-rdoc --no-ri"
