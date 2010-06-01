@@ -7,6 +7,7 @@ alias cls="clear"
 alias ..="cd .."
 alias cdd="cd -"
 alias df="df -h"
+alias t="tree -C"
 
 # Create directory, then enter it
 mkcd () {
@@ -29,7 +30,7 @@ function railsapp {
   template=$1
   appname=$2
   shift 2
-  rails $appname -m http://github.com/thethirdswitch/rails-templates/raw/master/$template.rb $@
+  rails $appname -m $template.rb $@
 }
 
 # Git
