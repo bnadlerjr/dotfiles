@@ -5,19 +5,24 @@
 set autoread                    " Detect file changes refresh buffer
 set background=dark
 set backspace=indent,eol,start  " Backspace of newlines
-
 set cursorline                  " Highlight current line
 set expandtab                   " Expand tabs to spaces
+set formatoptions=qrn1
 set hlsearch                    " Highlight matches to recent searches
+set list                        " Show invisible chars
+set listchars=tab:▸\ ,eol:¬
 set nocompatible                " Not compatible w/ vi
 set number                      " Display line numbers
 set ruler                       " Show line and column number of cursor
+set scrolloff=3                 " Always show 3 lines around cursor
 set showmatch                   " Show matching braces
 set showmode                    " Show which mode buffer is in
 set showcmd                     " Command info in lower right
 set sw=4 sts=4 ts=4             " 4 spaces
+set textwidth=79                " Text width for line wrapping
 set wildmenu                    " Autocomplete filenames
 set wildmode=list:longest,full
+set wrap                        " Turn on line wrapping
 
 " Setup runtime paths
 if has("win32")
@@ -36,22 +41,42 @@ colorscheme vividchalk
 " Use pathogen to load bundles
 call pathogen#runtime_append_all_bundles()
 
+" Make it easy to clear out searches to get rid of highlighting
+nnoremap <leader><space> :let @/=''<cr>
+
 " FuzzyFinder Mappings
 nnoremap <Leader>f :FufFile<CR>
+nnoremap <Leader>r :FufRenewCache<CR>
+
+" Map toggle comment function from NERDCommenter
+nnoremap <Leader>c <space>
 
 " Buffer Navigation Mappings
 nnoremap <D-H> :bp<CR>
 nnoremap <D-L> :bn<CR>
 
+" Match bracket pairs using <tab>
+nnoremap <tab> %
+vnoremap <tab> %
+
+" Open a new vertial window and switch over to it
+nnoremap <leader>w <C-w>v<C-w>l
+
+" Make it easier to switch between windows
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
 " Don't rely on arrow keys!
-noremap  <Up> <Esc>
-noremap! <Up> <Esc>
+inoremap <Up> <Esc>
+nnoremap <Up> <Esc>
 
-noremap  <Down> <Esc>
-noremap! <Down> <Esc>
+inoremap <Down> <Esc>
+nnoremap <Down> <Esc>
 
-noremap  <Left> <Esc>
-noremap! <Left> <Esc>
+inoremap <Left> <Esc>
+nnoremap <Left> <Esc>
 
-noremap  <Right> <Esc>
-noremap! <Right> <Esc>
+inoremap <Right> <Esc>
+nnoremap <Right> <Esc>
