@@ -17,7 +17,7 @@ mkcd () {
 
 # Ruby
 alias r="rake"
-alias gemi="sudo gem install --no-rdoc --no-ri"
+alias gemi="gem install --no-rdoc --no-ri"
 
 # Rails
 alias ss="./script/server"

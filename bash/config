@@ -55,8 +55,8 @@ if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 
-# Tab completion for mategem shell script
-_mategem()
+# Tab completion for vgem shell script
+_vgem()
 {
     local curw
     COMPREPLY=()
@@ -65,7 +65,7 @@ _mategem()
     COMPREPLY=($(compgen -W '$(ls $gems)' -- $curw));
     return 0
 }
-complete -F _mategem -o dirnames mategem
+complete -F _vgem -o dirnames vgem
 
 # prompt
 PS1="\n\u@\H: \w \n->"
