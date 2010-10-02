@@ -3,7 +3,6 @@
 
 set colorcolumn=85  " Color column for line wrapping
 set guioptions-=T   " Turn off GUI menu
-set relativenumber  " Display how far away line is from current one
 
 " Setup fonts
 if has("win32")
