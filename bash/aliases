@@ -19,11 +19,25 @@ mkcd () {
 alias r="rake"
 alias gemi="gem install --no-rdoc --no-ri"
 
-# Rails
+# Rails 3
+alias rs="rails server"
+alias rg="rails generate"
+
+# Copy a custom generator in ~/.rails into a rails app
+function cpgen {
+  if [ ! -d "./lib/generators" ]; then
+    mkdir './lib/generators'
+  fi
+  cp -r ~/.rails/generators/$1 lib/generators
+}
+
+# Rails < 3
 alias ss="./script/server"
 alias sg="./script/generate"
 alias sp="./script/plugin install"
 alias sc="./script/console"
+
+# Rails General
 alias rmig="rake db:migrate"
 
 function railsapp {
