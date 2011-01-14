@@ -26,6 +26,7 @@ set wrap                        " Turn on line wrapping
 
 " Setup runtime paths
 if has("win32")
+    set runtimepath+=C:\Home\Bin\dotfiles\vim
     set runtimepath+=C:\Home\Bin\dotfiles\vim\after
 else
     set runtimepath+=~/bin/dotfiles/vim/after
