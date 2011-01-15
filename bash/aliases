@@ -23,6 +23,10 @@ alias gemi="gem install --no-rdoc --no-ri"
 alias rs="rails server"
 alias rg="rails generate"
 
+# Generate a Rails 3 app using spellbook.rb
+function rspell {
+  rails new $1 -m ~/dev/spellbook/spellbook.rb $@
+}
 # Copy a custom generator in ~/.rails into a rails app
 function cpgen {
   if [ ! -d "./lib/generators" ]; then
@@ -39,6 +43,7 @@ alias sc="./script/console"
 
 # Rails General
 alias rmig="rake db:migrate"
+alias rsc="rake spec:controllers"
 
 function railsapp {
   template=$1
