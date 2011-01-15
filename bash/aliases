@@ -42,7 +42,7 @@ alias sp="./script/plugin install"
 alias sc="./script/console"
 
 # Rails General
-alias rmig="rake db:migrate"
+alias rmig="rake db:migrate && rake db:migrate:redo"
 alias rsc="rake spec:controllers"
 
 function railsapp {
