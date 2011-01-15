@@ -25,16 +25,16 @@ bundles_dir = File.expand_path(File.dirname(__FILE__), "bundle")
 
 FileUtils.cd(bundles_dir)
 
-notrash = ARGV.include?('--notrash')
+trash = ARGV.include?('--trash')
 
-unless notrash
+if trash
   puts "Trashing everything (lookout!)"
   Dir["*"].each {|d| FileUtils.rm_rf d }
 end
 
 git_bundles.each do |url|
   dir = url.split('/').last.sub(/\.git$/, '')
-  if notrash && File.exists?(dir)
+  if !trash && File.exists?(dir)
     puts "  Skipping #{dir}"
     next
   end
