@@ -10,7 +10,7 @@ set expandtab                   " Expand tabs to spaces
 set formatoptions=qrn1
 set hlsearch                    " Highlight matches to recent searches
 set list                        " Show invisible chars
-set listchars=tab:â–¸\ ,eol:Â¬
+set listchars=tab:»·,trail:·    " Show tabs and trailing whitespace only
 set nocompatible                " Not compatible w/ vi
 set number                      " Display line numbers
 set ruler                       " Show line and column number of cursor
@@ -26,6 +26,7 @@ set wrap                        " Turn on line wrapping
 
 " Setup runtime paths
 if has("win32")
+    set runtimepath+=C:\Home\Bin\dotfiles\vim
     set runtimepath+=C:\Home\Bin\dotfiles\vim\after
 else
     set runtimepath+=~/bin/dotfiles/vim/after

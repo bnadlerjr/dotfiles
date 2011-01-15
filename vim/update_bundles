@@ -1,13 +1,19 @@
 #!/usr/bin/env ruby
 
+# Behind firewall in Windows environs that blocks git protocol so I have to use http
+protocol = RUBY_PLATFORM =~ /(win|w)32$/ ? 'https' : 'git'
+
 git_bundles = [
-  "git://github.com/vim-bundles/fuzzyfinder.git",
-  "git://github.com/scrooloose/nerdcommenter.git",
-  "git://github.com/msanders/snipmate.vim.git",
-  "git://github.com/tpope/vim-cucumber.git",
-  "git://github.com/tpope/vim-haml.git",
-  "git://github.com/tpope/vim-rails.git",
-  "git://github.com/tpope/vim-surround.git"
+  "#{protocol}://github.com/vim-bundles/fuzzyfinder.git",
+  "#{protocol}://github.com/scrooloose/nerdcommenter.git",
+  "#{protocol}://github.com/msanders/snipmate.vim.git",
+  "#{protocol}://github.com/tpope/vim-cucumber.git",
+  "#{protocol}://github.com/tpope/vim-haml.git",
+  "#{protocol}://github.com/tpope/vim-rails.git",
+  "#{protocol}://github.com/tpope/vim-surround.git",
+  "#{protocol}://github.com/edsono/vim-matchit.git",
+  "#{protocol}://github.com/ecomba/vim-ruby-refactoring.git",
+  "#{protocol}://github.com/bronson/vim-ruby-block-conv.git"
 ]
 
 vim_org_scripts = []
