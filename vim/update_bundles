@@ -4,7 +4,8 @@
 protocol = RUBY_PLATFORM =~ /(win|w)32$/ ? 'https' : 'git'
 
 git_bundles = [
-  "#{protocol}://github.com/vim-bundles/fuzzyfinder.git",
+  "#{protocol}://github.com/vim-scripts/L9.git",
+  "#{protocol}://github.com/vim-scripts/FuzzyFinder.git",
   "#{protocol}://github.com/scrooloose/nerdcommenter.git",
   "#{protocol}://github.com/msanders/snipmate.vim.git",
   "#{protocol}://github.com/tpope/vim-cucumber.git",
