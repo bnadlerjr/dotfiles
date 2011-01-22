@@ -3,7 +3,6 @@
 
 " Settings
 set autoread                    " Detect file changes refresh buffer
-set background=dark
 set backspace=indent,eol,start  " Backspace of newlines
 set cursorline                  " Highlight current line
 set expandtab                   " Expand tabs to spaces
@@ -19,6 +18,7 @@ set showmatch                   " Show matching braces
 set showmode                    " Show which mode buffer is in
 set showcmd                     " Command info in lower right
 set sw=4 sts=4 ts=4             " 4 spaces
+set t_Co=256                    " Use 256 colors
 set textwidth=79                " Text width for line wrapping
 set wildmenu                    " Autocomplete filenames
 set wildmode=list:longest,full
@@ -37,7 +37,10 @@ filetype on
 filetype plugin on
 syntax on
 let mapleader = ","
-colorscheme vividchalk
+"colorscheme github
+let xterm16_brightness = 'high'
+let xterm16_colormap = 'softlight'
+colo xterm16
 
 " Use pathogen to load bundles
 call pathogen#runtime_append_all_bundles()
