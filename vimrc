@@ -37,10 +37,7 @@ filetype on
 filetype plugin on
 syntax on
 let mapleader = ","
-"colorscheme github
-let xterm16_brightness = 'high'
-let xterm16_colormap = 'softlight'
-colo xterm16
+colorscheme github
 
 " Use pathogen to load bundles
 call pathogen#runtime_append_all_bundles()
@@ -65,6 +62,7 @@ vnoremap <tab> %
 
 " Open a new vertial window and switch over to it
 nnoremap <leader>w <C-w>v<C-w>l
+nnoremap <leader>wo <C-w>v<C-w>l :FufRenewCache<CR> :FufFile<CR>
 
 " Make it easier to switch between windows
 nnoremap <C-h> <C-w>h

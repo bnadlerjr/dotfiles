@@ -14,7 +14,8 @@ git_bundles = [
   "#{protocol}://github.com/tpope/vim-surround.git",
   "#{protocol}://github.com/edsono/vim-matchit.git",
   "#{protocol}://github.com/ecomba/vim-ruby-refactoring.git",
-  "#{protocol}://github.com/bronson/vim-ruby-block-conv.git"
+  "#{protocol}://github.com/bronson/vim-ruby-block-conv.git",
+  "#{protocol}://github.com/godlygeek/csapprox.git"
 ]
 
 vim_org_scripts = []

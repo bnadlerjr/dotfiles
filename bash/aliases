@@ -1,4 +1,6 @@
 # Bash
+alias vim="mvim -v"
+alias vi="mvim -v"
 alias reload="source ~/bin/dotfiles/bash/aliases"
 alias ea="vi ~/bin/dotfiles/bash/aliases && reload"
 alias l="ls -lgohG"
