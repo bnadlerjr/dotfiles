@@ -1,7 +1,7 @@
 " .gvimrc
 " Bob Nadler, Jr.
 
-set colorcolumn=85  " Color column for line wrapping
+set colorcolumn=80  " Color column for line wrapping
 set guioptions-=T   " Turn off GUI menu
 
 " Setup fonts
@@ -11,4 +11,4 @@ else
     set guifont=Monaco:h13
 endif
 
-colorscheme jellybeans
+colorscheme github
