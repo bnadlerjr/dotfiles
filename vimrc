@@ -82,3 +82,8 @@ nnoremap <Left> <Esc>
 
 inoremap <Right> <Esc>
 nnoremap <Right> <Esc>
+
+" Put useful info in status line
+:set laststatus=2
+:set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
+:hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red
