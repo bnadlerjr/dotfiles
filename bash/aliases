@@ -17,18 +17,25 @@ mkcd () {
     cd "$*"
 }
 
+# Kill a process from a pid file
+function pk {
+    kill -9 $(cat $1)
+}
+
 # Ruby
 alias r="rake"
 alias gemi="gem install --no-rdoc --no-ri"
 
 # Rails 3
 alias rs="rails server"
+alias rsd="rails server -d"
 alias rg="rails generate"
 
 # Generate a Rails 3 app using spellbook.rb
 function rspell {
   rails new $1 -m ~/dev/spellbook/spellbook.rb $@
 }
+
 # Copy a custom generator in ~/.rails into a rails app
 function cpgen {
   if [ ! -d "./lib/generators" ]; then
@@ -45,13 +52,18 @@ alias sc="./script/console"
 
 # Rails General
 alias rmig="rake db:migrate && rake db:migrate:redo"
-alias rsc="rake spec:controllers"
+alias rsp="rake spec"
 
 function railsapp {
   template=$1
   appname=$2
   shift 2
   rails $appname -m $template.rb $@
+}
+
+# Open localhost on port 3000 in browser
+function browse {
+    open http://localhost:3000/$@
 }
 
 # Git
