@@ -52,7 +52,11 @@ alias sc="./script/console"
 
 # Rails General
 alias rmig="rake db:migrate && rake db:migrate:redo"
-alias rsp="rake spec"
+alias speca="rake spec"
+alias specm="rake spec:models"
+alias specv="rake spec:views"
+alias specc="rake spec:controllers"
+alias cuke="rake cucumber:ok"
 
 function railsapp {
   template=$1
