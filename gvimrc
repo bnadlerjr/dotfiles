@@ -11,4 +11,4 @@ else
     set guifont=Monaco:h13
 endif
 
-colorscheme github
+colorscheme solarized

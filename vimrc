@@ -3,6 +3,7 @@
 
 " Settings
 set autoread                    " Detect file changes refresh buffer
+set background=light            " Light colored background
 set backspace=indent,eol,start  " Backspace of newlines
 set cursorline                  " Highlight current line
 set expandtab                   " Expand tabs to spaces
@@ -37,7 +38,6 @@ filetype on
 filetype plugin on
 syntax on
 let mapleader = ","
-colorscheme github
 
 " Use pathogen to load bundles
 call pathogen#runtime_append_all_bundles()
@@ -87,3 +87,6 @@ nnoremap <Right> <Esc>
 :set laststatus=2
 :set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
 :hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red
+
+" Colors
+colorscheme solarized
