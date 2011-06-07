@@ -26,6 +26,10 @@ function pk {
 alias r="rake"
 alias gemi="gem install --no-rdoc --no-ri"
 
+# Bundler
+alias bi="bundle install"
+alias bib="bundle install --binstubs"
+
 # Rails 3
 alias rs="rails server"
 alias rsd="rails server -d"

@@ -1,5 +1,6 @@
 export EDITOR="mvim -v"
 export PATH=$PATH:~/bin:/opt/local/lib/postgresql84/bin
 export PATH=$HOME/local/node/bin:$PATH
+export PATH=./bin:$PATH
 
 bind '"\C-f": "fg %-\n"'
