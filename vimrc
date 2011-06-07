@@ -88,5 +88,10 @@ nnoremap <Right> <Esc>
 :set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
 :hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red
 
+" Swapping Ruby blocks - only works for 1 liners
+" TODO This should probably be in an ftplugin.
+nnoremap <leader>bi cw{<Esc>JJwcw}<Esc>F{
+nnoremap <leader>be cwdo<Esc>wi<Backspace><CR><Tab><Esc>$a<Backspace><Backspace><CR><Backspace>end<Esc>kkw
+
 " Colors
 colorscheme solarized
