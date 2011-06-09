@@ -23,12 +23,12 @@ function pk {
 }
 
 # Ruby
-alias r="rake"
+alias r="time rake"
 alias gemi="gem install --no-rdoc --no-ri"
 
 # Bundler
 alias bi="bundle install"
-alias bib="bundle install --binstubs"
+alias bib="bundle install --binstubs && export PATH=./bin:$PATH"
 
 # Rails 3
 alias rs="rails server"

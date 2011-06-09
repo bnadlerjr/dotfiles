@@ -46,7 +46,7 @@ call pathogen#runtime_append_all_bundles()
 nnoremap <leader><space> :let @/=''<cr>
 
 " FuzzyFinder Mappings
-nnoremap <Leader>f :FufFile<CR>
+nnoremap <Leader>f :FufRenewCache<CR>:FufFile<CR>
 nnoremap <Leader>r :FufRenewCache<CR>
 
 " Map toggle comment function from NERDCommenter
