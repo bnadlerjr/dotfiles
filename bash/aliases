@@ -23,12 +23,12 @@ function pk {
 }
 
 # Ruby
-alias r="time rake"
+alias r="time ./bin/rake"
 alias gemi="gem install --no-rdoc --no-ri"
 
 # Bundler
 alias bi="bundle install"
-alias bib="bundle install --binstubs && export PATH=./bin:$PATH"
+alias bib="bundle install --binstubs"
 
 # Rails 3
 alias rs="rails server"
@@ -55,12 +55,12 @@ alias sp="./script/plugin install"
 alias sc="./script/console"
 
 # Rails General
-alias rmig="rake db:migrate && rake db:migrate:redo"
-alias speca="rake spec"
-alias specm="rake spec:models"
-alias specv="rake spec:views"
-alias specc="rake spec:controllers"
-alias cuke="rake cucumber:ok"
+alias rmig="./bin/rake db:migrate && ./bin/rake db:migrate:redo"
+alias speca="./bin/rake spec"
+alias specm="./bin/rake spec:models"
+alias specv="./bin/rake spec:views"
+alias specc="./bin/rake spec:controllers"
+alias cuke="./bin/rake cucumber:ok"
 
 function railsapp {
   template=$1
