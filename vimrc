@@ -33,14 +33,15 @@ else
     set runtimepath+=~/bin/dotfiles/vim/after
 endif
 
+" Use pathogen to load bundles
+call pathogen#runtime_append_all_bundles()
+
 " Misc
 filetype on
 filetype plugin on
+filetype plugin indent on
 syntax on
 let mapleader = ","
-
-" Use pathogen to load bundles
-call pathogen#runtime_append_all_bundles()
 
 " Make it easy to clear out searches to get rid of highlighting
 nnoremap <leader><space> :let @/=''<cr>
@@ -92,6 +93,9 @@ nnoremap <Right> <Esc>
 " TODO This should probably be in an ftplugin.
 nnoremap <leader>bi cw{<Esc>JJwcw}<Esc>F{
 nnoremap <leader>be cwdo<Esc>wi<Backspace><CR><Tab><Esc>$a<Backspace><Backspace><CR><Backspace>end<Esc>kkw
+
+" Compile .coffee files when saved and show any errors
+autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow
 
 " Colors
 colorscheme solarized
