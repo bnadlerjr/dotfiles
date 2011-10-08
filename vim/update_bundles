@@ -49,7 +49,7 @@ end
 
 vim_org_scripts.each do |name, script_id, script_type|
   local_file = File.join(name, script_type, "#{name}.#{script_type == 'zip' ? 'zip' : 'vim'}")
-  if notrash && File.exists?(local_file)
+  if !trash && File.exists?(local_file)
     puts "  Skipping #{local_file}"
     next
   end

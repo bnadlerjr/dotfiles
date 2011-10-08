@@ -15,6 +15,7 @@ set nocompatible                " Not compatible w/ vi
 set number                      " Display line numbers
 set ruler                       " Show line and column number of cursor
 set scrolloff=3                 " Always show 3 lines around cursor
+set shellcmdflag=-ic            " Load bashrc so we have access to aliases
 set showmatch                   " Show matching braces
 set showmode                    " Show which mode buffer is in
 set showcmd                     " Command info in lower right
@@ -48,7 +49,11 @@ nnoremap <leader><space> :let @/=''<cr>
 
 " FuzzyFinder Mappings
 nnoremap <Leader>f :FufRenewCache<CR>:FufFile<CR>
-nnoremap <Leader>r :FufRenewCache<CR>
+nnoremap <Leader>t :FufRenewCache<CR>:FufCoverageFile<CR>
+
+" Rake specific mappings
+nnoremap <Leader>r :!rake<CR>
+nnoremap <Leader>br :!bundle exec rake<CR>
 
 " Map toggle comment function from NERDCommenter
 nnoremap <Leader>c <space>
@@ -63,7 +68,7 @@ vnoremap <tab> %
 
 " Open a new vertial window and switch over to it
 nnoremap <leader>w <C-w>v<C-w>l
-nnoremap <leader>wo <C-w>v<C-w>l :FufRenewCache<CR> :FufFile<CR>
+nnoremap <leader>wo <C-w>v<C-w>l :FufRenewCache<CR> :FufCoverageFile<CR>
 
 " Make it easier to switch between windows
 nnoremap <C-h> <C-w>h
@@ -89,13 +94,8 @@ nnoremap <Right> <Esc>
 :set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
 :hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red
 
-" Swapping Ruby blocks - only works for 1 liners
-" TODO This should probably be in an ftplugin.
-nnoremap <leader>bi cw{<Esc>JJwcw}<Esc>F{
-nnoremap <leader>be cwdo<Esc>wi<Backspace><CR><Tab><Esc>$a<Backspace><Backspace><CR><Backspace>end<Esc>kkw
-
 " Compile .coffee files when saved and show any errors
 autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow
 
 " Colors
-colorscheme solarized
+colorscheme jellybeans
