@@ -94,8 +94,8 @@ nnoremap <Right> <Esc>
 :set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
 :hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red
 
-" Compile .coffee files when saved and show any errors
-autocmd BufWritePost *.coffee silent CoffeeMake! -b | cwindow
+" Use two-space indent for coffee-script files
+au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
 
 " Colors
 colorscheme jellybeans
