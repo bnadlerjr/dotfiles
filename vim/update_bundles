@@ -17,7 +17,8 @@ git_bundles = [
   "#{protocol}://github.com/bronson/vim-ruby-block-conv.git",
   "#{protocol}://github.com/altercation/vim-colors-solarized.git",
   "#{protocol}://github.com/godlygeek/csapprox.git",
-  "#{protocol}://github.com/kchmck/vim-coffee-script.git"
+  "#{protocol}://github.com/kchmck/vim-coffee-script.git",
+  "#{protocol}://github.com/tpope/vim-ragtag.git"
 ]
 
 vim_org_scripts = []
