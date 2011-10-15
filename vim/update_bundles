@@ -18,6 +18,10 @@ git_bundles = [
   "#{protocol}://github.com/altercation/vim-colors-solarized.git",
   "#{protocol}://github.com/godlygeek/csapprox.git",
   "#{protocol}://github.com/kchmck/vim-coffee-script.git",
+  "#{protocol}://github.com/vim-scripts/AutoTag.git",
+  "#{protocol}://github.com/tpope/vim-bundler.git",
+  "#{protocol}://github.com/tpope/vim-rake.git",
+  "#{protocol}://github.com/tpope/vim-rails.git",
   "#{protocol}://github.com/tpope/vim-ragtag.git"
 ]
 
