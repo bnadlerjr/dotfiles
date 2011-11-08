@@ -58,17 +58,9 @@ nnoremap <Leader>br :!bundle exec rake<CR>
 " Map toggle comment function from NERDCommenter
 nnoremap <Leader>c <space>
 
-" Buffer Navigation Mappings
-nnoremap <D-H> :bp<CR>
-nnoremap <D-L> :bn<CR>
-
 " Match bracket pairs using <tab>
 nnoremap <tab> %
 vnoremap <tab> %
-
-" Open a new vertial window and switch over to it
-nnoremap <leader>w <C-w>v<C-w>l
-nnoremap <leader>wo <C-w>v<C-w>l :FufRenewCache<CR> :FufCoverageFile<CR>
 
 " Make it easier to switch between windows
 nnoremap <C-h> <C-w>h
@@ -98,4 +90,7 @@ nnoremap <Right> <Esc>
 au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
 
 " Colors
-colorscheme jellybeans
+let g:solarized_termcolors=256
+let g:solarized_visibility="high"
+let g:solarized_contrast="high"
+colorscheme topfunky-light

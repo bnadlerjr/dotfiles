@@ -11,6 +11,11 @@ alias cdd="cd -"
 alias df="df -h"
 alias t="tree -C"
 
+# Download Ruby template from gist
+function get-gist {
+    curl https://raw.github.com/gist/1326310/$1
+}
+
 # Create directory, then enter it
 mkcd () {
     mkdir -p "$*"
@@ -25,6 +30,10 @@ function pk {
 # Ruby
 alias r="time ./bin/rake"
 alias gemi="gem install --no-rdoc --no-ri"
+
+function testf {
+    time ruby -Itest $1
+}
 
 # Bundler
 alias bi="bundle install"

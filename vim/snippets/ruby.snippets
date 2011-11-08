@@ -79,3 +79,5 @@ snippet shvpo
 	it { should validate_presence_of(${1:attr})${2} }
 snippet shvuo
 	it { should validate_uniqueness_of(${1:attr})${2} }
+snippet debugm
+	(${1:obj}.methods.sort - Object.methods).each { |m| p m }

@@ -10,5 +10,3 @@ if has("win32")
 else
     set guifont=Monaco:h13
 endif
-
-colorscheme jellybeans
