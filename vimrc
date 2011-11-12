@@ -68,23 +68,50 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
-" Don't rely on arrow keys!
-inoremap <Up> <Esc>
-nnoremap <Up> <Esc>
-
-inoremap <Down> <Esc>
-nnoremap <Down> <Esc>
-
-inoremap <Left> <Esc>
-nnoremap <Left> <Esc>
-
-inoremap <Right> <Esc>
-nnoremap <Right> <Esc>
-
 " Put useful info in status line
 :set laststatus=2
 :set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
 :hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red
+
+" Smart tab completion. Taken from http://vim.wikia.com/wiki/VimTip102
+function! CleverTab()
+    if pumvisible()
+        return "\<C-N>"
+    endif
+    if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
+        return "\<Tab>"
+    elseif exists('&omnifunc') && &omnifunc != ''
+        return "\<C-X>\<C-O>"
+    else
+        return "\<C-N>"
+    endif
+endfunction
+inoremap <Tab> <C-R>=CleverTab()<CR>
+
+" Map ,e and ,v to open files in the same directory as the current file
+cnoremap %% <C-R>=expand('%:h').'/'<cr>
+map <leader>e :edit %%
+map <leader>v :view %%
+
+" Quickly rename a file
+function! RenameFile()
+    let old_name = expand('%')
+    let new_name = input('New file name: ', expand('%'))
+    if new_name != '' && new_name != old_name
+        exec ':saveas ' . new_name
+        exec ':silent !rm ' . old_name
+        redraw!
+    endif
+endfunction
+
+" Rails specific key mappings
+map <leader>gr :topleft :split config/routes.rb<cr>
+map <leader>gg :topleft 100 :split Gemfile<cr>
+map <leader>gv :FufRenewCache<CR>:FufFile app/views<CR>
+map <leader>gc :FufRenewCache<CR>:FufFile app/controllers<CR>
+map <leader>gm :FufRenewCache<CR>:FufFile app/models<CR>
+map <leader>gh :FufRenewCache<CR>:FufFile app/helpers<CR>
+map <leader>gl :FufRenewCache<CR>:FufFile lib<CR>
 
 " Use two-space indent for coffee-script files
 au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
@@ -93,4 +120,4 @@ au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
 let g:solarized_termcolors=256
 let g:solarized_visibility="high"
 let g:solarized_contrast="high"
-colorscheme topfunky-light
+colorscheme solarized
