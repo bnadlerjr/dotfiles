@@ -116,6 +116,9 @@ map <leader>gl :FufRenewCache<CR>:FufFile lib<CR>
 " Use two-space indent for coffee-script files
 au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
 
+" Map to external script that formats Ruby hashes
+vmap <F2> !format_hash.rb<CR>
+
 " Colors
 let g:solarized_termcolors=256
 let g:solarized_visibility="high"
