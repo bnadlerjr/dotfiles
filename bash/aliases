@@ -10,6 +10,7 @@ alias ..="cd .."
 alias cdd="cd -"
 alias df="df -h"
 alias t="tree -C"
+alias gr="grep -Rnif /dev/stdin . <<<"
 
 # Download Ruby template from gist
 function get-gist {
@@ -28,8 +29,9 @@ function pk {
 }
 
 # Ruby
-alias r="time ./bin/rake"
+alias r="time bundle exec rake"
 alias gemi="gem install --no-rdoc --no-ri"
+alias gemlr="gem list --remote"
 
 function testf {
     time ruby -Itest $1
@@ -64,19 +66,19 @@ alias sp="./script/plugin install"
 alias sc="./script/console"
 
 # Rails General
-alias rmig="./bin/rake db:migrate && ./bin/rake db:migrate:redo"
-alias speca="./bin/rake spec"
-alias specm="./bin/rake spec:models"
-alias specv="./bin/rake spec:views"
-alias specc="./bin/rake spec:controllers"
-alias cuke="./bin/rake cucumber:ok"
-
-function railsapp {
-  template=$1
-  appname=$2
-  shift 2
-  rails $appname -m $template.rb $@
-}
+alias fspec="time bundle exec rspec"
+alias rmig="bundle exec rake db:migrate && bundle exec rake db:migrate:redo"
+alias rsa="time bundle exec rake spec"
+alias rsm="time bundle exec rake spec:models"
+alias rsc="time bundle exec rake spec:controllers"
+alias rsl="time bundle exec rake spec:lib"
+alias rsr="time bundle exec rake spec:requests"
+alias rsv="time bundle exec rake spec:views"
+alias rtu="time bundle exec rake test:units"
+alias rtf="time bundle exec rake test:functionals"
+alias rti="time bundle exec rake test:integration"
+alias rtl="time bundle exec rake test:lib"
+alias cuke="time bundle exec rake cucumber:all"
 
 # Open localhost on port 3000 in browser
 function browse {
