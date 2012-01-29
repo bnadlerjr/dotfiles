@@ -81,3 +81,5 @@ snippet shvuo
 	it { should validate_uniqueness_of(${1:attr})${2} }
 snippet debugm
 	(${1:obj}.methods.sort - Object.methods).each { |m| p m }
+snippet reqrel
+	require File.join(File.dirname(__FILE__), '${1}')
