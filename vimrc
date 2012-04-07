@@ -10,7 +10,7 @@ set expandtab                   " Expand tabs to spaces
 set formatoptions=qrn1          " http://vimdoc.sourceforge.net/htmldoc/change.html#fo-table
 set hlsearch                    " Highlight matches to recent searches
 set list                        " Show invisible chars
-set listchars=tab:��,trail:�    " Show tabs and trailing whitespace only
+set listchars=tab:»·,trail:·    " Show tabs and trailing whitespace only
 set nocompatible                " Not compatible w/ vi
 set number                      " Display line numbers
 set ruler                       " Show line and column number of cursor
