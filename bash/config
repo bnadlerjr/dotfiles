@@ -71,4 +71,4 @@ _vgem()
 complete -F _vgem -o dirnames vgem
 
 # prompt
-PS1="\[$BLDBLK\]\n\u:\w \[$TXTBLU\](\$(vcprompt -f %b%m%u)\[$TXTRST\]) \n→ "
+PS1="\[$BLDBLK\]\n\u:\w \[$TXTBLU\](\$(srb_git_prompt)\[$TXTBLU\])\[$TXTRST\] \n→ "
