@@ -86,17 +86,15 @@ function browse {
 }
 
 # Git
-alias g="git status"
+alias g="git st"
 alias ga="git add"
-alias gb="git branch"
-alias gc="git commit -v"
-alias gca="git commit -v -a"
-
-function gg() {
-    git commit -v -a -m "$*"
-}
-
-alias gco="git checkout"
-alias gd="git diff"
-alias gl="git pull"
-alias gp="git push"
+alias gaa="git aa"
+alias gb="git br"
+alias gca="git ci -v -a"
+alias gco="git co"
+alias gcob="git co -b"
+alias gir="git ir"
+alias glff="git pullff"
+alias glg="git lg"
+alias gpom="git pom"
+alias gup="git up"

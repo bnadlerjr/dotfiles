@@ -1,0 +1,30 @@
+[user]
+    name = Bob Nadler
+    email = bnadlerjr@gmail.com
+[github]
+    user = bnadlerjr
+    token = !sh -c 'cat ~/.github_token'
+[core]
+    autocrlf = false
+    excludesfile = ~/.gitignore_global
+[color]
+    ui = auto
+[alias]
+    aa = add --all
+    br = branch
+    ci = commit
+    co = checkout
+    di = diff
+    ff = merge --ff-only
+    ir = !git rebase -i origin/master
+    lg = log --graph --abbrev-commit --date=relative
+    noff = merge --no-ff
+    pom = push origin master
+    pullff = pull --ff-only
+    st = status
+    staged = diff --cached
+    up = !git fetch origin && git rebase origin/master
+[format]
+    pretty=format:%C(yellow)%h%Creset -%C(red)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset
+[merge]
+    tool = vimdiff
