@@ -38,6 +38,7 @@ function testf {
 }
 
 # Bundler
+alias be="bundle exec"
 alias bi="bundle install"
 alias bib="bundle install --binstubs"
 
