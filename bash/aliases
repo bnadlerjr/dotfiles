@@ -28,6 +28,24 @@ function pk {
     kill -9 $(cat $1)
 }
 
+# Name terminal window
+function set_term_name {
+    if [ $1 == 'server' ]; then
+        echo -e "\033]6;1;bg;red;brightness;255\a"
+        echo -e "\033]6;1;bg;green;brightness;0\a"
+        echo -e "\033]6;1;bg;blue;brightness;255\a"
+    elif [ $1 == 'console' ]; then
+        echo -e "\033]6;1;bg;red;brightness;30\a"
+        echo -e "\033]6;1;bg;green;brightness;144\a"
+        echo -e "\033]6;1;bg;blue;brightness;255\a"
+    elif [ $1 == 'spork' ]; then
+        echo -e "\033]6;1;bg;red;brightness;255\a"
+        echo -e "\033]6;1;bg;green;brightness;165\a"
+        echo -e "\033]6;1;bg;blue;brightness;0\a"
+    fi
+    echo -ne "\033]0;$1: ${PWD/#$HOME/~}\007"
+}
+
 # Ruby
 alias r="time bundle exec rake"
 alias gemi="gem install --no-rdoc --no-ri"
@@ -61,13 +79,13 @@ function cpgen {
 }
 
 # Rails < 3
-alias ss="./script/server"
 alias sg="./script/generate"
 alias sp="./script/plugin install"
 alias sc="./script/console"
 
 # Rails General
 alias fspec="time bundle exec rspec"
+alias ss="./script/specs"
 alias rmig="bundle exec rake db:migrate && bundle exec rake db:migrate:redo"
 alias rsa="time bundle exec rake spec"
 alias rsm="time bundle exec rake spec:models"
@@ -92,6 +110,7 @@ alias ga="git add"
 alias gaa="git aa"
 alias gb="git br"
 alias gca="git ci -v -a"
+alias gci="git ci -v"
 alias gco="git co"
 alias gcob="git co -b"
 alias gir="git ir"
@@ -99,3 +118,5 @@ alias glff="git pullff"
 alias glg="git lg"
 alias gpom="git pom"
 alias gup="git up"
+
+alias deployef="standup update ef"
