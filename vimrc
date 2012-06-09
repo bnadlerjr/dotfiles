@@ -44,6 +44,10 @@ filetype plugin indent on
 syntax on
 let mapleader = ","
 
+" Change cursor shape in insert mode; iTerm2 only
+let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+
 " Make it easy to clear out searches to get rid of highlighting
 nnoremap <leader><space> :let @/=''<cr>
 
