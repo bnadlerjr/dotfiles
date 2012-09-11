@@ -5,12 +5,10 @@ alias reload="source ~/bin/dotfiles/bash/aliases"
 alias ea="vi ~/bin/dotfiles/bash/aliases && reload"
 alias l="ls -lgohG"
 alias la="ls -AlgohG"
-alias cls="clear"
 alias ..="cd .."
 alias cdd="cd -"
 alias df="df -h"
 alias t="tree -C"
-alias gr="grep -Rnif /dev/stdin . <<<"
 
 # Download Ruby template from gist
 function get-gist {
@@ -78,11 +76,6 @@ function cpgen {
   cp -r ~/.rails/generators/$1 lib/generators
 }
 
-# Rails < 3
-alias sg="./script/generate"
-alias sp="./script/plugin install"
-alias sc="./script/console"
-
 # Rails General
 alias fspec="time bundle exec rspec"
 alias ss="./script/specs"
@@ -118,5 +111,3 @@ alias glff="git pullff"
 alias glg="git lg"
 alias gpom="git pom"
 alias gup="git up"
-
-alias deployef="standup update ef"
