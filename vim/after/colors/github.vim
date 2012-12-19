@@ -1,86 +1,139 @@
-" Github.com colorscheme for vim
-" Maintainer: Sean Caetano Martin @xonecas
-" BETA
+" Vim color file
+"
+" Author: Anthony Carapetis <anthony.carapetis@gmail.com>
+"
+" Note: Based on github's syntax highlighting theme
+"       Used Brian Mock's darkspectrum as a starting point/template
+"       Thanks to Ryan Heath for an easy list of some of the colours:
+"       http://rpheath.com/posts/356-github-theme-for-syntax-gem
 
-set background=light
 hi clear
 
-if exists("syntax_on")
-    syntax reset
+set background=light
+if version > 580
+    " no guarantees for version 5.8 and below, but this makes it stop
+    " complaining
+    hi clear
+    if exists("syntax_on")
+	syntax reset
+    endif
 endif
+let g:colors_name="github"
 
-let colors_name="github"
+hi Normal       guifg=#000000 guibg=#F8F8FF
 
-hi Normal guifg=#000000 ctermfg=0 guibg=#FFFFFF ctermbg=15
-hi Comment guifg=#999988 ctermfg=246 guibg=#FFFFFF ctermbg=15 gui=italic
-hi String guifg=#DD1144 ctermfg=161
-hi Boolean gui=bold cterm=bold
-hi Number guifg=#009999 ctermfg=30
-hi Identifier gui=bold cterm=bold
-hi Function gui=bold cterm=bold
-hi LineNr guifg=#666666 ctermfg=241 guibg=#ECECEC ctermbg=7 
+" {{{ Cursor
+hi Cursor		guibg=#444454 guifg=#F8F8FF
+hi CursorLine	guibg=#D8D8DD
+hi CursorColumn	guibg=#E8E8EE
+" }}}
 
-hi vimCommentTitle guifg=#999988 ctermfg=246 guibg=#FFFFFF ctermbg=15 gui=italic
+" {{{ Diff
+hi DiffAdd         guifg=#003300 guibg=#DDFFDD gui=none
+hi DiffChange                    guibg=#ececec gui=none
+hi DiffText        guifg=#000033 guibg=#DDDDFF gui=none
+hi DiffDelete      guifg=#DDCCCC guibg=#FFDDDD gui=none
+" }}}
 
-hi javaScriptRegexpString guifg=#009926 ctermfg=28
-hi javaScriptGlobal guifg=#000080 ctermfg=18
-hi javaScriptNull guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi javaScriptOperator guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi javaScriptIdentifier guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi javaScriptType guifg=#0086B3 ctermfg=31
-hi javaScriptConditional guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi javaScriptStatement guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi javaScriptRepeat guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi javaScriptNumber guifg=#009999 ctermfg=30
+" {{{ Folding / Line Numbering / Status Lines
+hi Folded		guibg=#ECECEC guifg=#808080 gui=bold
+hi vimFold		guibg=#ECECEC guifg=#808080 gui=bold
+hi FoldColumn	guibg=#ECECEC guifg=#808080 gui=bold
 
-hi cssTagName guifg=#000080 ctermfg=18
-hi cssDefinition guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssBoxProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssBoxAttr guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssFontProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssTextProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssRenderProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssCommonAttr guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssTextAttr guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssRenderAttr guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssGeneratedContentProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssPseudoClass guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssPseudoClassId guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssColorProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssColor guifg=#009999 ctermfg=30
-hi cssFontAttr guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssUIAttr guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssUIProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssTableProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssTableAttr guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssSelectorOp guifg=#000080 ctermfg=18
-hi cssAttributeSelector guifg=#000080 ctermfg=18
-hi cssGeneratedContentAttr guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssSelectorOp2 guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssFontDescriptorProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssFontDescriptor guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssIdentifier guifg=#990000 ctermfg=88 gui=bold
-hi cssMedia guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssMediaType guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssPagingProp guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssPagingAttr guifg=#000000 ctermfg=0 gui=bold cterm=bold
-hi cssImportant guifg=#999999 ctermfg=246 gui=bold cterm=bold
-hi cssUnicodeEscape  guifg=#DD1144 ctermfg=161
+hi LineNr		guifg=#959595 guibg=#ECECEC gui=bold
+hi NonText		guifg=#808080 guibg=#ECECEC
+hi Folded		guifg=#808080 guibg=#ECECEC gui=bold
+hi FoldeColumn  guifg=#808080 guibg=#ECECEC gui=bold
 
-hi htmlTag guifg=#000080 ctermfg=18
-hi htmlTagN guifg=#000080 ctermfg=18
-hi htmlTagName guifg=#000080 ctermfg=18  
-hi htmlEndTag guifg=#000080 ctermfg=18
-hi htmlTitle guifg=#000000 ctermfg=0
-hi htmlArg guifg=#009999 ctermfg=30
-hi htmlSpecialTagName guifg=#000080 ctermfg=18
-hi htmlLink guifg=#000000 ctermfg=0 gui=none cterm=none
-hi htmlH1 guifg=#000000 ctermfg=0
-hi htmlH2 guifg=#000000 ctermfg=0
-hi htmlH3 guifg=#000000 ctermfg=0
-hi htmlH4 guifg=#000000 ctermfg=0
-hi htmlH5 guifg=#000000 ctermfg=0
-hi htmlH6 guifg=#000000 ctermfg=0
+hi VertSplit	guibg=#bbbbbb guifg=#bbbbbb gui=none
+hi StatusLine   guibg=#bbbbbb guifg=#404040 gui=bold
+hi StatusLineNC guibg=#d4d4d4 guifg=#404040 gui=italic
+" }}}
 
+" {{{ Misc
+hi ModeMsg		guifg=#990000
+hi MoreMsg		guifg=#990000
 
+hi Title		guifg=#ef5939
+hi WarningMsg	guifg=#ef5939
+hi SpecialKey   guifg=#177F80 gui=italic
 
+hi MatchParen	guibg=#cdcdfd guifg=#000000
+hi Underlined	guifg=#000000 gui=underline
+hi Directory	guifg=#990000
+" }}}
+
+" {{{ Search, Visual, etc
+hi Visual		guifg=#FFFFFF guibg=#3465a4 gui=none
+hi VisualNOS    guifg=#FFFFFF guibg=#204a87 gui=none
+hi IncSearch	guibg=#cdcdfd guifg=#000000 gui=italic
+hi Search		guibg=#cdcdfd guifg=#000000 gui=italic
+" }}}
+
+" {{{ Syntax groups
+hi Ignore		guifg=#808080
+hi Identifier	guifg=#0086B3
+hi PreProc		guifg=#A0A0A0 gui=bold
+hi Comment		guifg=#999988
+hi Constant		guifg=#177F80 gui=none
+hi String		guifg=#D81745
+hi Function		guifg=#990000 gui=bold
+hi Statement	guifg=#000000 gui=bold
+hi Type			guifg=#445588 gui=bold
+hi Number		guifg=#1C9898
+hi Todo			guifg=#FFFFFF guibg=#990000 gui=bold
+hi Special		guifg=#159828 gui=bold
+hi rubySymbol   guifg=#960B73
+hi Error        guibg=#f8f8ff guifg=#ff1100 gui=undercurl
+hi Todo         guibg=#f8f8ff guifg=#ff1100 gui=underline
+hi Label        guifg=#000000 gui=bold
+hi StorageClass guifg=#000000 gui=bold
+hi Structure    guifg=#000000 gui=bold
+hi TypeDef      guifg=#000000 gui=bold
+" }}}
+
+" {{{ Completion menus
+hi WildMenu     guifg=#7fbdff guibg=#425c78 gui=none
+
+hi Pmenu        guibg=#808080 guifg=#ffffff gui=bold
+hi PmenuSel     guibg=#cdcdfd guifg=#000000 gui=italic
+hi PmenuSbar    guibg=#000000 guifg=#444444
+hi PmenuThumb   guibg=#aaaaaa guifg=#aaaaaa
+" }}}
+
+" {{{ Spelling
+hi spellBad     guisp=#fcaf3e
+hi spellCap     guisp=#73d216
+hi spellRare    guisp=#fcaf3e
+hi spellLocal   guisp=#729fcf
+" }}}
+
+" {{{ Aliases
+hi link cppSTL          Function
+hi link cppSTLType      Type
+hi link Character		Number
+hi link htmlTag			htmlEndTag
+"hi link htmlTagName     htmlTag
+hi link htmlLink		Underlined
+hi link pythonFunction	Identifier
+hi link Question		Type
+hi link CursorIM		Cursor
+hi link VisualNOS		Visual
+hi link xmlTag			Identifier
+hi link xmlTagName		Identifier
+hi link shDeref			Identifier
+hi link shVariable		Function
+hi link rubySharpBang	Special
+hi link perlSharpBang	Special
+hi link schemeFunc      Statement
+"hi link shSpecialVariables Constant
+"hi link bashSpecialVariables Constant
+" }}}
+
+" {{{ Tabs (non-gui0
+hi TabLine		guifg=#404040 guibg=#dddddd gui=none
+hi TabLineFill	guifg=#404040 guibg=#dddddd gui=none
+hi TabLineSel	guifg=#404040 gui=bold
+" }}}
+"
+" vim: sw=4 ts=4 foldmethod=marker
