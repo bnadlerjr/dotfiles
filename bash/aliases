@@ -40,8 +40,12 @@ function set_term_name {
         echo -e "\033]6;1;bg;red;brightness;255\a"
         echo -e "\033]6;1;bg;green;brightness;165\a"
         echo -e "\033]6;1;bg;blue;brightness;0\a"
+    elif [ $1 == 'log' ]; then
+        echo -e "\033]6;1;bg;red;brightness;155\a"
+        echo -e "\033]6;1;bg;green;brightness;165\a"
+        echo -e "\033]6;1;bg;blue;brightness;0\a"
     fi
-    echo -ne "\033]0;$1: ${PWD/#$HOME/~}\007"
+    echo -ne "\033]0;$1: $2\007"
 }
 
 # Ruby

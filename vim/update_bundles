@@ -8,7 +8,6 @@ git_bundles = [
   "#{protocol}://github.com/vim-scripts/FuzzyFinder.git",
   "#{protocol}://github.com/scrooloose/nerdcommenter.git",
   "#{protocol}://github.com/msanders/snipmate.vim.git",
-  "#{protocol}://github.com/tpope/vim-cucumber.git",
   "#{protocol}://github.com/tpope/vim-haml.git",
   "#{protocol}://github.com/tpope/vim-rails.git",
   "#{protocol}://github.com/tpope/vim-surround.git",
