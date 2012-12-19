@@ -53,6 +53,8 @@ alias r="time bundle exec rake"
 alias gemi="gem install --no-rdoc --no-ri"
 alias gemlr="gem list --remote"
 
+alias mm="middleman"
+
 function testf {
     time ruby -Itest $1
 }
@@ -115,3 +117,4 @@ alias glff="git pullff"
 alias glg="git lg"
 alias gpom="git pom"
 alias gup="git up"
+alias gphm="git push heroku master"
