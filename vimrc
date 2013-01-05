@@ -52,8 +52,9 @@ let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 nnoremap <leader><space> :let @/=''<cr>
 
 " FuzzyFinder Mappings
-nnoremap <Leader>f :FufRenewCache<CR>:FufFile<CR>
-nnoremap <Leader>t :FufRenewCache<CR>:FufCoverageFile<CR>
+nnoremap <Leader>f :FufRenewCache<CR>:FufFile **/<CR>
+nnoremap <Leader>t :FufRenewCache<CR>:FufTag<CR>
+nnoremap <Leader>b :FufRenewCache<CR>:FufBuffer<CR>
 
 " Rake specific mappings
 nnoremap <Leader>r :!rake<CR>
