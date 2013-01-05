@@ -113,11 +113,6 @@ endfunction
 " Rails specific key mappings
 map <leader>gr :topleft :split config/routes.rb<cr>
 map <leader>gg :topleft 100 :split Gemfile<cr>
-map <leader>gv :FufRenewCache<CR>:FufFile app/views<CR>
-map <leader>gc :FufRenewCache<CR>:FufFile app/controllers<CR>
-map <leader>gm :FufRenewCache<CR>:FufFile app/models<CR>
-map <leader>gh :FufRenewCache<CR>:FufFile app/helpers<CR>
-map <leader>gl :FufRenewCache<CR>:FufFile lib<CR>
 
 " Use two-space indent for coffee-script files
 au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
