@@ -56,9 +56,10 @@ nnoremap <Leader>f :FufRenewCache<CR>:FufFile **/<CR>
 nnoremap <Leader>t :FufRenewCache<CR>:FufTag<CR>
 nnoremap <Leader>b :FufRenewCache<CR>:FufBuffer<CR>
 
-" Rake specific mappings
-nnoremap <Leader>r :!rake<CR>
-nnoremap <Leader>br :!bundle exec rake<CR>
+let g:fuf_file_exclude = '\v\~$|\.o$|\.exe$|\.bak$|\.swp|\.class$|coverage/|\.git|tags'
+
+" Ack: find word under cursor
+nnoremap <C-x>f :Ack<CR>
 
 " Map toggle comment function from NERDCommenter
 nnoremap <Leader>c <space>
