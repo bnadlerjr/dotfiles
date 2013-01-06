@@ -110,6 +110,36 @@ function! RenameFile()
     endif
 endfunction
 
+" ctags helper functions from
+" http://vim.wikia.com/wiki/Autocmd_to_update_ctags_file
+
+    " This function deletes all tag entries for the given file from a
+    " tags file.
+    function! DelTagOfFile(file)
+        let fullpath = a:file
+        let cwd = getcwd()
+        let tagfilename = cwd . "/tags"
+        let f = substitute(fullpath, cwd . "/", "", "")
+        let f = escape(f, './')
+        let cmd = 'sed -i "/' . f . '/d" "' . tagfilename . '"'
+        let resp = system(cmd)
+    endfunction
+
+    " This function updates a tags file by deleting all tags entries
+    " for the current open file and then regenerates the tags file
+    " using the 'append' option.
+    function! UpdateTags()
+        let f = expand("%:p")
+        call DelTagOfFile(f)
+        let cwd = getcwd()
+        let tagfilename = cwd . "/tags"
+        let cmd = 'ctags -a -f ' . tagfilename . '"' . f . '"'
+        let resp = system(cmd)
+    endfunction
+
+" Whenever these file types are saved, regenerate the tags for it.
+autocmd BufWritePost *.rb,*.js call UpdateTags()
+
 " Rails specific key mappings
 map <leader>gr :topleft :split config/routes.rb<cr>
 map <leader>gg :topleft 100 :split Gemfile<cr>
