@@ -48,6 +48,9 @@ function set_term_name {
     echo -ne "\033]0;$1: $2\007"
 }
 
+# ctags
+alias gtag="ctags --exclude=test --exclude=spec --exclude=.git --exclude=coverage --exclude=log -R *"
+
 # Ruby
 alias r="time bundle exec rake"
 alias gemi="gem install --no-rdoc --no-ri"
