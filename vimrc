@@ -51,6 +51,9 @@ let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 " Make it easy to clear out searches to get rid of highlighting
 nnoremap <leader><space> :let @/=''<cr>
 
+" Map to strip extraneoud whitespace
+nnoremap <leader><space><space> :%s/\s\+$//<cr>
+
 " FuzzyFinder Mappings
 nnoremap <Leader>f :FufRenewCache<CR>:FufFile **/<CR>
 nnoremap <Leader>t :FufRenewCache<CR>:FufTag<CR>
