@@ -54,7 +54,7 @@ alias gtag="/usr/local/bin/ctags --exclude=test --exclude=spec --exclude=.git --
 
 # Ruby
 alias r="time bundle exec rake"
-alias gemi="gem install --no-rdoc --no-ri"
+alias gemi="gem install --no-rdoc"
 alias gemlr="gem list --remote"
 
 alias mm="middleman"
