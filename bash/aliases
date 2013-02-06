@@ -9,6 +9,7 @@ alias ..="cd .."
 alias cdd="cd -"
 alias df="df -h"
 alias t="tree -C -I coverage"
+alias dtstr="date +%Y%m%d%H%M%S"
 
 # Download Ruby template from gist
 function get-gist {
