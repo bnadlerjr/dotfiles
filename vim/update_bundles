@@ -19,7 +19,8 @@ git_bundles = [
   "#{protocol}://github.com/tpope/vim-bundler.git",                # makes source navigation of bundled gems easier
   "#{protocol}://github.com/tpope/vim-rake.git",                   # makes Ruby project navigation easier for non-Rails projects
   "#{protocol}://github.com/juvenn/mustache.vim.git",              # Mustache support
-  "#{protocol}://github.com/mileszs/ack.vim.git"                   # Ack integration
+  "#{protocol}://github.com/mileszs/ack.vim.git",                  # Ack integration
+  "#{protocol}://github.com/vim-scripts/vim-less.git"              # LESS syntax highlighting, indentation
 ]
 
 vim_org_scripts = []
