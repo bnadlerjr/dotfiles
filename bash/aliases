@@ -50,7 +50,7 @@ function set_term_name {
 }
 
 # ctags
-alias gtag="ctags --exclude=test --exclude=spec --exclude=.git --exclude=coverage --exclude=log -R *"
+alias gtag="/usr/local/bin/ctags --exclude=test --exclude=spec --exclude=.git --exclude=coverage --exclude=log -R *"
 
 # Ruby
 alias r="time bundle exec rake"
