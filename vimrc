@@ -55,9 +55,10 @@ nnoremap <leader><space> :let @/=''<cr>
 nnoremap <leader><space><space> :%s/\s\+$//<cr>
 
 " FuzzyFinder Mappings
-nnoremap <Leader>f :FufRenewCache<CR>:FufFile **/<CR>
+nnoremap <Leader>f :FufRenewCache<CR>:FufFile<CR>
 nnoremap <Leader>t :FufRenewCache<CR>:FufTag<CR>
 nnoremap <Leader>b :FufRenewCache<CR>:FufBuffer<CR>
+nnoremap <Leader>a :FufRenewCache<CR>:FufFile **/<CR>
 
 let g:fuf_file_exclude = '\v\~$|\.o$|\.exe$|\.bak$|\.swp|\.class$|coverage/|\.git|tags'
 
