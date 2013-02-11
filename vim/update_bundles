@@ -20,7 +20,10 @@ git_bundles = [
   "#{protocol}://github.com/tpope/vim-rake.git",                   # makes Ruby project navigation easier for non-Rails projects
   "#{protocol}://github.com/juvenn/mustache.vim.git",              # Mustache support
   "#{protocol}://github.com/mileszs/ack.vim.git",                  # Ack integration
-  "#{protocol}://github.com/vim-scripts/vim-less.git"              # LESS syntax highlighting, indentation
+  "#{protocol}://github.com/vim-scripts/vim-less.git",             # LESS syntax highlighting, indentation
+  "#{protocol}://github.com/kevinw/pyflakes.git",                  # Unused imports & invalid syntax for Python
+  "#{protocol}://github.com/vim-scripts/pep8.git",                 # Best practices for Python
+  "#{protocol}://github.com/vim-scripts/pydoc.vim.git"             # Python Docs
 ]
 
 vim_org_scripts = []

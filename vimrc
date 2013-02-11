@@ -122,7 +122,7 @@ function! UpdateTags()
         call system('ctags -a ' . f)
     endif
 endfunction
-au BufWritePost *.rb,*.js call UpdateTags()
+au BufWritePost *.rb,*.js,*.py call UpdateTags()
 
 " Rails specific key mappings
 map <leader>gr :topleft :split config/routes.rb<cr>
