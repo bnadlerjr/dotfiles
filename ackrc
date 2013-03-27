@@ -1,2 +1,4 @@
 --ignore-dir=coverage
 --ignore-dir=cover
+--type-add
+js=.coffee
