@@ -17,8 +17,6 @@ set ruler                       " Show line and column number of cursor
 set scrolloff=3                 " Always show 3 lines around cursor
 set shellcmdflag=-ic            " Load bashrc so we have access to aliases
 set showmatch                   " Show matching braces
-set showmode                    " Show which mode buffer is in
-set showcmd                     " Command info in lower right
 set sw=4 sts=4 ts=4             " 4 spaces
 set t_Co=256                    " Use 256 colors
 set textwidth=79                " Text width for line wrapping
@@ -51,7 +49,7 @@ let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 " Make it easy to clear out searches to get rid of highlighting
 nnoremap <leader><space> :let @/=''<cr>
 
-" Map to strip extraneoud whitespace
+" Map to strip extraneous whitespace
 nnoremap <leader><space><space> :%s/\s\+$//<cr>
 
 " FuzzyFinder Mappings
@@ -77,11 +75,6 @@ nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
-
-" Put useful info in status line
-:set laststatus=2
-:set statusline=%<%f%=\ [%1*%M%*%n%R%H]\ %-19(%3l,%02c%03V%)%O'%02b'
-:hi User1 term=inverse,bold cterm=inverse,bold ctermfg=red
 
 " Smart tab completion. Taken from http://vim.wikia.com/wiki/VimTip102
 function! CleverTab()
@@ -139,3 +132,7 @@ let g:solarized_termcolors=256
 let g:solarized_visibility="high"
 let g:solarized_contrast="high"
 colorscheme solarized
+
+" Put useful info in status line (powerline)
+set laststatus=2
+set rtp+=~/.vim/bundle/powerline/powerline/bindings/vim

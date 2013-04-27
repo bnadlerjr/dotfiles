@@ -8,5 +8,5 @@ set guioptions-=T   " Turn off GUI menu
 if has("win32")
     set guifont=Lucida_Console:h10
 else
-    set guifont=Monaco:h14
+    set guifont=Monaco\ for\ Powerline:h14
 endif

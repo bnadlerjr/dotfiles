@@ -24,6 +24,7 @@ git_bundles = [
   "#{protocol}://github.com/kevinw/pyflakes.git",                  # Unused imports & invalid syntax for Python
   "#{protocol}://github.com/vim-scripts/pep8.git",                 # Best practices for Python
   "#{protocol}://github.com/vim-scripts/pydoc.vim.git",            # Python Docs
+  "#{protocol}://github.com/Lokaltog/powerline.git",               # Powerline status plugin
   "#{protocol}://github.com/tpope/vim-fireplace.git",              # Clojure nrepl support
   "#{protocol}://github.com/tpope/vim-classpath.git",              # Clojure JVM classpath
   "#{protocol}://github.com/guns/vim-clojure-static.git"           # Clojure syntax highlighting and indentation
