@@ -8,7 +8,7 @@ alias la="ls -AlgohG"
 alias ..="cd .."
 alias cdd="cd -"
 alias df="df -h"
-alias t="tree -C -I coverage"
+alias t="tree -C -I 'coverage|env|*.pyc'"
 alias dtstr="date +%Y%m%d%H%M%S"
 
 # Download Ruby template from gist
@@ -51,6 +51,9 @@ function set_term_name {
 
 # ctags
 alias gtag="/usr/local/bin/ctags --exclude=test --exclude=spec --exclude=.git --exclude=coverage --exclude=log -R *"
+
+# Python
+alias rmpyc="find . -name '*.pyc' -delete"
 
 # Ruby
 alias r="time bundle exec rake"
