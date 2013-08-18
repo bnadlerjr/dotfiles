@@ -58,7 +58,7 @@ nnoremap <Leader>t :FufRenewCache<CR>:FufTag<CR>
 nnoremap <Leader>b :FufRenewCache<CR>:FufBuffer<CR>
 nnoremap <Leader>a :FufRenewCache<CR>:FufFile **/<CR>
 
-let g:fuf_file_exclude = '\v\~$|\.o$|\.exe$|\.bak$|\.swp|\.class$|coverage/|\.git|tags|node_modules/|.DS_Store'
+let g:fuf_file_exclude = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|\.git|tags|node_modules/|.DS_Store'
 
 " Ack: find word under cursor
 nnoremap <C-x>f :Ack<CR>
