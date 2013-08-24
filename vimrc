@@ -66,10 +66,6 @@ nnoremap <C-x>f :Ack<CR>
 " Map toggle comment function from NERDCommenter
 nnoremap <Leader>c <space>
 
-" Match bracket pairs using <tab>
-nnoremap <tab> %
-vnoremap <tab> %
-
 " Make it easier to switch between windows
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
