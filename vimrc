@@ -60,6 +60,9 @@ nnoremap <Leader>a :FufRenewCache<CR>:FufFile **/<CR>
 
 let g:fuf_file_exclude = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|\.git|tags|node_modules/|.DS_Store'
 
+" Quickly switch to alternate file
+nnoremap <Leader><Leader> <c-^>
+
 " Map toggle comment function from NERDCommenter
 nnoremap <Leader>c <space>
 
