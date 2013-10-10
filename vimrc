@@ -52,13 +52,12 @@ nnoremap <leader><space> :let @/=''<cr>
 " Map to strip extraneous whitespace
 nnoremap <leader><space><space> :%s/\s\+$//<cr>
 
-" FuzzyFinder Mappings
-nnoremap <Leader>f :FufRenewCache<CR>:FufFile<CR>
-nnoremap <Leader>t :FufRenewCache<CR>:FufTag<CR>
-nnoremap <Leader>b :FufRenewCache<CR>:FufBuffer<CR>
-nnoremap <Leader>a :FufRenewCache<CR>:FufFile **/<CR>
+" Ctrl-P Mappings
+nnoremap <Leader>f :CtrlP<cr>
+nnoremap <Leader>b :CtrlPBuffer<cr>
+nnoremap <Leader>a :CtrlPMixed<cr>
 
-let g:fuf_file_exclude = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|\.git|tags|node_modules/|.DS_Store'
+let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|\.git|tags|node_modules/|.DS_Store'
 
 " Quickly switch to alternate file
 nnoremap <Leader><Leader> <c-^>

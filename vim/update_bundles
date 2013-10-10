@@ -4,8 +4,7 @@
 protocol = RUBY_PLATFORM =~ /(win|w)32$/ ? 'https' : 'git'
 
 git_bundles = [
-  "#{protocol}://github.com/vim-scripts/L9.git",                   # dependency of FuzzyFinder
-  "#{protocol}://github.com/vim-scripts/FuzzyFinder.git",          # makes finding files easy
+  "#{protocol}://github.com/kien/ctrlp.vim.git",                   # Fuzzy file, buffer, mru, tag, etc finder
   "#{protocol}://github.com/scrooloose/nerdcommenter.git",         # quickly (un)comment lines
   "#{protocol}://github.com/msanders/snipmate.vim.git",            # handy code snippets
   "#{protocol}://github.com/tpope/vim-haml.git",                   # HAML support
