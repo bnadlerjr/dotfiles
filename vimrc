@@ -122,6 +122,9 @@ au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
 " Map to external script that formats Ruby hashes
 vmap <F2> !format_hash.rb<CR>
 
+" Toggle paste/nopaste mode
+map <F10> :set paste!<CR>
+
 " Colors
 let g:solarized_termcolors=256
 let g:solarized_visibility="high"
