@@ -1,8 +1,0 @@
-Dotfile setup based on Advanced Commandline screencast from PeepCode.
-
-INSTALL
--------
-1) Clone to ~/bin/dotfiles
-2) Create symlinks (bashrc, vimrc, gvimrc, & vim folder)
-3) Clone vim plugins to ~/bin/dotfiles/vim/bundle by running update_bundles
-   script
