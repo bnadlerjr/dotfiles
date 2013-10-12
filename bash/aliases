@@ -49,9 +49,6 @@ function set_term_name {
     echo -ne "\033]0;$1: $2\007"
 }
 
-# ctags
-alias gtag="/usr/local/bin/ctags --exclude=test --exclude=spec --exclude=.git --exclude=coverage --exclude=log -R *"
-
 # Python
 alias rmpyc="find . -name '*.pyc' -delete"
 

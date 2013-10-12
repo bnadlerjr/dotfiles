@@ -1,0 +1,6 @@
+-R
+--exclude=test
+--exclude=spec
+--exclude=.git
+--exclude=coverage
+--exclude=log
