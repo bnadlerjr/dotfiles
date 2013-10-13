@@ -112,6 +112,21 @@ function! UpdateTags()
 endfunction
 au BufWritePost *.rb,*.js,*.py call UpdateTags()
 
+" If the current file is a test file, then save it to a tab level variable. Run
+" the test file saved in the variable.
+function! RunTestFile()
+    if -1 != match(expand("%"), '_test.rb$')
+        let t:bn_test_file=expand("%")
+    elseif !exists("t:bn_test_file")
+        return
+    end
+    execute "!ruby " . t:bn_test_file
+endfunction
+
+" Save the current file, then run the test file saved in the t:bn_test_file
+" variable.
+nmap <CR><CR> :w | call RunTestFile()<CR>
+
 " Rails specific key mappings
 map <leader>gr :topleft :split config/routes.rb<cr>
 map <leader>gg :topleft 100 :split Gemfile<cr>
