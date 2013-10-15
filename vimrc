@@ -115,12 +115,18 @@ au BufWritePost *.rb,*.js,*.py call UpdateTags()
 " If the current file is a test file, then save it to a tab level variable. Run
 " the test file saved in the variable.
 function! RunTestFile()
-    if -1 != match(expand("%"), '_test.rb$')
+    if -1 != match(expand("%"), '_test.\(rb\|py\)$')
         let t:bn_test_file=expand("%")
     elseif !exists("t:bn_test_file")
+        echo "No test file found."
         return
     end
-    execute "!ruby " . t:bn_test_file
+
+    if "ruby" == &filetype
+        execute "!ruby " . t:bn_test_file
+    elseif "python" == &filetype
+        execute "!nosetests -s " . t:bn_test_file
+    end
 endfunction
 
 " Save the current file, then run the test file saved in the t:bn_test_file
