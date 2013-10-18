@@ -10,8 +10,6 @@ git_bundles = [
   "#{protocol}://github.com/tpope/vim-haml.git",                   # HAML support
   "#{protocol}://github.com/tpope/vim-rails.git",                  # Rails helpers
   "#{protocol}://github.com/tpope/vim-surround.git",               # makes working w/ quotes, braces,etc. easier
-  "#{protocol}://github.com/ecomba/vim-ruby-refactoring.git",      # simple refactoring support
-  "#{protocol}://github.com/bronson/vim-ruby-block-conv.git",      # convert Ruby blocks from {} to do..end format & back
   "#{protocol}://github.com/altercation/vim-colors-solarized.git", # Solarized color theme
   "#{protocol}://github.com/godlygeek/csapprox.git",               # dependency for Solarized
   "#{protocol}://github.com/kchmck/vim-coffee-script.git",         # ugh... a necessary evil... for now
