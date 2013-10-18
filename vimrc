@@ -32,6 +32,9 @@ else
     set runtimepath+=~/bin/dotfiles/vim/after
 endif
 
+" Enable bundled matchit macros
+runtime macros/matchit.vim
+
 " Use pathogen to load bundles
 call pathogen#runtime_append_all_bundles()
 
