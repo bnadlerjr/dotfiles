@@ -143,9 +143,6 @@ nmap <CR><CR> :w | call RunTestFile()<CR>
 map <leader>gr :topleft :split config/routes.rb<cr>
 map <leader>gg :topleft 100 :split Gemfile<cr>
 
-" Use two-space indent for coffee-script files
-au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
-
 " Map to external script that formats Ruby hashes
 vmap <F2> !format_hash.rb<CR>
 
