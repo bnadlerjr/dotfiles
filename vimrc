@@ -63,7 +63,7 @@ nnoremap <Leader>f :CtrlP<cr>
 nnoremap <Leader>b :CtrlPBuffer<cr>
 nnoremap <Leader>a :CtrlPMixed<cr>
 
-let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|\.git|tags|node_modules/|.DS_Store'
+let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|cover/|dist/|\.git|tags|node_modules/|.DS_Store'
 
 " Quickly switch to alternate file
 nnoremap <Leader><Leader> <c-^>
