@@ -8,8 +8,16 @@
 		      starter-kit-eshell
 		      clojure-mode
 		      clojure-test-mode
-		      cider))
+		      cider
+                      window-number))
 
 (dolist (p my-packages)
   (when (not (package-installed-p p))
     (package-install p)))
+
+;; paredit.el
+'(define-key paredit-mode-map (kbd "C-S-<left>") 'paredit-backward-slurp-sexp)
+'(define-key paredit-mode-map (kbd "C-S-<right>") 'paredit-backward-barf-sexp)
+
+(require 'window-number)
+(window-number-meta-mode)
