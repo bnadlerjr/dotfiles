@@ -6,3 +6,4 @@ vim/.netrwhist
 emacs.d/.smex-items
 emacs.d/elpa
 emacs.d/places
+emacs.d/eshell
