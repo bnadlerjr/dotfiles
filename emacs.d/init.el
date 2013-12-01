@@ -12,6 +12,7 @@
 		      cider
                       solarized-theme
                       markdown-mode
+                      powerline
                       window-number))
 
 (dolist (p my-packages)
@@ -20,6 +21,19 @@
 
 ;; use solarized light color theme
 (load-theme 'solarized-light t)
+
+;; powerline
+(require 'powerline)
+(powerline-default-theme)
+(setq powerline-color1 "#073642")
+(setq powerline-color2 "#002b36")
+
+(set-face-attribute 'mode-line nil
+                    :foreground "#fdf6e3"
+                    :background "#2aa198"
+                    :box nil)
+(set-face-attribute 'mode-line-inactive nil
+                    :box nil)
 
 ;; paredit.el
 '(define-key paredit-mode-map (kbd "C-S-<left>") 'paredit-backward-slurp-sexp)
