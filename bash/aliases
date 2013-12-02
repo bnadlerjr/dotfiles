@@ -11,6 +11,9 @@ alias df="df -h"
 alias t="tree -C -I 'coverage|node_modules|env|*.pyc'"
 alias dtstr="date +%Y%m%d%H%M%S"
 
+# Run Emacs.app
+alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs $@"
+
 # Download Ruby template from gist
 function get-gist {
     curl https://raw.github.com/gist/1326310/$1
