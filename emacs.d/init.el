@@ -27,9 +27,11 @@
 ;; use solarized light color theme
 (load-theme 'solarized-light t)
 
-;; set font but only if we're not running in a terminal
+;; GUI specific settings
 (when (display-graphic-p)
-  (set-face-attribute 'default nil :font "Monaco-14"))
+  (custom-set-variables
+   '(initial-frame-alist (quote ((fullscreen . maximized))))
+   (set-face-attribute 'default nil :font "Monaco-14")))
 
 ;; powerline
 (require 'powerline)
