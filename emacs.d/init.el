@@ -83,3 +83,6 @@
 
 (require 'window-number)
 (window-number-meta-mode)
+(put 'erase-buffer 'disabled nil)
+
+(whitespace-mode)
