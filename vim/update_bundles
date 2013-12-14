@@ -24,7 +24,8 @@ git_bundles = [
   "#{protocol}://github.com/Lokaltog/powerline.git",               # Powerline status plugin
   "#{protocol}://github.com/tpope/vim-fireplace.git",              # Clojure nrepl support
   "#{protocol}://github.com/tpope/vim-classpath.git",              # Clojure JVM classpath
-  "#{protocol}://github.com/guns/vim-clojure-static.git"           # Clojure syntax highlighting and indentation
+  "#{protocol}://github.com/guns/vim-clojure-static.git",          # Clojure syntax highlighting and indentation
+  "#{protocol}://github.com/jpalardy/vim-slime.git"                # Send code from vim buffer to a REPL
 ]
 
 vim_org_scripts = []

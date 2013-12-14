@@ -161,3 +161,6 @@ colorscheme solarized
 " Put useful info in status line (powerline)
 set laststatus=2
 set rtp+=~/.vim/bundle/powerline/powerline/bindings/vim
+
+" Set tmux as default target for vim-slime
+let g:slime_target = "tmux"
