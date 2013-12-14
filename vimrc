@@ -164,3 +164,12 @@ set rtp+=~/.vim/bundle/powerline/powerline/bindings/vim
 
 " Set tmux as default target for vim-slime
 let g:slime_target = "tmux"
+
+" When viewing a git tree or blob, quickly move up to view parent
+autocmd User fugitive
+  \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |
+  \   nnoremap <buffer> .. :edit %:h<CR> |
+  \ endif
+
+" Auto-clean fugitive buffers
+autocmd BufReadPost fugitive://* set bufhidden=delete
