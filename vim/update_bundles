@@ -26,7 +26,8 @@ git_bundles = [
   "#{protocol}://github.com/tpope/vim-classpath.git",              # Clojure JVM classpath
   "#{protocol}://github.com/guns/vim-clojure-static.git",          # Clojure syntax highlighting and indentation
   "#{protocol}://github.com/tpope/vim-fugitive.git",               # Git plugin
-  "#{protocol}://github.com/jpalardy/vim-slime.git"                # Send code from vim buffer to a REPL
+  "#{protocol}://github.com/jpalardy/vim-slime.git",               # Send code from vim buffer to a REPL
+  "#{protocol}://github.com/Glench/Vim-Jinja2-Syntax.git"          # Jinja2 syntax highlighting
 ]
 
 vim_org_scripts = []
