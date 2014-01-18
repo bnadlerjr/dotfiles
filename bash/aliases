@@ -10,6 +10,7 @@ alias cdd="cd -"
 alias df="df -h"
 alias t="tree -C -I 'coverage|node_modules|env|*.pyc'"
 alias dtstr="date +%Y%m%d%H%M%S"
+alias iphone="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app/Contents/MacOS/iPhone\ Simulator"
 
 # Run Emacs.app
 alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs $@"
