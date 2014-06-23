@@ -28,7 +28,8 @@ git_bundles = [
   "#{protocol}://github.com/tpope/vim-fugitive.git",               # Git plugin
   "#{protocol}://github.com/jpalardy/vim-slime.git",               # Send code from vim buffer to a REPL
   "#{protocol}://github.com/AndrewRadev/writable_search.vim.git",  # Grep for something, then write the original files directly through the search results
-  "#{protocol}://github.com/digitaltoad/vim-jade.git",             # Jade syntax highlighting,
+  "#{protocol}://github.com/digitaltoad/vim-jade.git",             # Jade syntax highlighting
+  "#{protocol}://github.com/tpope/vim-ragtag.git",                 # Ghetto HTML / XML mappings
   "#{protocol}://github.com/Glench/Vim-Jinja2-Syntax.git"          # Jinja2 syntax highlighting
 ]
 
