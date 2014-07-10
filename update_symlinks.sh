@@ -4,7 +4,7 @@
 # are in the same directory as this file.
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-DOTFILES=( ackrc bash_profile bashrc ctags emacs.d gemrc gitconfig gitignore_global gvimrc tmux.conf vimrc )
+DOTFILES=( ackrc bash_profile bashrc ctags emacs.d gemrc gitconfig gitignore_global gvimrc tmux.conf vimrc vim )
 
 for dotfile in "${DOTFILES[@]}"
 do
