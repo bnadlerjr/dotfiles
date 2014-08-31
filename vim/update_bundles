@@ -30,6 +30,7 @@ git_bundles = [
   "#{protocol}://github.com/AndrewRadev/writable_search.vim.git",  # Grep for something, then write the original files directly through the search results
   "#{protocol}://github.com/digitaltoad/vim-jade.git",             # Jade syntax highlighting
   "#{protocol}://github.com/tpope/vim-ragtag.git",                 # Ghetto HTML / XML mappings
+  "#{protocol}://github.com/DataWraith/auto_mkdir.git",            # Allows you to save files into directories that do not exist yet
   "#{protocol}://github.com/Glench/Vim-Jinja2-Syntax.git"          # Jinja2 syntax highlighting
 ]
 
