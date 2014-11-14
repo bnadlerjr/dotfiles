@@ -162,6 +162,7 @@ let g:solarized_termcolors=256
 let g:solarized_visibility="high"
 let g:solarized_contrast="high"
 colorscheme solarized
+set colorcolumn=79
 
 " Put useful info in status line (powerline)
 set laststatus=2
