@@ -32,3 +32,5 @@
     default = simple
 [rerere]
     enabled = true
+[heroku]
+	account = personal
