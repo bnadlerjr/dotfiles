@@ -9,3 +9,5 @@ emacs.d/elpa
 emacs.d/eshell
 emacs.d/places
 emacs.d/tramp
+gnupg/*.gpg
+gnupg/random_seed
