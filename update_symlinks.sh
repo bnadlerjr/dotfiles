@@ -23,7 +23,9 @@ do
             echo " ...skipped"
         fi
     else
+        echo " ...removing folder ${symlink_path}"
+        rm -r $symlink_path
         ln -s $file_path $symlink_path
-        echo " ...${symlink_path} created"
+        echo " ...${symlink_path} re-linked"
     fi
 done
