@@ -4,34 +4,41 @@
 protocol = RUBY_PLATFORM =~ /(win|w)32$/ ? 'https' : 'git'
 
 git_bundles = [
-  "#{protocol}://github.com/kien/ctrlp.vim.git",                   # Fuzzy file, buffer, mru, tag, etc finder
-  "#{protocol}://github.com/scrooloose/nerdcommenter.git",         # quickly (un)comment lines
-  "#{protocol}://github.com/msanders/snipmate.vim.git",            # handy code snippets
-  "#{protocol}://github.com/tpope/vim-haml.git",                   # HAML support
-  "#{protocol}://github.com/vim-ruby/vim-ruby.git",                # packaged w/ vim but this is latest and greatest
-  "#{protocol}://github.com/nelstrom/vim-textobj-rubyblock.git",   # custom text object for selecting Ruby blocks
-  "#{protocol}://github.com/kana/vim-textobj-user.git",            # dependency for rubyblock
-  "#{protocol}://github.com/tpope/vim-rails.git",                  # Rails helpers
-  "#{protocol}://github.com/tpope/vim-surround.git",               # makes working w/ quotes, braces,etc. easier
-  "#{protocol}://github.com/altercation/vim-colors-solarized.git", # Solarized color theme
-  "#{protocol}://github.com/godlygeek/csapprox.git",               # dependency for Solarized
-  "#{protocol}://github.com/kchmck/vim-coffee-script.git",         # ugh... a necessary evil... for now
-  "#{protocol}://github.com/tpope/vim-bundler.git",                # makes source navigation of bundled gems easier
-  "#{protocol}://github.com/tpope/vim-rake.git",                   # makes Ruby project navigation easier for non-Rails projects
-  "#{protocol}://github.com/juvenn/mustache.vim.git",              # Mustache support
-  "#{protocol}://github.com/mileszs/ack.vim.git",                  # Ack integration
-  "#{protocol}://github.com/vim-scripts/vim-less.git",             # LESS syntax highlighting, indentation
-  "#{protocol}://github.com/Lokaltog/powerline.git",               # Powerline status plugin
-  "#{protocol}://github.com/tpope/vim-fireplace.git",              # Clojure nrepl support
-  "#{protocol}://github.com/tpope/vim-classpath.git",              # Clojure JVM classpath
-  "#{protocol}://github.com/guns/vim-clojure-static.git",          # Clojure syntax highlighting and indentation
-  "#{protocol}://github.com/tpope/vim-fugitive.git",               # Git plugin
-  "#{protocol}://github.com/jpalardy/vim-slime.git",               # Send code from vim buffer to a REPL
-  "#{protocol}://github.com/AndrewRadev/writable_search.vim.git",  # Grep for something, then write the original files directly through the search results
-  "#{protocol}://github.com/digitaltoad/vim-jade.git",             # Jade syntax highlighting
-  "#{protocol}://github.com/tpope/vim-ragtag.git",                 # Ghetto HTML / XML mappings
-  "#{protocol}://github.com/DataWraith/auto_mkdir.git",            # Allows you to save files into directories that do not exist yet
-  "#{protocol}://github.com/Glench/Vim-Jinja2-Syntax.git"          # Jinja2 syntax highlighting
+  "#{protocol}://github.com/AndrewRadev/writable_search.vim.git",        # Grep for something, then write the original files directly through the search results
+  "#{protocol}://github.com/DataWraith/auto_mkdir.git",                  # Allows you to save files into directories that do not exist yet
+  "#{protocol}://github.com/Glench/Vim-Jinja2-Syntax.git",               # Jinja2 syntax highlighting
+  "#{protocol}://github.com/Lokaltog/powerline.git",                     # Powerline status plugin
+  "#{protocol}://github.com/altercation/vim-colors-solarized.git",       # Solarized color theme
+  "#{protocol}://github.com/christoomey/vim-tmux-navigator.git",         # Seamless navigation between tmux panes and vim splits
+  "#{protocol}://github.com/digitaltoad/vim-jade.git",                   # Jade syntax highlighting
+  "#{protocol}://github.com/godlygeek/csapprox.git",                     # dependency for Solarized
+  "#{protocol}://github.com/guns/vim-clojure-static.git",                # Clojure syntax highlighting and indentation
+  "#{protocol}://github.com/guns/vim-sexp.git",                          # Precision editing for s-expressions
+  "#{protocol}://github.com/jpalardy/vim-slime.git",                     # Send code from vim buffer to a REPL
+  "#{protocol}://github.com/juvenn/mustache.vim.git",                    # Mustache support
+  "#{protocol}://github.com/kana/vim-textobj-user.git",                  # dependency for rubyblock
+  "#{protocol}://github.com/kchmck/vim-coffee-script.git",               # ugh... a necessary evil... for now
+  "#{protocol}://github.com/kien/ctrlp.vim.git",                         # Fuzzy file, buffer, mru, tag, etc finder
+  "#{protocol}://github.com/mileszs/ack.vim.git",                        # Ack integration
+  "#{protocol}://github.com/msanders/snipmate.vim.git",                  # handy code snippets
+  "#{protocol}://github.com/nelstrom/vim-textobj-rubyblock.git",         # custom text object for selecting Ruby blocks
+  "#{protocol}://github.com/scrooloose/nerdcommenter.git",               # quickly (un)comment lines
+  "#{protocol}://github.com/tpope/vim-bundler.git",                      # makes source navigation of bundled gems easier
+  "#{protocol}://github.com/tpope/vim-classpath.git",                    # Clojure JVM classpath
+  "#{protocol}://github.com/tpope/vim-dispatch.git",                     # Asynchronous build and test dispatcher
+  "#{protocol}://github.com/tpope/vim-fireplace.git",                    # Clojure nrepl support
+  "#{protocol}://github.com/tpope/vim-fugitive.git",                     # Git plugin
+  "#{protocol}://github.com/tpope/vim-haml.git",                         # HAML support
+  "#{protocol}://github.com/tpope/vim-leiningen.git",                    # static support for Leiningen
+  "#{protocol}://github.com/tpope/vim-projectionist.git",                # project configuration
+  "#{protocol}://github.com/tpope/vim-ragtag.git",                       # Ghetto HTML / XML mappings
+  "#{protocol}://github.com/tpope/vim-rails.git",                        # Rails helpers
+  "#{protocol}://github.com/tpope/vim-rake.git",                         # makes Ruby project navigation easier for non-Rails projects
+  "#{protocol}://github.com/tpope/vim-repeat.git",                       # Enable repeating supported plugin maps with "."
+  "#{protocol}://github.com/tpope/vim-sexp-mappings-for-regular-people", # vim-sexp mappings rely on meta key; these don't
+  "#{protocol}://github.com/tpope/vim-surround.git",                     # makes working w/ quotes, braces,etc. easier
+  "#{protocol}://github.com/vim-ruby/vim-ruby.git",                      # packaged w/ vim but this is latest and greatest
+  "#{protocol}://github.com/vim-scripts/vim-less.git"                    # LESS syntax highlighting, indentation
 ]
 
 vim_org_scripts = []
