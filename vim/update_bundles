@@ -12,6 +12,7 @@ git_bundles = [
   "#{protocol}://github.com/christoomey/vim-tmux-navigator.git",         # Seamless navigation between tmux panes and vim splits
   "#{protocol}://github.com/digitaltoad/vim-jade.git",                   # Jade syntax highlighting
   "#{protocol}://github.com/ervandew/supertab.git",                      # Perform all your vim insert mode completions with Tab
+  "#{protocol}://github.com/garbas/vim-snipmate.git",                    # handy code snippets
   "#{protocol}://github.com/godlygeek/csapprox.git",                     # dependency for Solarized
   "#{protocol}://github.com/guns/vim-clojure-static.git",                # Clojure syntax highlighting and indentation
   "#{protocol}://github.com/guns/vim-sexp.git",                          # Precision editing for s-expressions
@@ -20,10 +21,11 @@ git_bundles = [
   "#{protocol}://github.com/kana/vim-textobj-user.git",                  # dependency for rubyblock
   "#{protocol}://github.com/kchmck/vim-coffee-script.git",               # ugh... a necessary evil... for now
   "#{protocol}://github.com/kien/ctrlp.vim.git",                         # Fuzzy file, buffer, mru, tag, etc finder
+  "#{protocol}://github.com/MarcWeber/vim-addon-mw-utils.git",           # vim-snipmate dependency
   "#{protocol}://github.com/mileszs/ack.vim.git",                        # Ack integration
-  "#{protocol}://github.com/msanders/snipmate.vim.git",                  # handy code snippets
   "#{protocol}://github.com/nelstrom/vim-textobj-rubyblock.git",         # custom text object for selecting Ruby blocks
   "#{protocol}://github.com/scrooloose/nerdcommenter.git",               # quickly (un)comment lines
+  "#{protocol}://github.com/tomtom/tlib_vim.git",                        # vim-snipmate dependency
   "#{protocol}://github.com/tpope/vim-bundler.git",                      # makes source navigation of bundled gems easier
   "#{protocol}://github.com/tpope/vim-classpath.git",                    # Clojure JVM classpath
   "#{protocol}://github.com/tpope/vim-dispatch.git",                     # Asynchronous build and test dispatcher
