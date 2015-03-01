@@ -82,21 +82,6 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
-" Smart tab completion. Taken from http://vim.wikia.com/wiki/VimTip102
-function! CleverTab()
-    if pumvisible()
-        return "\<C-N>"
-    endif
-    if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
-        return "\<Tab>"
-    elseif exists('&omnifunc') && &omnifunc != ''
-        return "\<C-X>\<C-O>"
-    else
-        return "\<C-N>"
-    endif
-endfunction
-inoremap <Tab> <C-R>=CleverTab()<CR>
-
 " Map ,e and ,v to open files in the same directory as the current file
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 map <leader>e :edit %%

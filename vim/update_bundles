@@ -11,6 +11,7 @@ git_bundles = [
   "#{protocol}://github.com/altercation/vim-colors-solarized.git",       # Solarized color theme
   "#{protocol}://github.com/christoomey/vim-tmux-navigator.git",         # Seamless navigation between tmux panes and vim splits
   "#{protocol}://github.com/digitaltoad/vim-jade.git",                   # Jade syntax highlighting
+  "#{protocol}://github.com/ervandew/supertab.git",                      # Perform all your vim insert mode completions with Tab
   "#{protocol}://github.com/godlygeek/csapprox.git",                     # dependency for Solarized
   "#{protocol}://github.com/guns/vim-clojure-static.git",                # Clojure syntax highlighting and indentation
   "#{protocol}://github.com/guns/vim-sexp.git",                          # Precision editing for s-expressions
