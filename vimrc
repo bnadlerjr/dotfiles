@@ -87,6 +87,16 @@ cnoremap %% <C-R>=expand('%:h').'/'<cr>
 map <leader>e :edit %%
 map <leader>v :view %%
 
+" Clone paragraph
+noremap cp yap<S-}>p
+
+" Align current paragraph
+noremap <leader>a =ip
+
+" Apply macros w/ Q
+nnoremap Q @q
+vnoremap Q :norm @q<cr>
+
 " Quickly rename a file
 function! RenameFile()
     let old_name = expand('%')
