@@ -10,6 +10,7 @@ git_bundles = [
   "#{protocol}://github.com/Lokaltog/powerline.git",                     # Powerline status plugin
   "#{protocol}://github.com/altercation/vim-colors-solarized.git",       # Solarized color theme
   "#{protocol}://github.com/christoomey/vim-tmux-navigator.git",         # Seamless navigation between tmux panes and vim splits
+  "#{protocol}://github.com:croaky/vim-colors-github.git",               # Github color scheme
   "#{protocol}://github.com/digitaltoad/vim-jade.git",                   # Jade syntax highlighting
   "#{protocol}://github.com/ervandew/supertab.git",                      # Perform all your vim insert mode completions with Tab
   "#{protocol}://github.com/garbas/vim-snipmate.git",                    # handy code snippets
