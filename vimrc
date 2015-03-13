@@ -152,6 +152,10 @@ vmap <F2> !format_hash.rb<CR>
 " Toggle paste/nopaste mode
 map <F10> :set paste!<CR>
 
+" Quickly re-indent file; saves a mark with the current position in the 'z'
+" register
+map <F7> mzgg=G`z<CR>
+
 " Colors
 let g:solarized_termcolors=256
 let g:solarized_visibility="high"
