@@ -9,6 +9,7 @@ set cursorline                  " Highlight current line
 set expandtab                   " Expand tabs to spaces
 set formatoptions=qrn1          " http://vimdoc.sourceforge.net/htmldoc/change.html#fo-table
 set hlsearch                    " Highlight matches to recent searches
+set ignorecase                  " Ignore case when searching
 set list                        " Show invisible chars
 set listchars=tab:»·,trail:·    " Show tabs and trailing whitespace only
 set nocompatible                " Not compatible w/ vi
@@ -17,6 +18,7 @@ set ruler                       " Show line and column number of cursor
 set scrolloff=3                 " Always show 3 lines around cursor
 set shellcmdflag=-ic            " Load bashrc so we have access to aliases
 set showmatch                   " Show matching braces
+set smartcase                   " Turn case sensitive search back on in certain cases
 set sw=4 sts=4 ts=4             " 4 spaces
 set t_Co=256                    " Use 256 colors
 set textwidth=79                " Text width for line wrapping
