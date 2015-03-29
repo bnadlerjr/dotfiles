@@ -10,6 +10,7 @@ set expandtab                   " Expand tabs to spaces
 set formatoptions=qrn1          " http://vimdoc.sourceforge.net/htmldoc/change.html#fo-table
 set hlsearch                    " Highlight matches to recent searches
 set ignorecase                  " Ignore case when searching
+set incsearch                   " Use incremental search
 set list                        " Show invisible chars
 set listchars=tab:»·,trail:·    " Show tabs and trailing whitespace only
 set nocompatible                " Not compatible w/ vi
