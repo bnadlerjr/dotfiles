@@ -66,6 +66,9 @@ nnoremap <leader><space> :let @/=''<cr>
 " Map to strip extraneous whitespace
 nnoremap <leader><space><space> :%s/\s\+$//<cr>
 
+" Autmaticallt insert escape syntax when searching
+nnoremap / /\v
+
 " Ctrl-P Mappings
 nnoremap <Leader>f :CtrlP<cr>
 nnoremap <Leader>b :CtrlPBuffer<cr>
