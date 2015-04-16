@@ -125,22 +125,31 @@ endfunction
 au BufWritePost *.rb,*.js,*.py call UpdateTags()
 
 " Dictionary for commands to run tests based on filetype
-let g:bn_test_runners = { 'ruby': '!ruby ', 'python': '!nosetests -s ' }
+let g:bn_test_runners = {
+    \'ruby': '!ruby ',
+    \'rspec': '!./bin/rspec ',
+    \'python': '!nosetests -s ' }
 
 " If the current file is a test file, then save it to a tab level variable. Run
 " the test file saved in the variable.
 function! RunTestFile()
-    if -1 != match(expand("%"), '_test.\(rb\|py\)$')
-        let t:bn_test_file=expand("%")
+    let filename = expand("%")
+    if -1 != match(filename, '\(_spec\|_test\).rb\|_test.py$')
+        let t:bn_test_file=filename
     elseif !exists("t:bn_test_file")
         echo "No test file found."
         return
     end
 
-    if 1 == has_key(g:bn_test_runners, &filetype)
-        execute g:bn_test_runners[&filetype] . t:bn_test_file
+    let runner = &filetype
+    if -1 != match(t:bn_test_file, '_spec.rb')
+        let runner = 'rspec'
+    end
+
+    if 1 == has_key(g:bn_test_runners, runner)
+        execute g:bn_test_runners[runner] . t:bn_test_file
     else
-        echo "No test runner specified for " . &filetype
+        echo "No test runner specified for " . runner
     end
 endfunction
 
