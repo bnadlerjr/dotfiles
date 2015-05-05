@@ -24,7 +24,7 @@ set sw=4 sts=4 ts=4             " 4 spaces
 set t_Co=256                    " Use 256 colors
 set textwidth=79                " Text width for line wrapping
 set wildmenu                    " Autocomplete filenames
-set wildmode=list:longest,full
+set wildmode=list:longest,full  " Show completions as list with longest match then full matches
 set wrap                        " Turn on line wrapping
 
 " Setup runtime paths
@@ -66,7 +66,7 @@ nnoremap <leader><space> :let @/=''<cr>
 " Map to strip extraneous whitespace
 nnoremap <leader><space><space> :%s/\s\+$//<cr>
 
-" Autmaticallt insert escape syntax when searching
+" Autmatically insert escape syntax when searching
 nnoremap / /\v
 
 " Ctrl-P Mappings
