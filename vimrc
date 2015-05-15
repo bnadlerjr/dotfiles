@@ -17,7 +17,6 @@ set nocompatible                " Not compatible w/ vi
 set number                      " Display line numbers
 set ruler                       " Show line and column number of cursor
 set scrolloff=3                 " Always show 3 lines around cursor
-set shellcmdflag=-ic            " Load bashrc so we have access to aliases
 set showmatch                   " Show matching braces
 set smartcase                   " Turn case sensitive search back on in certain cases
 set sw=4 sts=4 ts=4             " 4 spaces
@@ -47,6 +46,9 @@ filetype plugin on
 filetype plugin indent on
 syntax on
 let mapleader = ","
+
+" Make bash aliases available when running shell commands
+let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
 
 " Word wrap without line breaks for text files
 au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=0 wrapmargin=0
