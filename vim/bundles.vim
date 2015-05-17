@@ -18,6 +18,7 @@ Plugin 'gmarik/Vundle.vim'                          " let Vundle manage Vundle, 
 Plugin 'AndrewRadev/writable_search.vim'            " Grep for something, then write the original files directly through the search results
 Plugin 'DataWraith/auto_mkdir'                      " Allows you to save files into directories that do not exist yet
 Plugin 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
+Plugin 'JazzCore/ctrlp-cmatcher'                    " CtrlP C matching extension
 Plugin 'Lokaltog/powerline'                         " Powerline status plugin
 Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
@@ -32,8 +33,8 @@ Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plugin 'kchmck/vim-coffee-script'                   " ugh... a necessary evil... for now
 Plugin 'kien/ctrlp.vim'                             " Fuzzy file, buffer, mru, tag, etc finder
-Plugin 'mileszs/ack.vim'                            " Ack integration
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
+Plugin 'rking/ag.vim'                               " plugin for the_silver_searcher
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plugin 'tomtom/tlib_vim'                            " vim-snipmate dependency
 Plugin 'tpope/vim-bundler'                          " makes source navigation of bundled gems easier
@@ -52,7 +53,6 @@ Plugin 'tpope/vim-repeat'                           " Enable repeating supported
 Plugin 'tpope/vim-sexp-mappings-for-regular-people' " vim-sexp mappings rely on meta key; these don't
 Plugin 'tpope/vim-surround'                         " makes working w/ quotes, braces,etc. easier
 Plugin 'vim-ruby/vim-ruby'                          " packaged w/ vim but this is latest and greatest
-Plugin 'JazzCore/ctrlp-cmatcher'                    " CtrlP C matching extension
 
 call vundle#end()
 
