@@ -158,6 +158,9 @@ map <leader>gg :topleft 100 :split Gemfile<cr>
 " Toggle paste/nopaste mode
 map <F10> :set paste!<CR>
 
+" Toggle TagBar
+map <F8> :TagbarToggle<CR>
+
 " Quickly re-indent file; saves a mark with the current position in the 'z'
 " register
 map <Leader>= gg=G``<CR>
