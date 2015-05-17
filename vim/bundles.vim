@@ -22,6 +22,7 @@ Plugin 'JazzCore/ctrlp-cmatcher'                    " CtrlP C matching extension
 Plugin 'Lokaltog/powerline'                         " Powerline status plugin
 Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
+Plugin 'bkad/CamelCaseMotion'                       " provide CamelCase motion through words
 Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
