@@ -19,10 +19,10 @@ Plugin 'AndrewRadev/writable_search.vim'            " Grep for something, then w
 Plugin 'DataWraith/auto_mkdir'                      " Allows you to save files into directories that do not exist yet
 Plugin 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
 Plugin 'JazzCore/ctrlp-cmatcher'                    " CtrlP C matching extension
-Plugin 'Lokaltog/powerline'                         " Powerline status plugin
 Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
 Plugin 'bkad/CamelCaseMotion'                       " provide CamelCase motion through words
+Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
