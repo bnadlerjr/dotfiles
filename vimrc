@@ -67,7 +67,6 @@ nnoremap / /\v
 
 " Ctrl-P Mappings
 nnoremap <Leader>f :CtrlP<cr>
-nnoremap <Leader>b :CtrlPBuffer<cr>
 
 let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|node_modules/|.DS_Store|env/|cover-unit/'
 
