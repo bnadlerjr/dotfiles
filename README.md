@@ -4,8 +4,6 @@ Dotfile setup based on Advanced Commandline screencast from PeepCode.
 ## Install
 1. Clone to ~/bin/dotfiles
 2. Create symlinks to dotfiles by running `update_symlinks`
-3. Clone vim plugins to ~/bin/dotfiles/vim/bundle by running `update_bundles`
-   script
 
 ## License
 (The MIT License)
