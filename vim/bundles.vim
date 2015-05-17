@@ -39,6 +39,7 @@ Plugin 'rking/ag.vim'                               " plugin for the_silver_sear
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plugin 'scrooloose/nerdtree'                        " A tree explorer plugin
 Plugin 'tomtom/tlib_vim'                            " vim-snipmate dependency
+Plugin 'tpope/vim-abolish'                          " easily search for, substitute, and abbreviate multiple variants of a word
 Plugin 'tpope/vim-bundler'                          " makes source navigation of bundled gems easier
 Plugin 'tpope/vim-classpath'                        " Clojure JVM classpath
 Plugin 'tpope/vim-cucumber'                         " provides syntax highlightling, indenting, and a filetype plugin
