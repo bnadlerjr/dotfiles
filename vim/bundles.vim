@@ -19,9 +19,8 @@ Plugin 'AndrewRadev/writable_search.vim'            " Grep for something, then w
 Plugin 'DataWraith/auto_mkdir'                      " Allows you to save files into directories that do not exist yet
 Plugin 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
 Plugin 'Lokaltog/powerline'                         " Powerline status plugin
+Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
-Plugin 'christoomey/vim-tmux-navigator'             " Seamless navigation between tmux panes and vim splits
-Plugin 'croaky/vim-colors-github'                   " Github color scheme
 Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
@@ -33,13 +32,13 @@ Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plugin 'kchmck/vim-coffee-script'                   " ugh... a necessary evil... for now
 Plugin 'kien/ctrlp.vim'                             " Fuzzy file, buffer, mru, tag, etc finder
-Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'mileszs/ack.vim'                            " Ack integration
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plugin 'tomtom/tlib_vim'                            " vim-snipmate dependency
 Plugin 'tpope/vim-bundler'                          " makes source navigation of bundled gems easier
 Plugin 'tpope/vim-classpath'                        " Clojure JVM classpath
+Plugin 'tpope/vim-cucumber'                         " provides syntax highlightling, indenting, and a filetype plugin
 Plugin 'tpope/vim-dispatch'                         " Asynchronous build and test dispatcher
 Plugin 'tpope/vim-fireplace'                        " Clojure nrepl support
 Plugin 'tpope/vim-fugitive'                         " Git plugin
@@ -49,11 +48,10 @@ Plugin 'tpope/vim-projectionist'                    " project configuration
 Plugin 'tpope/vim-ragtag'                           " Ghetto HTML / XML mappings
 Plugin 'tpope/vim-rails'                            " Rails helpers
 Plugin 'tpope/vim-rake'                             " makes Ruby project navigation easier for non-Rails projects
-Plugin 'tpope/vim-repeat'                           " Enable repeating supported plugin maps with "."
+Plugin 'tpope/vim-repeat'                           " Enable repeating supported plugin maps with '.'
 Plugin 'tpope/vim-sexp-mappings-for-regular-people' " vim-sexp mappings rely on meta key; these don't
 Plugin 'tpope/vim-surround'                         " makes working w/ quotes, braces,etc. easier
 Plugin 'vim-ruby/vim-ruby'                          " packaged w/ vim but this is latest and greatest
-Plugin 'vim-scripts/vim-less'                       " LESS syntax highlighting indentation
 
 call vundle#end()
 
