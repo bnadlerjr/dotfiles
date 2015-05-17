@@ -28,11 +28,11 @@ set wrap                        " Turn on line wrapping
 
 set runtimepath+=~~/.vim/after
 
+" Install / load plugins
+exec "source ~/.vim/bundles.vim"
+
 " Enable bundled matchit macros
 runtime macros/matchit.vim
-
-" Use pathogen to load bundles
-call pathogen#runtime_append_all_bundles()
 
 " Misc
 filetype on
