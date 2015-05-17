@@ -52,6 +52,7 @@ Plugin 'tpope/vim-repeat'                           " Enable repeating supported
 Plugin 'tpope/vim-sexp-mappings-for-regular-people' " vim-sexp mappings rely on meta key; these don't
 Plugin 'tpope/vim-surround'                         " makes working w/ quotes, braces,etc. easier
 Plugin 'vim-ruby/vim-ruby'                          " packaged w/ vim but this is latest and greatest
+Plugin 'JazzCore/ctrlp-cmatcher'                    " CtrlP C matching extension
 
 call vundle#end()
 

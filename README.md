@@ -4,6 +4,12 @@ Dotfile setup based on Advanced Commandline screencast from PeepCode.
 ## Install
 1. Clone to ~/bin/dotfiles
 2. Create symlinks to dotfiles by running `update_symlinks`
+3. Install CtrlP C Matcher extension:
+
+```bash
+cd ~/.vim/bundle/ctrlp-cmatcher
+./install.sh
+```
 
 ## License
 (The MIT License)
