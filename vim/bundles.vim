@@ -21,7 +21,6 @@ Plugin 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
 Plugin 'JazzCore/ctrlp-cmatcher'                    " CtrlP C matching extension
 Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
-Plugin 'bkad/CamelCaseMotion'                       " provide CamelCase motion through words
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
