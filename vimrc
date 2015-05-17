@@ -66,8 +66,8 @@ nnoremap <leader><space><space> :%s/\s\+$//<cr>
 nnoremap / /\v
 
 " Ctrl-P Mappings
-nnoremap <Leader>f :CtrlP<cr>
-
+let g:ctrlp_map = '<Leader>f'
+let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
 let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|node_modules/|.DS_Store|env/|cover-unit/'
 
 " Quickly switch to alternate file
