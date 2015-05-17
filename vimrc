@@ -160,7 +160,7 @@ map <F10> :set paste!<CR>
 
 " Quickly re-indent file; saves a mark with the current position in the 'z'
 " register
-map <F7> mzgg=G`z<CR>
+map <Leader>= gg=G``<CR>
 
 " Colors
 let g:solarized_termcolors=256
