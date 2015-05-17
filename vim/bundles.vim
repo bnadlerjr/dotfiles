@@ -20,6 +20,7 @@ Plugin 'DataWraith/auto_mkdir'                      " Allows you to save files i
 Plugin 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
 Plugin 'JazzCore/ctrlp-cmatcher'                    " CtrlP C matching extension
 Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
+Plugin 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
