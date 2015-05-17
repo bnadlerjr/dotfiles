@@ -26,13 +26,7 @@ set wildmenu                    " Autocomplete filenames
 set wildmode=list:longest,full  " Show completions as list with longest match then full matches
 set wrap                        " Turn on line wrapping
 
-" Setup runtime paths
-if has("win32")
-    set runtimepath+=C:\Home\Bin\dotfiles\vim
-    set runtimepath+=C:\Home\Bin\dotfiles\vim\after
-else
-    set runtimepath+=~/bin/dotfiles/vim/after
-endif
+set runtimepath+=~~/.vim/after
 
 " Enable bundled matchit macros
 runtime macros/matchit.vim
