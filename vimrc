@@ -161,6 +161,7 @@ function! RunTestFile()
     end
 
     if 1 == has_key(g:bn_test_runners, runner)
+        silent! !clear
         execute g:bn_test_runners[runner] . t:bn_test_file
     else
         echo "No test runner specified for " . runner
