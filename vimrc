@@ -56,6 +56,11 @@ else
     let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 endif
 
+" Load cscope database if available
+if filereadable("cscope.out")
+    cs add cscope.out
+endif
+
 " Make it easy to clear out searches to get rid of highlighting
 nnoremap <leader><space> :let @/=''<cr>
 
@@ -116,7 +121,22 @@ function! UpdateTags()
         call system('ctags -a ' . f)
     endif
 endfunction
-au BufWritePost *.rb,*.js,*.py call UpdateTags()
+au BufWritePost *.js,*.py call UpdateTags()
+
+" Re-generate starscope ctag and cscope files
+function! UpdateStarscope()
+    let add_cscope_file = filereadable("cscope.out")
+
+    silent! execute('! starscope -e ctags')
+    silent! execute('! starscope -e cscope')
+
+    if 0 == add_cscope_file
+        cs add cscope.out
+    endif
+
+    redraw!
+endfunction
+map <F9> :call UpdateStarscope()<CR>
 
 " Dictionary for commands to run tests based on filetype
 let g:bn_test_runners = {

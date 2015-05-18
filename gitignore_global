@@ -5,6 +5,8 @@
 .bundle
 .rvmrc
 .sass-cache
+.starscope.db
 coverage
+cscope.out
 tags
 .idea

@@ -23,6 +23,7 @@ Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
+Plugin 'chazy/cscope_maps'                          " cscope keyboard mappings
 Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
