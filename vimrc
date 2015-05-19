@@ -102,17 +102,6 @@ noremap <leader>a =ip
 nnoremap Q @q
 vnoremap Q :norm @q<cr>
 
-" Quickly rename a file
-function! RenameFile()
-    let old_name = expand('%')
-    let new_name = input('New file name: ', expand('%'))
-    if new_name != '' && new_name != old_name
-        exec ':saveas ' . new_name
-        exec ':silent !rm ' . old_name
-        redraw!
-    endif
-endfunction
-
 " Whenever certain file types are saved, regenerate the tags for it.
 function! UpdateTags()
     if filereadable('tags')
