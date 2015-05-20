@@ -56,11 +56,6 @@ else
     let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 endif
 
-" Load cscope database if available
-if filereadable("cscope.out")
-    cs add cscope.out
-endif
-
 " Make it easy to clear out searches to get rid of highlighting
 nnoremap <leader><space> :let @/=''<cr>
 
