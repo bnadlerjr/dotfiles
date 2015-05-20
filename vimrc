@@ -166,8 +166,7 @@ map <F10> :set paste!<CR>
 " Toggle TagBar
 map <F8> :TagbarToggle<CR>
 
-" Quickly re-indent file; saves a mark with the current position in the 'z'
-" register
+" Quickly re-indent file
 map <Leader>= gg=G``<CR>
 
 " Colors
