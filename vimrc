@@ -109,8 +109,7 @@ au BufWritePost *.js,*.py call UpdateTags()
 
 " Re-generate starscope ctag and cscope files
 function! UpdateStarscope()
-    silent! execute('Start! starscope -e ctags')
-    silent! execute('Start! starscope -e cscope')
+    silent! execute('Start! find . -name *.rb | xargs starscope -e ctags -e cscope')
     set nocscopeverbose " suppress 'duplicate connection' error
     cscope add cscope.out
     set cscopeverbose
