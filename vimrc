@@ -97,16 +97,6 @@ noremap <leader>a =ip
 nnoremap Q @q
 vnoremap Q :norm @q<cr>
 
-" Whenever certain file types are saved, regenerate the tags for it.
-function! UpdateTags()
-    if filereadable('tags')
-        let f = expand('%')
-        call system('sed -i "" "/' . escape(f, '/') . '/d" tags')
-        call system('ctags -a ' . f)
-    endif
-endfunction
-au BufWritePost *.js,*.py call UpdateTags()
-
 " Re-generate starscope ctag and cscope files
 function! UpdateStarscope()
     silent! execute('Start! find . -name *.rb | xargs starscope -e ctags -e cscope')
