@@ -156,25 +156,32 @@ nnoremap <leader><space> :let @/=''<cr>
 " Map to strip extraneous whitespace
 nnoremap <leader><space><space> :%s/\s\+$//<cr>
 
-" Autmatically insert escape syntax when searching
-nnoremap / /\v
-
 " Quickly switch to alternate file
 nnoremap <Leader><Leader> <c-^>
 
 " Map toggle comment function from NERDCommenter
 nnoremap <Leader>c <space>
 
-" Make it easier to switch between windows
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+" Quickly re-indent file
+map <Leader>= gg=G``<CR>
+
+" Rails specific key mappings
+map <leader>gr :topleft :split config/routes.rb<cr>
+map <leader>gg :topleft 100 :split Gemfile<cr>
 
 " Map ,e and ,v to open files in the same directory as the current file
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 map <leader>e :edit %%
 map <leader>v :view %%
+
+" Autmatically insert escape syntax when searching
+nnoremap / /\v
+
+" Make it easier to switch between windows
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
 
 " Clone paragraph
 noremap cp yap<S-}>p
@@ -186,27 +193,17 @@ noremap <leader>a =ip
 nnoremap Q @q
 vnoremap Q :norm @q<cr>
 
-" Regenerate ctags and cscope.out using starscope gem
-map <F9> :StarscopeUpdate<cr>
-
 " Save the current file, then run the most recent test file that was saved
 nmap <CR><CR> :w | TestifyRunFile<CR>
 
-" Rails specific key mappings
-map <leader>gr :topleft :split config/routes.rb<cr>
-map <leader>gg :topleft 100 :split Gemfile<cr>
+" Toggle TagBar
+map <F8> :TagbarToggle<CR>
+"
+" Regenerate ctags and cscope.out using starscope gem
+map <F9> :StarscopeUpdate<cr>
 
 " Toggle paste/nopaste mode
 map <F10> :set paste!<CR>
-
-" Toggle TagBar
-map <F8> :TagbarToggle<CR>
-
-" Quickly re-indent file
-map <Leader>= gg=G``<CR>
-
-" Colors
-colorscheme solarized
 
 "#############################################################################
 " Autocommands
@@ -223,3 +220,6 @@ autocmd BufReadPost fugitive://* set bufhidden=delete
 
 " Word wrap without line breaks for text files
 au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=0 wrapmargin=0
+
+
+colorscheme solarized
