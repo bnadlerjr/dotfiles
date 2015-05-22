@@ -159,9 +159,6 @@ nnoremap <leader><space><space> :%s/\s\+$//<cr>
 " Autmatically insert escape syntax when searching
 nnoremap / /\v
 
-" Ctrl-P Mappings
-nnoremap <Leader>f :CtrlP<cr>
-
 " Quickly switch to alternate file
 nnoremap <Leader><Leader> <c-^>
 
