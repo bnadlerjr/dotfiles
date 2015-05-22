@@ -98,39 +98,9 @@ vnoremap Q :norm @q<cr>
 " Regenerate ctags and cscope.out using starscope gem
 map <F9> :StarscopeUpdate<cr>
 
-" Dictionary for commands to run tests based on filetype
-let g:bn_test_runners = {
-    \'ruby': '!ruby ',
-    \'rspec': '!./bin/rspec ',
-    \'python': '!nosetests -s ' }
-
-" If the current file is a test file, then save it to a tab level variable. Run
-" the test file saved in the variable.
-function! RunTestFile()
-    let filename = expand("%")
-    if -1 != match(filename, '\(_spec\|_test\).rb\|_test.py$')
-        let t:bn_test_file=filename
-    elseif !exists("t:bn_test_file")
-        echo "No test file found."
-        return
-    end
-
-    let runner = &filetype
-    if -1 != match(t:bn_test_file, '_spec.rb')
-        let runner = 'rspec'
-    end
-
-    if 1 == has_key(g:bn_test_runners, runner)
-        silent! !clear
-        execute g:bn_test_runners[runner] . t:bn_test_file
-    else
-        echo "No test runner specified for " . runner
-    end
-endfunction
-
-" Save the current file, then run the test file saved in the t:bn_test_file
-" variable.
-nmap <CR><CR> :w | call RunTestFile()<CR>
+" Save the current file, then run the most recent test file that was saved
+let g:testify_launcher = "Dispatch"
+nmap <CR><CR> :w | TestifyRunFile<CR>
 
 " Rails specific key mappings
 map <leader>gr :topleft :split config/routes.rb<cr>
