@@ -1,16 +1,21 @@
 " .vimrc
 " Bob Nadler, Jr.
 
+" Install / load plugins
+exec "source ~/.vim/bundles.vim"
+
 " Settings
 set autoread                    " Detect file changes refresh buffer
 set background=light            " Light colored background
 set backspace=indent,eol,start  " Backspace of newlines
+set colorcolumn=79              " Show vertical column
 set cursorline                  " Highlight current line
 set expandtab                   " Expand tabs to spaces
 set formatoptions=qrn1          " http://vimdoc.sourceforge.net/htmldoc/change.html#fo-table
 set hlsearch                    " Highlight matches to recent searches
 set ignorecase                  " Ignore case when searching
 set incsearch                   " Use incremental search
+set laststatus=2                " Use two rows for status line
 set list                        " Show invisible chars
 set listchars=tab:»·,trail:·    " Show tabs and trailing whitespace only
 set nocompatible                " Not compatible w/ vi
@@ -25,9 +30,6 @@ set textwidth=79                " Text width for line wrapping
 set wildmenu                    " Autocomplete filenames
 set wildmode=list:longest,full  " Show completions as list with longest match then full matches
 set wrap                        " Turn on line wrapping
-
-" Install / load plugins
-exec "source ~/.vim/bundles.vim"
 
 " Enable bundled matchit macros
 runtime macros/matchit.vim
@@ -120,10 +122,8 @@ let g:solarized_termcolors=256
 let g:solarized_visibility="high"
 let g:solarized_contrast="high"
 colorscheme solarized
-set colorcolumn=79
 
 " Put useful info in status line (airline)
-set laststatus=2
 let g:airline_powerline_fonts = 1
 
 " Set tmux as default target for vim-slime
