@@ -26,8 +26,6 @@ set wildmenu                    " Autocomplete filenames
 set wildmode=list:longest,full  " Show completions as list with longest match then full matches
 set wrap                        " Turn on line wrapping
 
-set runtimepath+=~~/.vim/after
-
 " Install / load plugins
 exec "source ~/.vim/bundles.vim"
 
@@ -97,15 +95,8 @@ noremap <leader>a =ip
 nnoremap Q @q
 vnoremap Q :norm @q<cr>
 
-" Re-generate starscope ctag and cscope files
-function! UpdateStarscope()
-    silent! execute('Start! find . -name *.rb | xargs starscope -e ctags -e cscope')
-    set nocscopeverbose " suppress 'duplicate connection' error
-    cscope add cscope.out
-    set cscopeverbose
-    redraw!
-endfunction
-map <F9> :call UpdateStarscope()<CR>
+" Regenerate ctags and cscope.out using starscope gem
+map <F9> :StarscopeUpdate<cr>
 
 " Dictionary for commands to run tests based on filetype
 let g:bn_test_runners = {
