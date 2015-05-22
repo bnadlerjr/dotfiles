@@ -2,9 +2,11 @@
 " Bob Nadler, Jr.
 
 " Install / load plugins
+"
 exec "source ~/.vim/bundles.vim"
 
 " Settings
+"
 set autoread                    " Detect file changes refresh buffer
 set background=light            " Light colored background
 set backspace=indent,eol,start  " Backspace of newlines
@@ -31,10 +33,13 @@ set wildmenu                    " Autocomplete filenames
 set wildmode=list:longest,full  " Show completions as list with longest match then full matches
 set wrap                        " Turn on line wrapping
 
+"#############################################################################
+" Misc
+"#############################################################################
+
 " Enable bundled matchit macros
 runtime macros/matchit.vim
 
-" Misc
 filetype on
 filetype plugin on
 filetype plugin indent on
@@ -44,9 +49,6 @@ let mapleader = ","
 " Make bash aliases available when running shell commands
 let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
 
-" Word wrap without line breaks for text files
-au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=0 wrapmargin=0
-
 " Change cursor shape in insert mode; iTerm2 only; also works w/ tmux
 if exists('$TMUX')
     let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
@@ -55,6 +57,27 @@ else
     let &t_SI = "\<Esc>]50;CursorShape=1\x7"
     let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 endif
+
+"#############################################################################
+" Plugin configuration
+"#############################################################################
+
+let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
+let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|node_modules/|.DS_Store|env/|cover-unit/'
+
+let g:testify_launcher = "Dispatch"
+
+let g:solarized_termcolors=256
+let g:solarized_visibility="high"
+let g:solarized_contrast="high"
+
+let g:airline_powerline_fonts = 1
+
+let g:slime_target = "tmux"
+
+"#############################################################################
+" Keymaps
+"#############################################################################
 
 " Make it easy to clear out searches to get rid of highlighting
 nnoremap <leader><space> :let @/=''<cr>
@@ -67,8 +90,6 @@ nnoremap / /\v
 
 " Ctrl-P Mappings
 nnoremap <Leader>f :CtrlP<cr>
-let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
-let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|node_modules/|.DS_Store|env/|cover-unit/'
 
 " Quickly switch to alternate file
 nnoremap <Leader><Leader> <c-^>
@@ -101,7 +122,6 @@ vnoremap Q :norm @q<cr>
 map <F9> :StarscopeUpdate<cr>
 
 " Save the current file, then run the most recent test file that was saved
-let g:testify_launcher = "Dispatch"
 nmap <CR><CR> :w | TestifyRunFile<CR>
 
 " Rails specific key mappings
@@ -118,16 +138,11 @@ map <F8> :TagbarToggle<CR>
 map <Leader>= gg=G``<CR>
 
 " Colors
-let g:solarized_termcolors=256
-let g:solarized_visibility="high"
-let g:solarized_contrast="high"
 colorscheme solarized
 
-" Put useful info in status line (airline)
-let g:airline_powerline_fonts = 1
-
-" Set tmux as default target for vim-slime
-let g:slime_target = "tmux"
+"#############################################################################
+" Autocommands
+"#############################################################################
 
 " When viewing a git tree or blob, quickly move up to view parent
 autocmd User fugitive
@@ -137,3 +152,6 @@ autocmd User fugitive
 
 " Auto-clean fugitive buffers
 autocmd BufReadPost fugitive://* set bufhidden=delete
+
+" Word wrap without line breaks for text files
+au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=0 wrapmargin=0
