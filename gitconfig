@@ -10,10 +10,13 @@
 [color]
     ui = auto
 [alias]
+    a  = add
     aa = add --all
     br = branch
-    ci = commit
+    ca = commit -v -a
+    ci = commit -v
     co = checkout
+    cob = checkout -b
     di = diff
     ff = merge --ff-only
     ir = !git rebase -i origin/master

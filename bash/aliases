@@ -59,18 +59,6 @@ alias bi="bundle install"
 alias bib="bundle install --binstubs"
 
 # Git
-alias g="git st"
-alias ga="git add"
-alias gaa="git aa"
-alias gb="git br"
-alias gca="git ci -v -a"
-alias gci="git ci -v"
-alias gco="git co"
-alias gcob="git co -b"
-alias gdi="git di"
-alias gir="git ir"
-alias glff="git pullff"
-alias glg="git lg"
-alias gpom="git pom"
-alias gup="git up"
-alias gphm="git push heroku master"
+function g() {
+    git ${*:-status}
+}
