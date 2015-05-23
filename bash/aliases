@@ -27,6 +27,22 @@ function pk {
     kill -9 $(cat $1)
 }
 
+# top 5 one-word commands (and total number)
+function topcmd() {
+    history | \
+    awk "{a[\$2]++}END{print NR, \"((TOTAL))\"; for(i in a) print a[i], i}" | \
+    sort -rn | \
+    head -6
+}
+
+# top 5 two-word commands
+function top2cmd(){
+    history | \
+    awk "/$1/{a[\$2 \" \" \$3]++}END{for(i in a) print a[i], i}" | \
+    sort -rn | \
+    head -5
+}
+
 # Python
 alias rmpyc="find . -name '*.pyc' -delete"
 
