@@ -42,45 +42,6 @@ alias be="bundle exec"
 alias bi="bundle install"
 alias bib="bundle install --binstubs"
 
-# Rails 3
-alias rs="rails server"
-alias rsd="rails server -d"
-alias rg="rails generate"
-
-# Generate a Rails 3 app using spellbook.rb
-function rspell {
-  rails new $1 -m ~/dev/spellbook/spellbook.rb $@
-}
-
-# Copy a custom generator in ~/.rails into a rails app
-function cpgen {
-  if [ ! -d "./lib/generators" ]; then
-    mkdir './lib/generators'
-  fi
-  cp -r ~/.rails/generators/$1 lib/generators
-}
-
-# Rails General
-alias fspec="time bundle exec rspec"
-alias ss="./script/specs"
-alias rmig="bundle exec rake db:migrate && bundle exec rake db:migrate:redo"
-alias rsa="time bundle exec rake spec"
-alias rsm="time bundle exec rake spec:models"
-alias rsc="time bundle exec rake spec:controllers"
-alias rsl="time bundle exec rake spec:lib"
-alias rsr="time bundle exec rake spec:requests"
-alias rsv="time bundle exec rake spec:views"
-alias rtu="time bundle exec rake test:units"
-alias rtf="time bundle exec rake test:functionals"
-alias rti="time bundle exec rake test:integration"
-alias rtl="time bundle exec rake test:lib"
-alias cuke="time bundle exec rake cucumber:all"
-
-# Open localhost on port 3000 in browser
-function browse {
-    open http://localhost:3000/$@
-}
-
 # Git
 alias g="git st"
 alias ga="git add"
