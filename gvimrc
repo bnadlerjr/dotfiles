@@ -1,7 +1,6 @@
 " .gvimrc
 " Bob Nadler, Jr.
 
-set colorcolumn=80  " Color column for line wrapping
 set guioptions-=T   " Turn off GUI menu
 
 " Setup fonts
