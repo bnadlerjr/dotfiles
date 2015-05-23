@@ -37,10 +37,6 @@ alias gemlr="gem list --remote"
 
 alias mm="middleman"
 
-function testf {
-    time ruby -Itest $1
-}
-
 # Bundler
 alias be="bundle exec"
 alias bi="bundle install"
