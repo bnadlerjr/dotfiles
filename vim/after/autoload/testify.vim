@@ -33,10 +33,6 @@ endfunction
 
 function s:DetermineRunner()
     let runner = &filetype
-    if -1 != match(t:testify_current_filename, '_spec.rb')
-        let runner = 'rspec'
-    end
-
     if 1 == has_key(g:testify_runners, runner)
         return g:testify_runners[runner]
     else

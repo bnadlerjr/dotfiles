@@ -209,6 +209,8 @@ map <F10> :set paste!<CR>
 " Autocommands
 "#############################################################################
 
+au BufRead,BufNewFile *_spec.rb set syntax=ruby
+
 " When viewing a git tree or blob, quickly move up to view parent
 autocmd User fugitive
   \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |

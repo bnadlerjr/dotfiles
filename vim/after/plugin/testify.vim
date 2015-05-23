@@ -10,9 +10,9 @@ endif
 if !exists('g:testify_runners')
     let g:testify_runners = {
                 \ 'cucumber': './bin/cucumber ',
-                \ 'ruby': 'ruby ',
+                \ 'ruby': ' ruby ',
                 \ 'rspec': './bin/rspec ',
-                \ 'python': 'nosetests -s ' }
+                \ 'python': ' nosetests -s ' }
 endif
 
 command! -nargs=0 TestifyRunFile call testify#RunFile()
