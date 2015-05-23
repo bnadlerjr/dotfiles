@@ -58,17 +58,5 @@ if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 
-# Tab completion for vgem shell script
-_vgem()
-{
-    local curw
-    COMPREPLY=()
-    curw=${COMP_WORDS[COMP_CWORD]}
-    local gems="$(gem environment gemdir)/gems"
-    COMPREPLY=($(compgen -W '$(ls $gems)' -- $curw));
-    return 0
-}
-complete -F _vgem -o dirnames vgem
-
 # prompt
 PS1="\[$BLDBLK\]\n\u:\w \[$TXTBLU\](\$(srb_git_prompt)\[$TXTBLU\])\[$TXTRST\] \n→ "
