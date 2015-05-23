@@ -27,28 +27,6 @@ function pk {
     kill -9 $(cat $1)
 }
 
-# Name terminal window
-function set_term_name {
-    if [ $1 == 'server' ]; then
-        echo -e "\033]6;1;bg;red;brightness;255\a"
-        echo -e "\033]6;1;bg;green;brightness;0\a"
-        echo -e "\033]6;1;bg;blue;brightness;255\a"
-    elif [ $1 == 'console' ]; then
-        echo -e "\033]6;1;bg;red;brightness;30\a"
-        echo -e "\033]6;1;bg;green;brightness;144\a"
-        echo -e "\033]6;1;bg;blue;brightness;255\a"
-    elif [ $1 == 'spork' ]; then
-        echo -e "\033]6;1;bg;red;brightness;255\a"
-        echo -e "\033]6;1;bg;green;brightness;165\a"
-        echo -e "\033]6;1;bg;blue;brightness;0\a"
-    elif [ $1 == 'log' ]; then
-        echo -e "\033]6;1;bg;red;brightness;155\a"
-        echo -e "\033]6;1;bg;green;brightness;165\a"
-        echo -e "\033]6;1;bg;blue;brightness;0\a"
-    fi
-    echo -ne "\033]0;$1: $2\007"
-}
-
 # Python
 alias rmpyc="find . -name '*.pyc' -delete"
 
