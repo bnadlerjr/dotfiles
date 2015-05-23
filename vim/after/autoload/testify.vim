@@ -24,7 +24,7 @@ endfunction
 
 function s:SetCurrentTestFilename()
     let filename = expand("%")
-    if -1 != match(filename, '\(_spec\|_test\).rb\|_test.py$')
+    if -1 != match(filename, '.feature\|\(_spec\|_test\).rb\|_test.py$')
         let t:testify_current_filename = filename
     elseif !exists("t:testify_current_filename")
         throw "No test file found."
