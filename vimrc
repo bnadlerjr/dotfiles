@@ -39,6 +39,7 @@ Plugin 'garbas/vim-snipmate'                        " handy code snippets
 Plugin 'godlygeek/csapprox'                         " dependency for Solarized
 Plugin 'guns/vim-clojure-static'                    " Clojure syntax highlighting and indentation
 Plugin 'guns/vim-sexp'                              " Precision editing for s-expressions
+Plugin 'honza/vim-snippets'                         " vim-snipmate default snippets
 Plugin 'jpalardy/vim-slime'                         " Send code from vim buffer to a REPL
 Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
@@ -46,15 +47,18 @@ Plugin 'kchmck/vim-coffee-script'                   " ugh... a necessary evil...
 Plugin 'kien/ctrlp.vim'                             " Fuzzy file, buffer, mru, tag, etc finder
 Plugin 'majutsushi/tagbar'                          " displays tags in a window, ordered by scope
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
+Plugin 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
 Plugin 'rking/ag.vim'                               " plugin for the_silver_searcher
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plugin 'scrooloose/nerdtree'                        " A tree explorer plugin
+Plugin 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
 Plugin 'tomtom/tlib_vim'                            " vim-snipmate dependency
 Plugin 'tpope/vim-abolish'                          " easily search for, substitute, and abbreviate multiple variants of a word
 Plugin 'tpope/vim-bundler'                          " makes source navigation of bundled gems easier
 Plugin 'tpope/vim-classpath'                        " Clojure JVM classpath
 Plugin 'tpope/vim-cucumber'                         " provides syntax highlightling, indenting, and a filetype plugin
 Plugin 'tpope/vim-dispatch'                         " Asynchronous build and test dispatcher
+Plugin 'tpope/vim-endwise'                          " wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
 Plugin 'tpope/vim-fireplace'                        " Clojure nrepl support
 Plugin 'tpope/vim-fugitive'                         " Git plugin
 Plugin 'tpope/vim-haml'                             " HAML support
@@ -66,6 +70,7 @@ Plugin 'tpope/vim-rake'                             " makes Ruby project navigat
 Plugin 'tpope/vim-repeat'                           " Enable repeating supported plugin maps with '.'
 Plugin 'tpope/vim-sexp-mappings-for-regular-people' " vim-sexp mappings rely on meta key; these don't
 Plugin 'tpope/vim-surround'                         " makes working w/ quotes, braces,etc. easier
+Plugin 'tpope/vim-unimpaired'                       " pairs of handy bracket mappings
 Plugin 'vim-ruby/vim-ruby'                          " packaged w/ vim but this is latest and greatest
 
 call vundle#end()
@@ -119,15 +124,6 @@ let mapleader = ","
 
 " Make bash aliases available when running shell commands
 let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
-
-" Change cursor shape in insert mode; iTerm2 only; also works w/ tmux
-if exists('$TMUX')
-    let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-    let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
-else
-    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
-endif
 
 "#############################################################################
 " Plugin configuration
