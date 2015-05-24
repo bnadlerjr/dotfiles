@@ -129,18 +129,20 @@ let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
 " Plugin configuration
 "#############################################################################
 
+let g:airline_powerline_fonts = 1
+
 let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
 let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|node_modules/|.DS_Store|env/|cover-unit/'
 
-let g:testify_launcher = "Dispatch"
+let NERDSpaceDelims = 1
+
+let g:slime_target = "tmux"
 
 let g:solarized_termcolors=256
 let g:solarized_visibility="high"
 let g:solarized_contrast="high"
 
-let g:airline_powerline_fonts = 1
-
-let g:slime_target = "tmux"
+let g:testify_launcher = "Dispatch"
 
 "#############################################################################
 " Keymaps
