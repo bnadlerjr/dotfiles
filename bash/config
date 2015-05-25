@@ -59,4 +59,4 @@ if [ -f /etc/bash_completion ]; then
 fi
 
 # prompt
-PS1="\[$BLDBLK\]\n\u:\w \[$TXTBLU\](\$(srb_git_prompt)\[$TXTBLU\])\[$TXTRST\] \n→ "
+PS1="\[$BLDGRN\]\n\u:\w \[$TXTBLU\](\$(srb_git_prompt)\[$TXTBLU\])\[$TXTRST\] \n→ "
