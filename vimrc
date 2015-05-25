@@ -120,6 +120,7 @@ filetype on
 filetype plugin on
 filetype plugin indent on
 syntax on
+colorscheme solarized
 let mapleader = ","
 
 " Make bash aliases available when running shell commands
@@ -138,11 +139,11 @@ let NERDSpaceDelims = 1
 
 let g:slime_target = "tmux"
 
-let g:solarized_termcolors=256
-let g:solarized_visibility="high"
-let g:solarized_contrast="high"
+" See https://github.com/altercation/vim-colors-solarized/issues/40
+call togglebg#map("")
 
 let g:testify_launcher = "Dispatch"
+
 
 "#############################################################################
 " Keymaps
@@ -221,5 +222,6 @@ autocmd BufReadPost fugitive://* set bufhidden=delete
 " Word wrap without line breaks for text files
 au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=0 wrapmargin=0
 
-
-colorscheme solarized
+" Hack to get solarized loaded correctly
+au VimEnter * ToggleBG
+au VimEnter * ToggleBG
