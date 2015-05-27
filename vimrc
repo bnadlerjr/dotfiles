@@ -164,6 +164,9 @@ nnoremap <Leader>c <space>
 " Quickly re-indent file
 map <Leader>= gg=G``<CR>
 
+" Search using Ag
+nnoremap <Leader>a :Ag<SPACE>
+
 " Rails specific key mappings
 map <leader>gr :topleft :split config/routes.rb<cr>
 map <leader>gg :topleft 100 :split Gemfile<cr>
@@ -184,9 +187,6 @@ nnoremap <C-l> <C-w>l
 
 " Clone paragraph
 noremap cp yap<S-}>p
-
-" Align current paragraph
-noremap <leader>a =ip
 
 " Apply macros w/ Q
 nnoremap Q @q
