@@ -84,7 +84,7 @@ endif
 " Settings
 "#############################################################################
 set autoread                    " Detect file changes refresh buffer
-set background=light            " Light colored background
+set background=light            " Background color
 set backspace=indent,eol,start  " Backspace of newlines
 set colorcolumn=79              " Show vertical column
 set cursorline                  " Highlight current line
