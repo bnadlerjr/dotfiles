@@ -26,7 +26,7 @@
     pullff = pull --ff-only
     st = status
     staged = diff --cached
-    up = !git fetch origin && git rebase origin/master
+    up = pull
 [format]
     pretty=format:%C(yellow)%h%Creset -%C(red)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset
 [merge]
@@ -39,3 +39,5 @@
     enabled = true
 [heroku]
     account = personal
+[pull]
+    rebase = true
