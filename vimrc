@@ -104,7 +104,7 @@ set showmatch                   " Show matching braces
 set smartcase                   " Turn case sensitive search back on in certain cases
 set sw=4 sts=4 ts=4             " 4 spaces
 set t_Co=256                    " Use 256 colors
-set textwidth=79                " Text width for line wrapping
+set textwidth=0                 " Do not break lines
 set wildmenu                    " Autocomplete filenames
 set wildmode=list:longest,full  " Show completions as list with longest match then full matches
 set wrap                        " Turn on line wrapping
