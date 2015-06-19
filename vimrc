@@ -88,6 +88,7 @@ set background=light            " Background color
 set backspace=indent,eol,start  " Backspace of newlines
 set colorcolumn=79              " Show vertical column
 set cursorline                  " Highlight current line
+set diffopt+=vertical           " Use vertical diffs
 set expandtab                   " Expand tabs to spaces
 set formatoptions=qrn1          " http://vimdoc.sourceforge.net/htmldoc/change.html#fo-table
 set hlsearch                    " Highlight matches to recent searches
