@@ -134,7 +134,7 @@ let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
 let g:airline_powerline_fonts = 1
 
 let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
-let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|node_modules/|.DS_Store|env/|cover-unit/'
+let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|env/|cover-unit/'
 
 let NERDSpaceDelims = 1
 
