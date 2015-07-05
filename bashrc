@@ -3,10 +3,13 @@
 PATH=$PATH:$HOME/.rvm/bin
 
 . ~/bin/dotfiles/bash/env
-. ~/bin/dotfiles/bash/git-completion
+. ~/bin/dotfiles/bash/git-completion.bash
 . ~/bin/dotfiles/bash/git-prompt
 . ~/bin/dotfiles/bash/config
 . ~/bin/dotfiles/bash/aliases
+
+# Allow git-completion to work with "g" alias
+__git_complete g __git_main
 
 ### Added by the Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
