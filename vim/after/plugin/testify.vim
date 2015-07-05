@@ -10,7 +10,7 @@ endif
 if !exists('g:testify_runners')
     let g:testify_runners = {
                 \ 'cucumber': './bin/cucumber ',
-                \ 'ruby': ' ruby ',
+                \ 'ruby': ' ruby -Itest ',
                 \ 'rspec': './bin/rspec ',
                 \ 'python': ' nosetests -s ' }
 endif
