@@ -166,7 +166,7 @@ nnoremap <Leader>c <space>
 map <Leader>= gg=G``<CR>
 
 " Search using Ag
-nnoremap <Leader>a :Ag<SPACE>
+nnoremap <Leader>a :Ag<CR>
 
 " Rails specific key mappings
 map <leader>gr :topleft :split config/routes.rb<cr>
