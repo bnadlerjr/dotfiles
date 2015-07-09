@@ -168,6 +168,9 @@ map <Leader>= gg=G``<CR>
 " Search using Ag
 nnoremap <Leader>a :Ag<CR>
 
+" Bring up Fugitive status buffer
+nnoremap <Leader>g :Gstatus<CR>
+
 " Rails specific key mappings
 map <leader>gr :topleft :split config/routes.rb<cr>
 map <leader>gg :topleft 100 :split Gemfile<cr>
