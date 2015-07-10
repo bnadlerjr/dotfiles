@@ -171,6 +171,9 @@ nnoremap <Leader>a :Ag<CR>
 " Bring up Fugitive status buffer
 nnoremap <Leader>g :Gstatus<CR>
 
+" Delete all buffers
+map <Leader>d :bufdo bd<CR>
+
 " Rails specific key mappings
 map <leader>gr :topleft :split config/routes.rb<cr>
 map <leader>gg :topleft 100 :split Gemfile<cr>
