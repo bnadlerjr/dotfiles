@@ -192,6 +192,10 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
+" Open and close the quickfix window
+noremap qo :Copen<CR>
+noremap qc :cclose<CR>
+
 " Clone paragraph
 noremap cp yap<S-}>p
 
