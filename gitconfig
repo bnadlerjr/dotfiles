@@ -19,14 +19,9 @@
     cob = checkout -b
     di = diff
     ff = merge --ff-only
-    ir = !git rebase -i origin/master
     lg = log --graph --abbrev-commit --date=relative
-    noff = merge --no-ff
     pom = push origin master
-    pullff = pull --ff-only
     st = status
-    staged = diff --cached
-    up = pull
 [format]
     pretty=format:%C(yellow)%h%Creset -%C(red)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset
 [merge]
