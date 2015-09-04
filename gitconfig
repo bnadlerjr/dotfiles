@@ -19,6 +19,7 @@
     cob = checkout -b
     di = diff
     ff = merge --ff-only
+    fix = "!f() { ${EDITOR} `git diff --name-only`; }; f"
     lg = log --graph --abbrev-commit --date=relative
     pom = push origin master
     st = status
