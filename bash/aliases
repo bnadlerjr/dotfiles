@@ -9,7 +9,7 @@ alias la="ls -AlgohG"
 alias ..="cd .."
 alias cdd="cd -"
 alias df="df -h"
-alias t="tree -C -I 'bower_components|coverage|node_modules|env|*.pyc'"
+alias t="tree -C -I 'bower_components|coverage|target|node_modules|env|*.pyc'"
 alias dtstr="date +%Y%m%d%H%M%S"
 alias iphone="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app/Contents/MacOS/iPhone\ Simulator"
 
