@@ -2,11 +2,11 @@
 [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 PATH=$PATH:$HOME/.rvm/bin
 
-. ~/bin/dotfiles/bash/env
-. ~/bin/dotfiles/bash/git-completion.bash
-. ~/bin/dotfiles/bash/git-prompt
-. ~/bin/dotfiles/bash/config
-. ~/bin/dotfiles/bash/aliases
+. ~/dotfiles/bash/env
+. ~/dotfiles/bash/git-completion.bash
+. ~/dotfiles/bash/git-prompt
+. ~/dotfiles/bash/config
+. ~/dotfiles/bash/aliases
 
 # Allow git-completion to work with "g" alias
 __git_complete g __git_main

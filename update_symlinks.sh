@@ -29,3 +29,8 @@ do
         echo " ...${symlink_path} re-linked"
     fi
 done
+
+echo " ...removing bin folder"
+rm -r ~/bin
+ln -s ${DIR}/bin ~/bin
+echo " ...bin folder re-linked"
