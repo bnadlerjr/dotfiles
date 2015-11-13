@@ -171,6 +171,9 @@ nnoremap <Leader>a :Ag<CR>
 " Bring up Fugitive status buffer
 nnoremap <Leader>g :Gstatus<CR>
 
+" Delete focused buffer without losing split
+nnoremap <C-c> :bp\|bd #<CR>
+
 " Delete all buffers
 map <Leader>d :bufdo bd<CR>
 
