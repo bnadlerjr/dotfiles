@@ -37,7 +37,7 @@ TXTRST='\e[0m'    # Text Reset
 #[ -z "$PS1" ] && return
 
 # Don't put fg commands in history
-export HISTIGNORE="fg*"
+export HISTIGNORE="fg*:%"
 
 # don't put duplicate lines in the history. See bash(1) for more options
 export HISTCONTROL=ignoredups
