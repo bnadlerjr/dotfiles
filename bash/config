@@ -33,13 +33,8 @@ BAKCYN='\e[46m'   # Cyan
 BAKWHT='\e[47m'   # White
 TXTRST='\e[0m'    # Text Reset
 
-# If not running interactively, don't do anything
-#[ -z "$PS1" ] && return
-
-# Don't put fg commands in history
-export HISTIGNORE="fg*:%"
-
-# don't put duplicate lines in the history. See bash(1) for more options
+# history tracking options
+export HISTIGNORE="fg*:%:g"
 export HISTCONTROL=ignoreboth:erasedups
 
 # check the window size after each command and, if necessary,
