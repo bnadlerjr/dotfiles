@@ -12,7 +12,7 @@ if !exists('g:testify_runners')
                 \ 'cucumber': './bin/cucumber ',
                 \ 'ruby': ' ruby -Itest ',
                 \ 'rspec': './bin/rspec ',
-                \ 'python': ' ./env/bin/python -m unittest ' }
+                \ 'python': ' ./venv/bin/python -m unittest ' }
 endif
 
 command! -nargs=0 TestifyRunFile call testify#RunFile()
