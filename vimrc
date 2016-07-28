@@ -45,12 +45,15 @@ Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plugin 'kchmck/vim-coffee-script'                   " ugh... a necessary evil... for now
 Plugin 'kien/ctrlp.vim'                             " Fuzzy file, buffer, mru, tag, etc finder
+Plugin 'leafgarland/typescript-vim'                 " Typescript syntax files for Vim
 Plugin 'majutsushi/tagbar'                          " displays tags in a window, ordered by scope
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plugin 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
+Plugin 'Quramy/tsuquyomi'                           " Typescript completion support
 Plugin 'rking/ag.vim'                               " plugin for the_silver_searcher
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plugin 'scrooloose/nerdtree'                        " A tree explorer plugin
+Plugin 'Shougo/vimproc.vim'                         " Interactive command execution; dependency of Quramy/tsuquyomi
 Plugin 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
 Plugin 'tomtom/tlib_vim'                            " vim-snipmate dependency
 Plugin 'tpope/vim-abolish'                          " easily search for, substitute, and abbreviate multiple variants of a word
@@ -223,6 +226,8 @@ map <F10> :set paste!<CR>
 "#############################################################################
 
 au BufRead,BufNewFile *_spec.rb set syntax=ruby
+
+autocmd FileType make setlocal noexpandtab
 
 " When viewing a git tree or blob, quickly move up to view parent
 autocmd User fugitive
