@@ -226,6 +226,7 @@ map <F10> :set paste!<CR>
 "#############################################################################
 
 au BufRead,BufNewFile *_spec.rb set syntax=ruby
+au BufRead,BufNewFile *.selmer set syntax=jinja
 
 autocmd FileType make setlocal noexpandtab
 
