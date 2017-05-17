@@ -184,9 +184,11 @@ map <Leader>d :bufdo bd<CR>
 map <leader>gr :topleft :split config/routes.rb<cr>
 map <leader>gg :topleft 100 :split Gemfile<cr>
 
-" Map ,e and ,v to open files in the same directory as the current file
+" Map ,e to open files in the same directory as the current file
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 map <leader>e :edit %%
+"
+" Map ,v to open a vsplit with the current buffer loaded
 map <leader>v :vsp %%
 
 " Autmatically insert escape syntax when searching
