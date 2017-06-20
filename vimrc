@@ -227,6 +227,7 @@ map <F10> :set paste!<CR>
 " Autocommands
 "#############################################################################
 
+au BufRead,BufNewFile build.boot set syntax=clojure
 au BufRead,BufNewFile *_spec.rb set syntax=ruby
 au BufRead,BufNewFile *.selmer set syntax=jinja
 
