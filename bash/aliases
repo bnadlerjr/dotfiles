@@ -65,3 +65,14 @@ alias bib="bundle install --binstubs"
 function g() {
     git ${*:-status}
 }
+
+# Gust GUAR helpers
+function guardeploy() {
+    devw -guardeploy -guarname "$*" -config ./data/kube_guar_settings.yml -pair bn
+}
+
+function guarstop() {
+    devw -guarstop -guarname "$*" -pair bn
+}
+
+alias guarlist="devw -pair bn -guarlist"
