@@ -205,7 +205,7 @@ vnoremap Q :norm @q<cr>
 nmap <CR><CR> :w | TestifyRunFile<CR>
 
 " Toggle TagBar
-map <F8> :TagbarToggle<CR>
+nnoremap <Leader>t :TagbarToggle<CR>
 
 "#############################################################################
 " Autocommands
