@@ -147,6 +147,7 @@ call togglebg#map("")
 
 let g:testify_launcher = "Dispatch"
 
+let g:lexical#spell_key = '<leader>s'
 
 "#############################################################################
 " Keymaps
