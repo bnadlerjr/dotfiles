@@ -32,7 +32,6 @@ Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
-Plugin 'chazy/cscope_maps'                          " cscope keyboard mappings
 Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
@@ -40,7 +39,6 @@ Plugin 'godlygeek/csapprox'                         " dependency for Solarized
 Plugin 'guns/vim-clojure-static'                    " Clojure syntax highlighting and indentation
 Plugin 'guns/vim-sexp'                              " Precision editing for s-expressions
 Plugin 'honza/vim-snippets'                         " vim-snipmate default snippets
-Plugin 'jpalardy/vim-slime'                         " Send code from vim buffer to a REPL
 Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plugin 'kchmck/vim-coffee-script'                   " ugh... a necessary evil... for now
@@ -52,7 +50,6 @@ Plugin 'pangloss/vim-javascript'                    " Vastly improved Javascript
 Plugin 'Quramy/tsuquyomi'                           " Typescript completion support
 Plugin 'rking/ag.vim'                               " plugin for the_silver_searcher
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
-Plugin 'scrooloose/nerdtree'                        " A tree explorer plugin
 Plugin 'Shougo/vimproc.vim'                         " Interactive command execution; dependency of Quramy/tsuquyomi
 Plugin 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
 Plugin 'tomtom/tlib_vim'                            " vim-snipmate dependency
