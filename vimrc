@@ -180,16 +180,9 @@ nnoremap <C-c> :bp\|bd #<CR>
 " Delete all buffers
 map <Leader>d :bufdo bd<CR>
 
-" Rails specific key mappings
-map <leader>gr :topleft :split config/routes.rb<cr>
-map <leader>gg :topleft 100 :split Gemfile<cr>
-
 " Map ,e to open files in the same directory as the current file
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 map <leader>e :edit %%
-"
-" Map ,v to open a vsplit with the current buffer loaded
-map <leader>v :vsp %%
 
 " Autmatically insert escape syntax when searching
 nnoremap / /\v
@@ -204,9 +197,6 @@ nnoremap <C-l> <C-w>l
 noremap qo :Copen<CR>
 noremap qc :cclose<CR>
 
-" Clone paragraph
-noremap cp yap<S-}>p
-
 " Apply macros w/ Q
 nnoremap Q @q
 vnoremap Q :norm @q<cr>
@@ -216,12 +206,6 @@ nmap <CR><CR> :w | TestifyRunFile<CR>
 
 " Toggle TagBar
 map <F8> :TagbarToggle<CR>
-"
-" Regenerate ctags and cscope.out using starscope gem
-map <F9> :StarscopeUpdate<cr>
-
-" Toggle paste/nopaste mode
-map <F10> :set paste!<CR>
 
 "#############################################################################
 " Autocommands
