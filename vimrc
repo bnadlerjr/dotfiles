@@ -213,6 +213,34 @@ nnoremap <Leader>rr :call fireplace#echo_session_eval('(reset)', {'ns': 'user'})
 nnoremap <Leader>rs :call fireplace#echo_session_eval('(start)', {'ns': 'user'})<CR>
 
 "#############################################################################
+" NeoVim Keymaps
+"#############################################################################
+
+if has('nvim')
+    " Re-map escape
+    tnoremap <Esc> <C-\><C-n>
+    tnoremap <C-v><Esc> <Esc>
+
+    " Make it easier to switch between windows
+    tnoremap <C-h> <c-\><c-n><c-w>h
+    tnoremap <C-j> <c-\><c-n><c-w>j
+    tnoremap <C-k> <c-\><c-n><c-w>k
+    tnoremap <C-l> <c-\><c-n><c-w>l
+endif
+
+"#############################################################################
+" NeoVim Autocommands
+"#############################################################################
+
+if has('nvim')
+    " Don't show line numbers in terminal buffer
+    autocmd TermOpen * setlocal nonumber norelativenumber
+
+    " Always start in insert mode when entering a terminal buffer
+    autocmd BufEnter term://* startinsert
+endif
+
+"#############################################################################
 " Autocommands
 "#############################################################################
 
