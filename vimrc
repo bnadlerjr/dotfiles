@@ -48,6 +48,7 @@ Plugin 'majutsushi/tagbar'                          " displays tags in a window,
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plugin 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
 Plugin 'Quramy/tsuquyomi'                           " Typescript completion support
+Plugin 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
 Plugin 'rking/ag.vim'                               " plugin for the_silver_searcher
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plugin 'Shougo/vimproc.vim'                         " Interactive command execution; dependency of Quramy/tsuquyomi
@@ -232,6 +233,12 @@ autocmd BufReadPost fugitive://* set bufhidden=delete
 
 " Word wrap without line breaks for text files
 au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=0 wrapmargin=0
+
+" vim-lexical setup
+augroup lexical
+  autocmd!
+  autocmd FileType markdown,md,txt,rdoc call lexical#init()
+augroup END
 
 " Hack to get solarized loaded correctly
 au VimEnter * ToggleBG
