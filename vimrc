@@ -42,7 +42,7 @@ Plugin 'honza/vim-snippets'                         " vim-snipmate default snipp
 Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plugin 'kchmck/vim-coffee-script'                   " ugh... a necessary evil... for now
-Plugin 'kien/ctrlp.vim'                             " Fuzzy file, buffer, mru, tag, etc finder
+Plugin 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plugin 'leafgarland/typescript-vim'                 " Typescript syntax files for Vim
 Plugin 'majutsushi/tagbar'                          " displays tags in a window, ordered by scope
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
