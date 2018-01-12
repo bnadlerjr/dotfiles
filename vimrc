@@ -124,6 +124,7 @@ filetype plugin indent on
 syntax on
 colorscheme solarized
 let mapleader = ","
+let maplocalleader = ","
 
 " Make bash aliases available when running shell commands
 let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
@@ -204,13 +205,6 @@ nmap <CR><CR> :w | TestifyRunFile<CR>
 
 " Toggle TagBar
 nnoremap <Leader>t :TagbarToggle<CR>
-
-" Clojure REPL Workflow
-nnoremap <Leader>rf :call fireplace#echo_session_eval('(refresh)', {'ns': 'user'})<CR>
-nnoremap <Leader>rg :call fireplace#echo_session_eval('(go)', {'ns': 'user'})<CR>
-nnoremap <Leader>rp :call fireplace#echo_session_eval('(stop)', {'ns': 'user'})<CR>
-nnoremap <Leader>rr :call fireplace#echo_session_eval('(reset)', {'ns': 'user'})<CR>
-nnoremap <Leader>rs :call fireplace#echo_session_eval('(start)', {'ns': 'user'})<CR>
 
 "#############################################################################
 " NeoVim Keymaps
