@@ -217,10 +217,16 @@ if has('nvim')
     tnoremap <C-v><Esc> <Esc>
 
     " Make it easier to switch between windows
-    tnoremap <C-h> <c-\><c-n><c-w>h
-    tnoremap <C-j> <c-\><c-n><c-w>j
-    tnoremap <C-k> <c-\><c-n><c-w>k
-    tnoremap <C-l> <c-\><c-n><c-w>l
+    tnoremap <C-h> <C-\><C-n><C-w>h
+    tnoremap <C-j> <C-\><C-n><C-w>j
+    tnoremap <C-k> <C-\><C-n><C-w>k
+    tnoremap <C-l> <C-\><C-n><C-w>l
+
+    " Allow ctrlp plugin to open while in insert mode
+    tnoremap <C-p> <C-\><C-n>:CtrlPBuffer<Enter>
+
+    " Quickly switch to alternate file while in insert mode
+    tnoremap <Leader><Leader> <C-\><C-n><C-^>
 endif
 
 "#############################################################################
@@ -233,6 +239,9 @@ if has('nvim')
 
     " Always start in insert mode when entering a terminal buffer
     autocmd BufEnter term://* startinsert
+
+    " Allow terminal buffers to be hidden
+    autocmd TermOpen * set bufhidden=hide
 endif
 
 "#############################################################################

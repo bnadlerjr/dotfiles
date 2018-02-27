@@ -13,6 +13,8 @@ alias t="tree -C -I 'bower_components|coverage|target|node_modules|venv|*.pyc'"
 alias dtstr="date +%Y%m%d%H%M%S"
 alias iphone="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app/Contents/MacOS/iPhone\ Simulator"
 
+alias terminal-notifier="reattach-to-user-namespace terminal-notifier"
+
 # Run Emacs.app
 alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs $@"
 
