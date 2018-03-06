@@ -78,3 +78,8 @@ function guarstop() {
 }
 
 alias guarlist="devw -pair bn -guarlist"
+
+# devw helpers
+alias devws="devw -s -pair bn"
+alias devwi="devw -i"
+alias devwx="devw -x -pair bn"
