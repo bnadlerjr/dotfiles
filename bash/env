@@ -1,3 +1,6 @@
 export EDITOR="vim -v"
 export PATH=/usr/local/share/python:/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin/vim-ruby-refactor:$PATH:~/bin:~/bin/dotfiles/bin
 export NODE_PATH="/usr/local/lib/node:/usr/local/lib/node_modules"
+export GNUPGHOME="$HOME/.gnupg"
+export GPG_TTY=$(tty)
+export SSH_AUTH_SOCK="${HOME}/.gnupg/S.gpg-agent.ssh"
