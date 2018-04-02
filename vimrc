@@ -27,7 +27,6 @@ Plugin 'gmarik/Vundle.vim'                          " let Vundle manage Vundle, 
 Plugin 'AndrewRadev/writable_search.vim'            " Grep for something, then write the original files directly through the search results
 Plugin 'DataWraith/auto_mkdir'                      " Allows you to save files into directories that do not exist yet
 Plugin 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
-Plugin 'JazzCore/ctrlp-cmatcher'                    " CtrlP C matching extension
 Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
@@ -135,7 +134,6 @@ let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
 
 let g:airline_powerline_fonts = 1
 
-let g:ctrlp_match_func = {'match' : 'matcher#cmatch' }
 let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|venv/|cover-unit/|target/'
 
 let NERDSpaceDelims = 1
