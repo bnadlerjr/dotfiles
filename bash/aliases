@@ -19,7 +19,7 @@ alias terminal-notifier="reattach-to-user-namespace terminal-notifier"
 alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs $@"
 
 # Use Homebrew installed Vim
-alias vim="/usr/local/Cellar/vim/7.4.1952/bin/vim"
+alias vim="/usr/local/Cellar/vim/8.0.1650_1/bin/vim"
 
 # Create directory, then enter it
 mkcd () {
