@@ -1,11 +1,6 @@
 [user]
     name = Bob Nadler
     email = bnadlerjr@gmail.com
-    signingkey = EFF5B33D1A8B1670
-[commit]
-    gpgsign = true
-[gpg]
-    program = gpg
 [github]
     user = bnadlerjr
     token = !sh -c 'cat ~/.github_token'
