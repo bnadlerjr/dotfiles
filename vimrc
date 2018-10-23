@@ -253,6 +253,9 @@ au BufRead,BufNewFile *.selmer set syntax=jinja
 
 autocmd FileType make setlocal noexpandtab
 
+" Add spell checking and autowrap for Git commit messages
+autocmd Filetype gitcommit setlocal spell textwidth=72
+
 " When viewing a git tree or blob, quickly move up to view parent
 autocmd User fugitive
   \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |
