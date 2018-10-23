@@ -18,6 +18,7 @@
     ci = commit -v
     co = checkout
     cob = checkout -b
+    conflicted = "!vim +Conflicted"
     di = diff
     ff = merge --ff-only
     glog = log -E -i --grep
