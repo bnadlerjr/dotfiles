@@ -32,6 +32,7 @@ Plugin 'airblade/vim-gitgutter'                     " shows a git diff in the gu
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plugin 'christoomey/vim-conflicted'                 " Easy git merge conflict resolution in Vim
+Plugin 'christoomey/vim-tmux-runner'                " Send code to tmux
 Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
