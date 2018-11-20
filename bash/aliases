@@ -11,8 +11,6 @@ alias cdd="cd -"
 alias df="df -h"
 alias t="tree -C -I 'bower_components|coverage|target|node_modules|venv|*.pyc'"
 alias dtstr="date +%Y%m%d%H%M%S"
-alias iphone="/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app/Contents/MacOS/iPhone\ Simulator"
-
 alias terminal-notifier="reattach-to-user-namespace terminal-notifier"
 
 # Run Emacs.app
@@ -68,18 +66,4 @@ function g() {
     git ${*:-status}
 }
 
-# Gust GUAR helpers
-function guardeploy() {
-    devw -guardeploy -guarname "$*" -config ./data/kube_guar_settings.yml -pair bn
 }
-
-function guarstop() {
-    devw -guarstop -guarname "$*" -pair bn
-}
-
-alias guarlist="devw -pair bn -guarlist"
-
-# devw helpers
-alias devws="devw -s -pair bn"
-alias devwi="devw -i"
-alias devwx="devw -x -pair bn"
