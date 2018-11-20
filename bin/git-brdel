@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+set -e
+set -o pipefail
+echo 'Deleting remote branch...'
+git push origin $1 --delete
+echo 'Deleting local branch...'
+git branch -d $1
