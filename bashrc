@@ -1,5 +1,6 @@
 . ~/dotfiles/bash/env
-. ~/dotfiles/bash/git-completion.bash
+. /usr/local/etc/bash_completion.d/git-completion.bash
+. /usr/local/etc/bash_completion.d/git-prompt.sh
 . ~/dotfiles/bash/git-prompt
 . ~/dotfiles/bash/config
 . ~/dotfiles/bash/aliases
