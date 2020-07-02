@@ -24,6 +24,7 @@ call vundle#begin()
 
 Plugin 'gmarik/Vundle.vim'                          " let Vundle manage Vundle, required
 
+Plugin 'AndrewRadev/splitjoin.vim'                  " Switch between single-line and multiline forms of code
 Plugin 'AndrewRadev/writable_search.vim'            " Grep for something, then write the original files directly through the search results
 Plugin 'DataWraith/auto_mkdir'                      " Allows you to save files into directories that do not exist yet
 Plugin 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
