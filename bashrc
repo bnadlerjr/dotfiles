@@ -10,9 +10,6 @@ __git_complete g __git_main
 ### Added by the Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
 
-# added by travis gem
-[ -f /Users/numfar/.travis/travis.sh ] && source /Users/numfar/.travis/travis.sh
-
 if [ -f $(brew --prefix)/etc/bash_completion ]; then
   . $(brew --prefix)/etc/bash_completion
 fi
