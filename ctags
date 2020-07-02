@@ -2,3 +2,4 @@
 --exclude=.git
 --exclude=coverage
 --exclude=log
+--exclude=node_modules/*
