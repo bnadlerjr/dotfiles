@@ -11,7 +11,7 @@ if !exists('g:testify_runners')
     let g:testify_runners = {
                 \ 'cucumber': './bin/cucumber ',
                 \ 'ruby': ' ruby -Itest ',
-                \ 'rspec': './bin/rspec ',
+                \ 'rspec': ' bundle exec rspec ',
                 \ 'python': ' ./venv/bin/python -m unittest ' }
 endif
 
