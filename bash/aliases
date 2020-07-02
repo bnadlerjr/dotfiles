@@ -2,19 +2,19 @@
 shopt -s expand_aliases
 
 # Bash
-alias reload="source ~/dotfiles/bash/aliases"
-alias ea="vim ~/dotfiles/bash/aliases && reload"
-alias l="ls -lgohG"
-alias la="ls -AlgohG"
 alias ..="cd .."
+alias brewup='brew update; brew prune; brew cleanup; brew doctor'
 alias cdd="cd -"
 alias df="df -h"
-alias t="tree -C -I 'bower_components|coverage|target|node_modules|venv|*.pyc|build'"
 alias dtstr="date +%Y%m%d%H%M%S"
+alias ea="vim ~/dotfiles/bash/aliases && reload"
+alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs $@"
+alias l="ls -lgohG"
+alias la="ls -AlgohG"
+alias reload="source ~/dotfiles/bash/aliases"
+alias t="tree -C -I 'bower_components|coverage|target|node_modules|venv|*.pyc|build'"
 alias terminal-notifier="reattach-to-user-namespace terminal-notifier"
 alias vim="/usr/local/bin/vim"
-alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs $@"
-
 
 # Create directory, then enter it
 mkcd () {
