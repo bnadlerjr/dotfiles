@@ -51,5 +51,8 @@ if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
 fi
 
+# Start ssh-agent
+eval "$(ssh-agent -s)"
+
 # prompt
 PS1="\[$BLDGRN\]\n\u:\w \[$TXTBLU\](\$(srb_git_prompt)\[$TXTBLU\])\[$TXTRST\] \n→ "
