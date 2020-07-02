@@ -31,10 +31,12 @@ Plugin 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
 Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
+Plugin 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plugin 'christoomey/vim-conflicted'                 " Easy git merge conflict resolution in Vim
 Plugin 'christoomey/vim-tmux-runner'                " Send code to tmux
 Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
+Plugin 'elixir-editors/vim-elixir'                  " Vim configuration files for Elixir
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
 Plugin 'godlygeek/csapprox'                         " dependency for Solarized
