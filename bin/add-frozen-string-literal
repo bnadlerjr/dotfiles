@@ -1,0 +1,14 @@
+#!/bin/bash
+
+prefixFile="$(mktemp /tmp/ruby-prefix.XXXXXX)"
+printf "# frozen_string_literal: true\n\n" > $prefixFile
+for file in $(find . -name "*.rb"); do
+    if head -n 1 "${file}" | grep -q '# frozen_string_literal: true'; then
+        echo Skipping $file
+    else
+        echo Processing $file
+        cat $prefixFile $file > $file.modified
+        mv $file.modified $file
+    fi
+done
+rm -f "$prefix"
