@@ -9,4 +9,5 @@
 coverage
 cscope.out
 tags
+tmate*.log
 .idea
