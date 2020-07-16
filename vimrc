@@ -34,6 +34,7 @@ Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
 Plugin 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plugin 'christoomey/vim-conflicted'                 " Easy git merge conflict resolution in Vim
+Plugin 'dense-analysis/ale'                         " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
 Plugin 'elixir-editors/vim-elixir'                  " Vim configuration files for Elixir
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
@@ -136,17 +137,21 @@ let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
 "#############################################################################
 
 let g:airline_powerline_fonts = 1
+let g:airline#extensions#ale#enabled = 1
+
+let g:ale_sign_error = "✘"
+let g:ale_sign_warning = "✘"
 
 let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|venv/|cover-unit/|target/|build/|vendor/bundle'
+
+let g:lexical#spell_key = '<leader>s'
+
+let g:testify_launcher = "Dispatch"
 
 let NERDSpaceDelims = 1
 
 " See https://github.com/altercation/vim-colors-solarized/issues/40
 call togglebg#map("")
-
-let g:testify_launcher = "Dispatch"
-
-let g:lexical#spell_key = '<leader>s'
 
 "#############################################################################
 " Keymaps
