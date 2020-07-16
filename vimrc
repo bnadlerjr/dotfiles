@@ -34,8 +34,6 @@ Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
 Plugin 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plugin 'christoomey/vim-conflicted'                 " Easy git merge conflict resolution in Vim
-Plugin 'christoomey/vim-tmux-runner'                " Send code to tmux
-Plugin 'digitaltoad/vim-jade'                       " Jade syntax highlighting
 Plugin 'elixir-editors/vim-elixir'                  " Vim configuration files for Elixir
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
@@ -45,7 +43,6 @@ Plugin 'guns/vim-sexp'                              " Precision editing for s-ex
 Plugin 'honza/vim-snippets'                         " vim-snipmate default snippets
 Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
-Plugin 'kchmck/vim-coffee-script'                   " ugh... a necessary evil... for now
 Plugin 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plugin 'leafgarland/typescript-vim'                 " Typescript syntax files for Vim
 Plugin 'majutsushi/tagbar'                          " displays tags in a window, ordered by scope
@@ -144,8 +141,6 @@ let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|cover
 
 let NERDSpaceDelims = 1
 
-let g:slime_target = "tmux"
-
 " See https://github.com/altercation/vim-colors-solarized/issues/40
 call togglebg#map("")
 
@@ -212,43 +207,6 @@ nmap <CR><CR> :w | TestifyRunFile<CR>
 nnoremap <Leader>t :TagbarToggle<CR>
 
 "#############################################################################
-" NeoVim Keymaps
-"#############################################################################
-
-if has('nvim')
-    " Re-map escape
-    tnoremap <Esc> <C-\><C-n>
-    tnoremap <C-v><Esc> <Esc>
-
-    " Make it easier to switch between windows
-    tnoremap <C-h> <C-\><C-n><C-w>h
-    tnoremap <C-j> <C-\><C-n><C-w>j
-    tnoremap <C-k> <C-\><C-n><C-w>k
-    tnoremap <C-l> <C-\><C-n><C-w>l
-
-    " Allow ctrlp plugin to open while in insert mode
-    tnoremap <C-p> <C-\><C-n>:CtrlPBuffer<Enter>
-
-    " Quickly switch to alternate file while in insert mode
-    tnoremap <Leader><Leader> <C-\><C-n><C-^>
-endif
-
-"#############################################################################
-" NeoVim Autocommands
-"#############################################################################
-
-if has('nvim')
-    " Don't show line numbers in terminal buffer
-    autocmd TermOpen * setlocal nonumber norelativenumber
-
-    " Always start in insert mode when entering a terminal buffer
-    autocmd BufEnter term://* startinsert
-
-    " Allow terminal buffers to be hidden
-    autocmd TermOpen * set bufhidden=hide
-endif
-
-"#############################################################################
 " Autocommands
 "#############################################################################
 
@@ -263,9 +221,9 @@ autocmd Filetype gitcommit setlocal spell textwidth=72
 
 " When viewing a git tree or blob, quickly move up to view parent
 autocmd User fugitive
-  \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |
-  \   nnoremap <buffer> .. :edit %:h<CR> |
-  \ endif
+            \ if fugitive#buffer().type() =~# '^\%(tree\|blob\)$' |
+            \   nnoremap <buffer> .. :edit %:h<CR> |
+            \ endif
 
 " Auto-clean fugitive buffers
 autocmd BufReadPost fugitive://* set bufhidden=delete
@@ -275,8 +233,8 @@ au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist tex
 
 " vim-lexical setup
 augroup lexical
-  autocmd!
-  autocmd FileType markdown,md,txt,rdoc call lexical#init()
+    autocmd!
+    autocmd FileType markdown,md,txt,rdoc call lexical#init()
 augroup END
 
 " Hack to get solarized loaded correctly
