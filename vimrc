@@ -32,6 +32,7 @@ Plugin 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plugin 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plugin 'altercation/vim-colors-solarized'           " Solarized color theme
 Plugin 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
+Plugin 'autozimu/LanguageClient-neovim'             " Language Server Protocol (LSP) support for vim and neovim
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plugin 'christoomey/vim-conflicted'                 " Easy git merge conflict resolution in Vim
 Plugin 'dense-analysis/ale'                         " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
@@ -146,6 +147,10 @@ let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|cover
 
 let g:lexical#spell_key = '<leader>s'
 
+let g:LanguageClient_serverCommands = {
+    \ 'ruby': ['solargraph', 'stdio'],
+    \ }
+
 let g:testify_launcher = "Dispatch"
 
 let NERDSpaceDelims = 1
@@ -210,6 +215,11 @@ nmap <CR><CR> :w | TestifyRunFile<CR>
 
 " Toggle TagBar
 nnoremap <Leader>t :TagbarToggle<CR>
+
+" Language Client
+nmap <silent>K <Plug>(lcn-hover)
+nmap <silent> gd <Plug>(lcn-definition)
+nmap <silent> gr <Plug>(lcn-references)
 
 "#############################################################################
 " Autocommands
