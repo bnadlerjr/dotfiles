@@ -3,7 +3,8 @@ shopt -s expand_aliases
 
 # Bash
 alias ..="cd .."
-alias brewup='brew update; brew prune; brew cleanup; brew doctor'
+alias abolish="vim ~/.vim/after/plugin/abolish.vim"
+alias brewup="brew update; brew prune; brew cleanup; brew doctor"
 alias cdd="cd -"
 alias df="df -h"
 alias dtstr="date +%Y%m%d%H%M%S"
