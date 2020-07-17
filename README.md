@@ -11,10 +11,17 @@ cd ~/.vim/bundle/ctrlp-cmatcher
 ./install.sh
 ```
 
+4. Install LanguageClient-neovim
+
+```bash
+cd ~/.vim/bundle/LanguageClient-neovim
+./install.sh
+```
+
 ## License
 (The MIT License)
 
-Copyright (c) 2009-2017 Bob Nadler, Jr.
+Copyright (c) 2009-2020 Bob Nadler, Jr.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
