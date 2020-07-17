@@ -36,6 +36,10 @@ TXTRST='\e[0m'    # Text Reset
 # history tracking options
 export HISTCONTROL=ignoredups:erasedups
 export HISTIGNORE="&:?:??"
+export HISTSIZE=100000
+export HISTFILESIZE=100000
+shopt -s histappend
+export PROMPT_COMMAND="history -a; history -c; history -r"
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
