@@ -255,8 +255,8 @@ autocmd User fugitive
 " Auto-clean fugitive buffers
 autocmd BufReadPost fugitive://* set bufhidden=delete
 
-" Word wrap without line breaks for text files
-au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=0 wrapmargin=0
+" Word wrap with line breaks for text files
+au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=79 wrapmargin=0
 
 " vim-lexical setup
 augroup lexical
