@@ -202,6 +202,9 @@ map <Leader>d :bufdo bd<CR>
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
 map <leader>e :edit %%
 
+" Quickly edit .vimrc file
+nnoremap <leader>v :e $MYVIMRC<CR>
+
 " Autmatically insert escape syntax when searching
 nnoremap / /\v
 
@@ -259,6 +262,12 @@ au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist tex
 augroup lexical
     autocmd!
     autocmd FileType markdown,md,txt,rdoc call lexical#init()
+augroup END
+
+" Source vimrc upon save
+augroup vimrc
+    autocmd! BufWritePost $MYVIMRC source % | echom "Reloaded " . $MYVIMRC | redraw
+    autocmd! BufWritePost $MYGVIMRC if has('gui_running') | so % | echom "Reloaded " . $MYGVIMRC | endif | redraw
 augroup END
 
 " Hack to get solarized loaded correctly
