@@ -151,6 +151,10 @@ let g:ale_sign_warning = "✘"
 let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|venv/|cover-unit/|target/|build/|vendor/bundle'
 
 let g:lexical#spell_key = '<leader>s'
+let g:lexical#thesaurus_key = '<leader>t'
+let g:lexical#dictionary = ['/usr/share/dict/words']
+let g:lexical#spellfile = ['~/.vim/spell/en.utf-8.add']
+let g:lexical#thesaurus = ['~/.vim/thesaurus/mthesaur.txt']
 
 let g:LanguageClient_serverCommands = {
     \ 'ruby': ['solargraph', 'stdio'],

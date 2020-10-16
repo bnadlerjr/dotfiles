@@ -18,6 +18,11 @@ cd ~/.vim/bundle/LanguageClient-neovim
 ./install.sh
 ```
 
+5. Update Thesaurus for vim-lexical
+```bash
+./update_lexical.sh
+```
+
 ## License
 (The MIT License)
 

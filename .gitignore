@@ -1,8 +1,6 @@
-.DS_Store
 *.swp
-vim/bundle
-vim/.netrwhist
 *~
+.DS_Store
 emacs.d/.smex-items
 emacs.d/ac-comphist.dat
 emacs.d/elpa
@@ -12,3 +10,6 @@ emacs.d/tramp
 gnupg/*.gpg
 gnupg/random_seed
 lein/repl-history
+vim/.netrwhist
+vim/bundle
+vim/thesaurus/*.txt
