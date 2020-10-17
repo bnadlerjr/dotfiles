@@ -129,7 +129,7 @@ filetype plugin indent on
 syntax on
 colorscheme solarized
 let mapleader = ","
-let maplocalleader = ","
+let maplocalleader = "\\"
 
 " Make bash aliases available when running shell commands
 let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
