@@ -48,7 +48,6 @@ Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plugin 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plugin 'leafgarland/typescript-vim'                 " Typescript syntax files for Vim
-Plugin 'liquidz/vim-iced'                           " Clojure Interactive Development Environment for Vim8/Neovim
 Plugin 'majutsushi/tagbar'                          " displays tags in a window, ordered by scope
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plugin 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
@@ -65,6 +64,7 @@ Plugin 'tpope/vim-classpath'                        " Clojure JVM classpath
 Plugin 'tpope/vim-cucumber'                         " provides syntax highlightling, indenting, and a filetype plugin
 Plugin 'tpope/vim-dispatch'                         " Asynchronous build and test dispatcher
 Plugin 'tpope/vim-endwise'                          " wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
+Plugin 'tpope/vim-fireplace'                        " Clojure REPL support
 Plugin 'tpope/vim-fugitive'                         " Git plugin
 Plugin 'tpope/vim-haml'                             " HAML support
 Plugin 'tpope/vim-leiningen'                        " static support for Leiningen
@@ -149,9 +149,6 @@ let g:ale_sign_error = "✘"
 let g:ale_sign_warning = "✘"
 
 let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|venv/|cover-unit/|target/|build/|vendor/bundle'
-
-let g:iced_enable_clj_kondo_analysis = v:true
-let g:iced_enable_default_key_mappings = v:true
 
 let g:lexical#spell_key = '<leader>s'
 let g:lexical#thesaurus_key = '<leader>t'
