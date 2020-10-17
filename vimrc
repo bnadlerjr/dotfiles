@@ -158,6 +158,7 @@ let g:lexical#thesaurus = ['~/.vim/thesaurus/mthesaur.txt']
 
 let g:LanguageClient_serverCommands = {
     \ 'ruby': ['solargraph', 'stdio'],
+    \ 'clojure': ['bash', '-c', 'clojure-lsp', 'stdio'],
     \ }
 
 let g:testify_launcher = "Dispatch"
