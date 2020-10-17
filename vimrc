@@ -150,6 +150,9 @@ let g:ale_sign_warning = "✘"
 
 let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|venv/|cover-unit/|target/|build/|vendor/bundle'
 
+let g:iced_enable_clj_kondo_analysis = v:true
+let g:iced_enable_default_key_mappings = v:true
+
 let g:lexical#spell_key = '<leader>s'
 let g:lexical#thesaurus_key = '<leader>t'
 let g:lexical#dictionary = ['/usr/share/dict/words']
