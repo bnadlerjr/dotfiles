@@ -73,6 +73,7 @@ Plugin 'tpope/vim-sexp-mappings-for-regular-people' " vim-sexp mappings rely on 
 Plugin 'tpope/vim-surround'                         " makes working w/ quotes, braces,etc. easier
 Plugin 'tpope/vim-unimpaired'                       " pairs of handy bracket mappings
 Plugin 'vim-ruby/vim-ruby'                          " packaged w/ vim but this is latest and greatest
+Plugin 'vim-test/vim-test'                          " Run your tests at the speed of thought
 
 call vundle#end()
 
@@ -157,7 +158,7 @@ let g:LanguageClient_serverCommands = {
     \ 'clojure': ['bash', '-c', 'clojure-lsp', 'stdio'],
     \ }
 
-let g:testify_launcher = "Dispatch"
+let test#strategy = "dispatch"
 
 let NERDSpaceDelims = 1
 
@@ -223,8 +224,9 @@ noremap qc :cclose<CR>
 nnoremap Q @q
 vnoremap Q :norm @q<cr>
 
-" Save the current file, then run the most recent test file that was saved
-nmap <CR><CR> :w | TestifyRunFile<CR>
+" Quickly run tests
+nmap <CR><CR> :w | :TestFile<CR>
+nmap <silent> t<C-n> :TestNearest<CR>
 
 " Toggle TagBar
 nnoremap <Leader>t :TagbarToggle<CR>

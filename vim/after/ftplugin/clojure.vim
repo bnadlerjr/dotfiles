@@ -11,6 +11,3 @@ nnoremap <LocalLeader>rg :call fireplace#echo_session_eval('(go)', {'ns': 'user'
 nnoremap <LocalLeader>rp :call fireplace#echo_session_eval('(stop)', {'ns': 'user'})<CR>
 nnoremap <LocalLeader>rr :call fireplace#echo_session_eval('(reset)', {'ns': 'user'})<CR>
 nnoremap <LocalLeader>rs :call fireplace#echo_session_eval('(start)', {'ns': 'user'})<CR>
-
-" Use fireplace for running tests instead of testify plugin
-nmap <buffer> <CR><CR> cpr
