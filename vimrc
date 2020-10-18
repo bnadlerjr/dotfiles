@@ -48,10 +48,10 @@ Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plugin 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plugin 'majutsushi/tagbar'                          " displays tags in a window, ordered by scope
+Plugin 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plugin 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
 Plugin 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
-Plugin 'rking/ag.vim'                               " plugin for the_silver_searcher
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plugin 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
 Plugin 'tomtom/tlib_vim'                            " vim-snipmate dependency
@@ -183,8 +183,12 @@ nnoremap <Leader>c <space>
 " Quickly re-indent file
 map <Leader>= gg=G``<CR>
 
-" Search using Ag
-nnoremap <Leader>a :Ag<CR>
+" Search for the current word
+nnoremap <Leader>* :Grepper -cword -noprompt<CR>
+
+" Search for the current selection
+nmap gs <plug>(GrepperOperator)
+xmap gs <plug>(GrepperOperator)
 
 " Bring up Fugitive status buffer
 nnoremap <Leader>g :Gstatus<CR>
