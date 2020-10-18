@@ -47,15 +47,12 @@ Plugin 'honza/vim-snippets'                         " vim-snipmate default snipp
 Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plugin 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
-Plugin 'leafgarland/typescript-vim'                 " Typescript syntax files for Vim
 Plugin 'majutsushi/tagbar'                          " displays tags in a window, ordered by scope
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plugin 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
-Plugin 'Quramy/tsuquyomi'                           " Typescript completion support
 Plugin 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
 Plugin 'rking/ag.vim'                               " plugin for the_silver_searcher
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
-Plugin 'Shougo/vimproc.vim'                         " Interactive command execution; dependency of Quramy/tsuquyomi
 Plugin 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
 Plugin 'tomtom/tlib_vim'                            " vim-snipmate dependency
 Plugin 'tpope/vim-abolish'                          " easily search for, substitute, and abbreviate multiple variants of a word
@@ -66,7 +63,6 @@ Plugin 'tpope/vim-dispatch'                         " Asynchronous build and tes
 Plugin 'tpope/vim-endwise'                          " wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
 Plugin 'tpope/vim-fireplace'                        " Clojure REPL support
 Plugin 'tpope/vim-fugitive'                         " Git plugin
-Plugin 'tpope/vim-haml'                             " HAML support
 Plugin 'tpope/vim-leiningen'                        " static support for Leiningen
 Plugin 'tpope/vim-projectionist'                    " project configuration
 Plugin 'tpope/vim-ragtag'                           " Ghetto HTML / XML mappings
