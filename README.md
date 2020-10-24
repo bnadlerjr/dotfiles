@@ -2,7 +2,7 @@
 Dotfile setup based on Advanced Commandline screencast from PeepCode.
 
 ## Install
-1. Clone to ~/bin/dotfiles
+1. Clone to ~/dotfiles
 2. Create symlinks to dotfiles by running `update_symlinks`
 3. Install CtrlP C Matcher extension:
 

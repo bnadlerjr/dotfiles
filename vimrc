@@ -141,6 +141,7 @@ let g:airline#extensions#ale#enabled = 1
 let g:ale_linters = {}
 let g:ale_linters.elixir = ['elixir-ls']
 let g:ale_elixir_elixir_ls_release = expand("~/dev/elixir/elixir-ls/rel")
+let g:ale_sign_column_always = 1
 
 let g:ale_sign_error = "✘"
 let g:ale_sign_warning = "✘"
