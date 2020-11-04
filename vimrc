@@ -259,6 +259,11 @@ autocmd User fugitive
 " Auto-clean fugitive buffers
 autocmd BufReadPost fugitive://* set bufhidden=delete
 
+" vim-conflicted setup
+autocmd User VimConflicted
+            \ set stl+=%{ConflictedVersion()}
+            \ nnoremap ]m :GitNextConflict<cr>
+
 " Word wrap with line breaks for text files
 au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=79 wrapmargin=0
 

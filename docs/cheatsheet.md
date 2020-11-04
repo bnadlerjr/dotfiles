@@ -18,6 +18,11 @@ set -euxo pipefail
 * `:Subvert` works like `%s` with curly brace support
 * can coerce text: `crs` -> `snake_case`, `cr-` -> `dash-case`, etc.
 
+#### vim-conflicted
+* `g conflicted` -> open vim w/ conflicted files opened
+* `dgu` -> diffget from the upstream version
+* `dgl` -> diffget from the local version
+* `]m` -> resolve and move to next conflicted file
 
 #### vim-grepper
 * `<Leader>*` -> search for word under cursor
