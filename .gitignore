@@ -1,6 +1,7 @@
 *.swp
 *~
 .DS_Store
+docs/*.pdf
 emacs.d/.smex-items
 emacs.d/ac-comphist.dat
 emacs.d/elpa
