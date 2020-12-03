@@ -192,6 +192,9 @@ nnoremap <Leader>* :Grepper -cword -noprompt<CR>
 nmap gs <plug>(GrepperOperator)
 xmap gs <plug>(GrepperOperator)
 
+" Open search prompt
+nnoremap <Leader>a :GrepperAg 
+
 " Bring up Fugitive status buffer
 nnoremap <Leader>g :Gstatus<CR>
 
