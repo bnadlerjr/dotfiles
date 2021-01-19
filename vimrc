@@ -139,14 +139,14 @@ let g:airline_powerline_fonts = 1
 let g:airline#extensions#ale#enabled = 1
 
 let g:ale_linters = {}
-let g:ale_linters.elixir = ['elixir-ls']
+let g:ale_linters.elixir = ['credo', 'dialyxir', 'elixir-ls', 'mix']
 let g:ale_elixir_elixir_ls_release = expand("~/dev/elixir/elixir-ls/rel")
-let g:ale_sign_column_always = 1
 
+let g:ale_sign_column_always = 1
 let g:ale_sign_error = "✘"
 let g:ale_sign_warning = "✘"
 
-let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|venv/|cover-unit/|target/|build/|vendor/bundle'
+let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|venv/|cover-unit/|target/|build/|vendor/bundle|deps|_build'
 
 let g:lexical#spell_key = '<leader>s'
 let g:lexical#thesaurus_key = '<leader>t'
