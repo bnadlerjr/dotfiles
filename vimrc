@@ -159,6 +159,9 @@ let g:LanguageClient_serverCommands = {
     \ 'clojure': ['bash', '-c', 'clojure-lsp', 'stdio'],
     \ }
 
+" Use new version of snipMate parser
+let g:snipMate = { 'snippet_version' : 1 }
+
 let test#strategy = "dispatch"
 
 let NERDSpaceDelims = 1
