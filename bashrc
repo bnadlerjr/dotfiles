@@ -1,6 +1,6 @@
 . ~/dotfiles/bash/env
-. /opt/homebrew/etc/bash_completion.d/git-completion.bash
-. /opt/homebrew/etc/bash_completion.d/git-prompt.sh
+. $(brew --prefix)/etc/bash_completion.d/git-completion.bash
+. $(brew --prefix)/etc/bash_completion.d/git-prompt.sh
 . ~/dotfiles/bash/git-prompt
 . ~/dotfiles/bash/config
 . ~/dotfiles/bash/aliases
@@ -22,3 +22,6 @@ export NVM_DIR="$HOME/.nvm"
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"
+
+. $(brew --prefix)/opt/asdf/asdf.sh
+. $(brew --prefix)/opt/asdf/etc/bash_completion.d/asdf.bash

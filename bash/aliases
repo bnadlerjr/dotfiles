@@ -17,7 +17,7 @@ alias t="tree -C -I 'bower_components|coverage|target|node_modules|venv|*.pyc|bu
 alias terminal-notifier="reattach-to-user-namespace terminal-notifier"
 alias tm="tmate -2 -f ~/.tmux.conf"
 alias tms="tmate show-messages"
-alias vim="/opt/homebrew/bin/vim"
+alias vim="$(brew --prefix)/bin/vim"
 
 # Create directory, then enter it
 mkcd () {
