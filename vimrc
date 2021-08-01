@@ -199,7 +199,7 @@ xmap gs <plug>(GrepperOperator)
 nnoremap <Leader>a :GrepperAg 
 
 " Bring up Fugitive status buffer
-nnoremap <Leader>g :Gstatus<CR>
+nnoremap <Leader>g :Git<CR>
 
 " Delete focused buffer without losing split
 nnoremap <C-c> :bp\|bd #<CR>
