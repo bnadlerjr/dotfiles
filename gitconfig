@@ -27,6 +27,7 @@
     mupr = "!git checkout master && git pull && git checkout - && git rebase master"
     olog = log --oneline --
     pom = push origin master
+    pr = "!hub pull-request -o"
     pushf = push --force-with-lease
     st = status
     uncommit = reset --soft HEAD^
@@ -48,3 +49,5 @@
     rebase = true
 [init]
     defaultBranch = main
+[hub]
+	protocol = https
