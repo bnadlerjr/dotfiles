@@ -18,7 +18,22 @@ cd ~/.vim/bundle/LanguageClient-neovim
 ./install.sh
 ```
 
-5. Update Thesaurus for vim-lexical
+5. Install Elixir Language Server
+
+```bash
+$ mkdir -p ~/dev/elixir && cd ~/dev/elixir
+$ git clone git@github.com:elixir-lsp/elixir-ls.git
+$ cd elixir-ls && mkdir rel
+
+# checkout the latest release
+$ git checkout tags/v0.4.0
+
+$ mix deps.get && mix compile
+
+$ mix elixir_ls.release -o rel
+```
+
+6. Update Thesaurus for vim-lexical
 ```bash
 ./update_lexical.sh
 ```
