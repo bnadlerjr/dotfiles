@@ -16,6 +16,7 @@ alias la="ls -AlgohG"
 alias reload="source ~/dotfiles/bash/aliases"
 alias t="tree -C -I 'bower_components|coverage|target|node_modules|venv|*.pyc|build|_build|deps'"
 alias terminal-notifier="reattach-to-user-namespace terminal-notifier"
+alias tf=terraform
 alias tm="tmate -2 -f ~/.tmux.conf"
 alias tms="tmate show-messages"
 alias vim="$(brew --prefix)/bin/vim"

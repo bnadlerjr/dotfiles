@@ -43,6 +43,7 @@ Plugin 'garbas/vim-snipmate'                        " handy code snippets
 Plugin 'godlygeek/csapprox'                         " dependency for Solarized
 Plugin 'guns/vim-clojure-static'                    " Clojure syntax highlighting and indentation
 Plugin 'guns/vim-sexp'                              " Precision editing for s-expressions
+Plugin 'hashivim/vim-terraform'                     " basic vim/terraform integration
 Plugin 'honza/vim-snippets'                         " vim-snipmate default snippets
 Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
