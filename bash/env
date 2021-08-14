@@ -1,3 +1,4 @@
+export BASH_SILENCE_DEPRECATION_WARNING=1
 export EDITOR="vim -v"
 export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/share/python:/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin/vim-ruby-refactor:$PATH:~/bin:~/dotfiles/vim/bundle/vim-iced/bin
 export NODE_PATH="/usr/local/lib/node:/usr/local/lib/node_modules"
