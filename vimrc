@@ -53,6 +53,7 @@ Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for sel
 Plugin 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
 Plugin 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
+Plugin 'sillybun/vim-repl'                          " Best REPL environment for Vim
 Plugin 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
 Plugin 'tomtom/tlib_vim'                            " vim-snipmate dependency
 Plugin 'tpope/vim-abolish'                          " easily search for, substitute, and abbreviate multiple variants of a word
@@ -158,6 +159,12 @@ let g:LanguageClient_serverCommands = {
     \ 'ruby': ['solargraph', 'stdio'],
     \ 'clojure': ['bash', '-c', 'clojure-lsp', 'stdio'],
     \ 'typescript': ['typescript-language-server', '--stdio'],
+    \ }
+
+let g:repl_program = {
+    \ 'python': ['python'],
+    \ 'ruby': ['bundle exec rails c', 'bin/console', 'irb'],
+    \ 'default': ['bash']
     \ }
 
 " Use new version of snipMate parser
