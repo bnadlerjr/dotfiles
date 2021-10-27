@@ -1,4 +1,6 @@
+awscli 2.2.18
+nodejs 15.11.0
 ruby 2.7.3
 rust 1.52.1
-nodejs 15.11.0
-awscli 2.2.18
+shellcheck 0.7.2
+yarn 1.22.11
