@@ -28,5 +28,8 @@ export PATH="$PATH:$HOME/.rvm/bin"
 . $(brew --prefix)/opt/asdf/asdf.sh
 . $(brew --prefix)/opt/asdf/etc/bash_completion.d/asdf.bash
 
+# Yarn setup (must come after asdf setup since Yarn is managed by asdf)
+export PATH="$(yarn global bin):$PATH"
+
 # Setup direnv
 eval "$(direnv hook bash)"
