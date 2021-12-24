@@ -4,3 +4,4 @@ Abolish canvase canvas
 Abolish dismissable dismissible
 Abolish {L,l}of{,fer} {L,l}og{,ger}
 Abolish paylaod payload
+Abolish rubcop rubocop
