@@ -3,6 +3,7 @@ tap "homebrew/bundle"
 tap "homebrew/core"
 
 brew "asdf"
+brew "aspell"
 brew "bash-completion"
 brew "bumpversion"
 brew "clipy"
