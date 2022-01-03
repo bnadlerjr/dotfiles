@@ -70,6 +70,7 @@ Plugin 'tpope/vim-ragtag'                           " Ghetto HTML / XML mappings
 Plugin 'tpope/vim-rails'                            " Rails helpers
 Plugin 'tpope/vim-rake'                             " makes Ruby project navigation easier for non-Rails projects
 Plugin 'tpope/vim-repeat'                           " Enable repeating supported plugin maps with '.'
+Plugin 'tpope/vim-rhubarb'                          " GitHub extension for fugitive.vim
 Plugin 'tpope/vim-sexp-mappings-for-regular-people' " vim-sexp mappings rely on meta key; these don't
 Plugin 'tpope/vim-surround'                         " makes working w/ quotes, braces,etc. easier
 Plugin 'tpope/vim-unimpaired'                       " pairs of handy bracket mappings
