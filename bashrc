@@ -21,7 +21,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # asdf setup
-. $(brew --prefix)/opt/asdf/asdf.sh
+. $(brew --prefix)/opt/asdf/libexec/asdf.sh
 . $(brew --prefix)/opt/asdf/etc/bash_completion.d/asdf.bash
 
 # Yarn setup (must come after asdf setup since Yarn is managed by asdf)
