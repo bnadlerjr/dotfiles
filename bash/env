@@ -1,4 +1,12 @@
+# Silences warning about not using ZSH[1]. I don't feel like switching to
+# ZSH, but I should look into having Bash managed by Homebrew[2] so that I
+# can use the latest version. After switching to a newer version of Bash I
+# shouldn't need to set this anymore.
+#
+# 1: https://support.apple.com/en-us/HT208050
+# 2: https://dev.to/emcain/how-to-change-bash-versions-on-mac-with-homebrew-20o3
 export BASH_SILENCE_DEPRECATION_WARNING=1
+
 export EDITOR="vim -v"
 export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/share/python:/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin/vim-ruby-refactor:$PATH:~/bin:~/dotfiles/vim/bundle/vim-iced/bin
 export GNUPGHOME="$HOME/.gnupg"
