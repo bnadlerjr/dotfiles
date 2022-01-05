@@ -11,9 +11,7 @@
     ui = auto
 [alias]
     a  = add
-    aa = add --all
     br = branch
-    ca = commit -v -a
     cane = commit --amend --no-edit
     ci = commit -v
     co = checkout
@@ -23,14 +21,10 @@
     ff = merge --ff-only
     glog = log -E -i --grep
     lg = log --graph --abbrev-commit --date=relative
-    mup = "!git checkout master && git pull && git checkout -"
-    mupr = "!git checkout master && git pull && git checkout - && git rebase master"
     olog = log --oneline --
-    pom = push origin master
     pr = "!hub pull-request -o"
     pushf = push --force-with-lease
     st = status
-    uncommit = reset --soft HEAD^
 [fetch]
     prune = true
 [format]
@@ -50,4 +44,4 @@
 [init]
     defaultBranch = main
 [hub]
-	protocol = https
+    protocol = https
