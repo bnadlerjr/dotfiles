@@ -1,4 +1,0 @@
-Host thethirdswitch
-  HostName thethirdswitch.com
-  User bob
-  Port 30000
