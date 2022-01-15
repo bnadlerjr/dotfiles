@@ -9,11 +9,20 @@
 __git_complete g __git_main
 
 if [ -f $(brew --prefix)/etc/bash_completion ]; then
-  . $(brew --prefix)/etc/bash_completion
+    . $(brew --prefix)/etc/bash_completion
 fi
 
 # asdf setup
-. $(brew --prefix)/opt/asdf/libexec/asdf.sh
+if [ -f $(brew --prefix)/opt/asdf/libexec/asdf.sh ]; then
+    # For new M1 systems
+    . $(brew --prefix)/opt/asdf/libexec/asdf.sh
+fi
+
+if [ -f $(brew --prefix)/opt/asdf/asdf.sh ]; then
+    # For older systems
+    . $(brew --prefix)/opt/asdf/asdf.sh
+fi
+
 . $(brew --prefix)/opt/asdf/etc/bash_completion.d/asdf.bash
 
 # Yarn setup (must come after asdf setup since Yarn is managed by asdf)
