@@ -3,5 +3,6 @@ Abolish {A,a}ttendence {A,a}ttendance
 Abolish canvase canvas
 Abolish dismissable dismissible
 Abolish {L,l}of{,fer} {L,l}og{,ger}
+Abolish {M,m}ilstone, {M,m}ilestone
 Abolish paylaod payload
 Abolish rubcop rubocop
