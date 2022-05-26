@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+# Opens a GitHub pull request using Hub. Prompts for a list of possible
+# reviewers. Used only for Flatiron School pull requests.
+#
+require 'tty-prompt'
+
+prompt = TTY::Prompt.new
+
+possible_base_branch = File.file?('.git/refs/heads/main') ? 'main' : 'master'
+base_branch = prompt.ask('What is the name of the base branch?', default: possible_base_branch)
+
+possible_reviewers = {
+  'Avidor' => 'aturkewi',
+  'Cernan' => 'cernanb',
+  'Colin' => 'colinrlly',
+  'Crystal' => 'ACrystalC',
+  'Drew K' => 'drewkos',
+  'Drew P' => 'notnotdrew',
+  'Gary' => 'afulki',
+  'Lorgio' => 'lorgio-jimenez',
+  'Matt' => 'mattdonovan',
+  'Mitch' => 'mitchbeebe',
+  'Tiffany' => 'tiffanynk'
+}
+
+reviewers = []
+while reviewers == []
+  reviewers = prompt.multi_select('Select reviewers:', possible_reviewers, per_page: possible_reviewers.keys.length)
+  prompt.error("\nYou must select at least one reviewer!\n") if reviewers.empty?
+end
+
+cmd = "hub pull-request --base #{base_branch} -o -r #{reviewers.join(',')}"
+system(cmd) || abort("\n== Command '#{cmd}' failed ==")
