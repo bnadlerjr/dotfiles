@@ -35,6 +35,7 @@ Plugin 'andyl/vim-textobj-elixir'                   " Make text objects with var
 Plugin 'autozimu/LanguageClient-neovim'             " Language Server Protocol (LSP) support for vim and neovim
 Plugin 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plugin 'christoomey/vim-conflicted'                 " Easy git merge conflict resolution in Vim
+Plugin 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plugin 'dense-analysis/ale'                         " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
 Plugin 'elixir-editors/vim-elixir'                  " Vim configuration files for Elixir
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
@@ -46,11 +47,11 @@ Plugin 'hashivim/vim-terraform'                     " basic vim/terraform integr
 Plugin 'honza/vim-snippets'                         " vim-snipmate default snippets
 Plugin 'juvenn/mustache.vim'                        " Mustache support
 Plugin 'kana/vim-textobj-user'                      " dependency for rubyblock
-Plugin 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plugin 'majutsushi/tagbar'                          " displays tags in a window, ordered by scope
 Plugin 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plugin 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plugin 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
+Plugin 'paulyeo21/vim-textobj-rspec'                " Creates text objects for rspec blocks
 Plugin 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
 Plugin 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plugin 'sillybun/vim-repl'                          " Best REPL environment for Vim
