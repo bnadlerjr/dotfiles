@@ -78,6 +78,11 @@ Plugin 'tpope/vim-unimpaired'                       " pairs of handy bracket map
 Plugin 'vim-ruby/vim-ruby'                          " packaged w/ vim but this is latest and greatest
 Plugin 'vim-test/vim-test'                          " Run your tests at the speed of thought
 
+" Neovim specific plugins
+if has('nvim')
+    Plugin 'github/copilot.vim' " Neovim plugin for GitHub Copilot
+endif
+
 call vundle#end()
 
 if 1 == need_to_install_plugins
