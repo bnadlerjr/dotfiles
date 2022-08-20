@@ -179,6 +179,7 @@ let g:snipMate = { 'snippet_version' : 1 }
 
 let test#strategy = "dispatch"
 
+let g:NERDDefaultAlign = 'left'
 let NERDSpaceDelims = 1
 
 " See https://github.com/altercation/vim-colors-solarized/issues/40
