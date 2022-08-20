@@ -1,4 +1,5 @@
 Abolish artifiacts artifacts
+Abolish {A,a}assigment {A,a}assignment
 Abolish {A,a}ttendence {A,a}ttendance
 Abolish canvase canvas
 Abolish dismissable dismissible
