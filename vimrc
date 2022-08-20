@@ -37,6 +37,7 @@ Plugin 'bling/vim-airline'                          " lean & mean status/tabline
 Plugin 'christoomey/vim-conflicted'                 " Easy git merge conflict resolution in Vim
 Plugin 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plugin 'dense-analysis/ale'                         " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
+Plugin 'ecomba/vim-ruby-refactoring'                " Refactoring tool for Ruby in vim!
 Plugin 'elixir-editors/vim-elixir'                  " Vim configuration files for Elixir
 Plugin 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plugin 'garbas/vim-snipmate'                        " handy code snippets
