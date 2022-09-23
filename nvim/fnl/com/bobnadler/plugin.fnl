@@ -24,6 +24,11 @@
   nil)
 
 (use
+  :PaterJason/cmp-conjure {}                     ;; nvim-cmp source for conjure.
+  :hrsh7th/cmp-buffer {}                         ;; nvim-cmp source for buffer words
+  :hrsh7th/cmp-cmdline {}                        ;; nvim-cmp source for vim's cmdline
+  :hrsh7th/cmp-path {}                           ;; nvim-cmp source for path
+  :hrsh7th/nvim-cmp {:mod :cmp}                  ;; A completion plugin for neovim coded in Lua.
   :AndrewRadev/splitjoin.vim {}                  ;; Switch between single-line and multiline forms of code
   :AndrewRadev/writable_search.vim {}            ;; Grep for something, then write the original files directly through the search results
   :DataWraith/auto_mkdir {}                      ;; Allows you to save files into directories that do not exist yet
