@@ -40,3 +40,6 @@
 
 ;; Toggle paste/nopaste mode
 (utils.map "<F10>" ":set paste!<CR>")
+
+;; Neogit
+(utils.nnoremap "<leader>g" ":Neogit<CR>")
