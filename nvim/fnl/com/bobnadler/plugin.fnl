@@ -24,27 +24,30 @@
   nil)
 
 (use
-  :PaterJason/cmp-conjure {}                     ;; nvim-cmp source for conjure.
-  :hrsh7th/cmp-buffer {}                         ;; nvim-cmp source for buffer words
-  :hrsh7th/cmp-cmdline {}                        ;; nvim-cmp source for vim's cmdline
-  :hrsh7th/cmp-path {}                           ;; nvim-cmp source for path
-  :hrsh7th/nvim-cmp {:mod :cmp}                  ;; A completion plugin for neovim coded in Lua.
   :AndrewRadev/splitjoin.vim {}                  ;; Switch between single-line and multiline forms of code
   :AndrewRadev/writable_search.vim {}            ;; Grep for something, then write the original files directly through the search results
   :DataWraith/auto_mkdir {}                      ;; Allows you to save files into directories that do not exist yet
   :Glench/Vim-Jinja2-Syntax {}                   ;; Jinja2 syntax highlighting
+  :L3MON4D3/LuaSnip {}                           ;; Snippet Engine for Neovim written in Lua.
   :Olical/conjure {}                             ;; Interactive evaluation for Neovim.
+  :PaterJason/cmp-conjure {}                     ;; nvim-cmp source for conjure.
   :TimUntersberger/neogit {:mod :neogit}         ;; magit for neovim
   :elixir-editors/vim-elixir {}                  ;; Vim configuration files for Elixir
   :guns/vim-clojure-static {}                    ;; Clojure syntax highlighting and indentation
   :guns/vim-sexp {:mod :sexp}                    ;; Precision editing for s-expressions
   :hashivim/vim-terraform {}                     ;; basic vim/terraform integration
+  :hrsh7th/cmp-buffer {}                         ;; nvim-cmp source for buffer words
+  :hrsh7th/cmp-cmdline {}                        ;; nvim-cmp source for vim's cmdline
+  :hrsh7th/cmp-path {}                           ;; nvim-cmp source for path
+  :hrsh7th/nvim-cmp {:mod :cmp}                  ;; A completion plugin for neovim coded in Lua.
   :kylechui/nvim-surround {:mod :surround}       ;; Add/change/delete surrounding delimiter pairs with ease.
   :lewis6991/gitsigns.nvim {:mod :gitsigns}      ;; Git integration for buffers
   :lifepillar/vim-solarized8 {:mod :colors}      ;; Optimized Solarized colorschemes. Best served with true-color terminals!
   :nvim-lua/plenary.nvim {}                      ;; All the lua functions I don't want to write twice.
   :nvim-lua/popup.nvim {}                        ;; An implementation of the Popup API from vim in Neovim.
+  :rafamadriz/friendly-snippets {}               ;; Set of preconfigured snippets for different languages.
   :reedes/vim-lexical {}                         ;; Build on Vim’s spell/thes/dict completion
+  :saadparwaiz1/cmp_luasnip {}                   ;; luasnip completion source for nvim-cmp
   :scrooloose/nerdcommenter {:mod :comments}     ;; quickly (un)comment lines
   :tpope/vim-abolish {}                          ;; easily search for, substitute, and abbreviate multiple variants of a word
   :tpope/vim-bundler {}                          ;; makes source navigation of bundled gems easier
