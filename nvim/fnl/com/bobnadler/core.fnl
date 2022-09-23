@@ -28,3 +28,9 @@
 (set nvim.o.wildmenu true)                ;; Autocomplete filenames
 (set nvim.o.wildmode "list:longest,full") ;; Show completions as list with longest match then full matches
 (set nvim.o.wrap true)                    ;; Turn on line wrapping
+
+;; Don't know if these are needed anymore...
+;; (vim.cmd "filetype on")
+;; (vim.cmd "filetype plugin on")
+;; (vim.cmd "filetype plugin indent on")
+;; (vim.cmd "syntax on")
