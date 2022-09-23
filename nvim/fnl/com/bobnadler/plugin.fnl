@@ -38,6 +38,7 @@
   :lewis6991/gitsigns.nvim {:mod :gitsigns}      ;; Git integration for buffers
   :lifepillar/vim-solarized8 {:mod :colors}      ;; Optimized Solarized colorschemes. Best served with true-color terminals!
   :nvim-lua/plenary.nvim {}                      ;; All the lua functions I don't want to write twice.
+  :nvim-lua/popup.nvim {}                        ;; An implementation of the Popup API from vim in Neovim.
   :reedes/vim-lexical {}                         ;; Build on Vim’s spell/thes/dict completion
   :scrooloose/nerdcommenter {:mod :comments}     ;; quickly (un)comment lines
   :tpope/vim-abolish {}                          ;; easily search for, substitute, and abbreviate multiple variants of a word
@@ -49,7 +50,7 @@
   :tpope/vim-rake {}                             ;; makes Ruby project navigation easier for non-Rails projects
   :tpope/vim-repeat {}                           ;; Enable repeating supported plugin maps with '.'
   :tpope/vim-sexp-mappings-for-regular-people {} ;; vim-sexp mappings rely on meta key; these don't
-  ; *** :tpope/vim-endwise {}                   ;; wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
+  ; *** :tpope/vim-endwise {}                    ;; wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
   ; *** :tpope/vim-ragtag {}                     ;; Ghetto HTML / XML mappings
   ; *** :vim-test/vim-test {}                    ;; Run your tests at the speed of thought
   )
