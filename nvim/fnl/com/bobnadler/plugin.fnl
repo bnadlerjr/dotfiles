@@ -58,6 +58,7 @@
   :tpope/vim-rake {}                             ;; makes Ruby project navigation easier for non-Rails projects
   :tpope/vim-repeat {}                           ;; Enable repeating supported plugin maps with '.'
   :tpope/vim-sexp-mappings-for-regular-people {} ;; vim-sexp mappings rely on meta key; these don't
+  :onsails/lspkind.nvim {}                       ;; vscode-like pictograms for neovim lsp completion items
   ; *** :tpope/vim-endwise {}                    ;; wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
   ; *** :tpope/vim-ragtag {}                     ;; Ghetto HTML / XML mappings
   ; *** :vim-test/vim-test {}                    ;; Run your tests at the speed of thought

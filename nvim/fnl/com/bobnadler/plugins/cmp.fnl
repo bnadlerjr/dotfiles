@@ -1,10 +1,9 @@
 (module com.bobnadler.plugins.cmp
   {autoload {nvim aniseed.nvim
              cmp cmp
+             lspkind lspkind
              luasnip luasnip
              loaders luasnip.loaders.from_vscode}})
-
-(set nvim.o.completeopt "menuone,noselect")
 
 (defn- has-words-before []
   (let [(line col) (unpack (vim.api.nvim_win_get_cursor 0))]
@@ -27,12 +26,15 @@
 (defn- expand-snippet [args]
   (luasnip.lsp_expand args.body))
 
-(def- sources
-  [{:name "luasnip" :keyword_length 3}
-   {:name "conjure" :keyword_length 3}
-   {:name "buffer" :keyword_length 3}
-   {:name "path" :keyword_length 3}
-   {:name "cmdline" :keyword_length 3}])
+(def- formatting
+  {:mode "symbol_text"
+   :maxwidth 50
+   :ellipsis_char "..."
+   :menu {:buffer "[Buffer]"
+          :luasnip "[LuaSnip]"
+          :conjure "[Conjure]"
+          :path "[Path]"
+          :cmdline "[CmdLine]"}})
 
 (def- mapping
   {:<C-n> (cmp.mapping.select_next_item)
@@ -48,9 +50,18 @@
    :<Tab> (cmp.mapping tab {1 :i 2 :s})
    :<S-Tab> (cmp.mapping shift-tab {1 :i 2 :s})})
 
+(def- sources
+  [{:name "luasnip" :keyword_length 3}
+   {:name "conjure" :keyword_length 3}
+   {:name "buffer" :keyword_length 3}
+   {:name "path" :keyword_length 3}
+   {:name "cmdline" :keyword_length 3}])
+
+(set nvim.o.completeopt "menuone,noselect")
 (loaders.lazy_load)
 (cmp.setup
-      {:mapping mapping
-       :snippet {:expand expand-snippet}
-       :sources sources
-       :window {:documentation (cmp.config.window.bordered)}})
+  {:formatting {:format (lspkind.cmp_format formatting)}
+   :mapping mapping
+   :snippet {:expand expand-snippet}
+   :sources sources
+   :window {:documentation (cmp.config.window.bordered)}})
