@@ -34,6 +34,7 @@
   :guns/vim-sexp {:mod :sexp}                    ;; Precision editing for s-expressions
   :hashivim/vim-terraform {}                     ;; basic vim/terraform integration
   :kylechui/nvim-surround {:mod :surround}       ;; Add/change/delete surrounding delimiter pairs with ease.
+  :lewis6991/gitsigns.nvim {:mod :gitsigns}      ;; Git integration for buffers
   :lifepillar/vim-solarized8 {:mod :colors}      ;; Optimized Solarized colorschemes. Best served with true-color terminals!
   :reedes/vim-lexical {}                         ;; Build on Vim’s spell/thes/dict completion
   :scrooloose/nerdcommenter {:mod :comments}     ;; quickly (un)comment lines
