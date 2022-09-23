@@ -31,10 +31,11 @@
    :maxwidth 50
    :ellipsis_char "..."
    :menu {:buffer "[Buffer]"
-          :luasnip "[LuaSnip]"
+          :cmdline "[CmdLine]"
           :conjure "[Conjure]"
-          :path "[Path]"
-          :cmdline "[CmdLine]"}})
+          :luasnip "[LuaSnip]"
+          :nvim_lsp "[LSP]"
+          :path "[Path]"}})
 
 (def- mapping
   {:<C-n> (cmp.mapping.select_next_item)
@@ -51,7 +52,8 @@
    :<S-Tab> (cmp.mapping shift-tab {1 :i 2 :s})})
 
 (def- sources
-  [{:name "luasnip" :keyword_length 3}
+  [{:name "nvim_lsp" :keyword_length 3}
+   {:name "luasnip" :keyword_length 3}
    {:name "conjure" :keyword_length 3}
    {:name "buffer" :keyword_length 3}
    {:name "path" :keyword_length 3}
