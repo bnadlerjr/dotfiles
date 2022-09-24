@@ -41,6 +41,7 @@
   :hrsh7th/cmp-nvim-lsp {}                             ;; nvim-cmp source for neovim builtin LSP client
   :hrsh7th/cmp-path {}                                 ;; nvim-cmp source for path
   :hrsh7th/nvim-cmp {:mod :cmp}                        ;; A completion plugin for neovim coded in Lua.
+  :kyazdani42/nvim-web-devicons {}                     ;; lua `fork` of vim-web-devicons for neovim
   :kylechui/nvim-surround {:mod :surround}             ;; Add/change/delete surrounding delimiter pairs with ease.
   :lewis6991/gitsigns.nvim {:mod :gitsigns}            ;; Git integration for buffers
   :lifepillar/vim-solarized8 {:mod :colors}            ;; Optimized Solarized colorschemes. Best served with true-color terminals!
@@ -56,6 +57,7 @@
   :reedes/vim-lexical {}                               ;; Build on Vim’s spell/thes/dict completion
   :saadparwaiz1/cmp_luasnip {}                         ;; luasnip completion source for nvim-cmp
   :scrooloose/nerdcommenter {:mod :comments}           ;; quickly (un)comment lines
+  :sindrets/diffview.nvim {}                           ;; Single tabpage interface for easily cycling through diffs for all modified files for any git rev.
   :tpope/vim-abolish {}                                ;; easily search for, substitute, and abbreviate multiple variants of a word
   :tpope/vim-bundler {}                                ;; makes source navigation of bundled gems easier
   :tpope/vim-cucumber {}                               ;; provides syntax highlightling, indenting, and a filetype plugin

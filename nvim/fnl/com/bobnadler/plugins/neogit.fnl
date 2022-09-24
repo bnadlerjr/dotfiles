@@ -4,4 +4,5 @@
 (let [(ok? neogit) (pcall #(require :neogit))]
   (when ok?
     (neogit.setup
-      {:disable_commit_confirmation true})))
+      {:disable_commit_confirmation true
+       :integrations {:diffview true}})))
