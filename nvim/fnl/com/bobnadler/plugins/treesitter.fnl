@@ -2,7 +2,8 @@
   {autoload {treesitter nvim-treesitter.configs}})
 
 (treesitter.setup
-  {:highlight {:enable true}
+  {:endwise {:enable true}
+   :highlight {:enable true}
    :indent {:enable true}
    :ensure_installed [:bash
                       :clojure

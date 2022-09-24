@@ -31,6 +31,7 @@
   :L3MON4D3/LuaSnip {}                                 ;; Snippet Engine for Neovim written in Lua.
   :Olical/conjure {}                                   ;; Interactive evaluation for Neovim.
   :PaterJason/cmp-conjure {}                           ;; nvim-cmp source for conjure.
+  :RRethy/nvim-treesitter-endwise {}                   ;; Tree-sitter aware alternative to tpope's vim-endwise
   :TimUntersberger/neogit {:mod :neogit}               ;; magit for neovim
   :elixir-editors/vim-elixir {}                        ;; Vim configuration files for Elixir
   :guns/vim-clojure-static {}                          ;; Clojure syntax highlighting and indentation
@@ -69,6 +70,5 @@
   :tpope/vim-sexp-mappings-for-regular-people {}       ;; vim-sexp mappings rely on meta key; these don't
   :williamboman/mason-lspconfig.nvim {}                ;; Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
   :williamboman/mason.nvim {}                          ;; Easily install and manage LSP servers, DAP servers, linters, and formatters.
-  ; *** :tpope/vim-endwise {}                          ;; wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
   ; *** :vim-test/vim-test {}                          ;; Run your tests at the speed of thought
   )
