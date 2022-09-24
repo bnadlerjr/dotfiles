@@ -12,5 +12,5 @@
                       :html
                       :python
                       :ruby
-                      :typscript
+                      :typescript
                       :yaml]})
