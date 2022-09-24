@@ -47,6 +47,7 @@
   :neovim/nvim-lspconfig {:mod :lspconfig}             ;; Quickstart configs for Nvim LSP
   :nvim-lua/plenary.nvim {}                            ;; All the lua functions I don't want to write twice.
   :nvim-lua/popup.nvim {}                              ;; An implementation of the Popup API from vim in Neovim.
+  :nvim-lualine/lualine.nvim  {:mod :lualine}          ;; A blazing fast and easy to configure neovim statusline plugin written in pure lua.
   :nvim-telescope/telescope-ui-select.nvim {}          ;; Neovim core stuff can fill the telescope picker.
   :nvim-telescope/telescope.nvim {:mod :telescope}     ;; Find, Filter, Preview, Pick. All lua, all the time.
   :nvim-treesitter/nvim-treesitter {:run ":TSUpdate" :mod :treesitter}  ;; Nvim Treesitter configurations and abstraction layer
