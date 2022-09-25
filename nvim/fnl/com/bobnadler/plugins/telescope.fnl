@@ -1,15 +1,15 @@
 (module com.bobnadler.plugins.telescope
-  {autoload {nvim aniseed.nvim
-             telescope telescope
+  {autoload {actions telescope.actions
              themes telescope.themes}})
 
-(telescope.setup
-  {:defaults {:file_ignore_patterns ["node_modules"]}
-   :extensions {:ui-select {1 (themes.get_dropdown {})}}
-   :pickers {:find_files
-             {:find_command ["rg" "--files" "--iglob" "!.git" "--hidden"]}}})
-
-(telescope.load_extension "ui-select")
-
-;; TODO: Make a utils module
-(nvim.set_keymap :n :<C-p> ":lua require('telescope.builtin').find_files()<CR>" {:noremap true})
+(let [(ok? telescope) (pcall #(require :telescope))]
+  (when ok?
+    (telescope.setup
+      {:defaults
+       {:file_ignore_patterns ["node_modules"]
+        :mappings {:i {:<C-f> false
+                       :<C-u> false}}}
+       :extensions {:ui-select {1 (themes.get_dropdown {})}}
+       :pickers {:find_files
+                 {:find_command ["rg" "--files" "--iglob" "!.git" "--hidden"]}}})
+    (telescope.load_extension "ui-select")))

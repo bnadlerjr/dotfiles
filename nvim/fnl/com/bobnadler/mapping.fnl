@@ -43,3 +43,8 @@
 
 ;; Neogit
 (utils.nnoremap "<leader>g" ":Neogit<CR>")
+
+;; Telescope
+(utils.nnoremap "<leader>ff" ":lua require('telescope.builtin').find_files()<CR>")
+(utils.nnoremap "<leader>fb" ":lua require('telescope.builtin').buffers()<CR>")
+(utils.nnoremap "<leader>fg" ":lua require('telescope.builtin').live_grep()<CR>")
