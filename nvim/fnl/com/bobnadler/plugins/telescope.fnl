@@ -1,22 +1,16 @@
 (module com.bobnadler.plugins.telescope
   {autoload {a aniseed.core
-             nvim aniseed.nvim
+             action_state telescope.actions.state
              actions telescope.actions
              builtin telescope.builtin
              themes telescope.themes}})
 
-(var choices [:buffers :live_grep :find_files])
-
-(defn- reset-choices []
-  (set choices [:buffers :live_grep :find_files]))
-
-(defn- rotate-choices [v]
-  (let [[f s l] v]
-    [s l f]))
-
-(defn- cycle-pickers []
-  (: builtin (a.first choices))
-  (set choices (rotate-choices choices)))
+(defn- cycle-pickers [prompt_bufnr]
+  (let [picker (action_state.get_current_picker prompt_bufnr)
+        choices {"Find Files" :buffers
+                 "Buffers" :live_grep
+                 "Live Grep" :find_files}]
+    (: builtin (a.get choices picker.prompt_title :find_files))))
 
 (let [(ok? telescope) (pcall #(require :telescope))]
   (when ok?
@@ -29,5 +23,4 @@
        :extensions {:ui-select {1 (themes.get_dropdown {})}}
        :pickers {:find_files
                  {:find_command ["rg" "--files" "--iglob" "!.git" "--hidden"]}}})
-    (telescope.load_extension "ui-select")
-    (nvim.ex.autocmd "User TelescopeFindPre" (reset-choices))))
+    (telescope.load_extension "ui-select")))
