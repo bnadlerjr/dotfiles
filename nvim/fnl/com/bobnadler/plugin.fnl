@@ -29,7 +29,7 @@
   :DataWraith/auto_mkdir {}                            ;; Allows you to save files into directories that do not exist yet
   :Glench/Vim-Jinja2-Syntax {}                         ;; Jinja2 syntax highlighting
   :L3MON4D3/LuaSnip {}                                 ;; Snippet Engine for Neovim written in Lua.
-  :Olical/conjure {}                                   ;; Interactive evaluation for Neovim.
+  :Olical/conjure {:mod :conjure}                      ;; Interactive evaluation for Neovim.
   :PaterJason/cmp-conjure {}                           ;; nvim-cmp source for conjure.
   :RRethy/nvim-treesitter-endwise {}                   ;; Tree-sitter aware alternative to tpope's vim-endwise
   :TimUntersberger/neogit {:mod :neogit}               ;; magit for neovim
