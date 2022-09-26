@@ -3,7 +3,8 @@
 (let [(ok? treesitter) (pcall #(require :nvim-treesitter.configs))]
   (when ok?
     (treesitter.setup {:endwise {:enable true}
-                       :highlight {:enable true}
+                       :highlight {:enable true
+                                   :disable [:clojure :fennel]}
                        :indent {:enable true}
                        :textobjects {:select {:enable true
                                               :keymaps {:af "@function.outer"
