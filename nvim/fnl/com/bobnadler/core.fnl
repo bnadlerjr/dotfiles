@@ -6,7 +6,6 @@
       {:autoread true                ;; Detect file changes refresh buffer
        :background "dark"            ;; Background color
        :backspace "indent,eol,start" ;; Backspace of newlines
-       :colorcolumn 79               ;; Show vertical column
        :cursorline true              ;; Highlight current line
        :encoding "utf-8"             ;; Use utf-8 encoding
        :expandtab true               ;; Expand tabs to spaces
@@ -30,4 +29,7 @@
        :wrap true                    ;; Turn on line wrapping
        }]
   (each [option value (pairs options)]
-    (a.assoc nvim.o option value)))
+    (a.assoc nvim.o option value))
+
+  ;; additional options that can't be set via vim.o
+  (nvim.ex.set "colorcolumn=79")) ;; Show vertical column
