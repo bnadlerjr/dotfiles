@@ -4,7 +4,7 @@
   (when ok?
     (treesitter.setup {:endwise {:enable true}
                        :highlight {:enable true
-                                   :disable [:clojure :fennel]}
+                                   :disable [:clojure :elixir :fennel :ruby]}
                        :indent {:enable true}
                        :textobjects {:select {:enable true
                                               :keymaps {:af "@function.outer"

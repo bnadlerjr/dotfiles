@@ -42,11 +42,11 @@
   :hrsh7th/cmp-nvim-lsp {}                             ;; nvim-cmp source for neovim builtin LSP client
   :hrsh7th/cmp-path {}                                 ;; nvim-cmp source for path
   :hrsh7th/nvim-cmp {:mod :cmp}                        ;; A completion plugin for neovim coded in Lua.
+  :ishan9299/nvim-solarized-lua {:mod :colors}         ;; solarized colorscheme in lua for nvim 0.5
   :jose-elias-alvarez/null-ls.nvim {:mod :null_ls}     ;; Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
   :kyazdani42/nvim-web-devicons {}                     ;; lua `fork` of vim-web-devicons for neovim
   :kylechui/nvim-surround {:mod :surround}             ;; Add/change/delete surrounding delimiter pairs with ease.
   :lewis6991/gitsigns.nvim {:mod :gitsigns}            ;; Git integration for buffers
-  :lifepillar/vim-solarized8 {:mod :colors}            ;; Optimized Solarized colorschemes. Best served with true-color terminals!
   :neovim/nvim-lspconfig {:mod :lspconfig}             ;; Quickstart configs for Nvim LSP
   :nvim-lua/plenary.nvim {}                            ;; All the lua functions I don't want to write twice.
   :nvim-lua/popup.nvim {}                              ;; An implementation of the Popup API from vim in Neovim.
