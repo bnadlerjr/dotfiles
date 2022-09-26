@@ -51,9 +51,9 @@
 
 (def- sources
   [{:name "nvim_lsp" :keyword_length 3}
-   {:name "luasnip" :keyword_length 3}
    {:name "conjure" :keyword_length 3}
    {:name "buffer" :keyword_length 3}
+   {:name "luasnip" :keyword_length 3}
    {:name "path" :keyword_length 3}
    {:name "cmdline" :keyword_length 3}])
 
