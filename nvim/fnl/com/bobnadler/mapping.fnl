@@ -46,3 +46,6 @@
 
 ;; Telescope
 (utils.nnoremap "<C-p>" ":lua require('telescope.builtin').find_files()<CR>")
+
+;; Quickly re-indent file
+(utils.nnoremap "<leader>=" ":lua vim.lsp.buf.formatting()<CR>")

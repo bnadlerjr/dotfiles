@@ -42,6 +42,7 @@
   :hrsh7th/cmp-nvim-lsp {}                             ;; nvim-cmp source for neovim builtin LSP client
   :hrsh7th/cmp-path {}                                 ;; nvim-cmp source for path
   :hrsh7th/nvim-cmp {:mod :cmp}                        ;; A completion plugin for neovim coded in Lua.
+  :jose-elias-alvarez/null-ls.nvim {:mod :null_ls}     ;; Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
   :kyazdani42/nvim-web-devicons {}                     ;; lua `fork` of vim-web-devicons for neovim
   :kylechui/nvim-surround {:mod :surround}             ;; Add/change/delete surrounding delimiter pairs with ease.
   :lewis6991/gitsigns.nvim {:mod :gitsigns}            ;; Git integration for buffers
