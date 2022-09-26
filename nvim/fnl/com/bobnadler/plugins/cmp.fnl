@@ -31,7 +31,6 @@
    :maxwidth 50
    :ellipsis_char "..."
    :menu {:buffer "[Buffer]"
-          :cmdline "[CmdLine]"
           :conjure "[Conjure]"
           :luasnip "[LuaSnip]"
           :nvim_lsp "[LSP]"
@@ -54,10 +53,9 @@
    {:name "conjure" :keyword_length 3}
    {:name "buffer" :keyword_length 3}
    {:name "luasnip" :keyword_length 3}
-   {:name "path" :keyword_length 3}
-   {:name "cmdline" :keyword_length 3}])
+   {:name "path" :keyword_length 3}])
 
-(set nvim.o.completeopt "menuone,noselect")
+(set nvim.o.completeopt "menu,noselect")
 (loaders.lazy_load)
 (cmp.setup
   {:formatting {:format (lspkind.cmp_format formatting)}

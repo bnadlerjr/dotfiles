@@ -38,7 +38,6 @@
   :guns/vim-sexp {:mod :sexp}                          ;; Precision editing for s-expressions
   :hashivim/vim-terraform {}                           ;; basic vim/terraform integration
   :hrsh7th/cmp-buffer {}                               ;; nvim-cmp source for buffer words
-  :hrsh7th/cmp-cmdline {}                              ;; nvim-cmp source for vim's cmdline
   :hrsh7th/cmp-nvim-lsp {}                             ;; nvim-cmp source for neovim builtin LSP client
   :hrsh7th/cmp-path {}                                 ;; nvim-cmp source for path
   :hrsh7th/nvim-cmp {:mod :cmp}                        ;; A completion plugin for neovim coded in Lua.
