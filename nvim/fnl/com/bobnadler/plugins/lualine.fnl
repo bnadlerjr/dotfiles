@@ -1,4 +1,6 @@
 (module com.bobnadler.plugins.lualine
   {autoload {lualine lualine}})
 
-(lualine.setup {:options {:theme :solarized_dark}})
+(let [(ok? lualine) (pcall #(require :lualine))]
+  (when ok?
+    (lualine.setup {:options {:theme :solarized_dark}})))
