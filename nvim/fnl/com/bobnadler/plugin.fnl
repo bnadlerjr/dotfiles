@@ -54,6 +54,7 @@
   :nvim-telescope/telescope-ui-select.nvim {}          ;; Neovim core stuff can fill the telescope picker.
   :nvim-telescope/telescope.nvim {:mod :telescope}     ;; Find, Filter, Preview, Pick. All lua, all the time.
   :nvim-treesitter/nvim-treesitter {:run ":TSUpdate" :mod :treesitter}  ;; Nvim Treesitter configurations and abstraction layer
+  :nvim-treesitter/nvim-treesitter-textobjects {}      ;; Syntax aware text-objects, select, move, swap, and peek support.
   :onsails/lspkind.nvim {}                             ;; vscode-like pictograms for neovim lsp completion items
   :rafamadriz/friendly-snippets {}                     ;; Set of preconfigured snippets for different languages.
   :reedes/vim-lexical {}                               ;; Build on Vim’s spell/thes/dict completion
