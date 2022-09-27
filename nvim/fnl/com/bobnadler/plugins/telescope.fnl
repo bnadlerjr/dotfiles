@@ -16,11 +16,14 @@
   (when ok?
     (telescope.setup
       {:defaults
-       {:file_ignore_patterns ["node_modules"]
-        :mappings {:i {:<esc> actions.close
+       {:mappings {:i {:<esc> actions.close
                        :<C-f> cycle-pickers
                        :<C-u> false}}}
        :extensions {:ui-select {1 (themes.get_dropdown {})}}
        :pickers {:find_files
-                 {:find_command ["rg" "--files" "--iglob" "!.git" "--hidden"]}}})
+                 {:find_command ["rg"
+                                 "--files"
+                                 "--iglob" "!.git"
+                                 "--hidden"
+                                 "--ignore-file" ".gitignore"]}}})
     (telescope.load_extension "ui-select")))
