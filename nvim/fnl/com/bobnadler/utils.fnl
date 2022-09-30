@@ -9,4 +9,5 @@
 
 (def cnoremap (partial set-keymap "c" {:noremap true}))
 (def nnoremap (partial set-keymap "n" {:noremap true}))
+(def tnoremap (partial set-keymap "t" {:noremap true}))
 (def vnoremap (partial set-keymap "v" {:noremap true}))
