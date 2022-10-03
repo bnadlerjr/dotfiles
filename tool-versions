@@ -7,5 +7,5 @@ ruby 2.7.3
 rust 1.52.1
 shellcheck 0.7.2
 yarn 1.22.11
-clojure 1.10.2.774
+clojure 1.11.1.1165
 java openjdk-17.0.1
