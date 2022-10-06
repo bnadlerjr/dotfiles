@@ -48,7 +48,6 @@
                     (nvim.buf_set_keymap bufnr :n :K "<Cmd>lua vim.lsp.buf.hover()<CR>" {:noremap true})
                     (nvim.buf_set_keymap bufnr :n :gD "<Cmd>lua vim.lsp.buf.declaration()<CR>" {:noremap true})
                     (nvim.buf_set_keymap bufnr :n :ga "<cmd>lua vim.lsp.buf.code_action()<CR>" {:noremap true})
-                    (nvim.buf_set_keymap bufnr :n :gd "<Cmd>lua vim.lsp.buf.definition()<CR>" {:noremap true})
                     (nvim.buf_set_keymap bufnr :n :gr ":lua require('telescope.builtin').lsp_references()<cr>" {:noremap true}))
                     (nvim.buf_set_keymap bufnr :v :ga "<cmd>lua vim.lsp.buf.range_code_action()<CR> " {:noremap true}))]
 
