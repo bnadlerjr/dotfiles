@@ -47,8 +47,8 @@
 ;; Telescope
 (utils.nnoremap "<C-p>" ":lua require('telescope.builtin').find_files()<CR>")
 
-;; Quickly re-indent file
-(utils.nnoremap "<leader>=" "gggqG``<CR>")
+;; Quickly re-indent file. Leaving off <C-o><C-o> because it's broken in Neovim
+(utils.nnoremap "<leader>=" "gggq<S-g>")
 
 ;; Terminal shortcuts
 (utils.tnoremap "<Esc>" "<C-\\><C-n>")
