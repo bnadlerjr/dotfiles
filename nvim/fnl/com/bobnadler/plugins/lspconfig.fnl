@@ -12,13 +12,12 @@
   ;; :cucumber_language_server
   ;; :eslint
   ;; :graphql
-  ;; :html
   ;; :jsonls
   ;; :terraformls
   ;; :tsserver
   ;; :yamlls
   {:ensure_installed
-   [:clojure_lsp :elixirls :solargraph]})
+   [:clojure_lsp :elixirls :html :prettierd :solargraph]})
 
 (vim.fn.sign_define "DiagnosticSignError" {:text "" :texthl "DiagnosticSignError"})
 (vim.fn.sign_define "DiagnosticSignWarn"  {:text "" :texthl "DiagnosticSignWarn"})
