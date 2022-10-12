@@ -23,9 +23,7 @@ Plug 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plug 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plug 'altercation/vim-colors-solarized'           " Solarized color theme
 Plug 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
-Plug 'autozimu/LanguageClient-neovim'             " Language Server Protocol (LSP) support for vim and neovim
 Plug 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
-Plug 'christoomey/vim-conflicted'                 " Easy git merge conflict resolution in Vim
 Plug 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plug 'dense-analysis/ale'                         " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
 Plug 'ecomba/vim-ruby-refactoring'                " Refactoring tool for Ruby in vim!
@@ -39,23 +37,19 @@ Plug 'hashivim/vim-terraform'                     " basic vim/terraform integrat
 Plug 'honza/vim-snippets'                         " vim-snipmate default snippets
 Plug 'juvenn/mustache.vim'                        " Mustache support
 Plug 'kana/vim-textobj-user'                      " dependency for rubyblock
-Plug 'majutsushi/tagbar'                          " displays tags in a window, ordered by scope
 Plug 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plug 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plug 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
 Plug 'paulyeo21/vim-textobj-rspec'                " Creates text objects for rspec blocks
 Plug 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
 Plug 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
-Plug 'sillybun/vim-repl'                          " Best REPL environment for Vim
 Plug 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
 Plug 'tomtom/tlib_vim'                            " vim-snipmate dependency
 Plug 'tpope/vim-abolish'                          " easily search for, substitute, and abbreviate multiple variants of a word
 Plug 'tpope/vim-bundler'                          " makes source navigation of bundled gems easier
-Plug 'tpope/vim-classpath'                        " Clojure JVM classpath
 Plug 'tpope/vim-cucumber'                         " provides syntax highlightling, indenting, and a filetype plugin
 Plug 'tpope/vim-dispatch'                         " Asynchronous build and test dispatcher
 Plug 'tpope/vim-endwise'                          " wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
-Plug 'tpope/vim-fireplace'                        " Clojure REPL support
 Plug 'tpope/vim-fugitive'                         " Git plugin
 Plug 'tpope/vim-leiningen'                        " static support for Leiningen
 Plug 'tpope/vim-projectionist'                    " project configuration
@@ -63,7 +57,6 @@ Plug 'tpope/vim-ragtag'                           " Ghetto HTML / XML mappings
 Plug 'tpope/vim-rails'                            " Rails helpers
 Plug 'tpope/vim-rake'                             " makes Ruby project navigation easier for non-Rails projects
 Plug 'tpope/vim-repeat'                           " Enable repeating supported plugin maps with '.'
-Plug 'tpope/vim-rhubarb'                          " GitHub extension for fugitive.vim
 Plug 'tpope/vim-sexp-mappings-for-regular-people' " vim-sexp mappings rely on meta key; these don't
 Plug 'tpope/vim-surround'                         " makes working w/ quotes, braces,etc. easier
 Plug 'tpope/vim-unimpaired'                       " pairs of handy bracket mappings
@@ -154,18 +147,6 @@ let g:lexical#dictionary = ['/usr/share/dict/words']
 let g:lexical#spellfile = ['~/.vim/spell/en.utf-8.add']
 let g:lexical#thesaurus = ['~/.vim/thesaurus/mthesaur.txt']
 
-let g:LanguageClient_serverCommands = {
-    \ 'ruby': ['solargraph', 'stdio'],
-    \ 'clojure': ['bash', '-c', 'clojure-lsp', 'stdio'],
-    \ 'typescript': ['typescript-language-server', '--stdio'],
-    \ }
-
-let g:repl_program = {
-    \ 'python': ['python'],
-    \ 'ruby': ['bundle exec rails c', 'bin/console', 'irb'],
-    \ 'default': ['bash']
-    \ }
-
 " Use new version of snipMate parser
 let g:snipMate = { 'snippet_version' : 1 }
 
@@ -243,14 +224,6 @@ vnoremap Q :norm @q<cr>
 nmap <CR><CR> :w | :TestFile<CR>
 nmap <silent> t<C-n> :TestNearest<CR>
 
-" Toggle TagBar
-nnoremap <Leader>t :TagbarToggle<CR>
-
-" Language Client
-nmap <silent>K <Plug>(lcn-hover)
-nmap <silent> gd <Plug>(lcn-definition)
-nmap <silent> gr <Plug>(lcn-references)
-
 " Toggle paste/nopaste mode
 map <F10> :set paste!<CR>
 
@@ -275,11 +248,6 @@ autocmd User fugitive
 
 " Auto-clean fugitive buffers
 autocmd BufReadPost fugitive://* set bufhidden=delete
-
-" vim-conflicted setup
-autocmd User VimConflicted
-            \ set stl+=%{ConflictedVersion()}
-            \ nnoremap ]m :GitNextConflict<cr>
 
 " Word wrap with line breaks for text files
 au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=79 wrapmargin=0
