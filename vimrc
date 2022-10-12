@@ -141,6 +141,9 @@ let g:ale_sign_warning = "✘"
 
 let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|venv/|cover-unit/|target/|build/|vendor/bundle|deps|_build'
 
+let g:grepper = {}
+let g:grepper.tools = ['git', 'rg', 'ag', 'ack', 'ack-grep', 'grep']
+
 let g:lexical#spell_key = '<leader>s'
 let g:lexical#thesaurus_key = '<leader>t'
 let g:lexical#dictionary = ['/usr/share/dict/words']
@@ -185,7 +188,7 @@ nmap gs <plug>(GrepperOperator)
 xmap gs <plug>(GrepperOperator)
 
 " Open search prompt
-nnoremap <Leader>a :GrepperAg 
+nnoremap <Leader>a :GrepperRg 
 
 " Bring up Fugitive status buffer
 nnoremap <Leader>g :Git<CR>
