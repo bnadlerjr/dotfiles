@@ -13,4 +13,5 @@ gnupg/random_seed
 lein/repl-history
 vim/.netrwhist
 vim/bundle
+vim/plugged
 vim/thesaurus/*.txt
