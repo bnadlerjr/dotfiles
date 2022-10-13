@@ -32,5 +32,17 @@ while reviewers == []
   prompt.error("\nYou must select at least one reviewer!\n") if reviewers.empty?
 end
 
-cmd = "hub pull-request --base #{base_branch} -o -r #{reviewers.join(',')}"
+possible_channels = %w[
+  engineering-all-staff
+  shapeup-enterprise-sis
+]
+
+channel_name = nil
+while channel_name.nil?
+  channel_name = prompt.select('Select channel:', possible_channels, per_page: possible_channels.length)
+  prompt.error("\nYou must select a channel!\n") if channel_name.nil?
+end
+
+cmd = "hub pull-request --base #{base_branch} -o -r #{reviewers.join(',')} -l #{channel_name}"
+# puts "\n\nDEBUG: #{cmd}"
 system(cmd) || abort("\n== Command '#{cmd}' failed ==")
