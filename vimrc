@@ -38,7 +38,6 @@ Plug 'honza/vim-snippets'                         " vim-snipmate default snippet
 Plug 'juvenn/mustache.vim'                        " Mustache support
 Plug 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plug 'liquidz/vim-iced', {'for': 'clojure'}       " Clojure Interactive Development Environment for Vim8/Neovim
-Plug 'mattn/vim-lsp-settings'                     " Auto configurations for Language Server for vim-lsp
 Plug 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plug 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plug 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
@@ -135,10 +134,6 @@ let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#ale#enabled = 1
 
-let g:ale_linters = {}
-let g:ale_linters.elixir = ['credo', 'dialyxir', 'elixir-ls', 'mix']
-let g:ale_elixir_elixir_ls_release = expand("~/dev/elixir/elixir-ls/rel")
-
 let g:ale_sign_column_always = 1
 let g:ale_sign_error = "✘"
 let g:ale_sign_warning = "✘"
@@ -159,6 +154,10 @@ let g:lexical#thesaurus_key = '<leader>t'
 let g:lexical#dictionary = ['/usr/share/dict/words']
 let g:lexical#spellfile = ['~/.vim/spell/en.utf-8.add']
 let g:lexical#thesaurus = ['~/.vim/thesaurus/mthesaur.txt']
+
+" This gets rid of the annoying 'A>' in the gutter for LSPs that support lots
+" of code actions.
+let g:lsp_document_code_action_signs_enabled = 0
 
 " Use new version of snipMate parser
 let g:snipMate = { 'snippet_version' : 1 }
@@ -282,6 +281,30 @@ augroup vimrc
 augroup END
 
 " LSP Support
+if executable('solargraph')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'solargraph',
+        \ 'cmd': {server_info->[&shell, &shellcmdflag, 'solargraph stdio']},
+        \ 'whitelist': ['ruby'],
+        \ })
+endif
+
+if executable('clojure-lsp')
+    au User lsp_setup call lsp#register_server({
+          \ 'name': 'clojure-lsp',
+          \ 'cmd': {server_info->[&shell, &shellcmdflag, 'clojure-lsp']},
+          \ 'allowlist': ['clojure', 'clojurescript']
+          \ })
+endif
+
+if executable('elixir-ls')
+    au User lsp_setup call lsp#register_server({
+          \ 'name': 'elixir-ls',
+          \ 'cmd': {server_info->[&shell, &shellcmdflag, 'elixir-ls']},
+          \ 'allowlist': ['elixir']
+          \ })
+endif
+
 function! s:on_lsp_buffer_enabled() abort
     setlocal omnifunc=lsp#complete
     setlocal signcolumn=yes
@@ -292,8 +315,6 @@ function! s:on_lsp_buffer_enabled() abort
     nmap <buffer> [g <plug>(lsp-previous-diagnostic)
     nmap <buffer> ]g <plug>(lsp-next-diagnostic)
     nmap <buffer> K <plug>(lsp-hover)
-    nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
-    nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
 endfunction
 
 augroup lsp_install
