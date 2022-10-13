@@ -12,7 +12,7 @@ export EDITOR="vim -v"
 export GIT_MACHETE_EDITOR=vi
 
 # PATH Setup
-export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/sbin:$PATH:~/bin
+export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/sbin:~/.vim/plugged/vim-iced/bin:$PATH:~/bin
 
 # GPG Setup
 export GNUPGHOME="$HOME/.gnupg"

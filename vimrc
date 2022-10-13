@@ -37,6 +37,7 @@ Plug 'hashivim/vim-terraform'                     " basic vim/terraform integrat
 Plug 'honza/vim-snippets'                         " vim-snipmate default snippets
 Plug 'juvenn/mustache.vim'                        " Mustache support
 Plug 'kana/vim-textobj-user'                      " dependency for rubyblock
+Plug 'liquidz/vim-iced', {'for': 'clojure'}       " Clojure Interactive Development Environment for Vim8/Neovim
 Plug 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plug 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plug 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
@@ -144,6 +145,12 @@ let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|cover
 let g:grepper = {}
 let g:grepper.tools = ['git', 'rg', 'ag', 'ack', 'ack-grep', 'grep']
 
+let g:iced#nrepl#ns#refresh_after_fn = 'user/start'
+let g:iced#nrepl#ns#refresh_before_fn = 'user/stop'
+let g:iced_default_key_mapping_leader = '<LocalLeader>'
+let g:iced_enable_clj_kondo_analysis = v:true
+let g:iced_enable_default_key_mappings = v:true
+
 let g:lexical#spell_key = '<leader>s'
 let g:lexical#thesaurus_key = '<leader>t'
 let g:lexical#dictionary = ['/usr/share/dict/words']
@@ -229,6 +236,10 @@ nmap <silent> t<C-n> :TestNearest<CR>
 
 " Toggle paste/nopaste mode
 map <F10> :set paste!<CR>
+
+" Vim Iced
+nnoremap <localleader>rc <Plug>(iced_refresh)
+nnoremap <localleader>ra <Plug>(iced_refresh_all)
 
 "#############################################################################
 " Autocommands
