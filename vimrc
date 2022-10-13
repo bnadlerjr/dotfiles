@@ -38,11 +38,14 @@ Plug 'honza/vim-snippets'                         " vim-snipmate default snippet
 Plug 'juvenn/mustache.vim'                        " Mustache support
 Plug 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plug 'liquidz/vim-iced', {'for': 'clojure'}       " Clojure Interactive Development Environment for Vim8/Neovim
+Plug 'mattn/vim-lsp-settings'                     " Auto configurations for Language Server for vim-lsp
 Plug 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plug 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plug 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
 Plug 'paulyeo21/vim-textobj-rspec'                " Creates text objects for rspec blocks
+Plug 'prabirshrestha/vim-lsp'                     " async language server protocol plugin for vim and neovim
 Plug 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
+Plug 'rhysd/vim-lsp-ale'                          " Bridge between vim-lsp and ALE
 Plug 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plug 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
 Plug 'tomtom/tlib_vim'                            " vim-snipmate dependency
@@ -276,6 +279,26 @@ augroup END
 augroup vimrc
     autocmd! BufWritePost $MYVIMRC source % | echom "Reloaded " . $MYVIMRC | redraw
     autocmd! BufWritePost $MYGVIMRC if has('gui_running') | so % | echom "Reloaded " . $MYGVIMRC | endif | redraw
+augroup END
+
+" LSP Support
+function! s:on_lsp_buffer_enabled() abort
+    setlocal omnifunc=lsp#complete
+    setlocal signcolumn=yes
+    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+    nmap <buffer> gd <plug>(lsp-definition)
+    nmap <buffer> gr <plug>(lsp-references)
+    nmap <buffer> <f2> <plug>(lsp-rename)
+    nmap <buffer> [g <plug>(lsp-previous-diagnostic)
+    nmap <buffer> ]g <plug>(lsp-next-diagnostic)
+    nmap <buffer> K <plug>(lsp-hover)
+    nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
+    nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
+endfunction
+
+augroup lsp_install
+    au!
+    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup END
 
 " Hack to get solarized loaded correctly
