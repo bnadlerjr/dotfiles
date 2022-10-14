@@ -42,6 +42,8 @@ Plug 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plug 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plug 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
 Plug 'paulyeo21/vim-textobj-rspec'                " Creates text objects for rspec blocks
+Plug 'prabirshrestha/asyncomplete-lsp.vim'        " Bridge between vim-lsp and asyncomplete
+Plug 'prabirshrestha/asyncomplete.vim'            " async completion in pure vim script for vim8 and neovim
 Plug 'prabirshrestha/vim-lsp'                     " async language server protocol plugin for vim and neovim
 Plug 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
 Plug 'rhysd/vim-lsp-ale'                          " Bridge between vim-lsp and ALE
@@ -161,6 +163,8 @@ let g:lsp_document_code_action_signs_enabled = 0
 
 " Use new version of snipMate parser
 let g:snipMate = { 'snippet_version' : 1 }
+
+let g:SuperTabDefaultCompletionType = "<C-n>"
 
 let test#strategy = "dispatch"
 
@@ -287,6 +291,7 @@ if executable('solargraph')
         \ 'cmd': {server_info->[&shell, &shellcmdflag, 'solargraph stdio']},
         \ 'whitelist': ['ruby'],
         \ })
+    autocmd FileType rb,erb setlocal omnifunc=lsp#complete
 endif
 
 if executable('clojure-lsp')
@@ -295,6 +300,7 @@ if executable('clojure-lsp')
           \ 'cmd': {server_info->[&shell, &shellcmdflag, 'clojure-lsp']},
           \ 'allowlist': ['clojure', 'clojurescript']
           \ })
+    autocmd FileType clj,cljs,cljc setlocal omnifunc=lsp#complete
 endif
 
 if executable('elixir-ls')
@@ -303,6 +309,7 @@ if executable('elixir-ls')
           \ 'cmd': {server_info->[&shell, &shellcmdflag, 'elixir-ls']},
           \ 'allowlist': ['elixir']
           \ })
+    autocmd FileType ex,exs setlocal omnifunc=lsp#complete
 endif
 
 function! s:on_lsp_buffer_enabled() abort
