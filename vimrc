@@ -23,12 +23,12 @@ Plug 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plug 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plug 'altercation/vim-colors-solarized'           " Solarized color theme
 Plug 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
+Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
 Plug 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plug 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plug 'dense-analysis/ale'                         " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
 Plug 'ecomba/vim-ruby-refactoring'                " Refactoring tool for Ruby in vim!
 Plug 'elixir-editors/vim-elixir'                  " Vim configuration files for Elixir
-Plug 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
 Plug 'garbas/vim-snipmate'                        " handy code snippets
 Plug 'godlygeek/csapprox'                         " dependency for Solarized
 Plug 'guns/vim-clojure-static'                    " Clojure syntax highlighting and indentation
@@ -37,16 +37,13 @@ Plug 'hashivim/vim-terraform'                     " basic vim/terraform integrat
 Plug 'honza/vim-snippets'                         " vim-snipmate default snippets
 Plug 'juvenn/mustache.vim'                        " Mustache support
 Plug 'kana/vim-textobj-user'                      " dependency for rubyblock
+Plug 'lifepillar/vim-mucomplete'                  " Chained completion that works the way you want!
 Plug 'liquidz/vim-iced', {'for': 'clojure'}       " Clojure Interactive Development Environment for Vim8/Neovim
 Plug 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plug 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plug 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
 Plug 'paulyeo21/vim-textobj-rspec'                " Creates text objects for rspec blocks
-Plug 'prabirshrestha/asyncomplete-lsp.vim'        " Bridge between vim-lsp and asyncomplete
-Plug 'prabirshrestha/asyncomplete.vim'            " async completion in pure vim script for vim8 and neovim
-Plug 'prabirshrestha/vim-lsp'                     " async language server protocol plugin for vim and neovim
 Plug 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
-Plug 'rhysd/vim-lsp-ale'                          " Bridge between vim-lsp and ALE
 Plug 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plug 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
 Plug 'tomtom/tlib_vim'                            " vim-snipmate dependency
@@ -87,6 +84,9 @@ set autoread                    " Detect file changes refresh buffer
 set background=dark             " Background color
 set backspace=indent,eol,start  " Backspace of newlines
 set colorcolumn=79              " Show vertical column
+set complete-=i                 " Prevent a condition where vim lags due to searching include files
+set completeopt+=menuone        " Use the popup menu also when there is only one match
+set completeopt+=noselect       " Do not auto-select match in menu
 set cursorline                  " Highlight current line
 set diffopt+=vertical           " Use vertical diffs
 set encoding=utf-8              " Use utf-8 encoding
@@ -151,20 +151,40 @@ let g:iced_default_key_mapping_leader = '<LocalLeader>'
 let g:iced_enable_clj_kondo_analysis = v:true
 let g:iced_enable_default_key_mappings = v:true
 
+let g:LanguageClient_autoStart = 1
+let g:LanguageClient_diagnosticsList = 'Disabled'
+let g:LanguageClient_serverCommands = {
+    \ 'clojure': ['clojure-lsp'],
+    \ 'elixir': ['elixir-ls'],
+    \ 'ruby': ['solargraph', 'stdio']
+    \ }
+
+" nnoremap K :call LanguageClient#textDocument_hover()<CR>
+" nnoremap gd :call LanguageClient#textDocument_definition()<CR>
+" nnoremap <F2> :call LanguageClient#textDocument_rename()<CR>
+
+" if has_key(g:LanguageClient_serverCommands, &filetype)
+    nnoremap K <Plug>(lcn-hover)
+    nnoremap <C-]> <Plug>(lcn-definition)
+    nnoremap <F2> <Plug>(lcn-rename)
+" endif
+
+nnoremap z :call LanguageClient_contextMenu()<CR>
+
 let g:lexical#spell_key = '<leader>s'
 let g:lexical#thesaurus_key = '<leader>t'
 let g:lexical#dictionary = ['/usr/share/dict/words']
 let g:lexical#spellfile = ['~/.vim/spell/en.utf-8.add']
 let g:lexical#thesaurus = ['~/.vim/thesaurus/mthesaur.txt']
 
-" This gets rid of the annoying 'A>' in the gutter for LSPs that support lots
-" of code actions.
-let g:lsp_document_code_action_signs_enabled = 0
+let g:mucomplete#enable_auto_at_startup = 1
+let g:mucomplete#chains = {'vim': ['path', 'cmd', 'keyn'], 'default': ['snip', 'omni', 'keyn', 'path', 'dict', 'uspl']}
+" let g:mucomplete#completion_delay = 50
+" let g:mucomplete#reopen_immediately = 0
 
 " Use new version of snipMate parser
 let g:snipMate = { 'snippet_version' : 1 }
-
-let g:SuperTabDefaultCompletionType = "<C-n>"
+let g:snipMate['no_match_completion_feedkeys_chars'] = ''
 
 let test#strategy = "dispatch"
 
@@ -285,49 +305,49 @@ augroup vimrc
 augroup END
 
 " LSP Support
-if executable('solargraph')
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'solargraph',
-        \ 'cmd': {server_info->[&shell, &shellcmdflag, 'solargraph stdio']},
-        \ 'whitelist': ['ruby'],
-        \ })
-    autocmd FileType rb,erb setlocal omnifunc=lsp#complete
-endif
+" if executable('solargraph')
+"     au User lsp_setup call lsp#register_server({
+"         \ 'name': 'solargraph',
+"         \ 'cmd': {server_info->[&shell, &shellcmdflag, 'solargraph stdio']},
+"         \ 'whitelist': ['ruby'],
+"         \ })
+"     autocmd FileType rb,erb setlocal omnifunc=lsp#complete
+" endif
 
-if executable('clojure-lsp')
-    au User lsp_setup call lsp#register_server({
-          \ 'name': 'clojure-lsp',
-          \ 'cmd': {server_info->[&shell, &shellcmdflag, 'clojure-lsp']},
-          \ 'allowlist': ['clojure', 'clojurescript']
-          \ })
-    autocmd FileType clj,cljs,cljc setlocal omnifunc=lsp#complete
-endif
+" if executable('clojure-lsp')
+"     au User lsp_setup call lsp#register_server({
+"           \ 'name': 'clojure-lsp',
+"           \ 'cmd': {server_info->[&shell, &shellcmdflag, 'clojure-lsp']},
+"           \ 'allowlist': ['clojure', 'clojurescript']
+"           \ })
+"     autocmd FileType clj,cljs,cljc setlocal omnifunc=lsp#complete
+" endif
 
-if executable('elixir-ls')
-    au User lsp_setup call lsp#register_server({
-          \ 'name': 'elixir-ls',
-          \ 'cmd': {server_info->[&shell, &shellcmdflag, 'elixir-ls']},
-          \ 'allowlist': ['elixir']
-          \ })
-    autocmd FileType ex,exs setlocal omnifunc=lsp#complete
-endif
+" if executable('elixir-ls')
+"     au User lsp_setup call lsp#register_server({
+"           \ 'name': 'elixir-ls',
+"           \ 'cmd': {server_info->[&shell, &shellcmdflag, 'elixir-ls']},
+"           \ 'allowlist': ['elixir']
+"           \ })
+"     autocmd FileType ex,exs setlocal omnifunc=lsp#complete
+" endif
 
-function! s:on_lsp_buffer_enabled() abort
-    setlocal omnifunc=lsp#complete
-    setlocal signcolumn=yes
-    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
-    nmap <buffer> gd <plug>(lsp-definition)
-    nmap <buffer> gr <plug>(lsp-references)
-    nmap <buffer> <f2> <plug>(lsp-rename)
-    nmap <buffer> [g <plug>(lsp-previous-diagnostic)
-    nmap <buffer> ]g <plug>(lsp-next-diagnostic)
-    nmap <buffer> K <plug>(lsp-hover)
-endfunction
+" function! s:on_lsp_buffer_enabled() abort
+"     setlocal omnifunc=lsp#complete
+"     setlocal signcolumn=yes
+"     if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+"     nmap <buffer> gd <plug>(lsp-definition)
+"     nmap <buffer> gr <plug>(lsp-references)
+"     nmap <buffer> <f2> <plug>(lsp-rename)
+"     nmap <buffer> [g <plug>(lsp-previous-diagnostic)
+"     nmap <buffer> ]g <plug>(lsp-next-diagnostic)
+"     nmap <buffer> K <plug>(lsp-hover)
+" endfunction
 
-augroup lsp_install
-    au!
-    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
-augroup END
+" augroup lsp_install
+"     au!
+"     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+" augroup END
 
 " Hack to get solarized loaded correctly
 au VimEnter * ToggleBG
