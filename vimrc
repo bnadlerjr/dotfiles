@@ -164,7 +164,7 @@ let g:lsp_document_code_action_signs_enabled = 0
 " Use new version of snipMate parser
 let g:snipMate = { 'snippet_version' : 1 }
 
-let g:SuperTabDefaultCompletionType = "<C-n>"
+let g:SuperTabDefaultCompletionType = 'context'
 
 let test#strategy = "dispatch"
 
@@ -327,6 +327,11 @@ augroup lsp_install
     au!
     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup END
+
+autocmd FileType *
+    \ if &omnifunc != '' |
+    \   call SuperTabChain(&omnifunc, "<c-p>") |
+    \ endif
 
 " Hack to get solarized loaded correctly
 au VimEnter * ToggleBG
