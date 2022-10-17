@@ -306,7 +306,7 @@ endif
 if executable('elixir-ls')
     au User lsp_setup call lsp#register_server({
           \ 'name': 'elixir-ls',
-          \ 'cmd': {server_info->[&shell, &shellcmdflag, 'elixir-ls']},
+          \ 'cmd': {server_info->[&shell, &shellcmdflag, '~/dev/elixir/elixir-ls-1.10/language_server.sh']},
           \ 'allowlist': ['elixir']
           \ })
     autocmd FileType ex,exs setlocal omnifunc=lsp#complete
