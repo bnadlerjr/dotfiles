@@ -159,18 +159,6 @@ let g:LanguageClient_serverCommands = {
     \ 'ruby': ['solargraph', 'stdio']
     \ }
 
-" nnoremap K :call LanguageClient#textDocument_hover()<CR>
-" nnoremap gd :call LanguageClient#textDocument_definition()<CR>
-" nnoremap <F2> :call LanguageClient#textDocument_rename()<CR>
-
-" if has_key(g:LanguageClient_serverCommands, &filetype)
-    nnoremap K <Plug>(lcn-hover)
-    nnoremap <C-]> <Plug>(lcn-definition)
-    nnoremap <F2> <Plug>(lcn-rename)
-" endif
-
-nnoremap z :call LanguageClient_contextMenu()<CR>
-
 let g:lexical#spell_key = '<leader>s'
 let g:lexical#thesaurus_key = '<leader>t'
 let g:lexical#dictionary = ['/usr/share/dict/words']
@@ -179,8 +167,6 @@ let g:lexical#thesaurus = ['~/.vim/thesaurus/mthesaur.txt']
 
 let g:mucomplete#enable_auto_at_startup = 1
 let g:mucomplete#chains = {'vim': ['path', 'cmd', 'keyn'], 'default': ['snip', 'omni', 'keyn', 'path', 'dict', 'uspl']}
-" let g:mucomplete#completion_delay = 50
-" let g:mucomplete#reopen_immediately = 0
 
 " Use new version of snipMate parser
 let g:snipMate = { 'snippet_version' : 1 }
@@ -267,6 +253,27 @@ map <F10> :set paste!<CR>
 nnoremap <localleader>rc <Plug>(iced_refresh)
 nnoremap <localleader>ra <Plug>(iced_refresh_all)
 
+" LSP
+
+" Some LSP's like solargraph don't support GoToDefinition. I want to use the
+" same keymap (<C-]>) so this function will try to LSP first, then fall back
+" to a tag lookup.
+function! GoToDefinitionOrTag()
+    try
+        <Plug>(lcn-definition)
+    catch /.*/
+        :exec "tag " . substitute(RubyCursorTag(),'^$',"\022\027",'')
+    endtry
+endfunction
+
+" if has_key(g:LanguageClient_serverCommands, &filetype)
+    nnoremap K <Plug>(lcn-hover)
+    nnoremap <F2> <Plug>(lcn-rename)
+    nnoremap gr <Plug>(lcn-references)
+    nnoremap <Leader>z :call LanguageClient_contextMenu()<CR>
+    nnoremap <C-]> :call GoToDefinitionOrTag()<CR>
+" endif
+
 "#############################################################################
 " Autocommands
 "#############################################################################
@@ -303,51 +310,6 @@ augroup vimrc
     autocmd! BufWritePost $MYVIMRC source % | echom "Reloaded " . $MYVIMRC | redraw
     autocmd! BufWritePost $MYGVIMRC if has('gui_running') | so % | echom "Reloaded " . $MYGVIMRC | endif | redraw
 augroup END
-
-" LSP Support
-" if executable('solargraph')
-"     au User lsp_setup call lsp#register_server({
-"         \ 'name': 'solargraph',
-"         \ 'cmd': {server_info->[&shell, &shellcmdflag, 'solargraph stdio']},
-"         \ 'whitelist': ['ruby'],
-"         \ })
-"     autocmd FileType rb,erb setlocal omnifunc=lsp#complete
-" endif
-
-" if executable('clojure-lsp')
-"     au User lsp_setup call lsp#register_server({
-"           \ 'name': 'clojure-lsp',
-"           \ 'cmd': {server_info->[&shell, &shellcmdflag, 'clojure-lsp']},
-"           \ 'allowlist': ['clojure', 'clojurescript']
-"           \ })
-"     autocmd FileType clj,cljs,cljc setlocal omnifunc=lsp#complete
-" endif
-
-" if executable('elixir-ls')
-"     au User lsp_setup call lsp#register_server({
-"           \ 'name': 'elixir-ls',
-"           \ 'cmd': {server_info->[&shell, &shellcmdflag, 'elixir-ls']},
-"           \ 'allowlist': ['elixir']
-"           \ })
-"     autocmd FileType ex,exs setlocal omnifunc=lsp#complete
-" endif
-
-" function! s:on_lsp_buffer_enabled() abort
-"     setlocal omnifunc=lsp#complete
-"     setlocal signcolumn=yes
-"     if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
-"     nmap <buffer> gd <plug>(lsp-definition)
-"     nmap <buffer> gr <plug>(lsp-references)
-"     nmap <buffer> <f2> <plug>(lsp-rename)
-"     nmap <buffer> [g <plug>(lsp-previous-diagnostic)
-"     nmap <buffer> ]g <plug>(lsp-next-diagnostic)
-"     nmap <buffer> K <plug>(lsp-hover)
-" endfunction
-
-" augroup lsp_install
-"     au!
-"     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
-" augroup END
 
 " Hack to get solarized loaded correctly
 au VimEnter * ToggleBG
