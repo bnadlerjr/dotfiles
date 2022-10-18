@@ -67,6 +67,7 @@ Plug 'tpope/vim-surround'                         " makes working w/ quotes, bra
 Plug 'tpope/vim-unimpaired'                       " pairs of handy bracket mappings
 Plug 'vim-ruby/vim-ruby'                          " packaged w/ vim but this is latest and greatest
 Plug 'vim-test/vim-test'                          " Run your tests at the speed of thought
+Plug 'vimwiki/vimwiki'                            " Personal Wiki for Vim
 
 " Neovim specific plugins
 if has('nvim')
@@ -170,6 +171,8 @@ let test#strategy = "dispatch"
 
 let g:NERDDefaultAlign = 'left'
 let NERDSpaceDelims = 1
+
+let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki/'}]
 
 " See https://github.com/altercation/vim-colors-solarized/issues/40
 call togglebg#map("")
