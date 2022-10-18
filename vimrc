@@ -19,7 +19,6 @@ Plug 'AndrewRadev/splitjoin.vim'                  " Switch between single-line a
 Plug 'AndrewRadev/writable_search.vim'            " Grep for something, then write the original files directly through the search results
 Plug 'DataWraith/auto_mkdir'                      " Allows you to save files into directories that do not exist yet
 Plug 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
-Plug 'MarcWeber/vim-addon-mw-utils'               " vim-snipmate dependency
 Plug 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plug 'altercation/vim-colors-solarized'           " Solarized color theme
 Plug 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
@@ -28,15 +27,13 @@ Plug 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag
 Plug 'dense-analysis/ale'                         " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
 Plug 'ecomba/vim-ruby-refactoring'                " Refactoring tool for Ruby in vim!
 Plug 'elixir-editors/vim-elixir'                  " Vim configuration files for Elixir
-Plug 'ervandew/supertab'                          " Perform all your vim insert mode completions with Tab
-Plug 'garbas/vim-snipmate'                        " handy code snippets
 Plug 'godlygeek/csapprox'                         " dependency for Solarized
 Plug 'guns/vim-clojure-static'                    " Clojure syntax highlighting and indentation
 Plug 'guns/vim-sexp'                              " Precision editing for s-expressions
 Plug 'hashivim/vim-terraform'                     " basic vim/terraform integration
-Plug 'honza/vim-snippets'                         " vim-snipmate default snippets
 Plug 'juvenn/mustache.vim'                        " Mustache support
 Plug 'kana/vim-textobj-user'                      " dependency for rubyblock
+Plug 'lifepillar/vim-mucomplete'                  " Chained completion that works the way you want!
 Plug 'liquidz/vim-iced', {'for': 'clojure'}       " Clojure Interactive Development Environment for Vim8/Neovim
 Plug 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plug 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
@@ -49,7 +46,6 @@ Plug 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/
 Plug 'rhysd/vim-lsp-ale'                          " Bridge between vim-lsp and ALE
 Plug 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
 Plug 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
-Plug 'tomtom/tlib_vim'                            " vim-snipmate dependency
 Plug 'tpope/vim-abolish'                          " easily search for, substitute, and abbreviate multiple variants of a word
 Plug 'tpope/vim-bundler'                          " makes source navigation of bundled gems easier
 Plug 'tpope/vim-cucumber'                         " provides syntax highlightling, indenting, and a filetype plugin
@@ -161,11 +157,6 @@ let g:lexical#thesaurus = ['~/.vim/thesaurus/mthesaur.txt']
 " This gets rid of the annoying 'A>' in the gutter for LSPs that support lots
 " of code actions.
 let g:lsp_document_code_action_signs_enabled = 0
-
-" Use new version of snipMate parser
-let g:snipMate = { 'snippet_version' : 1 }
-
-let g:SuperTabDefaultCompletionType = 'context'
 
 let test#strategy = "dispatch"
 
@@ -294,7 +285,6 @@ if executable('solargraph')
         \ 'cmd': {server_info->[&shell, &shellcmdflag, 'solargraph stdio']},
         \ 'whitelist': ['ruby'],
         \ })
-    autocmd FileType rb,erb setlocal omnifunc=lsp#complete
 endif
 
 if executable('clojure-lsp')
@@ -303,7 +293,6 @@ if executable('clojure-lsp')
           \ 'cmd': {server_info->[&shell, &shellcmdflag, 'clojure-lsp']},
           \ 'allowlist': ['clojure', 'clojurescript']
           \ })
-    autocmd FileType clj,cljs,cljc setlocal omnifunc=lsp#complete
 endif
 
 if executable('elixir-ls')
@@ -312,7 +301,6 @@ if executable('elixir-ls')
           \ 'cmd': {server_info->[&shell, &shellcmdflag, '~/dev/elixir/elixir-ls-1.10/language_server.sh']},
           \ 'allowlist': ['elixir']
           \ })
-    autocmd FileType ex,exs setlocal omnifunc=lsp#complete
 endif
 
 function! s:on_lsp_buffer_enabled() abort
@@ -323,6 +311,8 @@ function! s:on_lsp_buffer_enabled() abort
     nmap <buffer> <f2> <plug>(lsp-rename)
     nmap <buffer> K <plug>(lsp-hover)
     nmap <buffer> ga <plug>(lsp-code-action)
+    let g:mucomplete#completion_delay = 100
+    let g:mucomplete#reopen_immediately = 0
 endfunction
 
 augroup lsp_install
@@ -330,10 +320,27 @@ augroup lsp_install
     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
 augroup END
 
-autocmd FileType *
-    \ if &omnifunc != '' |
-    \   call SuperTabChain(&omnifunc, "<c-p>") |
-    \ endif
+augroup LazyLoadMucomplete
+    autocmd!
+    autocmd CursorHold,CursorHoldI * call LoadMucomplete() | call plug#load('vim-mucomplete') | autocmd! LazyLoadMucomplete
+augroup end
+
+function! LoadMucomplete()
+    set completeopt+=menuone
+    set completeopt+=noselect
+    set complete-=i
+    set complete-=t
+
+    let g:mucomplete#enable_auto_at_startup = 1
+    let g:mucomplete#chains = {}
+    let g:mucomplete#chains['default'] = {
+                \              'default': ['omni', 'path', 'c-n', 'uspl'],
+                \              '.*string.*': ['uspl'],
+                \              '.*comment.*': ['uspl']
+                \            }
+    let g:mucomplete#chains['markdown'] = ['path', 'c-n', 'uspl', 'dict']
+    let g:mucomplete#chains['gitcommit'] = g:mucomplete#chains['markdown']
+endfunction
 
 " Hack to get solarized loaded correctly
 au VimEnter * ToggleBG
