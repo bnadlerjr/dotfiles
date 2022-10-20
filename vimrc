@@ -242,6 +242,39 @@ nnoremap <localleader>rc <Plug>(iced_refresh)
 nnoremap <localleader>ra <Plug>(iced_refresh_all)
 
 "#############################################################################
+" Functions
+"#############################################################################
+
+function! s:on_lsp_buffer_enabled() abort
+    setlocal omnifunc=lsp#complete
+    setlocal signcolumn=yes
+    nmap <buffer> gd <plug>(lsp-definition)
+    nmap <buffer> gr <plug>(lsp-references)
+    nmap <buffer> <f2> <plug>(lsp-rename)
+    nmap <buffer> K <plug>(lsp-hover)
+    nmap <buffer> ga <plug>(lsp-code-action)
+    let g:mucomplete#completion_delay = 100
+    let g:mucomplete#reopen_immediately = 0
+endfunction
+
+function! LoadMucomplete()
+    set completeopt+=menuone
+    set completeopt+=noselect
+    set complete-=i
+    set complete-=t
+
+    let g:mucomplete#enable_auto_at_startup = 1
+    let g:mucomplete#chains = {}
+    let g:mucomplete#chains['default'] = {
+                \              'default': ['omni', 'path', 'c-n', 'uspl'],
+                \              '.*string.*': ['uspl'],
+                \              '.*comment.*': ['uspl']
+                \            }
+    let g:mucomplete#chains['markdown'] = ['path', 'c-n', 'uspl', 'dict']
+    let g:mucomplete#chains['gitcommit'] = g:mucomplete#chains['markdown']
+endfunction
+
+"#############################################################################
 " Autocommands
 "#############################################################################
 
@@ -303,18 +336,6 @@ if executable('elixir-ls')
           \ })
 endif
 
-function! s:on_lsp_buffer_enabled() abort
-    setlocal omnifunc=lsp#complete
-    setlocal signcolumn=yes
-    nmap <buffer> gd <plug>(lsp-definition)
-    nmap <buffer> gr <plug>(lsp-references)
-    nmap <buffer> <f2> <plug>(lsp-rename)
-    nmap <buffer> K <plug>(lsp-hover)
-    nmap <buffer> ga <plug>(lsp-code-action)
-    let g:mucomplete#completion_delay = 100
-    let g:mucomplete#reopen_immediately = 0
-endfunction
-
 augroup lsp_install
     au!
     autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
@@ -324,23 +345,6 @@ augroup LazyLoadMucomplete
     autocmd!
     autocmd CursorHold,CursorHoldI * call LoadMucomplete() | call plug#load('vim-mucomplete') | autocmd! LazyLoadMucomplete
 augroup end
-
-function! LoadMucomplete()
-    set completeopt+=menuone
-    set completeopt+=noselect
-    set complete-=i
-    set complete-=t
-
-    let g:mucomplete#enable_auto_at_startup = 1
-    let g:mucomplete#chains = {}
-    let g:mucomplete#chains['default'] = {
-                \              'default': ['omni', 'path', 'c-n', 'uspl'],
-                \              '.*string.*': ['uspl'],
-                \              '.*comment.*': ['uspl']
-                \            }
-    let g:mucomplete#chains['markdown'] = ['path', 'c-n', 'uspl', 'dict']
-    let g:mucomplete#chains['gitcommit'] = g:mucomplete#chains['markdown']
-endfunction
 
 " Hack to get solarized loaded correctly
 au VimEnter * ToggleBG
