@@ -163,7 +163,8 @@ let test#strategy = "dispatch"
 let g:NERDDefaultAlign = 'left'
 let NERDSpaceDelims = 1
 
-let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki/'}]
+let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki/',
+                     \ 'syntax': 'markdown', 'ext': '.md'}]
 
 " See https://github.com/altercation/vim-colors-solarized/issues/40
 call togglebg#map("")
