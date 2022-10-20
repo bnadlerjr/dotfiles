@@ -242,6 +242,9 @@ map <F10> :set paste!<CR>
 nnoremap <localleader>rc <Plug>(iced_refresh)
 nnoremap <localleader>ra <Plug>(iced_refresh_all)
 
+" Quickly yank from cursor to end of line
+nnoremap Y y$
+
 "#############################################################################
 " Functions
 "#############################################################################
