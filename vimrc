@@ -39,8 +39,6 @@ Plug 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
 Plug 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
 Plug 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
 Plug 'paulyeo21/vim-textobj-rspec'                " Creates text objects for rspec blocks
-Plug 'prabirshrestha/asyncomplete-lsp.vim'        " Bridge between vim-lsp and asyncomplete
-Plug 'prabirshrestha/asyncomplete.vim'            " async completion in pure vim script for vim8 and neovim
 Plug 'prabirshrestha/vim-lsp'                     " async language server protocol plugin for vim and neovim
 Plug 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
 Plug 'rhysd/vim-lsp-ale'                          " Bridge between vim-lsp and ALE
