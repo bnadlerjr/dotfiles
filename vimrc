@@ -332,7 +332,7 @@ au BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist tex
 " vim-lexical setup
 augroup lexical
     autocmd!
-    autocmd FileType markdown,md,txt,rdoc call lexical#init()
+    autocmd FileType gitcommit,markdown,md,txt,rdoc call lexical#init()
 augroup END
 
 " Source vimrc upon save
