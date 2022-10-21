@@ -321,27 +321,36 @@ augroup END
 
 " LSP Support
 if executable('solargraph')
-    au User lsp_setup call lsp#register_server({
-        \ 'name': 'solargraph',
-        \ 'cmd': {server_info->[&shell, &shellcmdflag, 'solargraph stdio']},
-        \ 'whitelist': ['ruby'],
-        \ })
+    augroup lsp_ruby
+        au!
+        au User lsp_setup call lsp#register_server({
+                    \ 'name': 'solargraph',
+                    \ 'cmd': {server_info->[&shell, &shellcmdflag, 'solargraph stdio']},
+                    \ 'whitelist': ['ruby'],
+                    \ })
+    augroup END
 endif
 
 if executable('clojure-lsp')
-    au User lsp_setup call lsp#register_server({
-          \ 'name': 'clojure-lsp',
-          \ 'cmd': {server_info->[&shell, &shellcmdflag, 'clojure-lsp']},
-          \ 'allowlist': ['clojure', 'clojurescript']
-          \ })
+    augroup lsp_clojure
+        au!
+        au User lsp_setup call lsp#register_server({
+                    \ 'name': 'clojure-lsp',
+                    \ 'cmd': {server_info->[&shell, &shellcmdflag, 'clojure-lsp']},
+                    \ 'allowlist': ['clojure', 'clojurescript']
+                    \ })
+    augroup END
 endif
 
 if executable('elixir-ls')
-    au User lsp_setup call lsp#register_server({
-          \ 'name': 'elixir-ls',
-          \ 'cmd': {server_info->[&shell, &shellcmdflag, '~/dev/elixir/elixir-ls-1.10/language_server.sh']},
-          \ 'allowlist': ['elixir']
-          \ })
+    augroup lsp_elixir
+        au!
+        au User lsp_setup call lsp#register_server({
+                    \ 'name': 'elixir-ls',
+                    \ 'cmd': {server_info->[&shell, &shellcmdflag, '~/dev/elixir/elixir-ls-1.10/language_server.sh']},
+                    \ 'allowlist': ['elixir']
+                    \ })
+    augroup END
 endif
 
 augroup lsp_install
