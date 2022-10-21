@@ -243,6 +243,12 @@ nnoremap <localleader>ra <Plug>(iced_refresh_all)
 " Quickly yank from cursor to end of line
 nnoremap Y y$
 
+" Copy selected text to system clipboard, joining single newlines and
+" preserving multiple newlines
+vmap <C-c> "+y:let @+ = substitute(@+, "\n\n", "±", "g")<CR>
+    \      \|:let @+ = substitute(@+, "\n", " ", "g")<CR>
+    \      \|:let @+ = substitute(@+, "±", "\\n\\n", "g")<CR>
+
 "#############################################################################
 " Functions
 "#############################################################################
