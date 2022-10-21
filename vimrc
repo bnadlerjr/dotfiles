@@ -21,14 +21,13 @@ Plug 'DataWraith/auto_mkdir'                      " Allows you to save files int
 Plug 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
 Plug 'SirVer/ultisnips'                           " The ultimate snippet solution for Vim.
 Plug 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
-Plug 'altercation/vim-colors-solarized'           " Solarized color theme
 Plug 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
 Plug 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
 Plug 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
 Plug 'dense-analysis/ale'                         " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
 Plug 'ecomba/vim-ruby-refactoring'                " Refactoring tool for Ruby in vim!
 Plug 'elixir-editors/vim-elixir'                  " Vim configuration files for Elixir
-Plug 'godlygeek/csapprox'                         " dependency for Solarized
+Plug 'ericbn/vim-solarized'                       " A simpler fork of the awesome Solarized colorscheme for Vim by Ethan Schoonover
 Plug 'guns/vim-clojure-static'                    " Clojure syntax highlighting and indentation
 Plug 'guns/vim-sexp'                              " Precision editing for s-expressions
 Plug 'hashivim/vim-terraform'                     " basic vim/terraform integration
@@ -123,6 +122,19 @@ colorscheme solarized
 let mapleader = ","
 let maplocalleader = "\\"
 
+" Use a line cursor within insert mode and a block cursor everywhere else.
+"
+" Reference chart of values:
+"   Ps = 0  -> blinking block.
+"   Ps = 1  -> blinking block (default).
+"   Ps = 2  -> steady block.
+"   Ps = 3  -> blinking underline.
+"   Ps = 4  -> steady underline.
+"   Ps = 5  -> blinking bar (xterm).
+"   Ps = 6  -> steady bar (xterm).
+let &t_SI = "\e[5 q"
+let &t_EI = "\e[1 q"
+
 " Make bash aliases available when running shell commands
 let $BASH_ENV = "~/bin/dotfiles/bash/aliases"
 
@@ -169,9 +181,6 @@ let NERDSpaceDelims = 1
 
 let g:vimwiki_list = [{'path': '~/Dropbox/vimwiki/',
                      \ 'syntax': 'markdown', 'ext': '.md'}]
-
-" See https://github.com/altercation/vim-colors-solarized/issues/40
-call togglebg#map("")
 
 "#############################################################################
 " Keymaps
@@ -384,7 +393,3 @@ augroup LazyLoadMucomplete
     autocmd!
     autocmd CursorHold,CursorHoldI * call LoadMucomplete() | call plug#load('vim-mucomplete') | autocmd! LazyLoadMucomplete
 augroup end
-
-" Hack to get solarized loaded correctly
-au VimEnter * ToggleBG
-au VimEnter * ToggleBG
