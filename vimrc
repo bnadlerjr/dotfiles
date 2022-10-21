@@ -19,6 +19,7 @@ Plug 'AndrewRadev/splitjoin.vim'                  " Switch between single-line a
 Plug 'AndrewRadev/writable_search.vim'            " Grep for something, then write the original files directly through the search results
 Plug 'DataWraith/auto_mkdir'                      " Allows you to save files into directories that do not exist yet
 Plug 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
+Plug 'SirVer/ultisnips'                           " The ultimate snippet solution for Vim.
 Plug 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
 Plug 'altercation/vim-colors-solarized'           " Solarized color theme
 Plug 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
@@ -31,6 +32,7 @@ Plug 'godlygeek/csapprox'                         " dependency for Solarized
 Plug 'guns/vim-clojure-static'                    " Clojure syntax highlighting and indentation
 Plug 'guns/vim-sexp'                              " Precision editing for s-expressions
 Plug 'hashivim/vim-terraform'                     " basic vim/terraform integration
+Plug 'honza/vim-snippets'                         " Default snippets
 Plug 'juvenn/mustache.vim'                        " Mustache support
 Plug 'kana/vim-textobj-user'                      " dependency for rubyblock
 Plug 'lifepillar/vim-mucomplete'                  " Chained completion that works the way you want!
@@ -158,6 +160,10 @@ let g:lsp_document_code_action_signs_enabled = 0
 
 let test#strategy = "dispatch"
 
+" Redefine UltiSnips trigger; rely on mucomplete instead
+let g:UltiSnipsExpandTrigger = "<f5>"        " Do not use <tab>
+let g:UltiSnipsJumpForwardTrigger = "<c-b>"  " Do not use <c-j>
+
 let g:NERDDefaultAlign = 'left'
 let NERDSpaceDelims = 1
 
@@ -274,12 +280,28 @@ function! LoadMucomplete()
     let g:mucomplete#enable_auto_at_startup = 1
     let g:mucomplete#chains = {}
     let g:mucomplete#chains['default'] = {
-                \              'default': ['omni', 'path', 'keyn', 'uspl'],
+                \              'default': ['ulti', 'omni', 'path', 'keyn', 'uspl'],
                 \              '.*string.*': ['uspl'],
                 \              '.*comment.*': ['uspl']
                 \            }
     let g:mucomplete#chains['markdown'] = ['path', 'keyn', 'uspl', 'dict']
     let g:mucomplete#chains['gitcommit'] = g:mucomplete#chains['markdown']
+
+    inoremap <plug>(TryUlti) <c-r>=TryUltiSnips()<cr>
+    imap <expr> <silent> <plug>(TryMU) TryMUcomplete()
+    imap <expr> <silent> <tab> "\<plug>(TryUlti)\<plug>(TryMU)"
+endfunction
+
+function! TryUltiSnips()
+    if !pumvisible() " With the pop-up menu open, let Tab move down
+        call UltiSnips#ExpandSnippetOrJump()
+    endif
+    return ''
+endfunction
+
+let g:ulti_expand_or_jump_res = 0
+function! TryMUcomplete()
+    return g:ulti_expand_or_jump_res ? "" : "\<plug>(MUcompleteFwd)"
 endfunction
 
 "#############################################################################
