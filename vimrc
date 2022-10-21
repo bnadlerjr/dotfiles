@@ -268,11 +268,11 @@ function! LoadMucomplete()
     let g:mucomplete#enable_auto_at_startup = 1
     let g:mucomplete#chains = {}
     let g:mucomplete#chains['default'] = {
-                \              'default': ['omni', 'path', 'c-n', 'uspl'],
+                \              'default': ['omni', 'path', 'keyn', 'uspl'],
                 \              '.*string.*': ['uspl'],
                 \              '.*comment.*': ['uspl']
                 \            }
-    let g:mucomplete#chains['markdown'] = ['path', 'c-n', 'uspl', 'dict']
+    let g:mucomplete#chains['markdown'] = ['path', 'keyn', 'uspl', 'dict']
     let g:mucomplete#chains['gitcommit'] = g:mucomplete#chains['markdown']
 endfunction
 
