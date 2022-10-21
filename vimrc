@@ -280,7 +280,7 @@ function! LoadMucomplete()
     let g:mucomplete#enable_auto_at_startup = 1
     let g:mucomplete#chains = {}
     let g:mucomplete#chains['default'] = {
-                \              'default': ['ulti', 'omni', 'path', 'keyn', 'uspl'],
+                \              'default': ['ulti', 'omni', 'path', 'keyp', 'keyn', 'uspl'],
                 \              '.*string.*': ['uspl'],
                 \              '.*comment.*': ['uspl']
                 \            }
