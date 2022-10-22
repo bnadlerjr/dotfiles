@@ -2,4 +2,5 @@ bundler
 solargraph
 terminal-notifier
 thor
+tmuxinator
 tty-prompt
