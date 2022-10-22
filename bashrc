@@ -30,3 +30,5 @@ export PATH="$(yarn global bin):$PATH"
 
 # Setup direnv
 eval "$(direnv hook bash)"
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
