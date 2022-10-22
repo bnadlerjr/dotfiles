@@ -15,54 +15,54 @@ endif
 
 call plug#begin()
 
-Plug 'AndrewRadev/splitjoin.vim'                  " Switch between single-line and multiline forms of code
-Plug 'AndrewRadev/writable_search.vim'            " Grep for something, then write the original files directly through the search results
-Plug 'DataWraith/auto_mkdir'                      " Allows you to save files into directories that do not exist yet
-Plug 'Glench/Vim-Jinja2-Syntax'                   " Jinja2 syntax highlighting
-Plug 'SirVer/ultisnips'                           " The ultimate snippet solution for Vim.
-Plug 'airblade/vim-gitgutter'                     " shows a git diff in the gutter (sign column) and stages/reverts hunks
-Plug 'andyl/vim-textobj-elixir'                   " Make text objects with various elixir block structures
-Plug 'bling/vim-airline'                          " lean & mean status/tabline for vim that's light as air
-Plug 'ctrlpvim/ctrlp.vim'                         " Fuzzy file, buffer, mru, tag, etc finder
-Plug 'dense-analysis/ale'                         " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
-Plug 'ecomba/vim-ruby-refactoring'                " Refactoring tool for Ruby in vim!
-Plug 'elixir-editors/vim-elixir'                  " Vim configuration files for Elixir
-Plug 'ericbn/vim-solarized'                       " A simpler fork of the awesome Solarized colorscheme for Vim by Ethan Schoonover
-Plug 'guns/vim-clojure-static'                    " Clojure syntax highlighting and indentation
-Plug 'guns/vim-sexp'                              " Precision editing for s-expressions
-Plug 'hashivim/vim-terraform'                     " basic vim/terraform integration
-Plug 'honza/vim-snippets'                         " Default snippets
-Plug 'juvenn/mustache.vim'                        " Mustache support
-Plug 'kana/vim-textobj-user'                      " dependency for rubyblock
-Plug 'lifepillar/vim-mucomplete'                  " Chained completion that works the way you want!
-Plug 'liquidz/vim-iced', {'for': 'clojure'}       " Clojure Interactive Development Environment for Vim8/Neovim
-Plug 'mhinz/vim-grepper'                          " 👾 Helps you win at grep
-Plug 'nelstrom/vim-textobj-rubyblock'             " custom text object for selecting Ruby blocks
-Plug 'pangloss/vim-javascript'                    " Vastly improved Javascript indentation and syntax support
-Plug 'paulyeo21/vim-textobj-rspec'                " Creates text objects for rspec blocks
-Plug 'prabirshrestha/vim-lsp'                     " async language server protocol plugin for vim and neovim
-Plug 'reedes/vim-lexical'                         " Build on Vim’s spell/thes/dict completion
-Plug 'rhysd/vim-lsp-ale'                          " Bridge between vim-lsp and ALE
-Plug 'scrooloose/nerdcommenter'                   " quickly (un)comment lines
-Plug 'sjl/vitality.vim'                           " Make Vim play nicely with iTerm 2 and tmux
-Plug 'tpope/vim-abolish'                          " easily search for, substitute, and abbreviate multiple variants of a word
-Plug 'tpope/vim-bundler'                          " makes source navigation of bundled gems easier
-Plug 'tpope/vim-cucumber'                         " provides syntax highlightling, indenting, and a filetype plugin
-Plug 'tpope/vim-dispatch'                         " Asynchronous build and test dispatcher
-Plug 'tpope/vim-endwise'                          " wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
-Plug 'tpope/vim-fugitive'                         " Git plugin
-Plug 'tpope/vim-leiningen'                        " static support for Leiningen
-Plug 'tpope/vim-projectionist'                    " project configuration
-Plug 'tpope/vim-ragtag'                           " Ghetto HTML / XML mappings
-Plug 'tpope/vim-rails'                            " Rails helpers
-Plug 'tpope/vim-rake'                             " makes Ruby project navigation easier for non-Rails projects
-Plug 'tpope/vim-repeat'                           " Enable repeating supported plugin maps with '.'
-Plug 'tpope/vim-sexp-mappings-for-regular-people' " vim-sexp mappings rely on meta key; these don't
-Plug 'tpope/vim-surround'                         " makes working w/ quotes, braces,etc. easier
-Plug 'tpope/vim-unimpaired'                       " pairs of handy bracket mappings
-Plug 'vim-ruby/vim-ruby'                          " packaged w/ vim but this is latest and greatest
-Plug 'vim-test/vim-test'                          " Run your tests at the speed of thought
-Plug 'vimwiki/vimwiki'                            " Personal Wiki for Vim
+Plug 'AndrewRadev/splitjoin.vim'                    " Switch between single-line and multiline forms of code
+Plug 'AndrewRadev/writable_search.vim'              " Grep for something, then write the original files directly through the search results
+Plug 'DataWraith/auto_mkdir'                        " Allows you to save files into directories that do not exist yet
+Plug 'Glench/Vim-Jinja2-Syntax'                     " Jinja2 syntax highlighting
+Plug 'SirVer/ultisnips'                             " The ultimate snippet solution for Vim.
+Plug 'airblade/vim-gitgutter'                       " shows a git diff in the gutter (sign column) and stages/reverts hunks
+Plug 'andyl/vim-textobj-elixir'                     " Make text objects with various elixir block structures
+Plug 'bling/vim-airline'                            " lean & mean status/tabline for vim that's light as air
+Plug 'dense-analysis/ale'                           " Check syntax in Vim asynchronously and fix files, with Language Server Protocol (LSP) support
+Plug 'ecomba/vim-ruby-refactoring'                  " Refactoring tool for Ruby in vim!
+Plug 'elixir-editors/vim-elixir'                    " Vim configuration files for Elixir
+Plug 'ericbn/vim-solarized'                         " A simpler fork of the awesome Solarized colorscheme for Vim by Ethan Schoonover
+Plug 'guns/vim-clojure-static'                      " Clojure syntax highlighting and indentation
+Plug 'guns/vim-sexp'                                " Precision editing for s-expressions
+Plug 'hashivim/vim-terraform'                       " basic vim/terraform integration
+Plug 'honza/vim-snippets'                           " Default snippets
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } " Fuzzy search
+Plug 'junegunn/fzf.vim'                             " FZF vim integration
+Plug 'juvenn/mustache.vim'                          " Mustache support
+Plug 'kana/vim-textobj-user'                        " dependency for rubyblock
+Plug 'lifepillar/vim-mucomplete'                    " Chained completion that works the way you want!
+Plug 'liquidz/vim-iced', {'for': 'clojure'}         " Clojure Interactive Development Environment for Vim8/Neovim
+Plug 'nelstrom/vim-textobj-rubyblock'               " custom text object for selecting Ruby blocks
+Plug 'pangloss/vim-javascript'                      " Vastly improved Javascript indentation and syntax support
+Plug 'paulyeo21/vim-textobj-rspec'                  " Creates text objects for rspec blocks
+Plug 'prabirshrestha/vim-lsp'                       " async language server protocol plugin for vim and neovim
+Plug 'reedes/vim-lexical'                           " Build on Vim’s spell/thes/dict completion
+Plug 'rhysd/vim-lsp-ale'                            " Bridge between vim-lsp and ALE
+Plug 'scrooloose/nerdcommenter'                     " quickly (un)comment lines
+Plug 'sjl/vitality.vim'                             " Make Vim play nicely with iTerm 2 and tmux
+Plug 'tpope/vim-abolish'                            " easily search for, substitute, and abbreviate multiple variants of a word
+Plug 'tpope/vim-bundler'                            " makes source navigation of bundled gems easier
+Plug 'tpope/vim-cucumber'                           " provides syntax highlightling, indenting, and a filetype plugin
+Plug 'tpope/vim-dispatch'                           " Asynchronous build and test dispatcher
+Plug 'tpope/vim-endwise'                            " wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
+Plug 'tpope/vim-fugitive'                           " Git plugin
+Plug 'tpope/vim-leiningen'                          " static support for Leiningen
+Plug 'tpope/vim-projectionist'                      " project configuration
+Plug 'tpope/vim-ragtag'                             " Ghetto HTML / XML mappings
+Plug 'tpope/vim-rails'                              " Rails helpers
+Plug 'tpope/vim-rake'                               " makes Ruby project navigation easier for non-Rails projects
+Plug 'tpope/vim-repeat'                             " Enable repeating supported plugin maps with '.'
+Plug 'tpope/vim-sexp-mappings-for-regular-people'   " vim-sexp mappings rely on meta key; these don't
+Plug 'tpope/vim-surround'                           " makes working w/ quotes, braces,etc. easier
+Plug 'tpope/vim-unimpaired'                         " pairs of handy bracket mappings
+Plug 'vim-ruby/vim-ruby'                            " packaged w/ vim but this is latest and greatest
+Plug 'vim-test/vim-test'                            " Run your tests at the speed of thought
+Plug 'vimwiki/vimwiki'                              " Personal Wiki for Vim
 
 " Neovim specific plugins
 if has('nvim')
@@ -149,11 +149,6 @@ let g:ale_sign_column_always = 1
 let g:ale_sign_error = "✘"
 let g:ale_sign_warning = "✘"
 
-let g:ctrlp_custom_ignore = '\v\~$|\.o$|\.exe$|\.bak$|\.pyc|\.swp|\.class$|coverage/|log/|tmp/|cover/|dist/|\.git|tags|bower_components/|node_modules/|.DS_Store|venv/|cover-unit/|target/|build/|vendor/bundle|deps|_build'
-
-let g:grepper = {}
-let g:grepper.tools = ['git', 'rg', 'ag', 'ack', 'ack-grep', 'grep']
-
 let g:iced#nrepl#ns#refresh_after_fn = 'user/start'
 let g:iced#nrepl#ns#refresh_before_fn = 'user/stop'
 let g:iced_default_key_mapping_leader = '<LocalLeader>'
@@ -200,16 +195,6 @@ nnoremap <Leader>c <space>
 
 " Quickly re-indent file
 map <Leader>= gg=G``<CR>
-
-" Search for the current word
-nnoremap <Leader>* :Grepper -cword -noprompt<CR>
-
-" Search for the current selection
-nmap gs <plug>(GrepperOperator)
-xmap gs <plug>(GrepperOperator)
-
-" Open search prompt
-nnoremap <Leader>a :GrepperRg 
 
 " Bring up Fugitive status buffer
 nnoremap <Leader>g :Git<CR>
@@ -263,6 +248,11 @@ nnoremap Y y$
 vmap <C-c> "+y:let @+ = substitute(@+, "\n\n", "±", "g")<CR>
     \      \|:let @+ = substitute(@+, "\n", " ", "g")<CR>
     \      \|:let @+ = substitute(@+, "±", "\\n\\n", "g")<CR>
+
+" FZF
+nnoremap <C-p> :Files<CR>
+nnoremap <Leader>a :Rg<CR>
+nnoremap <Leader>* :Rg <C-R><C-W><CR>
 
 "#############################################################################
 " Functions
