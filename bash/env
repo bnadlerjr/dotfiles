@@ -9,7 +9,6 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 
 # Use vim for EDITOR, but start it in vi mode
 export EDITOR="vim -v"
-export GIT_MACHETE_EDITOR=vi
 
 # PATH Setup
 export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/sbin:~/.vim/plugged/vim-iced/bin:$PATH:~/bin
