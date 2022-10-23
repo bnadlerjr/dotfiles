@@ -17,3 +17,6 @@ export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/sbin:~/.vim/plugged/
 export GNUPGHOME="$HOME/.gnupg"
 export GPG_TTY=$(tty)
 export SSH_AUTH_SOCK="${HOME}/.gnupg/S.gpg-agent.ssh"
+
+# FZF
+export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git'
