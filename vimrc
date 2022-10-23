@@ -251,6 +251,7 @@ vmap <C-c> "+y:let @+ = substitute(@+, "\n\n", "±", "g")<CR>
 
 " FZF
 nnoremap <C-p> :Files<CR>
+nnoremap <LocalLeader>b :Buffers<CR>
 nnoremap <Leader>a :Rg<CR>
 nnoremap <Leader>* :Rg <C-R><C-W><CR>
 
