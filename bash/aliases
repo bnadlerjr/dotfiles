@@ -14,7 +14,7 @@ alias hoboken="~/dev/hoboken/bin/hoboken"
 alias l="ls -lgohG"
 alias la="ls -AlgohG"
 alias reload="source ~/dotfiles/bash/aliases"
-alias t="fd | as-tree"
+alias t=tree-with-fd
 alias tf=terraform
 alias tfresh="terraform apply -refresh-only"
 alias tm="tmate -2 -f ~/.tmux.conf"
@@ -30,6 +30,10 @@ mkcd () {
 # Kill a process from a pid file
 function pk {
     kill -9 $(cat $1)
+}
+
+function tree-with-fd() {
+    fd --full-path "$@" | as-tree
 }
 
 # top 5 one-word commands (and total number)
