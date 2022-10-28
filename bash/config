@@ -53,3 +53,6 @@ eval "$(ssh-agent -s)"
 
 # prompt
 PS1="\[$BLDGRN\]\n\u:\w \[$TXTBLU\](\$(srb_git_prompt)\[$TXTBLU\])\[$TXTRST\] \n→ "
+
+# Hotkey for tmuxify script
+bind -x '"\C-f":"tmuxify.sh"'
