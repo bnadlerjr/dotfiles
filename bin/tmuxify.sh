@@ -11,16 +11,17 @@ IFS=$'\n\t'
 # The inspiration for this came from @ThePrimeagen's [Developer Productivity][1]
 # course.
 #
-# Requirements:
-# * tmux
+# All of these must be available on $PATH:
 # * fd
+# * tmux
+# * tmuxinator
 #
 # [1]: https://frontendmasters.com/courses/developer-productivity/
 
 directories=$(fd --hidden --exact-depth 1 --type directory . \
-            ~/dev/personal \
-            ~/dev/flatiron \
-            )
+    ~/dev/personal \
+    ~/dev/flatiron \
+)
 
 # I want dotfiles as a project, but it's in my $HOME directory and I don't want
 # to move it & break the symlink script. So I'm appending the dotfiles directory
@@ -38,12 +39,20 @@ fi
 session_name=$(basename "$session")
 
 if ! tmux info &> /dev/null; then
-    tmux new-session -s "$session_name" -c "$session"
+    if tmuxinator list | grep -F -q -x "$session_name"; then
+        tmuxinator start "$session_name"
+    else
+        tmux new-session -s "$session_name" -c "$session" -n "workspace"
+    fi
     exit 0
 fi
 
 if ! tmux has-session -t="$session_name" 2> /dev/null; then
-    tmux new-session -ds "$session_name" -c "$session"
+    if tmuxinator list | grep -F -q -x "$session_name"; then
+        tmuxinator start "$session_name" --no-attach
+    else
+        tmux new-session -ds "$session_name" -c "$session" -n "workspace"
+    fi
 fi
 
 tmux switch-client -t "$session_name"
