@@ -14,9 +14,11 @@ IFS=$'\n\t'
 # All of these must be available on $PATH:
 # * fd
 # * tmux
-# * tmuxinator
+# * my personal fork of tmuxinator that has "pause" and "resume" support
 #
 # [1]: https://frontendmasters.com/courses/developer-productivity/
+
+mux="$HOME/dev/personal/tmuxinator/bin/tmuxinator"
 
 directories=$(fd --hidden --exact-depth 1 --type directory . \
     ~/dev/cyrus \
@@ -41,20 +43,29 @@ fi
 session_name=$(basename "$session")
 
 if ! tmux info &> /dev/null; then
-    if tmuxinator list | grep -F -q -x "$session_name"; then
-        tmuxinator start "$session_name"
+    if $mux list -n | grep -F -q -x "$session_name"; then
+        $mux start "$session_name"
     else
         tmux new-session -s "$session_name" -c "$session" -n "workspace"
     fi
     exit 0
 fi
 
+current_tmux_session_name=$(tmux display-message -p "#S")
+if $mux list -n | grep -F -q -x "$current_tmux_session_name"; then
+    $mux pause "$current_tmux_session_name"
+fi
+
 if ! tmux has-session -t="$session_name" 2> /dev/null; then
-    if tmuxinator list | grep -F -q -x "$session_name"; then
-        tmuxinator start "$session_name" --no-attach
+    if $mux list -n | grep -F -q -x "$session_name"; then
+        $mux start "$session_name" --no-attach
     else
         tmux new-session -ds "$session_name" -c "$session" -n "workspace"
     fi
+fi
+
+if $mux list -n | grep -F -q -x "$session_name"; then
+    $mux resume "$session_name"
 fi
 
 tmux switch-client -t "$session_name"
