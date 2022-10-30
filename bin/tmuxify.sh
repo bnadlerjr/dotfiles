@@ -19,8 +19,10 @@ IFS=$'\n\t'
 # [1]: https://frontendmasters.com/courses/developer-productivity/
 
 directories=$(fd --hidden --exact-depth 1 --type directory . \
-    ~/dev/personal \
+    ~/dev/cyrus \
     ~/dev/flatiron \
+    ~/dev/gust \
+    ~/dev/personal \
 )
 
 # I want dotfiles as a project, but it's in my $HOME directory and I don't want
