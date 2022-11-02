@@ -14,6 +14,7 @@ base_branch = prompt.ask('What is the name of the base branch?', default: possib
 
 possible_reviewers = {
   'Avidor' => 'aturkewi',
+  'Brian' => 'bbosh',
   'Cernan' => 'cernanb',
   'Colin' => 'colinrlly',
   'Crystal' => 'ACrystalC',
