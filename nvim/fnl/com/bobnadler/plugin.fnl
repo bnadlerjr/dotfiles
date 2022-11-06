@@ -34,6 +34,7 @@
   :RRethy/nvim-treesitter-endwise {}                   ;; Tree-sitter aware alternative to tpope's vim-endwise
   :TimUntersberger/neogit {:mod :neogit}               ;; magit for neovim
   :elixir-editors/vim-elixir {}                        ;; Vim configuration files for Elixir
+  :ericbn/vim-solarized {}                             ;; A simpler fork of the awesome Solarized colorscheme for Vim by Ethan Schoonover
   :guns/vim-clojure-static {}                          ;; Clojure syntax highlighting and indentation
   :guns/vim-sexp {:mod :sexp}                          ;; Precision editing for s-expressions
   :hashivim/vim-terraform {}                           ;; basic vim/terraform integration
@@ -41,7 +42,6 @@
   :hrsh7th/cmp-nvim-lsp {}                             ;; nvim-cmp source for neovim builtin LSP client
   :hrsh7th/cmp-path {}                                 ;; nvim-cmp source for path
   :hrsh7th/nvim-cmp {:mod :cmp}                        ;; A completion plugin for neovim coded in Lua.
-  :ishan9299/nvim-solarized-lua {:mod :colors}         ;; solarized colorscheme in lua for nvim 0.5
   :jose-elias-alvarez/null-ls.nvim {:mod :null_ls}     ;; Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
   :kyazdani42/nvim-web-devicons {}                     ;; lua `fork` of vim-web-devicons for neovim
   :kylechui/nvim-surround {:mod :surround}             ;; Add/change/delete surrounding delimiter pairs with ease.
@@ -71,5 +71,4 @@
   :tpope/vim-sexp-mappings-for-regular-people {}       ;; vim-sexp mappings rely on meta key; these don't
   :williamboman/mason-lspconfig.nvim {}                ;; Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
   :williamboman/mason.nvim {}                          ;; Easily install and manage LSP servers, DAP servers, linters, and formatters.
-  ; *** :vim-test/vim-test {}                          ;; Run your tests at the speed of thought
   )

@@ -30,5 +30,4 @@
   (nvim.ex.set "diffopt+=vertical")         ;; Use vertical diffs
   (nvim.ex.set "listchars=tab:»·,trail:·")  ;; Show tabs and trailing whitespace only
 
-; vim.cmd [[colorscheme solarized]]
-  )
+  (nvim.ex.colorscheme "solarized"))
