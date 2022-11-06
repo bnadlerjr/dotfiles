@@ -44,6 +44,7 @@
   :guns/vim-clojure-static {}                          ;; Clojure syntax highlighting and indentation
   :guns/vim-sexp {:mod :sexp}                          ;; Precision editing for s-expressions
   :hashivim/vim-terraform {}                           ;; basic vim/terraform integration
+  :honza/vim-snippets {}                               ;; Default snippets
   :hrsh7th/cmp-buffer {}                               ;; nvim-cmp source for buffer words
   :hrsh7th/cmp-nvim-lsp {}                             ;; nvim-cmp source for neovim builtin LSP client
   :hrsh7th/cmp-path {}                                 ;; nvim-cmp source for path
@@ -61,7 +62,6 @@
   :nvim-treesitter/nvim-treesitter {:run ":TSUpdate" :mod :treesitter}  ;; Nvim Treesitter configurations and abstraction layer
   :nvim-treesitter/nvim-treesitter-textobjects {}      ;; Syntax aware text-objects, select, move, swap, and peek support.
   :onsails/lspkind.nvim {}                             ;; vscode-like pictograms for neovim lsp completion items
-  :rafamadriz/friendly-snippets {}                     ;; Set of preconfigured snippets for different languages.
   :reedes/vim-lexical {}                               ;; Build on Vim’s spell/thes/dict completion
   :saadparwaiz1/cmp_luasnip {}                         ;; luasnip completion source for nvim-cmp
   :scrooloose/nerdcommenter {:mod :comments}           ;; quickly (un)comment lines
