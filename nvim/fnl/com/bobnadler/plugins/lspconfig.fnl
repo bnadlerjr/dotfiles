@@ -1,23 +1,7 @@
 (module com.bobnadler.plugins.lspconfig
   {autoload {nvim aniseed.nvim
-             mason mason
-             mason-lspconfig mason-lspconfig
              lsp lspconfig
              cmplsp cmp_nvim_lsp}})
-
-(mason.setup)
-(mason-lspconfig.setup
-  ;; TODO: Think about installing these as well...
-  ;; :bashls
-  ;; :cucumber_language_server
-  ;; :eslint
-  ;; :graphql
-  ;; :jsonls
-  ;; :terraformls
-  ;; :tsserver
-  ;; :yamlls
-  {:ensure_installed
-   [:clojure_lsp :elixirls :html :prettierd :solargraph]})
 
 (vim.fn.sign_define "DiagnosticSignError" {:text "" :texthl "DiagnosticSignError"})
 (vim.fn.sign_define "DiagnosticSignWarn"  {:text "" :texthl "DiagnosticSignWarn"})

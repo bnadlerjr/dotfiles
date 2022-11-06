@@ -75,6 +75,4 @@
   :tpope/vim-rake {}                                   ;; makes Ruby project navigation easier for non-Rails projects
   :tpope/vim-repeat {}                                 ;; Enable repeating supported plugin maps with '.'
   :tpope/vim-sexp-mappings-for-regular-people {}       ;; vim-sexp mappings rely on meta key; these don't
-  :williamboman/mason-lspconfig.nvim {}                ;; Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
-  :williamboman/mason.nvim {}                          ;; Easily install and manage LSP servers, DAP servers, linters, and formatters.
   )
