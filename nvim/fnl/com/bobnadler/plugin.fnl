@@ -24,6 +24,12 @@
   nil)
 
 (use
+  ;; These are already bootstrapped in `init.lua` but adding them here so that
+  ;; packer knows about them (i.e. so that `PackerClean` doesn't remove them).
+  :Olical/aniseed {}
+  :lewis6991/impatient.nvim {}
+  :wbthomason/packer.nvim {}
+
   :AndrewRadev/splitjoin.vim {}                        ;; Switch between single-line and multiline forms of code
   :AndrewRadev/writable_search.vim {}                  ;; Grep for something, then write the original files directly through the search results
   :DataWraith/auto_mkdir {}                            ;; Allows you to save files into directories that do not exist yet
