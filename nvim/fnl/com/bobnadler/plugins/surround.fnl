@@ -1,5 +1,4 @@
-(module com.bobnadler.plugins.surround)
+(module com.bobnadler.plugins.surround
+  {autoload {surround nvim-surround}})
 
-(let [(ok? nvim-surround) (pcall #(require :nvim-surround))]
-  (when ok?
-    (nvim-surround.setup {})))
+(surround.setup)

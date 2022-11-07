@@ -1,6 +1,5 @@
 (module com.bobnadler.plugins.cmp
-  {autoload {nvim aniseed.nvim
-             cmp cmp
+  {autoload {cmp cmp
              lspkind lspkind
              luasnip luasnip}})
 
