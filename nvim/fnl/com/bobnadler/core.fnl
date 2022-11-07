@@ -16,6 +16,7 @@
        :number      true  ;; Display line numbers
        :scrolloff   3     ;; Always show 3 lines around cursor
        :showmatch   true  ;; Show matching braces
+       :signcolumn  "yes" ;; Alway show signcolumn
        :smartcase   true  ;; Turn case sensitive search back on in certain cases
        :shiftwidth  4     ;; 4 spaces for everything
        :softtabstop 4
