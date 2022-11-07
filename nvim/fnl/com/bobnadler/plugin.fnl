@@ -54,6 +54,7 @@
   :tpope/vim-rake {}                             ;; makes Ruby project navigation easier for non-Rails projects
   :tpope/vim-repeat {}                           ;; Enable repeating supported plugin maps with '.'
   :tpope/vim-sexp-mappings-for-regular-people {} ;; vim-sexp mappings rely on meta key; these don't
+  :vimwiki/vimwiki {:mod :wiki}                  ;; Personal Wiki for Vim
 
   ;; Neovim specific plugins
 
