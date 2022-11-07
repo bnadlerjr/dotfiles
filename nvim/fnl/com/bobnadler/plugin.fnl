@@ -43,6 +43,7 @@
   :honza/vim-snippets {}                         ;; Default snippets
   :reedes/vim-lexical {}                         ;; Build on Vim’s spell/thes/dict completion
   :scrooloose/nerdcommenter {:mod :comments}     ;; quickly (un)comment lines
+  :sjl/vitality.vim {}                           ;; Make Vim play nicely with iTerm 2 and tmux
   :tpope/vim-abolish {}                          ;; easily search for, substitute, and abbreviate multiple variants of a word
   :tpope/vim-bundler {}                          ;; makes source navigation of bundled gems easier
   :tpope/vim-cucumber {}                         ;; provides syntax highlightling, indenting, and a filetype plugin
