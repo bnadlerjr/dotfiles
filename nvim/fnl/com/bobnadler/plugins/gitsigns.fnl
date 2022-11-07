@@ -1,5 +1,4 @@
-(module com.bobnadler.plugins.gitsigns)
+(module com.bobnadler.plugins.gitsigns
+  {autoload {gitsigns gitsigns}})
 
-(let [(ok? gitsigns) (pcall #(require :gitsigns))]
-  (when ok?
-    (gitsigns.setup {})))
+(gitsigns.setup)
