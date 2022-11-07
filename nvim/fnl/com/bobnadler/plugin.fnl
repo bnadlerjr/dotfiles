@@ -91,9 +91,9 @@
      :run ":TSUpdate"
      :mod :treesitter}
 
-  :nvim-lualine/lualine.nvim  {:mod :lualine}      ;; A blazing fast and easy to configure neovim statusline plugin written in pure lua.
-  :lewis6991/gitsigns.nvim {:mod :gitsigns}        ;; Git integration for buffers
   :jose-elias-alvarez/null-ls.nvim {:mod :null_ls} ;; Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
   :kyazdani42/nvim-web-devicons {}                 ;; lua `fork` of vim-web-devicons for neovim
   :kylechui/nvim-surround {:mod :surround}         ;; Add/change/delete surrounding delimiter pairs with ease.
+  :lewis6991/gitsigns.nvim {:mod :gitsigns}        ;; Git integration for buffers
+  :nvim-lualine/lualine.nvim {:mod :lualine}       ;; A blazing fast and easy to configure neovim statusline plugin written in pure lua.
   )
