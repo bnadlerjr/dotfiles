@@ -16,13 +16,14 @@
     (vim.api.nvim_buf_set_option bufnr "omnifunc" "v:lua.vim.lsp.omnifunc")
 
     ;; Keymaps
-    (vim.keymap.set "n" "gd"    vim.lsp.buf.definition bufopts)
-    (vim.keymap.set "n" "ga"    vim.lsp.buf.code_action bufopts)
-    (vim.keymap.set "v" "ga"    vim.lsp.buf.range_code_action bufopts)
-    (vim.keymap.set "n" "K"     vim.lsp.buf.hover bufopts)
     (vim.keymap.set "n" "<C-i>" vim.diagnostic.open_float bufopts)
+    (vim.keymap.set "n" "K"     vim.lsp.buf.hover bufopts)
+    (vim.keymap.set "n" "[d"    vim.diagnostic.goto_prev bufopts)
     (vim.keymap.set "n" "]d"    vim.diagnostic.goto_next bufopts)
-    (vim.keymap.set "n" "[d"    vim.diagnostic.goto_prev bufopts)))
+    (vim.keymap.set "n" "ga"    vim.lsp.buf.code_action bufopts)
+    (vim.keymap.set "n" "gd"    vim.lsp.buf.definition bufopts)
+    (vim.keymap.set "n" "gr"    "<cmd>lua require('telescope.builtin').lsp_references()<cr>" bufopts)
+    (vim.keymap.set "v" "ga"    vim.lsp.buf.range_code_action bufopts)))
 
 (def- options
   {:on_attach on_attach
