@@ -7,11 +7,16 @@
   (luasnip.lsp_expand args.body))
 
 (def- mapping
-  {:<C-b> (cmp.mapping.scroll_docs (- 4))
-   :<C-f> (cmp.mapping.scroll_docs 4)
-   :<C-Space> (cmp.mapping.complete)
+  {:<C-Space> (cmp.mapping.complete)
+   :<C-b> (cmp.mapping.scroll_docs (- 4))
    :<C-e> (cmp.mapping.abort)
-   :<C-y> (cmp.mapping.confirm {:select true})})
+   :<C-f> (cmp.mapping.scroll_docs 4)
+   :<C-n> (cmp.mapping.select_next_item)
+   :<C-p> (cmp.mapping.select_prev_item)
+
+   ;; TODO: Decide which of these I like better
+   :<C-y> (cmp.mapping.confirm {:select true})
+   :<CR> (cmp.mapping.confirm {:select true})})
 
 (def- sources
   [{:name "conjure"}
