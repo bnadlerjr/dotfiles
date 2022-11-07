@@ -1,4 +1,7 @@
-(module com.bobnadler.plugins.lspconfig)
+(module com.bobnadler.plugins.lspconfig
+  {autoload {a aniseed.core
+             cmp cmp_nvim_lsp
+             lsp lspconfig}})
 
 (vim.diagnostic.config {:update_in_insert true :virtual_text false})
 
@@ -21,14 +24,14 @@
     (vim.keymap.set "n" "]d"    vim.diagnostic.goto_next bufopts)
     (vim.keymap.set "n" "[d"    vim.diagnostic.goto_prev bufopts)))
 
-(let [(ok? lsp) (pcall #(require :lspconfig))]
-  (when ok?
-    (lsp.clojure_lsp.setup
-      {:on_attach on_attach})
+(def- options
+  {:on_attach on_attach
+   :capabilities (cmp.default_capabilities)})
 
-    (lsp.elixirls.setup
-      {:on_attach on_attach
-       :cmd ["/Users/krevlorn/dev/elixir/elixir-ls-1.10/language_server.sh"]})
+(lsp.clojure_lsp.setup options)
+(lsp.solargraph.setup options)
 
-    (lsp.solargraph.setup
-      {:on_attach on_attach})))
+(lsp.elixirls.setup
+  (a.merge
+    options
+    {:cmd ["/Users/krevlorn/dev/elixir/elixir-ls-1.10/language_server.sh"]}))
