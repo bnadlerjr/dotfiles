@@ -57,3 +57,13 @@
 (utils.tnoremap "<C-j>" "<C-\\><C-n><C-w>j")
 (utils.tnoremap "<C-k>" "<C-\\><C-n><C-w>k")
 (utils.tnoremap "<C-l>" "<C-\\><C-n><C-w>l")
+
+;; Move visual blocks up and down
+(utils.vnoremap "J" ":m '>+1<CR>gv=gv")
+(utils.vnoremap "K" ":m '<-2<CR>gv=gv")
+
+;; Keep cursor centered when moving up and down
+(utils.nnoremap "<C-f>" "<C-f>zz")
+(utils.nnoremap "<C-b>" "<C-b>zz")
+(utils.nnoremap "<C-d>" "<C-d>zz")
+(utils.nnoremap "<C-u>" "<C-u>zz")
