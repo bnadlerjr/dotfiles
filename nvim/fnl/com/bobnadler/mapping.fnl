@@ -41,10 +41,10 @@
 ;; Toggle paste/nopaste mode
 (utils.map "<F10>" ":set paste!<CR>")
 
-;; Neogit
-(utils.nnoremap "<leader>g" ":Neogit<CR>")
+;; Bring up Fugitive status buffer
+(utils.nnoremap "<Leader>g" ":Git<CR>")
 
-;; Telescope
+;; Telescope)
 (utils.nnoremap "<C-p>" ":lua require('telescope.builtin').find_files()<CR>")
 
 ;; Quickly re-indent file. Leaving off <C-o><C-o> because it's broken in Neovim

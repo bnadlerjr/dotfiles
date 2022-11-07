@@ -47,6 +47,7 @@
   :tpope/vim-abolish {}                          ;; easily search for, substitute, and abbreviate multiple variants of a word
   :tpope/vim-bundler {}                          ;; makes source navigation of bundled gems easier
   :tpope/vim-cucumber {}                         ;; provides syntax highlightling, indenting, and a filetype plugin
+  :tpope/vim-fugitive {}                         ;; Git plugin
   :tpope/vim-leiningen {}                        ;; static support for Leiningen
   :tpope/vim-projectionist {}                    ;; project configuration
   :tpope/vim-rails {}                            ;; Rails helpers
@@ -91,7 +92,6 @@
      :mod :treesitter}
 
   :nvim-lualine/lualine.nvim  {:mod :lualine}      ;; A blazing fast and easy to configure neovim statusline plugin written in pure lua.
-  :TimUntersberger/neogit {:mod :neogit}           ;; magit for neovim
   :lewis6991/gitsigns.nvim {:mod :gitsigns}        ;; Git integration for buffers
   :jose-elias-alvarez/null-ls.nvim {:mod :null_ls} ;; Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
   :kyazdani42/nvim-web-devicons {}                 ;; lua `fork` of vim-web-devicons for neovim

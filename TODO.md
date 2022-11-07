@@ -4,7 +4,6 @@
 [ ] Refactor away from the `pcall` logic
 [ ] Setup autocommands
 [ ] LuaSnip config
-[ ] Swap out neogit for fugitive
 [ ] Remove trailing whitespace on save
 [ ] Setup wiki
 [ ] Always show gutter
@@ -14,3 +13,4 @@
 [X] Refactor to use packer dependencies
 [X] Fix capabilities for LSP setup
 [X] Vitality plugin
+[X] Swap out neogit for fugitive
