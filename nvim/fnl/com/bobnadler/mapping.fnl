@@ -14,6 +14,12 @@
 ;; Quickly switch to alternate file
 (utils.nnoremap "<Leader><Leader>" "<c-^>")
 
+;; Quickly re-indent file. Leaving off <C-o><C-o> because it's broken in Neovim
+(utils.nnoremap "<leader>=" "gg=G``")
+
+;; Bring up Fugitive status buffer
+(utils.nnoremap "<Leader>g" ":Git<CR>")
+
 ;; Delete focused buffer without losing split
 (utils.nnoremap "<C-c>" ":bp\\|bd #<CR>")
 
@@ -41,14 +47,8 @@
 ;; Toggle paste/nopaste mode
 (utils.map "<F10>" ":set paste!<CR>")
 
-;; Bring up Fugitive status buffer
-(utils.nnoremap "<Leader>g" ":Git<CR>")
-
 ;; Telescope)
 (utils.nnoremap "<C-p>" ":lua require('telescope.builtin').find_files()<CR>")
-
-;; Quickly re-indent file. Leaving off <C-o><C-o> because it's broken in Neovim
-(utils.nnoremap "<leader>=" "gggq<S-g>")
 
 ;; Terminal shortcuts
 (utils.tnoremap "<Esc>" "<C-\\><C-n>")
