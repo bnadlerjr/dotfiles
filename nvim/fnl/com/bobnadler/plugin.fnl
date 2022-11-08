@@ -86,6 +86,8 @@
                 :nvim-lua/plenary.nvim]                  ;; All the lua functions I don't want to write twice.
      :mod :telescope}
 
+  :nvim-telescope/telescope-fzf-native.nvim {:run "make"} ;; FZF sorter for telescope written in c
+
   ;; Nvim Treesitter configurations and abstraction layer
   :nvim-treesitter/nvim-treesitter
     {:requires [:RRethy/nvim-treesitter-endwise               ;; Tree-sitter aware alternative to tpope's vim-endwise

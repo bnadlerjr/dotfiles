@@ -25,4 +25,5 @@
                                 "--hidden"
                                 "--ignore-file" ".gitignore"]}}})
 
+(telescope.load_extension "fzf")
 (telescope.load_extension "ui-select")
