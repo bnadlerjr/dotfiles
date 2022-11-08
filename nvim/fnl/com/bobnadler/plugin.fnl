@@ -60,7 +60,7 @@
   ;; Neovim specific plugins
 
   ;; Snippet Engine for Neovim written in Lua.
-  :L3MON4D3/LuaSnip {}
+  :L3MON4D3/LuaSnip {:mod :luasnip}
 
   ;; Interactive evaluation for Neovim.
   :Olical/conjure
