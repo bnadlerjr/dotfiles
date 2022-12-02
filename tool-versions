@@ -3,7 +3,7 @@ elixir 1.13.4-otp-25
 erlang 25.0.2
 nodejs 17.0.1
 python 3.10.1
-ruby 2.7.3
+ruby 3.0.1
 rust 1.52.1
 shellcheck 0.7.2
 yarn 1.22.11
