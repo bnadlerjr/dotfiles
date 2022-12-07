@@ -47,6 +47,7 @@
   :tpope/vim-abolish {}                          ;; easily search for, substitute, and abbreviate multiple variants of a word
   :tpope/vim-bundler {}                          ;; makes source navigation of bundled gems easier
   :tpope/vim-cucumber {}                         ;; provides syntax highlightling, indenting, and a filetype plugin
+  :tpope/vim-dispatch {}                         ;; Asynchronous build and test dispatcher
   :tpope/vim-fugitive {}                         ;; Git plugin
   :tpope/vim-leiningen {}                        ;; static support for Leiningen
   :tpope/vim-projectionist {}                    ;; project configuration
