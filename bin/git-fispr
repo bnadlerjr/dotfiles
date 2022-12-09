@@ -13,17 +13,9 @@ possible_base_branch = File.file?('.git/refs/heads/main') ? 'main' : 'master'
 base_branch = prompt.ask('What is the name of the base branch?', default: possible_base_branch)
 
 possible_reviewers = {
-  'Avidor' => 'aturkewi',
-  'Brian' => 'bbosh',
   'Cernan' => 'cernanb',
-  'Colin' => 'colinrlly',
-  'Crystal' => 'ACrystalC',
-  'Drew K' => 'drewkos',
   'Drew P' => 'notnotdrew',
-  'Gary' => 'afulki',
   'Lorgio' => 'lorgio-jimenez',
-  'Matt' => 'mattdonovan',
-  'Mitch' => 'mitchbeebe',
   'Tiffany' => 'tiffanynk'
 }
 
