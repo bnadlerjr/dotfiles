@@ -9,8 +9,12 @@ require 'tty-prompt'
 
 prompt = TTY::Prompt.new
 
-possible_base_branch = File.file?('.git/refs/heads/main') ? 'main' : 'master'
-base_branch = prompt.ask('What is the name of the base branch?', default: possible_base_branch)
+possible_base_branches = `git branch --list --no-color --format='%(refname:short)'`.split("\n")
+base_branch = nil
+while base_branch.nil?
+  base_branch = prompt.select('Select a base branch:', possible_base_branches, per_page: possible_base_branches.length)
+  prompt.error("\nYou must select a base branch!\n") if base_branch.nil?
+end
 
 possible_reviewers = {
   'Cernan' => 'cernanb',
