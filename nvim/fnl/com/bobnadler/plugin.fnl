@@ -53,6 +53,7 @@
   :tpope/vim-projectionist {}                    ;; project configuration
   :tpope/vim-rails {}                            ;; Rails helpers
   :tpope/vim-rake {}                             ;; makes Ruby project navigation easier for non-Rails projects
+  :tpope/vim-rhubarb {}                          ;; GitHub extension for fugitive.vim
   :tpope/vim-repeat {}                           ;; Enable repeating supported plugin maps with '.'
   :tpope/vim-sexp-mappings-for-regular-people {} ;; vim-sexp mappings rely on meta key; these don't
   :vim-ruby/vim-ruby {}                          ;; packaged w/ vim but this is latest and greatest
