@@ -23,10 +23,7 @@
    :<C-p> (cmp.mapping.select_prev_item)
    :<C-j> expand-or-jump-forward
    :<C-k> jump-back
-
-   ;; TODO: Decide which of these I like better
-   :<C-y> (cmp.mapping.confirm {:select true})
-   :<CR> (cmp.mapping.confirm {:select true})})
+   :<C-y> (cmp.mapping.confirm {:select true})})
 
 (def- sources
   [{:name "luasnip"}
