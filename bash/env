@@ -7,8 +7,7 @@
 # 2: https://dev.to/emcain/how-to-change-bash-versions-on-mac-with-homebrew-20o3
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
-# Use vim for EDITOR, but start it in vi mode
-export EDITOR="vim -v"
+export EDITOR="nvim"
 
 # PATH Setup
 export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/sbin:~/.vim/plugged/vim-iced/bin:$PATH:~/bin
