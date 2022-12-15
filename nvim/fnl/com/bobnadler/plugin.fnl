@@ -97,6 +97,14 @@
      :run ":TSUpdate"
      :mod :treesitter}
 
+  ;; Colorschemes
+  :EdenEast/nightfox.nvim {}   ;; 🦊A highly customizable theme for vim and neovim with support for lsp, treesitter and a variety of plugins
+  :catppuccin/nvim {}          ;; 🍨 Soothing pastel theme for (Neo)vi
+  :ellisonleao/gruvbox.nvim {} ;; Lua port of the most famous vim colorscheme
+  :folke/tokyonight.nvim {}    ;; 🏙 A clean, dark Neovim theme written in Lua, with support for lsp, treesitter and lots of plugins.
+  :jacoborus/tender.vim {}     ;; A 24bit colorscheme for Vim, Airline and Lightline
+  :tiagovla/tokyodark.nvim {}  ;; A clean dark theme written in lua for neovim.
+
   :ThePrimeagen/harpoon {:mod :harpoon}            ;; Getting you where you want with the fewest keystrokes.
   :jose-elias-alvarez/null-ls.nvim {:mod :null_ls} ;; Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
   :kyazdani42/nvim-web-devicons {}                 ;; lua `fork` of vim-web-devicons for neovim
