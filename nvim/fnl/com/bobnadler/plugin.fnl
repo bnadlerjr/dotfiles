@@ -75,12 +75,16 @@
                 :hrsh7th/cmp-nvim-lsp      ;; nvim-cmp source for neovim builtin LSP client
                 :hrsh7th/cmp-path          ;; nvim-cmp source for path
                 :saadparwaiz1/cmp_luasnip] ;; luasnip completion source for nvim-cmp
-     :mod :cmp}
+     }
 
   ;; Quickstart configs for Nvim LSP
   :neovim/nvim-lspconfig
     {:requires [:onsails/lspkind.nvim] ;; vscode-like pictograms for neovim lsp completion items
-     :mod :lspconfig}
+     }
+
+  :VonHeikemen/lsp-zero.nvim {:mod :lspzero}
+  :williamboman/mason.nvim {}
+  :williamboman/mason-lspconfig.nvim {}
 
   ;; Find, Filter, Preview, Pick. All lua, all the time.
   :nvim-telescope/telescope.nvim
