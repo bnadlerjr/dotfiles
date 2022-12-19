@@ -93,7 +93,8 @@
   ;; Nvim Treesitter configurations and abstraction layer
   :nvim-treesitter/nvim-treesitter
     {:requires [:RRethy/nvim-treesitter-endwise               ;; Tree-sitter aware alternative to tpope's vim-endwise
-                :nvim-treesitter/nvim-treesitter-textobjects] ;; Syntax aware text-objects, select, move, swap, and peek support.
+                :nvim-treesitter/nvim-treesitter-textobjects  ;; Syntax aware text-objects, select, move, swap, and peek support.
+                :windwp/nvim-autopairs]                       ;; autopairs for neovim written by lua
      :run ":TSUpdate"
      :mod :treesitter}
 

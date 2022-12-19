@@ -1,6 +1,8 @@
 (module com.bobnadler.plugins.treesitter
-  {autoload {treesitter nvim-treesitter.configs}})
+  {autoload {treesitter nvim-treesitter.configs
+             autopairs nvim-autopairs}})
 
+(autopairs.setup)
 (treesitter.setup
   {:endwise {:enable true}
    :highlight {:enable true}
