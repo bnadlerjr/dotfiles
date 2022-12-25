@@ -41,6 +41,7 @@
   :guns/vim-sexp {:mod :sexp}                    ;; Precision editing for s-expressions
   :hashivim/vim-terraform {}                     ;; basic vim/terraform integration
   :honza/vim-snippets {}                         ;; Default snippets
+  :mbbill/undotree {}                            ;; The undo history visualizer for VIM
   :reedes/vim-lexical {}                         ;; Build on Vim’s spell/thes/dict completion
   :scrooloose/nerdcommenter {:mod :comments}     ;; quickly (un)comment lines
   :sjl/vitality.vim {}                           ;; Make Vim play nicely with iTerm 2 and tmux
@@ -53,8 +54,8 @@
   :tpope/vim-projectionist {}                    ;; project configuration
   :tpope/vim-rails {}                            ;; Rails helpers
   :tpope/vim-rake {}                             ;; makes Ruby project navigation easier for non-Rails projects
-  :tpope/vim-rhubarb {}                          ;; GitHub extension for fugitive.vim
   :tpope/vim-repeat {}                           ;; Enable repeating supported plugin maps with '.'
+  :tpope/vim-rhubarb {}                          ;; GitHub extension for fugitive.vim
   :tpope/vim-sexp-mappings-for-regular-people {} ;; vim-sexp mappings rely on meta key; these don't
   :vim-ruby/vim-ruby {}                          ;; packaged w/ vim but this is latest and greatest
   :vimwiki/vimwiki {:mod :wiki}                  ;; Personal Wiki for Vim
