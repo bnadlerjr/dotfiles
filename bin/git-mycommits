@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+# Retrieves my recent commits across all repositories (both public and
+# private) using the GitHub CLI's 'Events' endpoint. Lists the commit messages
+# by date and repo using Markdown.
+#
+# Super hacky, not optimized, but it works for my purposes.
+#
+
+require 'date'
+require 'json'
+
+command = <<~CMD
+  gh api \
+    -H "Accept: application/vnd.github+json" \
+    /users/bnadlerjr/events
+CMD
+
+results = {}
+
+JSON.parse(`#{command}`, symbolize_names: true).each do |event|
+  next unless event[:type] == 'PushEvent'
+
+  timestamp = DateTime.parse(event[:created_at]).strftime('%Y-%m-%d')
+  results[timestamp] = {} unless results.key?(timestamp)
+
+  repo = event.dig(:repo, :name)
+  results[timestamp][repo] = [] unless results[timestamp].key?(repo)
+
+  event.dig(:payload, :commits).each do |commit|
+    if commit.dig(:author, :email) == 'bnadlerjr@gmail.com'
+      results[timestamp][repo].push(commit[:message])
+    end
+  end
+end
+
+results.sort_by { |timestamp, _| timestamp }.each do |timestamp, repo|
+  puts "\n---\n\n# #{timestamp}"
+  repo.each do |name, commits|
+    puts "\n### #{name}"
+    commits.each do |commit|
+      puts "\n- #{commit}"
+    end
+  end
+end
