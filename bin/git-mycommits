@@ -38,10 +38,9 @@ end
 
 results.sort_by { |timestamp, _| timestamp }.each do |timestamp, repo|
   puts "\n---\n\n# #{timestamp}"
+  puts '#### Commits'
   repo.each do |name, commits|
-    puts "\n### #{name}"
-    commits.each do |commit|
-      puts "\n- #{commit}"
-    end
+    puts "##### #{name}"
+    commits.each { |commit| puts "- #{commit.gsub("\n", "\n  ")}\n\n" }
   end
 end
