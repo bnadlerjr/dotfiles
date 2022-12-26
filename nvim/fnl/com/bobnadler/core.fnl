@@ -9,7 +9,8 @@
 (set nvim.g.loaded_ruby_provider 0)
 
 (let [options
-      {:cursorline  true  ;; Highlight current line
+      {:completeopt "menuone,noselect"
+       :cursorline  true  ;; Highlight current line
        :expandtab   true  ;; Expand tabs to spaces
        :ignorecase  true  ;; Ignore case when searching
        :list        true  ;; Show invisible chars
