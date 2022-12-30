@@ -9,7 +9,7 @@
 # Super hacky, not optimized, but it works for my purposes.
 #
 
-require 'date'
+require 'time'
 require 'json'
 
 command = <<~CMD
@@ -23,7 +23,7 @@ results = {}
 JSON.parse(`#{command}`, symbolize_names: true).each do |event|
   next unless event[:type] == 'PushEvent'
 
-  timestamp = DateTime.parse(event[:created_at]).strftime('%Y-%m-%d')
+  timestamp = Time.parse(event[:created_at]).getlocal.strftime('%Y-%m-%d')
   results[timestamp] = {} unless results.key?(timestamp)
 
   repo = event.dig(:repo, :name)
