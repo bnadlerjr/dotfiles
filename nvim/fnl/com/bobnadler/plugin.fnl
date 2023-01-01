@@ -59,6 +59,7 @@
   :tpope/vim-sexp-mappings-for-regular-people {} ;; vim-sexp mappings rely on meta key; these don't
   :vim-ruby/vim-ruby {}                          ;; packaged w/ vim but this is latest and greatest
   :vimwiki/vimwiki {:mod :wiki}                  ;; Personal Wiki for Vim
+  :vim-test/vim-test {:mod :vimtest}             ;; Run your tests at the speed of thought
 
   ;; Neovim specific plugins
 
