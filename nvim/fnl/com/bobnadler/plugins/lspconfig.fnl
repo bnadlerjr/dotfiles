@@ -1,7 +1,8 @@
 (module com.bobnadler.plugins.lspconfig
   {autoload {a aniseed.core
              cmp cmp_nvim_lsp
-             lsp lspconfig}})
+             lsp lspconfig
+             rust rust-tools}})
 
 (vim.diagnostic.config {:update_in_insert true :virtual_text false})
 
@@ -25,14 +26,23 @@
     (vim.keymap.set "n" "gr"    "<cmd>lua require('telescope.builtin').lsp_references()<cr>" bufopts)
     (vim.keymap.set "v" "ga"    vim.lsp.buf.range_code_action bufopts)))
 
-(def- options
+(def- lsp_options
   {:on_attach on_attach
    :capabilities (cmp.default_capabilities)})
 
-(lsp.clojure_lsp.setup options)
-(lsp.solargraph.setup options)
+(def- rust_options
+  {:tools {:runnables {:use_telescope true}
+           :inlay_hints {:auto false}}
+   :server {:on_attach on_attach
+            :settings {:rust-analyzer {:checkOnSave {:command "clippy"}
+                                       :inlayHints {:locationLinks false}}}}})
+
+(lsp.clojure_lsp.setup lsp_options)
+(lsp.solargraph.setup lsp_options)
 
 (lsp.elixirls.setup
   (a.merge
-    options
+    lsp_options
     {:cmd ["/Users/krevlorn/dev/elixir/elixir-ls-1.10/language_server.sh"]}))
+
+(rust.setup rust_options)

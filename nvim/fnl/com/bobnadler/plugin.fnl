@@ -81,7 +81,8 @@
 
   ;; Quickstart configs for Nvim LSP
   :neovim/nvim-lspconfig
-    {:requires [:onsails/lspkind.nvim] ;; vscode-like pictograms for neovim lsp completion items
+    {:requires [:onsails/lspkind.nvim ;; vscode-like pictograms for neovim lsp completion items
+                :simrat39/rust-tools.nvim] ;; Tools for better development in rust using neovim's builtin lsp
      :mod :lspconfig}
 
   ;; Find, Filter, Preview, Pick. All lua, all the time.

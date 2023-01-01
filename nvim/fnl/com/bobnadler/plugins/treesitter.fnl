@@ -35,5 +35,7 @@
                       :html
                       :python
                       :ruby
+                      :rust
+                      :toml
                       :typescript
                       :yaml]})
