@@ -2,7 +2,6 @@
   {autoload {treesitter nvim-treesitter.configs
              autopairs nvim-autopairs}})
 
-(autopairs.setup)
 (treesitter.setup
   {:endwise {:enable true}
    :highlight {:enable true}
@@ -39,3 +38,6 @@
                       :toml
                       :typescript
                       :yaml]})
+
+(autopairs.setup
+  {:check_ts true})
