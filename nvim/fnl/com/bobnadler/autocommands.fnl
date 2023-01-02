@@ -20,3 +20,7 @@
 ; Set compiler based on file types
 (nvim.ex.autocmd "FileType elixir compiler mix")
 (nvim.ex.autocmd "FileType rust compiler cargo")
+
+; Autoformat files using LSP before saving; only doing this for languages
+; that have "official" formatters
+(nvim.ex.autocmd "BufWritePre *.ex,*.rs lua vim.lsp.buf.format()")
