@@ -15,7 +15,7 @@
 (nvim.ex.autocmd "BufRead,BufNewFile *.txt,*.md,*.markdown,*.rdoc set wrap linebreak nolist textwidth=79 wrapmargin=0")
 
 ; vim-lexical setup
-(nvim.ex.autocmd "FileType gitcommit,markdown,md,txt,rdoc,html,erb,ruby,elixir,clojure,jinja call lexical#init()")
+(nvim.ex.autocmd "FileType gitcommit,markdown,md,txt,rdoc,html,erb,jinja call lexical#init()")
 
 ; Set compiler based on file types
 (nvim.ex.autocmd "FileType elixir compiler mix")
