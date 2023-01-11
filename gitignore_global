@@ -6,6 +6,7 @@
 .env
 .idea
 .lsp
+.projections.json
 .rvmrc
 .sass-cache
 .starscope.db
