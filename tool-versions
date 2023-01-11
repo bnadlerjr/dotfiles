@@ -1,6 +1,6 @@
 awscli 2.2.18
-elixir 1.13.4-otp-25
-erlang 25.0.2
+elixir 1.14.2-otp-25
+erlang 25.2
 nodejs 17.0.1
 python 3.10.1
 ruby 3.0.1
