@@ -43,6 +43,6 @@
 (lsp.elixirls.setup
   (a.merge
     lsp_options
-    {:cmd ["/Users/krevlorn/dev/elixir/elixir-ls-1.10/language_server.sh"]}))
+    {:cmd ["/Users/numfar/dev/elixir/elixir-ls/rel/language_server.sh"]}))
 
 (rust.setup rust_options)
