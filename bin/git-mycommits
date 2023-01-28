@@ -30,9 +30,11 @@ JSON.parse(`#{command}`, symbolize_names: true).each do |event|
   results[timestamp][repo] = [] unless results[timestamp].key?(repo)
 
   event.dig(:payload, :commits).each do |commit|
-    if commit.dig(:author, :email) == 'bnadlerjr@gmail.com'
-      results[timestamp][repo].push(commit[:message])
-    end
+    next unless commit.dig(:author, :email) == 'bnadlerjr@gmail.com'
+
+    commits = results[timestamp][repo]
+    message = commit[:message]
+    results[timestamp][repo].push(message) unless commits.include?(message)
   end
 end
 
