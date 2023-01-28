@@ -112,7 +112,6 @@
   :jacoborus/tender.vim {}     ;; A 24bit colorscheme for Vim, Airline and Lightline
   :tiagovla/tokyodark.nvim {}  ;; A clean dark theme written in lua for neovim.
 
-  :ThePrimeagen/harpoon {:mod :harpoon}            ;; Getting you where you want with the fewest keystrokes.
   :jose-elias-alvarez/null-ls.nvim {:mod :null_ls} ;; Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
   :kyazdani42/nvim-web-devicons {}                 ;; lua `fork` of vim-web-devicons for neovim
   :kylechui/nvim-surround {:mod :surround}         ;; Add/change/delete surrounding delimiter pairs with ease.
