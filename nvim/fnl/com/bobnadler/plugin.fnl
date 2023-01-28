@@ -43,6 +43,7 @@
   :hashivim/vim-terraform {}                     ;; basic vim/terraform integration
   :honza/vim-snippets {}                         ;; Default snippets
   :mbbill/undotree {}                            ;; The undo history visualizer for VIM
+  :mhinz/vim-grepper {:mod :grepper}             ;; 👾 Helps you win at grep
   :reedes/vim-lexical {}                         ;; Build on Vim’s spell/thes/dict completion
   :scrooloose/nerdcommenter {:mod :comments}     ;; quickly (un)comment lines
   :sjl/vitality.vim {}                           ;; Make Vim play nicely with iTerm 2 and tmux
