@@ -34,6 +34,7 @@
   :AndrewRadev/splitjoin.vim {}                  ;; Switch between single-line and multiline forms of code
   :AndrewRadev/writable_search.vim {}            ;; Grep for something, then write the original files directly through the search results
   :DataWraith/auto_mkdir {}                      ;; Allows you to save files into directories that do not exist yet
+  :Exafunction/codeium.vim {}                    ;; Free, ultrafast Copilot alternative for Vim and Neovim
   :Glench/Vim-Jinja2-Syntax {}                   ;; Jinja2 syntax highlighting
   :elixir-editors/vim-elixir {}                  ;; Vim configuration files for Elixir
   :ericbn/vim-solarized {}                       ;; A simpler fork of the awesome Solarized colorscheme for Vim by Ethan Schoonover
@@ -58,8 +59,8 @@
   :tpope/vim-rhubarb {}                          ;; GitHub extension for fugitive.vim
   :tpope/vim-sexp-mappings-for-regular-people {} ;; vim-sexp mappings rely on meta key; these don't
   :vim-ruby/vim-ruby {}                          ;; packaged w/ vim but this is latest and greatest
-  :vimwiki/vimwiki {:mod :wiki}                  ;; Personal Wiki for Vim
   :vim-test/vim-test {:mod :vimtest}             ;; Run your tests at the speed of thought
+  :vimwiki/vimwiki {:mod :wiki}                  ;; Personal Wiki for Vim
 
   ;; Neovim specific plugins
 
