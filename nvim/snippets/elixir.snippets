@@ -1,0 +1,14 @@
+snippet testlive
+	test "${1:description}", %{conn: conn} do
+	  {:ok, view, _html} = live(conn, "${2:path}")
+
+	  ${0}
+	end
+snippet handle_event
+	def handle_event(event, _params, socket) do
+	  socket =
+	    assign(socket,
+          ${1:key}: ${2:value}
+	    )
+	  {:noreply, socket}
+	end
