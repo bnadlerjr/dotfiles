@@ -23,4 +23,4 @@
 
 ; Autoformat files using LSP before saving; only doing this for languages
 ; that have "official" formatters
-(nvim.ex.autocmd "BufWritePre *.ex,*.rs lua vim.lsp.buf.format()")
+(nvim.ex.autocmd "BufWritePre *.ex,*.exs,*.rs lua vim.lsp.buf.format()")
