@@ -39,6 +39,7 @@
 
 (lsp.clojure_lsp.setup lsp_options)
 (lsp.solargraph.setup lsp_options)
+(lsp.tailwindcss.setup lsp_options)
 
 (lsp.elixirls.setup
   (a.merge
