@@ -17,7 +17,7 @@ def _parse_highlight(annot: fitz.Annot, wordlist: List[Tuple[float, float, float
 
         words = [w for w in wordlist if fitz.Rect(w[:4]).intersects(r)]
         sentences.append(" ".join(w[4] for w in words))
-    sentence = " ".join(sentences)
+    sentence = " ".join(sentences).replace("\t", " ")
     return sentence
 
 def handle_page(page):
