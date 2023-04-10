@@ -42,7 +42,11 @@ fi
 
 session_name=$(basename "$session")
 
+# If tmux isn't running at all, we always want to start a new session.
 if ! tmux info &> /dev/null; then
+    # Check if there's a tmuxinator config that matches the project name. If
+    # so, start a new session using tmuxinator and the config. Otherwise, start
+    # a new plain tmux session.
     if $mux list -n | grep -F -q -x "$session_name"; then
         $mux start "$session_name"
     else
@@ -51,11 +55,14 @@ if ! tmux info &> /dev/null; then
     exit 0
 fi
 
+# If there's currently a tmuxinator session running, pause it.
 current_tmux_session_name=$(tmux display-message -p "#S")
 if $mux list -n | grep -F -q -x "$current_tmux_session_name"; then
     $mux pause "$current_tmux_session_name"
 fi
 
+# If tmux is running but doesn't have a session for the project, start one
+# using the same logic as above.
 if ! tmux has-session -t="$session_name" 2> /dev/null; then
     if $mux list -n | grep -F -q -x "$session_name"; then
         $mux start "$session_name" --no-attach
@@ -64,8 +71,9 @@ if ! tmux has-session -t="$session_name" 2> /dev/null; then
     fi
 fi
 
+# If the session we're connecting to has a tmuxinator config, resume it.
 if $mux list -n | grep -F -q -x "$session_name"; then
     $mux resume "$session_name"
 fi
 
-tmux switch-client -t "$session_name"
+tmux attach -t "$session_name"
