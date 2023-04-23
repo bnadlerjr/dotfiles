@@ -117,4 +117,5 @@
   :kylechui/nvim-surround {:mod :surround}         ;; Add/change/delete surrounding delimiter pairs with ease.
   :lewis6991/gitsigns.nvim {:mod :gitsigns}        ;; Git integration for buffers
   :nvim-lualine/lualine.nvim {:mod :lualine}       ;; A blazing fast and easy to configure neovim statusline plugin written in pure lua.
+  :norcalli/nvim-colorizer.lua {:mod :colorizer}   ;; The fastest Neovim colorizer.
   )
