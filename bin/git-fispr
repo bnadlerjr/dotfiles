@@ -26,18 +26,16 @@ possible_reviewers = {
 reviewers = prompt.multi_select('Select reviewers:', possible_reviewers, per_page: possible_reviewers.keys.length)
 
 possible_channels = %w[
+  none
   engineering-all-staff
-  shapeup-enterprise-sis
+  askbot
 ]
 
-channel_name = nil
-while channel_name.nil?
-  channel_name = prompt.select('Select channel:', possible_channels, per_page: possible_channels.length)
-  prompt.error("\nYou must select a channel!\n") if channel_name.nil?
-end
+channel_name = prompt.select('Select channel:', possible_channels, per_page: possible_channels.length)
 
-cmd = "hub pull-request --base #{base_branch} -o -l #{channel_name}"
+cmd = "hub pull-request --base #{base_branch} -o"
 cmd += " -r #{reviewers.join(',')}" unless reviewers.empty?
+cmd += " -l #{channel_name}" unless channel_name == 'none'
 
 # puts "\n\nDEBUG: #{cmd}"
 system(cmd) || abort("\n== Command '#{cmd}' failed ==")
