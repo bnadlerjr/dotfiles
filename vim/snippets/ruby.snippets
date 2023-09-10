@@ -50,3 +50,5 @@ snippet subjn
 	subject(:${1:object}) { described_class${2} }
 snippet itexp
 	it { expect(${1:object}).to ${0} }
+snippet rlog
+	Rails.logger.${1:debug}("[#{self.class.name}##{__callee__}] ${0}")
