@@ -5,6 +5,8 @@
 (set nvim.g.mapleader ",")
 (set nvim.g.maplocalleader "\\")
 
+(utils.nnoremap "<localleader>r" ":!bundle exec rubocop -A %<cr>")
+
 ;; Make it easy to clear out searches to get rid of highlighting
 (utils.nnoremap "<leader><space>" ":let @/=''<cr>")
 
