@@ -15,7 +15,8 @@ require 'json'
 command = <<~CMD
   gh api \
     -H "Accept: application/vnd.github+json" \
-    /users/bnadlerjr/events
+    --paginate \
+    /users/bnadlerjr/events | jq 'reduce inputs as $i (.; . += $i)'
 CMD
 
 results = {}
