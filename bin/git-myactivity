@@ -1,0 +1,104 @@
+#!/usr/bin/env ruby
+
+# frozen_string_literal: true
+
+# Retrieves my recent activity across all repositories (both public and
+# private) using the GitHub CLI's 'Events' endpoint. Outputs the results
+# as Markdown.
+#
+# Super hacky, not optimized, but it works for my purposes.
+#
+
+require 'erb'
+require 'json'
+require 'time'
+
+command = <<~CMD
+  gh api \
+    -H "Accept: application/vnd.github+json" \
+    --paginate \
+    /users/bnadlerjr/events | jq 'reduce inputs as $i (.; . += $i)'
+CMD
+
+EVENTS = {
+  'PullRequestReviewEvent' => lambda do |event|
+    {
+      url: event[:payload][:pull_request][:html_url],
+      description: event[:payload][:pull_request][:title],
+      resource: 'pull request',
+      action: event[:payload][:review][:state]
+    }
+  end,
+  'PullRequestEvent' => lambda do |event|
+    {
+      url: event[:payload][:pull_request][:html_url],
+      description: event[:payload][:pull_request][:title],
+      resource: 'pull request',
+      action: event[:payload][:action]
+    }
+  end,
+  'IssuesEvent' => lambda do |event|
+    {
+      url: event[:payload][:issue][:html_url],
+      description: event[:payload][:issue][:title],
+      resource: 'issue',
+      action: event[:payload][:action]
+    }
+  end
+}.freeze
+
+raw_results = JSON.parse(`#{command}`, symbolize_names: true)
+results = {}
+
+raw_results.each do |event|
+  next unless EVENTS.keys.include?(event[:type])
+
+  timestamp = Time.parse(event[:created_at]).getlocal.strftime('%Y-%m-%d')
+  results[timestamp] ||= []
+
+  results[timestamp].push(
+    {
+      type: event[:type],
+      timestamp:,
+      repository: event[:repo].slice(:name, :html_url),
+      payload: EVENTS.fetch(event[:type]).call(event)
+    }
+  )
+end.compact
+
+raw_results.each do |event|
+  next unless event[:type] == 'PushEvent'
+
+  timestamp = Time.parse(event[:created_at]).getlocal.strftime('%Y-%m-%d')
+  results[timestamp] ||= []
+
+  event.dig(:payload, :commits).each do |commit|
+    next unless commit.dig(:author, :email) == 'bnadlerjr@gmail.com'
+
+    results[timestamp].push(
+      {
+        type: 'commit',
+        timestamp:,
+        repository: event[:repo].slice(:name, :html_url),
+        payload: {
+          description: commit[:message].split("\n").first[0...72],
+          url: commit[:url],
+          resource: 'commit',
+          action: 'pushed'
+        }
+      }
+    )
+  end
+end
+
+puts ERB.new(DATA.read, trim_mode: '-').result
+
+__END__
+
+<% results.sort_by { |timestamp, event| timestamp }.each do |timestamp, event| %>
+# <%= timestamp %>
+##### GitHub Activity
+<% event.each do |event| -%>
+- <%= event[:payload][:action] %> <%= event[:payload][:resource] %> [<%= event[:payload][:description] %>](<%= event[:payload][:url] %>) for <%= event[:repository][:name] %>
+<% end -%>
+<% end -%>
