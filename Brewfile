@@ -47,7 +47,7 @@ brew "youtube-dl"
 
 cask "1password"
 cask "alfred"
-casj "bloop"
+cask "amethyst"
 cask "chromedriver"
 cask "cljstyle"
 cask "docker"
