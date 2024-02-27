@@ -28,7 +28,7 @@ def handle_page(page):
     annot = page.first_annot
     while annot:
         if annot.type[0] == 8:
-            highlights.append("* %s (pg. %s)" % (_parse_highlight(annot, wordlist), page.number))
+            highlights.append("* %s" % (_parse_highlight(annot, wordlist)))
         annot = annot.next
     return highlights
 
