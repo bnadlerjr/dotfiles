@@ -17,6 +17,7 @@ while base_branch.nil?
 end
 
 possible_reviewers = {
+  'Engineering' => 'flatiron-labs/engineering',
   'Cernan' => 'cernanb',
   'Drew P' => 'notnotdrew',
   'Lorgio' => 'lorgio-jimenez',
@@ -33,9 +34,14 @@ possible_channels = %w[
 
 channel_name = prompt.select('Select channel:', possible_channels, per_page: possible_channels.length)
 
-cmd = "hub pull-request --base #{base_branch} -o"
-cmd += " -r #{reviewers.join(',')}" unless reviewers.empty?
-cmd += " -l #{channel_name}" unless channel_name == 'none'
+cmd = "hub pull-request --base #{base_branch} --browse --edit"
+cmd += " --reviewer #{reviewers.join(',')}" unless reviewers.empty?
+cmd += " --labels #{channel_name}" unless channel_name == 'none'
+
+# unless %w[master main].include?(base_branch)
+#   pr = `hub pr list --head #{base_branch} --format='%i'`
+#   cmd += " --message 'Stacks on #{pr}'"
+# end
 
 # puts "\n\nDEBUG: #{cmd}"
 system(cmd) || abort("\n== Command '#{cmd}' failed ==")
