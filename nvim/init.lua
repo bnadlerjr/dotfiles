@@ -212,7 +212,7 @@ vim.defer_fn(function()
     endwise = { enable = true },
     highlight = { enable = true },
     indent = { enable = true },
-    ensure_installed = { 'bash', 'clojure', 'elixir', 'go', 'graphql', 'html', 'javascript', 'lua', 'python', 'ruby', 'toml', 'typescript', 'yaml', 'vimdoc', 'vim' },
+    ensure_installed = { 'bash', 'clojure', 'elixir', 'go', 'graphql', 'heex', 'html', 'javascript', 'lua', 'python', 'ruby', 'toml', 'typescript', 'yaml', 'vimdoc', 'vim' },
     auto_install = false,
     incremental_selection = {
       enable = true,
@@ -527,7 +527,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Autoformat files using LSP before saving; only doing this for languages
 -- that have "official" formatters
 vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "*.ex,*.exs",
+  pattern = "*.ex,*.exs,*.heex",
   command = ":Format"
 })
 
