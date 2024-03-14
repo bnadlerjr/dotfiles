@@ -3,118 +3,80 @@
 vim.g.mapleader = ','
 vim.g.maplocalleader = '\\'
 
--- Install `lazy.nvim` plugin manager
-local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system {
-    'git',
-    'clone',
-    '--filter=blob:none',
-    'https://github.com/folke/lazy.nvim.git',
-    '--branch=stable',
-    lazypath,
-  }
-end
-vim.opt.rtp:prepend(lazypath)
-
 -- ###########################################################################
 -- Plugins
 -- ###########################################################################
-require('lazy').setup({
-  'AndrewRadev/splitjoin.vim',                  -- Switch between single-line and multiline forms of code
-  'AndrewRadev/writable_search.vim',            -- Grep for something, then write the original files directly through the search results
-  'DataWraith/auto_mkdir',                      -- Allows you to save files into directories that do not exist yet
-  'Exafunction/codeium.nvim',                   -- A native neovim extension for Codeium
-  'Glench/Vim-Jinja2-Syntax',                   -- Jinja2 syntax highlighting
-  'elixir-editors/vim-elixir',                  -- Vim configuration files for Elixir
-  'guns/vim-clojure-static',                    -- Clojure syntax highlighting and indentation
-  'guns/vim-sexp',                              -- Precision editing for s-expressions
-  'hashivim/vim-terraform',                     -- basic vim/terraform integration
-  'kylechui/nvim-surround',                     -- Add/change/delete surrounding delimiter pairs with ease.
-  'lewis6991/gitsigns.nvim',                    -- Adds git related signs to the gutter, as well as utilities for managing changes
-  'mbbill/undotree',                            -- The undo history visualizer for VIM
-  'mhinz/vim-grepper',                          -- 👾 Helps you win at grep
-  'norcalli/nvim-colorizer.lua',                -- The fastest Neovim colorizer.
-  'nvim-lualine/lualine.nvim',                  -- A blazing fast and easy to configure neovim statusline plugin written in pure lua
-  'nvimtools/none-ls.nvim',                     -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
-  'reedes/vim-lexical',                         -- Build on Vim’s spell/thes/dict completion
-  'scrooloose/nerdcommenter',                   -- quickly (un)comment lines
-  'sjl/vitality.vim',                           -- Make Vim play nicely with iTerm 2 and tmux
-  'tpope/vim-abolish',                          -- easily search for, substitute, and abbreviate multiple variants of a word
-  'tpope/vim-bundler',                          -- makes source navigation of bundled gems easier
-  'tpope/vim-cucumber',                         -- provides syntax highlightling, indenting, and a filetype plugin
-  'tpope/vim-dispatch',                         -- Asynchronous build and test dispatcher
-  'tpope/vim-fugitive',                         -- Git plugin
-  'tpope/vim-leiningen',                        -- static support for Leiningen
-  'tpope/vim-projectionist',                    -- project configuration
-  'tpope/vim-rails',                            -- Rails helpers
-  'tpope/vim-rake',                             -- makes Ruby project navigation easier for non-Rails projects
-  'tpope/vim-repeat',                           -- Enable repeating supported plugin maps with '.'
-  'tpope/vim-rhubarb',                          -- GitHub extension for fugitive.vim
-  'tpope/vim-sexp-mappings-for-regular-people', -- vim-sexp mappings rely on meta key; these don't
-  'vim-ruby/vim-ruby',                          -- packaged w/ vim but this is latest and greatest
-  'vim-test/vim-test',                          -- Run your tests at the speed of thought
 
-  -- Quickstart configs for Nvim LSP
-  {
-    'neovim/nvim-lspconfig',
-    dependencies = {
-      'williamboman/mason.nvim',           -- Easily install and manage LSP servers, DAP servers, linters, and formatters.
-      'williamboman/mason-lspconfig.nvim', -- Extension to mason.nvim that makes it easier to use lspconfig
-      { 'j-hui/fidget.nvim', opts = {} },  -- Extensible UI for Neovim notifications and LSP progress messages
-      'folke/neodev.nvim'                  -- Neovim setup for init.lua and plugin development with full signature help, docs and completion for the nvim lua API
-    }
-  },
+-- Bootstrap vim-plug if it's not installed
+vim.cmd [[
+ let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+ if empty(glob(data_dir . '/autoload/plug.vim'))
+     silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+ endif
+]]
 
-  -- Autocompletion
-  {
-    'hrsh7th/nvim-cmp',
-    dependencies = {
-      'L3MON4D3/LuaSnip',            -- Snippet Engine & its associated nvim-cmp source
-      'saadparwaiz1/cmp_luasnip',    -- luasnip completion source for nvim-cmp
-      'hrsh7th/cmp-nvim-lsp',        -- nvim-cmp source for neovim builtin LSP client
-      'hrsh7th/cmp-path',            -- nvim-cmp source for path
-      'rafamadriz/friendly-snippets' -- Adds a number of user-friendly snippets
-    }
-  },
+vim.cmd([[
+call plug#begin()
+Plug 'AndrewRadev/splitjoin.vim'                                  " Switch between single-line and multiline forms of code
+Plug 'AndrewRadev/writable_search.vim'                            " Grep for something, then write the original files directly through the search results
+Plug 'DataWraith/auto_mkdir'                                      " Allows you to save files into directories that do not exist yet
+Plug 'EdenEast/nightfox.nvim'                                     " 🦊A highly customizable theme for vim and neovim with support for lsp, treesitter and a variety of plugins
+Plug 'Exafunction/codeium.nvim'                                   " A native neovim extension for Codeium
+Plug 'Glench/Vim-Jinja2-Syntax'                                   " Jinja2 syntax highlighting
+Plug 'L3MON4D3/LuaSnip'                                           " Snippet Engine for Neovim written in Lua.
+Plug 'Olical/conjure'                                             " Interactive evaluation for Neovim.
+Plug 'OliverChao/telescope-picker-list.nvim'                      " A plugin that helps you use any pickers in telescope
+Plug 'PaterJason/cmp-conjure'                                     " nvim-cmp source for conjure.
+Plug 'RRethy/nvim-treesitter-endwise'                             " Tree-sitter aware alternative to tpope's vim-endwise
+Plug 'elixir-editors/vim-elixir'                                  " Vim configuration files for Elixir
+Plug 'folke/neodev.nvim'                                          " Neovim setup for init.lua and plugin development with full signature help, docs and completion for the nvim lua API
+Plug 'guns/vim-clojure-static'                                    " Clojure syntax highlighting and indentation
+Plug 'guns/vim-sexp'                                              " Precision editing for s-expressions
+Plug 'hashivim/vim-terraform'                                     " basic vim/terraform integration
+Plug 'honza/vim-snippets'                                         " Default snippets'
+Plug 'hrsh7th/cmp-nvim-lsp'                                       " nvim-cmp source for neovim builtin LSP client
+Plug 'hrsh7th/cmp-path'                                           " nvim-cmp source for path
+Plug 'hrsh7th/nvim-cmp'                                           " A completion plugin for neovim coded in Lua
+Plug 'j-hui/fidget.nvim'                                          " Extensible UI for Neovim notifications and LSP progress messages
+Plug 'kylechui/nvim-surround'                                     " Add/change/delete surrounding delimiter pairs with ease.
+Plug 'lewis6991/gitsigns.nvim'                                    " Adds git related signs to the gutter, as well as utilities for managing changes
+Plug 'mhinz/vim-grepper'                                          " 👾 Helps you win at grep
+Plug 'neovim/nvim-lspconfig'                                      " Quickstart configs for Nvim LSP
+Plug 'norcalli/nvim-colorizer.lua'                                " The fastest Neovim colorizer.
+Plug 'nvim-lua/plenary.nvim'                                      " All the lua functions I don't want to write twice
+Plug 'nvim-lualine/lualine.nvim'                                  " A blazing fast and easy to configure neovim statusline plugin written in pure lua
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' } " FZF sorter for telescope written in c
+Plug 'nvim-telescope/telescope-ui-select.nvim'                    " Neovim core stuff can fill the telescope picker
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.6' }          " Find, Filter, Preview, Pick. All lua, all the time
+Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }     " Nvim Treesitter configurations and abstraction layer
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware text-objects, select, move, swap, and peek support
+Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
+Plug 'reedes/vim-lexical'                                         " Build on Vim’s spell/thes/dict completion
+Plug 'saadparwaiz1/cmp_luasnip'                                   " luasnip completion source for nvim-cmp
+Plug 'scrooloose/nerdcommenter'                                   " quickly (un)comment lines
+Plug 'sjl/vitality.vim'                                           " Make Vim play nicely with iTerm 2 and tmux
+Plug 'tpope/vim-abolish'                                          " easily search for, substitute, and abbreviate multiple variants of a word
+Plug 'tpope/vim-bundler'                                          " makes source navigation of bundled gems easier
+Plug 'tpope/vim-cucumber'                                         " provides syntax highlightling, indenting, and a filetype plugin
+Plug 'tpope/vim-dispatch'                                         " Asynchronous build and test dispatcher
+Plug 'tpope/vim-endwise'                                          " wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
+Plug 'tpope/vim-fugitive'                                         " Git plugin
+Plug 'tpope/vim-leiningen'                                        " static support for Leiningen
+Plug 'tpope/vim-projectionist'                                    " project configuration
+Plug 'tpope/vim-rails'                                            " Rails helpers
+Plug 'tpope/vim-rake'                                             " makes Ruby project navigation easier for non-Rails projects
+Plug 'tpope/vim-repeat'                                           " Enable repeating supported plugin maps with '.'
+Plug 'tpope/vim-rhubarb'                                          " GitHub extension for fugitive.vim
+Plug 'tpope/vim-sexp-mappings-for-regular-people'                 " vim-sexp mappings rely on meta key; these don't
+Plug 'vim-ruby/vim-ruby'                                          " packaged w/ vim but this is latest and greatest
+Plug 'vim-test/vim-test'                                          " Run your tests at the speed of thought
+Plug 'williamboman/mason-lspconfig.nvim'                          " Extension to mason.nvim that makes it easier to use lspconfig
+Plug 'williamboman/mason.nvim'                                    " Easily install and manage LSP servers, DAP servers, linters, and formatters
+Plug 'windwp/nvim-autopairs'                                      " autopairs for neovim written by lua
+call plug#end()
+]])
 
-  {
-    'EdenEast/nightfox.nvim', -- 🦊A highly customizable theme for vim and neovim with support for lsp, treesitter and a variety of plugins
-    priority = 1000,
-    config = function()
-      vim.cmd.colorscheme 'nightfox'
-    end
-  },
-
-  -- Find, Filter, Preview, Pick. All lua, all the time
-  {
-    'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
-    dependencies = {
-      'OliverChao/telescope-picker-list.nvim',      -- A plugin that helps you use any pickers in telescope
-      'nvim-lua/plenary.nvim',                      -- All the lua functions I don't want to write twice
-      'nvim-telescope/telescope-ui-select.nvim',    -- Neovim core stuff can fill the telescope picker
-      {
-        'nvim-telescope/telescope-fzf-native.nvim', -- FZF sorter for telescope written in c
-        build = 'make',
-        cond = function()
-          return vim.fn.executable 'make' == 1
-        end
-      }
-    }
-  },
-
-  -- Nvim Treesitter configurations and abstraction layer
-  {
-    'nvim-treesitter/nvim-treesitter',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects', -- Syntax aware text-objects, select, move, swap, and peek support
-      'RRethy/nvim-treesitter-endwise',              -- Tree-sitter aware alternative to tpope's vim-endwise
-      'windwp/nvim-autopairs'                        -- autopairs for neovim written by lua
-    },
-    build = ':TSUpdate',
-  },
-}, {})
 
 -- ###########################################################################
 -- Settings
@@ -135,6 +97,8 @@ vim.o.updatetime = 250
 vim.o.wrap = true                      -- Turn on line wrapping
 vim.wo.number = true                   -- Display line numbers
 vim.wo.signcolumn = 'yes'              -- Always show signcolumn
+
+vim.cmd 'colorscheme nightfox'
 
 -- ###########################################################################
 -- Plugin Configuration
@@ -396,7 +360,7 @@ null_ls.setup({
 -- nvim-cmp
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
-require('luasnip.loaders.from_vscode').lazy_load()
+require('luasnip.loaders.from_snipmate').lazy_load()
 luasnip.config.setup {}
 
 cmp.setup {
@@ -425,7 +389,7 @@ cmp.setup {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    ['<Tab>'] = cmp.mapping(function(fallback)
+    ['<C-j>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
       elseif luasnip.expand_or_locally_jumpable() then
@@ -434,7 +398,7 @@ cmp.setup {
         fallback()
       end
     end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
+    ['<C-k>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
       elseif luasnip.locally_jumpable(-1) then
@@ -564,7 +528,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- that have "official" formatters
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = "*.ex,*.exs",
-  command = "call Format"
+  command = ":Format"
 })
 
 -- vim: ts=2 sts=2 sw=2 et
