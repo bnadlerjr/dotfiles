@@ -37,14 +37,15 @@ Plug 'PaterJason/cmp-conjure'                                     " nvim-cmp sou
 Plug 'RRethy/nvim-treesitter-endwise'                             " Tree-sitter aware alternative to tpope's vim-endwise
 Plug 'elixir-editors/vim-elixir'                                  " Vim configuration files for Elixir
 Plug 'folke/neodev.nvim'                                          " Neovim setup for init.lua and plugin development with full signature help, docs and completion for the nvim lua API
+Plug 'gbprod/yanky.nvim'                                          " Improved Yank and Put functionalities for Neovim
 Plug 'guns/vim-clojure-static'                                    " Clojure syntax highlighting and indentation
 Plug 'guns/vim-sexp'                                              " Precision editing for s-expressions
 Plug 'hashivim/vim-terraform'                                     " basic vim/terraform integration
 Plug 'honza/vim-snippets'                                         " Default snippets'
 Plug 'hrsh7th/cmp-buffer'                                         " nvim-cmp source for buffer words
 Plug 'hrsh7th/cmp-cmdline'                                        " nvim-cmp source for vim's cmdline
-Plug 'hrsh7th/cmp-nvim-lua'                                       " nvim-cmp source for nvim lua
 Plug 'hrsh7th/cmp-nvim-lsp'                                       " nvim-cmp source for neovim builtin LSP client
+Plug 'hrsh7th/cmp-nvim-lua'                                       " nvim-cmp source for nvim lua
 Plug 'hrsh7th/cmp-path'                                           " nvim-cmp source for path
 Plug 'hrsh7th/nvim-cmp'                                           " A completion plugin for neovim coded in Lua
 Plug 'j-hui/fidget.nvim'                                          " Extensible UI for Neovim notifications and LSP progress messages
@@ -86,7 +87,6 @@ Plug 'windwp/nvim-autopairs'                                      " autopairs fo
 call plug#end()
 ]])
 
-
 -- ###########################################################################
 -- Settings
 -- ###########################################################################
@@ -119,6 +119,7 @@ require('gitsigns').setup()
 require('lualine').setup({})
 require('nvim-surround').setup()
 require('nvim-autopairs').setup({ check_ts = true })
+require("yanky").setup()
 
 vim.cmd "let g:NERDDefaultAlign = 'left'"
 vim.cmd "let NERDSpaceDelims = 1"
@@ -501,6 +502,15 @@ vim.keymap.set('n', '<C-u>', "<C-u>zz", { noremap = true, silent = true })
 -- Move visual blocks up and down
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { noremap = true, silent = true })
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { noremap = true, silent = true })
+
+-- yanky.nvim
+vim.keymap.set({ "n", "x" }, "p", "<Plug>(YankyPutAfter)")
+vim.keymap.set({ "n", "x" }, "P", "<Plug>(YankyPutBefore)")
+vim.keymap.set({ "n", "x" }, "gp", "<Plug>(YankyGPutAfter)")
+vim.keymap.set({ "n", "x" }, "gP", "<Plug>(YankyGPutBefore)")
+
+vim.keymap.set("n", "<c-p>", "<Plug>(YankyPreviousEntry)")
+vim.keymap.set("n", "<c-n>", "<Plug>(YankyNextEntry)")
 
 -- ###########################################################################
 -- Autocommands
