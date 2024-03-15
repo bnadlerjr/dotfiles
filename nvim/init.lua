@@ -358,7 +358,9 @@ null_ls.setup({
     null_ls.builtins.formatting.cljstyle,
     null_ls.builtins.formatting.djlint,
     null_ls.builtins.formatting.mix,
-    null_ls.builtins.formatting.rubocop
+    null_ls.builtins.formatting.prettierd,
+    null_ls.builtins.formatting.rubocop,
+    null_ls.builtins.formatting.stylua
   }
 })
 
@@ -425,14 +427,17 @@ cmp.setup {
 -- Keymaps
 -- ###########################################################################
 
-vim.keymap.set('n', '<leader><space>', ":let @/=''<cr>", { noremap = true, desc = 'Clear out recent search highlighting' })
-vim.keymap.set('n', '<leader><space><space>', ":%s/\\s\\+$//<cr>", { noremap = true, desc = 'Strip extraneous whitespace' })
+vim.keymap.set('n', '<leader><space>', ":let @/=''<cr>",
+  { noremap = true, desc = 'Clear out recent search highlighting' })
+vim.keymap.set('n', '<leader><space><space>', ":%s/\\s\\+$//<cr>",
+  { noremap = true, desc = 'Strip extraneous whitespace' })
 
 vim.keymap.set('n', '<leader><leader>', "<c-^>", { noremap = true, desc = 'Switch to alternate file' })
 vim.keymap.set('n', '<C-c>', ":bp\\|bd #<CR>", { noremap = true, desc = 'Delete focused buffer without losing split' })
 vim.keymap.set('n', '<leader>d', ":bufdo bd<CR>", { noremap = true, desc = 'Delete all buffers' })
 
-vim.keymap.set("n", "<localleader>p", require('telescope').extensions.picker_list.picker_list, { noremap = true, desc = 'Open Telescope picker list' })
+vim.keymap.set("n", "<localleader>p", require('telescope').extensions.picker_list.picker_list,
+  { noremap = true, desc = 'Open Telescope picker list' })
 vim.keymap.set("n", "<C-p>", require('telescope.builtin').find_files, { noremap = true, desc = 'Open Telescope' })
 
 vim.keymap.set('n', 'Q', "@q", { desc = 'Apply macro under cursor' })
@@ -448,7 +453,8 @@ vim.keymap.set('n', 'qc', ":cclose<CR>", { noremap = true, desc = 'Close quickfi
 vim.keymap.set('n', '<leader>g', ":Git<CR>", { noremap = true, desc = 'Fugitive status buffer' })
 
 vim.keymap.set('c', "%%", "<C-R>=expand('%:h').'/'<CR>", { noremap = true, desc = 'Expand current file path' })
-vim.keymap.set('', '<leader>e', ":edit " .. vim.fn.expand('%:h') .. '/', { desc = 'Open file in the same directory as the current file' })
+vim.keymap.set('', '<leader>e', ":edit " .. vim.fn.expand('%:h') .. '/',
+  { desc = 'Open file in the same directory as the current file' })
 
 vim.keymap.set('n', 'gs', "<plug>(GrepperOperator)", { desc = 'Search for the current selection' })
 vim.keymap.set('x', 'gs', "<plug>(GrepperOperator)", { desc = 'Search for the current selection' })
@@ -532,7 +538,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Autoformat files using LSP before saving; only doing this for languages
 -- that have "official" formatters
 vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "*.ex,*.exs,*.heex",
+  pattern = "*.ex,*.exs,*.heex,*.lua",
   command = ":Format"
 })
 
