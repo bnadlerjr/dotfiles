@@ -480,6 +480,8 @@ vim.keymap.set('x', 'gs', "<plug>(GrepperOperator)", { desc = 'Search for the cu
 
 vim.keymap.set('n', '<CR><CR>', ":TestLast<CR>", { noremap = true, desc = 'Run last test' })
 
+vim.keymap.set('n', '<leader>f', "gg=G<CR>", { noremap = true, desc = 'Quickly re-indent file (does not use LSP)' })
+
 -- Move through wordwraps with 'k' and 'j'
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
