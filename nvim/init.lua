@@ -41,6 +41,9 @@ Plug 'guns/vim-clojure-static'                                    " Clojure synt
 Plug 'guns/vim-sexp'                                              " Precision editing for s-expressions
 Plug 'hashivim/vim-terraform'                                     " basic vim/terraform integration
 Plug 'honza/vim-snippets'                                         " Default snippets'
+Plug 'hrsh7th/cmp-buffer'                                         " nvim-cmp source for buffer words
+Plug 'hrsh7th/cmp-cmdline'                                        " nvim-cmp source for vim's cmdline
+Plug 'hrsh7th/cmp-nvim-lua'                                       " nvim-cmp source for nvim lua
 Plug 'hrsh7th/cmp-nvim-lsp'                                       " nvim-cmp source for neovim builtin LSP client
 Plug 'hrsh7th/cmp-path'                                           " nvim-cmp source for path
 Plug 'hrsh7th/nvim-cmp'                                           " A completion plugin for neovim coded in Lua
@@ -416,12 +419,29 @@ cmp.setup {
     end, { 'i', 's' }),
   },
   sources = {
-    { name = 'codeium' },
+    { name = 'nvim_lua' },
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
+    { name = 'codeium' },
     { name = 'path' },
   },
 }
+
+cmp.setup.cmdline({ '/', '?' }, {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = {
+    { name = 'buffer' }
+  }
+})
+
+cmp.setup.cmdline(':', {
+  mapping = cmp.mapping.preset.cmdline(),
+  sources = cmp.config.sources({
+    { name = 'path' }
+  }, {
+    { name = 'cmdline' }
+  })
+})
 
 -- ###########################################################################
 -- Keymaps
