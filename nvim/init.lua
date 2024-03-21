@@ -509,8 +509,10 @@ vim.keymap.set({ "n", "x" }, "P", "<Plug>(YankyPutBefore)")
 vim.keymap.set({ "n", "x" }, "gp", "<Plug>(YankyGPutAfter)")
 vim.keymap.set({ "n", "x" }, "gP", "<Plug>(YankyGPutBefore)")
 
-vim.keymap.set("n", "<c-p>", "<Plug>(YankyPreviousEntry)")
-vim.keymap.set("n", "<c-n>", "<Plug>(YankyNextEntry)")
+-- TODO: <c-p> conflicts with telescope mapping
+-- vim.keymap.set("n", "<c-p>", "<Plug>(YankyPreviousEntry)")
+-- vim.keymap.set("n", "<c-n>", "<Plug>(YankyNextEntry)")
+vim.keymap.set("n", "<c-n>", "<Plug>(YankyPreviousEntry)")
 
 -- ###########################################################################
 -- Autocommands
