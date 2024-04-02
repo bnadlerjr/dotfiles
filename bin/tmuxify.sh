@@ -76,4 +76,12 @@ if $mux list -n | grep -F -q -x "$session_name"; then
     $mux resume "$session_name"
 fi
 
-tmux attach -t "$session_name"
+# Prevent nesting of tmux sessions. If tmux is already running, switch to the
+# session we just created. If it's not running, attach to the session instead.
+if [ -n "$TMUX" ]; then
+    if tmux has-session -t="$session_name" 2> /dev/null; then
+        tmux switch-client -t "$session_name"
+    fi
+else
+    tmux attach -t "$session_name"
+fi
