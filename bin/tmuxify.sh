@@ -20,12 +20,25 @@ IFS=$'\n\t'
 
 mux="$HOME/dev/personal/tmuxinator/bin/tmuxinator"
 
-directories=$(fd --hidden --exact-depth 1 --type directory . \
-    ~/dev/cyrus \
-    ~/dev/flatiron \
-    ~/dev/gust \
-    ~/dev/personal \
+# Not all my machines have the same directories, so filter out the ones that
+# don't exist on the machine that's running this script.
+potential_directories=(
+    ~/dev/cyrus
+    ~/dev/flatiron
+    ~/dev/gust
+    ~/dev/personal
 )
+
+directories=()
+for dir in "${potential_directories[@]}"; do
+    if [ -d "$dir" ]; then
+        # fd requires paths to be relative or absolute without tilde expansion
+        expanded_dir=$(realpath "$dir")
+        directories+=("$expanded_dir")
+    fi
+done
+
+projects=$(fd --hidden --exact-depth 1 --type directory . "${directories[@]}")
 
 # I want dotfiles as a project, but it's in my $HOME directory and I don't want
 # to move it & break the symlink script. So I'm appending the dotfiles directory
@@ -33,7 +46,7 @@ directories=$(fd --hidden --exact-depth 1 --type directory . \
 # newline.
 #
 # When / if I switch to stow I can probably move the folder & remove this hack.
-projects="$directories"$'\n'"$HOME/dotfiles"
+projects+=$'\n'"$HOME/dotfiles"
 session=$(echo "$projects" | fzf)
 
 if [[ -z $session ]]; then
