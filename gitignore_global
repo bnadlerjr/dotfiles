@@ -1,3 +1,4 @@
+*.diff
 *.swp
 .DS_Store
 .ackrc
