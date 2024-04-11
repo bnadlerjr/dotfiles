@@ -66,9 +66,10 @@ Plug 'reedes/vim-lexical'                                         " Build on Vim
 Plug 'saadparwaiz1/cmp_luasnip'                                   " luasnip completion source for nvim-cmp
 Plug 'scrooloose/nerdcommenter'                                   " quickly (un)comment lines
 Plug 'sjl/vitality.vim'                                           " Make Vim play nicely with iTerm 2 and tmux
+Plug 'slim-template/vim-slim'                                     " Syntax highlighting for slim
 Plug 'tpope/vim-abolish'                                          " easily search for, substitute, and abbreviate multiple variants of a word
 Plug 'tpope/vim-bundler'                                          " makes source navigation of bundled gems easier
-Plug 'tpope/vim-cucumber'                                         " provides syntax highlightling, indenting, and a filetype plugin
+Plug 'tpope/vim-cucumber'                                         " provides syntax highlighting, indenting, and a filetype plugin
 Plug 'tpope/vim-dispatch'                                         " Asynchronous build and test dispatcher
 Plug 'tpope/vim-endwise'                                          " wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
 Plug 'tpope/vim-fugitive'                                         " Git plugin
@@ -577,6 +578,13 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = "*.ex,*.exs,*.heex,*.lua",
   command = ":Format"
+})
+
+-- Fix known issue with slim plugin
+-- https://github.com/slim-template/vim-slim?tab=readme-ov-file#known-issues
+vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
+  pattern = "*.slim",
+  command = "setlocal filetype=slim"
 })
 
 -- vim: ts=2 sts=2 sw=2 et
