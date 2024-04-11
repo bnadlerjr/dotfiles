@@ -43,6 +43,7 @@ brew "tmux"
 brew "tree"
 brew "vim"
 brew "wget"
+brew "wxwidgets"
 brew "youtube-dl"
 
 cask "1password"
