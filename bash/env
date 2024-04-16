@@ -19,3 +19,6 @@ export SSH_AUTH_SOCK="${HOME}/.gnupg/S.gpg-agent.ssh"
 
 # FZF
 export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git'
+
+# Elixir iex history
+export ERL_AFLAGS="-kernel shell_history enabled"
