@@ -62,6 +62,7 @@ Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.6' }          " Find, Filter
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }     " Nvim Treesitter configurations and abstraction layer
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware text-objects, select, move, swap, and peek support
 Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
+Plug 'petertriho/cmp-git'                                         " Git source for nvim-cmp
 Plug 'reedes/vim-lexical'                                         " Build on Vim’s spell/thes/dict completion
 Plug 'saadparwaiz1/cmp_luasnip'                                   " luasnip completion source for nvim-cmp
 Plug 'scrooloose/nerdcommenter'                                   " quickly (un)comment lines
@@ -429,6 +430,7 @@ cmp.setup {
     { name = 'luasnip' },
     { name = 'codeium' },
     { name = 'path' },
+    { name = 'git' },
   },
 }
 
@@ -447,6 +449,8 @@ cmp.setup.cmdline(':', {
     { name = 'cmdline' }
   })
 })
+
+require("cmp_git").setup()
 
 -- ###########################################################################
 -- Keymaps
