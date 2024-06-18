@@ -125,7 +125,7 @@ require("yanky").setup()
 
 vim.cmd "let g:NERDDefaultAlign = 'left'"
 vim.cmd "let NERDSpaceDelims = 1"
-vim.cmd "let test#strategy = 'dispatch'"
+vim.cmd "let test#strategy = 'spawn'"
 
 -- Telescope
 local ts_builtin = require('telescope.builtin')
