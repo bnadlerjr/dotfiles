@@ -26,6 +26,7 @@ potential_directories=(
     ~/dev/cyrus
     ~/dev/flatiron
     ~/dev/gust
+    ~/dev/instinct
     ~/dev/personal
 )
 
