@@ -580,7 +580,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Autoformat files using LSP before saving; only doing this for languages
 -- that have "official" formatters
 vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "*.ex,*.exs,*.heex,*.lua",
+  pattern = "*.ex,*.exs,*.heex,*.lua,*.js,*.jsx,*.ts,*.tsx",
   command = ":Format"
 })
 
