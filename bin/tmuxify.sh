@@ -28,6 +28,7 @@ potential_directories=(
     ~/dev/gust
     ~/dev/instinct
     ~/dev/personal
+    ~/dev/spikes
 )
 
 directories=()
