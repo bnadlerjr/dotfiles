@@ -32,3 +32,7 @@ export PATH="$(yarn global bin):$PATH"
 eval "$(direnv hook bash)"
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+if [ -f ~/.local/bashrc ]; then
+    . ~/.local/bashrc
+fi
