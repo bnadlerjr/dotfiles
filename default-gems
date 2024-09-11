@@ -3,4 +3,5 @@ solargraph
 terminal-notifier
 thor
 tmuxinator
+tty-editor
 tty-prompt
