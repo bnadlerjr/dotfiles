@@ -10,7 +10,7 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 export EDITOR="nvim"
 
 # PATH Setup
-export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/sbin:~/.vim/plugged/vim-iced/bin:$PATH:~/bin:~/.local/bin
+export PATH=/opt/homebrew/sbin:/opt/homebrew/bin:/usr/local/sbin:~/.vim/plugged/vim-iced/bin:$PATH:~/bin:~/.local/bin:~/.docker/cli-plugins
 
 # GPG Setup
 export GNUPGHOME="$HOME/.gnupg"
