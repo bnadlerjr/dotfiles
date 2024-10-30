@@ -3,6 +3,10 @@
 vim.g.mapleader = ','
 vim.g.maplocalleader = '\\'
 
+-- nvim-tree.lua requires that netrw is disabled
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 -- If we're using nvim, might as well go all in on lua
 vim.g.loaded_node_provider = 0
 vim.g.loaded_perl_provider = 0
@@ -59,6 +63,7 @@ Plug 'nvim-lualine/lualine.nvim'                                  " A blazing fa
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' } " FZF sorter for telescope written in c
 Plug 'nvim-telescope/telescope-ui-select.nvim'                    " Neovim core stuff can fill the telescope picker
 Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.6' }          " Find, Filter, Preview, Pick. All lua, all the time
+Plug 'nvim-tree/nvim-tree.lua'                                    " A file explorer tree for neovim written in lua
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }     " Nvim Treesitter configurations and abstraction layer
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware text-objects, select, move, swap, and peek support
 Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
@@ -121,6 +126,7 @@ require('gitsigns').setup()
 require('lualine').setup({})
 require('nvim-surround').setup()
 require('nvim-autopairs').setup({ check_ts = true })
+require("nvim-tree").setup()
 require("yanky").setup()
 
 vim.cmd "let g:NERDDefaultAlign = 'left'"
@@ -482,8 +488,7 @@ vim.keymap.set('n', 'qc', ":cclose<CR>", { noremap = true, desc = 'Close quickfi
 vim.keymap.set('n', '<leader>g', ":Git<CR>", { noremap = true, desc = 'Fugitive status buffer' })
 
 vim.keymap.set('c', "%%", "<C-R>=expand('%:h').'/'<CR>", { noremap = true, desc = 'Expand current file path' })
-vim.keymap.set('', '<leader>e', ":edit " .. vim.fn.expand('%:h') .. '/',
-  { desc = 'Open file in the same directory as the current file' })
+vim.keymap.set('', '<leader>e', ":NvimTreeFindFileToggle<CR>", { desc = 'Open file tree' })
 
 vim.keymap.set('n', 'gs', "<plug>(GrepperOperator)", { desc = 'Search for the current selection' })
 vim.keymap.set('x', 'gs', "<plug>(GrepperOperator)", { desc = 'Search for the current selection' })
