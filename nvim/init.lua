@@ -126,12 +126,20 @@ require('gitsigns').setup()
 require('lualine').setup({})
 require('nvim-surround').setup()
 require('nvim-autopairs').setup({ check_ts = true })
-require("nvim-tree").setup()
 require("yanky").setup()
 
 vim.cmd "let g:NERDDefaultAlign = 'left'"
 vim.cmd "let NERDSpaceDelims = 1"
 vim.cmd "let test#strategy = 'spawn'"
+
+-- nvim-tree
+require("nvim-tree").setup({
+  actions = {
+    open_file = {
+      quit_on_open = true
+    }
+  }
+})
 
 -- Telescope
 local ts_builtin = require('telescope.builtin')
