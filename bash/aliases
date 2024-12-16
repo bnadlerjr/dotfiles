@@ -19,6 +19,7 @@ alias tf=terraform
 alias tfresh="terraform apply -refresh-only"
 alias tm="tmate -2 -f ~/.tmux.conf"
 alias tms="tmate show-messages"
+alias tw="$(brew --prefix)/bin/task"
 alias vim="$(brew --prefix)/bin/vim"
 
 # Create directory, then enter it
