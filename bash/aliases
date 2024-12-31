@@ -4,13 +4,14 @@ shopt -s expand_aliases
 # Bash
 alias ..="cd .."
 alias abolish="vim ~/.vim/after/plugin/abolish.vim"
-alias brewup="brew update; brew cleanup; brew doctor"
 alias cdd="cd -"
 alias df="df -h"
 alias dtstr="date +%Y%m%d%H%M%S"
 alias ea="vim ~/dotfiles/bash/aliases && reload"
 alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs $@"
+alias fd=fdfind
 alias hoboken="~/dev/hoboken/bin/hoboken"
+alias ls='eza -lh --group-directories-first --icons'
 alias l="ls -lgohG"
 alias la="ls -AlgohG"
 alias reload="source ~/dotfiles/bash/aliases"
@@ -19,8 +20,19 @@ alias tf=terraform
 alias tfresh="terraform apply -refresh-only"
 alias tm="tmate -2 -f ~/.tmux.conf"
 alias tms="tmate show-messages"
-alias tw="$(brew --prefix)/bin/task"
-alias vim="$(brew --prefix)/bin/vim"
+
+# Linux doesn't have pbcopy or pbpaste so use xclip instead and alias it
+if [ "$(uname)" = "Linux" ]; then
+  alias pbcopy="xclip -selection clipboard"
+  alias pbpaste="xclip -selection clipboard -o"
+fi
+
+# Only setup these aliases if we're on MacOS
+if command -v brew >/dev/null 2>&1; then
+  alias brewup="brew update; brew cleanup; brew doctor"
+  alias tw="$(brew --prefix)/bin/task"
+  alias vim="$(brew --prefix)/bin/vim"
+fi
 
 # Create directory, then enter it
 mkcd () {
