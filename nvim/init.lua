@@ -340,7 +340,7 @@ local servers = {
   solargraph = {},
   stimulus_ls = {},
   tailwindcss = {},
-  tsserver = {}
+  ts_ls = {}
 }
 
 -- Setup neovim lua configuration
