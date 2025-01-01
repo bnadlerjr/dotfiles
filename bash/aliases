@@ -20,6 +20,7 @@ alias tf=terraform
 alias tfresh="terraform apply -refresh-only"
 alias tm="tmate -2 -f ~/.tmux.conf"
 alias tms="tmate show-messages"
+alias tw=task
 
 # Linux doesn't have pbcopy or pbpaste so use xclip instead and alias it
 if [ "$(uname)" = "Linux" ]; then
