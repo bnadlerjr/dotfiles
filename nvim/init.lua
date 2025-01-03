@@ -28,6 +28,10 @@ vim.cmd [[
 
 vim.cmd([[
 call plug#begin()
+Plug 'stevearc/dressing.nvim'                                     "Neovim plugin to improve the default vim.ui interfaces; required by Avante
+Plug 'MunifTanjim/nui.nvim'                                       "UI Component Library for Neovim; required by Avante
+Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': 'make' }     "Use your Neovim like using Cursor AI IDE!
+
 Plug 'AndrewRadev/splitjoin.vim'                                  " Switch between single-line and multiline forms of code
 Plug 'AndrewRadev/writable_search.vim'                            " Grep for something, then write the original files directly through the search results
 Plug 'DataWraith/auto_mkdir'                                      " Allows you to save files into directories that do not exist yet
@@ -131,6 +135,12 @@ require("yanky").setup()
 vim.cmd "let g:NERDDefaultAlign = 'left'"
 vim.cmd "let NERDSpaceDelims = 1"
 vim.cmd "let test#strategy = 'spawn'"
+
+-- Avante
+require('avante_lib').load()
+require('avante').setup({
+  provider = 'openai'
+})
 
 -- nvim-tree
 require("nvim-tree").setup({
