@@ -1,11 +1,12 @@
 awscli 2.2.18
+clojure 1.11.1.1165
 elixir 1.15.7-otp-26
 erlang 26.0.2
+java openjdk-17.0.1
 nodejs 17.0.1
+postgres 15.8
 python 3.10.1
 ruby 3.2.1
 rust stable
 shellcheck 0.7.2
 yarn 1.22.11
-clojure 1.11.1.1165
-java openjdk-17.0.1
