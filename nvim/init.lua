@@ -71,6 +71,7 @@ Plug 'nvim-tree/nvim-tree.lua'                                    " A file explo
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }     " Nvim Treesitter configurations and abstraction layer
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware text-objects, select, move, swap, and peek support
 Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
+Plug 'olimorris/codecompanion.nvim'                               " AI-powered coding, seamlessly in Neovim
 Plug 'petertriho/cmp-git'                                         " Git source for nvim-cmp
 Plug 'rebelot/kanagawa.nvim'                                      " NeoVim dark colorscheme inspired by the colors of the famous painting by Katsushika Hokusai
 Plug 'reedes/vim-lexical'                                         " Build on Vim’s spell/thes/dict completion
@@ -125,6 +126,7 @@ vim.cmd 'colorscheme kanagawa'
 -- Plugin Configuration
 -- ###########################################################################
 
+require("codecompanion").setup()
 require('codeium').setup({})
 require('colorizer').setup()
 require('gitsigns').setup()
@@ -249,7 +251,7 @@ vim.defer_fn(function()
     endwise = { enable = true },
     highlight = { enable = true },
     indent = { enable = true },
-    ensure_installed = { 'bash', 'clojure', 'elixir', 'go', 'graphql', 'heex', 'html', 'javascript', 'lua', 'python', 'ruby', 'toml', 'typescript', 'yaml', 'vimdoc', 'vim' },
+    ensure_installed = { 'bash', 'clojure', 'elixir', 'go', 'graphql', 'heex', 'html', 'javascript', 'lua', 'markdown', 'python', 'ruby', 'toml', 'typescript', 'yaml', 'vimdoc', 'vim' },
     auto_install = false,
     incremental_selection = {
       enable = true,
@@ -453,6 +455,7 @@ cmp.setup {
     { name = 'nvim_lua' },
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
+    { name = 'codecompanion' },
     { name = 'codeium' },
     { name = 'path' },
     { name = 'git' },
