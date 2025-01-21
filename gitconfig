@@ -18,12 +18,12 @@
     cob = checkout -b
     conflicted = "!vim +Conflicted"
     di = diff
+    dh = diff HEAD~1
     ff = merge --ff-only
     glog = log -E -i --grep
     lg = log --graph --abbrev-commit --date=relative
     olog = log --oneline --
     flog = log --format=full
-    pr = "!hub pull-request -o"
     pushf = push --force-with-lease
     st = status
 [fetch]
