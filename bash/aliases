@@ -1,14 +1,14 @@
-# Enable alias expansion
+ Enable alias expansion
 shopt -s expand_aliases
 
 # Bash
 alias ..="cd .."
-alias abolish="vim ~/.vim/after/plugin/abolish.vim"
+alias abolish="nvim ~/.vim/after/plugin/abolish.vim"
 alias brewup="brew update; brew cleanup; brew doctor"
 alias cdd="cd -"
 alias df="df -h"
 alias dtstr="date +%Y%m%d%H%M%S"
-alias ea="vim ~/dotfiles/bash/aliases && reload"
+alias ea="nvim ~/dotfiles/bash/aliases && reload"
 alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs $@"
 alias hoboken="~/dev/hoboken/bin/hoboken"
 alias l="ls -lgohG"
@@ -20,7 +20,7 @@ alias tfresh="terraform apply -refresh-only"
 alias tm="tmate -2 -f ~/.tmux.conf"
 alias tms="tmate show-messages"
 alias tw="$(brew --prefix)/bin/task"
-alias vim="$(brew --prefix)/bin/vim"
+alias vim="$(brew --prefix)/bin/nvim"
 
 # Create directory, then enter it
 mkcd () {
