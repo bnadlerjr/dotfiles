@@ -334,6 +334,7 @@ require('mason').setup()
 require('mason-lspconfig').setup()
 
 local servers = {
+  bashls = {},
   clojure_lsp = {},
   elixirls = {},
   eslint = {},
@@ -349,8 +350,7 @@ local servers = {
   solargraph = {},
   stimulus_ls = {},
   tailwindcss = {},
-  tsserver = {},
-  shellcheck = {}
+  tsserver = {}
 }
 
 -- Setup neovim lua configuration
@@ -392,7 +392,7 @@ null_ls.setup({
     null_ls.builtins.formatting.prettierd,
     null_ls.builtins.formatting.rubocop,
     null_ls.builtins.formatting.shellharden,
-    null_ls.builtins.formatting.shformat
+    null_ls.builtins.formatting.shfmt
   }
 })
 
