@@ -349,7 +349,8 @@ local servers = {
   solargraph = {},
   stimulus_ls = {},
   tailwindcss = {},
-  tsserver = {}
+  tsserver = {},
+  shellcheck = {}
 }
 
 -- Setup neovim lua configuration
@@ -389,7 +390,9 @@ null_ls.setup({
     null_ls.builtins.formatting.djlint,
     null_ls.builtins.formatting.mix,
     null_ls.builtins.formatting.prettierd,
-    null_ls.builtins.formatting.rubocop
+    null_ls.builtins.formatting.rubocop,
+    null_ls.builtins.formatting.shellharden,
+    null_ls.builtins.formatting.shformat
   }
 })
 
