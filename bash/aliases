@@ -1,4 +1,4 @@
- Enable alias expansion
+# Enable alias expansion
 shopt -s expand_aliases
 
 # Bash
