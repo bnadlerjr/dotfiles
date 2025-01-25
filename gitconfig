@@ -3,7 +3,6 @@
     email = bnadlerjr@gmail.com
 [github]
     user = bnadlerjr
-    token = !sh -c 'cat ~/.github_token'
 [core]
     autocrlf = false
     excludesfile = ~/.gitignore_global
@@ -16,7 +15,6 @@
     ci = commit -v
     co = checkout
     cob = checkout -b
-    conflicted = "!vim +Conflicted"
     di = diff
     dh = diff HEAD~1
     ff = merge --ff-only
@@ -25,14 +23,10 @@
     olog = log --oneline --
     flog = log --format=full
     pushf = push --force-with-lease
-    st = status
 [fetch]
     prune = true
 [format]
     pretty=format:%C(yellow)%h%Creset -%C(red)%d%Creset %s %Cgreen(%ar) %C(bold blue)<%an>%Creset
-[merge]
-    conflictstyle = zdiff3
-    tool = vimdiff
 [push]
     autoSetupRemote = true
     default = simple
@@ -40,11 +34,19 @@
     autosquash = true
 [rerere]
     enabled = true
-[heroku]
-    account = personal
 [pull]
     rebase = true
 [init]
     defaultBranch = main
-[hub]
-    protocol = https
+[mergetool "neovim"]
+    cmd = nvim -c \"Gdiffsplit!\" \"$MERGED\"
+[mergetool]
+    keepBackup = false
+[merge]
+    conflictstyle = zdiff3
+    tool = neovim
+[diff]
+    colorMoved = true
+    tool = neovim
+[difftool "neovim"]
+    cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
