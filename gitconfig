@@ -11,6 +11,7 @@
 [alias]
     a  = add
     br = branch
+    bp = branch-picker
     cane = commit --amend --no-edit
     ci = commit -v
     co = checkout

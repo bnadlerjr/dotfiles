@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Pick and checkout a Git branch using FZF.
+#
+# Uses FZF to prompt for a Git branch. The selected branch is then checked out.
+#
+# USAGE:
+#   git branch-picker
+#
+
+# -e: Exit immediately on error
+# -u: Treat unset variables as errors
+set -eu
+
+branch=$(git branch --format="%(refname:short)" | fzf --no-multi)
+
+if [ "$branch" = "" ]; then
+    echo "No branch selected."
+    exit 1
+fi
+
+git checkout "$branch"
