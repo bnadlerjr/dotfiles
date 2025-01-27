@@ -72,6 +72,7 @@ Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }     " Nvim Treesit
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware text-objects, select, move, swap, and peek support
 Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
 Plug 'petertriho/cmp-git'                                         " Git source for nvim-cmp
+Plug 'rebelot/kanagawa.nvim'                                      " NeoVim dark colorscheme inspired by the colors of the famous painting by Katsushika Hokusai
 Plug 'reedes/vim-lexical'                                         " Build on Vim’s spell/thes/dict completion
 Plug 'saadparwaiz1/cmp_luasnip'                                   " luasnip completion source for nvim-cmp
 Plug 'scrooloose/nerdcommenter'                                   " quickly (un)comment lines
@@ -118,7 +119,7 @@ vim.o.wrap = true                      -- Turn on line wrapping
 vim.wo.number = true                   -- Display line numbers
 vim.wo.signcolumn = 'yes'              -- Always show signcolumn
 
-vim.cmd 'colorscheme nightfox'
+vim.cmd 'colorscheme kanagawa'
 
 -- ###########################################################################
 -- Plugin Configuration
