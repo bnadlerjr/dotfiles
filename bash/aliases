@@ -4,7 +4,6 @@ shopt -s expand_aliases
 # Bash
 alias ..="cd .."
 alias abolish="nvim ~/.vim/after/plugin/abolish.vim"
-alias brewup="brew update; brew cleanup; brew doctor"
 alias cdd="cd -"
 alias df="df -h"
 alias dtstr="date +%Y%m%d%H%M%S"
@@ -19,8 +18,21 @@ alias tf=terraform
 alias tfresh="terraform apply -refresh-only"
 alias tm="tmate -2 -f ~/.tmux.conf"
 alias tms="tmate show-messages"
-alias tw="$(brew --prefix)/bin/task"
-alias vim="$(brew --prefix)/bin/nvim"
+
+# Only setup these aliases if we're on Linux
+if [ "$(uname)" = "Linux" ]; then
+  alias pbcopy="xclip -selection clipboard"
+  alias pbpaste="xclip -selection clipboard -o"
+  alias tw=task
+
+  ln -sf $(which fdfind) ~/.local/bin/fd
+fi
+
+# Only setup these aliases if we're on MacOS
+if command -v brew >/dev/null 2>&1; then
+  alias brewup="brew update; brew cleanup; brew doctor"
+  alias tw="$(brew --prefix)/bin/task"
+fi
 
 # Fuzzy find a file in the current directory and open it in Neovim
 vim() {

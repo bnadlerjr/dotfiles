@@ -1,6 +1,18 @@
 . ~/dotfiles/bash/env
-. $(brew --prefix)/etc/bash_completion.d/git-completion.bash
-. $(brew --prefix)/etc/bash_completion.d/git-prompt.sh
+
+if command -v brew >/dev/null 2>&1; then
+  . $(brew --prefix)/etc/bash_completion.d/git-completion.bash
+  . $(brew --prefix)/etc/bash_completion.d/git-prompt.sh
+fi
+
+if [ -f /usr/share/bash-completion/completions/git ]; then
+  . /usr/share/bash-completion/completions/git
+fi
+
+if [ -f /etc/bash_completion.d/git-prompt ]; then
+  . /etc/bash_completion.d/git-prompt
+fi
+
 . ~/dotfiles/bash/git-prompt
 . ~/dotfiles/bash/config
 . ~/dotfiles/bash/aliases
@@ -8,31 +20,56 @@
 # Allow git-completion to work with "g" alias
 __git_complete g __git_main
 
-if [ -f $(brew --prefix)/etc/bash_completion ]; then
+if command -v brew >/dev/null 2>&1; then
+  if [ -f $(brew --prefix)/etc/bash_completion ]; then
     . $(brew --prefix)/etc/bash_completion
-fi
+  fi
 
-# asdf setup
-if [ -f $(brew --prefix)/opt/asdf/libexec/asdf.sh ]; then
+  # asdf setup
+  if [ -f $(brew --prefix)/opt/asdf/libexec/asdf.sh ]; then
     # For new M1 systems
     . $(brew --prefix)/opt/asdf/libexec/asdf.sh
-fi
+  fi
 
-if [ -f $(brew --prefix)/opt/asdf/asdf.sh ]; then
+  if [ -f $(brew --prefix)/opt/asdf/asdf.sh ]; then
     # For older systems
     . $(brew --prefix)/opt/asdf/asdf.sh
+  fi
+
+  . $(brew --prefix)/opt/asdf/etc/bash_completion.d/asdf.bash
 fi
 
-. $(brew --prefix)/opt/asdf/etc/bash_completion.d/asdf.bash
+if [ -f /etc/bash_completion ]; then
+  . /etc/bash_completion
+elif [ -f /usr/share/bash-completion/bash_completion ]; then
+  . /usr/share/bash-completion/bash_completion
+fi
 
-# Yarn setup (must come after asdf setup since Yarn is managed by asdf)
-export PATH="$(yarn global bin):$PATH"
+if command -v yarn >/dev/null 2>&1; then
+  # Yarn setup (must come after asdf setup since Yarn is managed by asdf)
+  export PATH="$(yarn global bin):$PATH"
+fi
 
-# Setup direnv
-eval "$(direnv hook bash)"
+if command -v direnv >/dev/null 2>&1; then
+  # Setup direnv
+  eval "$(direnv hook bash)"
+fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
+if command -v mise &>/dev/null; then
+  eval "$(mise activate bash)"
+fi
+
+if command -v zoxide &>/dev/null; then
+  eval "$(zoxide init bash)"
+fi
+
+if command -v fzf &>/dev/null; then
+  source /usr/share/bash-completion/completions/fzf
+  source /usr/share/doc/fzf/examples/key-bindings.bash
+fi
+
 if [ -f ~/.local/bashrc ]; then
-    . ~/.local/bashrc
+  . ~/.local/bashrc
 fi
