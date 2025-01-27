@@ -20,6 +20,14 @@ IFS=$'\n\t'
 
 mux="$HOME/dev/personal/tmuxinator/bin/tmuxinator"
 
+# Function to check if tmuxinator is available
+tmuxinator_available() {
+  if [[ -x "$mux" ]]; then
+    return 0
+  fi
+  return 1
+}
+
 # Not all my machines have the same directories, so filter out the ones that
 # don't exist on the machine that's running this script.
 potential_directories=(
@@ -62,7 +70,7 @@ if ! tmux info &> /dev/null; then
     # Check if there's a tmuxinator config that matches the project name. If
     # so, start a new session using tmuxinator and the config. Otherwise, start
     # a new plain tmux session.
-    if $mux list -n | grep -F -q -x "$session_name"; then
+    if tmuxinator_available && $mux list -n | grep -F -q -x "$session_name"; then
         $mux start "$session_name"
     else
         tmux new-session -s "$session_name" -c "$session" -n "workspace"
@@ -72,14 +80,14 @@ fi
 
 # If there's currently a tmuxinator session running, pause it.
 current_tmux_session_name=$(tmux display-message -p "#S")
-if $mux list -n | grep -F -q -x "$current_tmux_session_name"; then
+if tmuxinator_available && $mux list -n | grep -F -q -x "$current_tmux_session_name"; then
     $mux pause "$current_tmux_session_name"
 fi
 
 # If tmux is running but doesn't have a session for the project, start one
 # using the same logic as above.
 if ! tmux has-session -t="$session_name" 2> /dev/null; then
-    if $mux list -n | grep -F -q -x "$session_name"; then
+    if tmuxinator_available && $mux list -n | grep -F -q -x "$session_name"; then
         $mux start "$session_name" --no-attach
     else
         tmux new-session -ds "$session_name" -c "$session" -n "workspace"
@@ -87,7 +95,7 @@ if ! tmux has-session -t="$session_name" 2> /dev/null; then
 fi
 
 # If the session we're connecting to has a tmuxinator config, resume it.
-if $mux list -n | grep -F -q -x "$session_name"; then
+if tmuxinator_available && $mux list -n | grep -F -q -x "$session_name"; then
     $mux resume "$session_name"
 fi
 
