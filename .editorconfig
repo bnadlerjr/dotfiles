@@ -1,0 +1,12 @@
+root = true
+
+# For any files that actually end in .sh
+[*.sh]
+indent_style = space
+indent_size = 4
+
+# For any files in 'bin/' that don't have a file extension
+[bin/*]
+indent_style = space
+indent_size = 2
+switch_case_indent = true
