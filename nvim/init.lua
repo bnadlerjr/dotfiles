@@ -141,7 +141,7 @@ vim.cmd "let test#strategy = 'spawn'"
 -- Avante
 require('avante_lib').load()
 require('avante').setup({
-  provider = 'openai'
+  provider = vim.env.NVIM_AI_CHAT_PROVIDER or "openai"
 })
 
 -- nvim-tree
