@@ -249,7 +249,7 @@ vim.defer_fn(function()
     endwise = { enable = true },
     highlight = { enable = true },
     indent = { enable = true },
-    ensure_installed = { 'bash', 'clojure', 'elixir', 'go', 'graphql', 'heex', 'html', 'javascript', 'lua', 'python', 'ruby', 'toml', 'typescript', 'yaml', 'vimdoc', 'vim' },
+    ensure_installed = { 'bash', 'clojure', 'elixir', 'go', 'graphql', 'heex', 'html', 'javascript', 'lua', 'markdown', 'python', 'ruby', 'toml', 'typescript', 'yaml', 'vimdoc', 'vim' },
     auto_install = false,
     incremental_selection = {
       enable = true,
