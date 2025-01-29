@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# Parses tasks from TaskWarrior and outputs a Kanban-like board.
+#
+# Uses tags to determine which "columns" a task belongs in. The supported tags
+# are: in_backlog, in_progress, in_review, in_qa, and in_ready.
+#
+# Dependencies:
+# - TaskWarrior
+# - jq
+# - Gum
+#
+
+# Parses TaskWarrior tasks, truncating descriptions.
+#
+export_tasks() {
+  task "$@" export | jq -r '.[] | "\(.id), \(.description)"'
+}
+
+# Create temporary files for each "status".
+backlog_file="$(mktemp)"
+progress_file="$(mktemp)"
+review_file="$(mktemp)"
+qa_file="$(mktemp)"
+ready_file="$(mktemp)"
+
+# Export the tasks into their respective temp files.
+export_tasks +in_backlog >"$backlog_file"
+export_tasks +in_progress >"$progress_file"
+export_tasks +in_review >"$review_file"
+export_tasks +in_qa >"$qa_file"
+export_tasks +in_ready >"$ready_file"
+
+# Print the data as a Markdown table using Gum.
+{
+  echo "| Backlog | In Progress | In Code Review | In QA | Ready to Deploy |"
+  echo "|---------|-------------|----------------|-------|-----------------|"
+
+  # Open each file on its own file descriptor. Read lines in parallel and
+  # build a Markdown row for each one.
+  exec 3<"$backlog_file"
+  exec 4<"$progress_file"
+  exec 5<"$review_file"
+  exec 6<"$qa_file"
+  exec 7<"$ready_file"
+
+  while :; do
+    IFS= read -r backlog_line <&3 || backlog_line=""
+    IFS= read -r progress_line <&4 || progress_line=""
+    IFS= read -r review_line <&5 || review_line=""
+    IFS= read -r qa_line <&6 || qa_line=""
+    IFS= read -r ready_line <&7 || ready_line=""
+
+    # If all lines are empty, we've reached the end
+    [ "$backlog_line" = "" ] && [ "$progress_line" = "" ] && [ "$review_line" = "" ] && [ "$qa_line" = "" ] && [ "$ready_line" = "" ] && break
+
+    # Replace any empty field with a space so the table cell isn’t blank.
+    [ "$backlog_line" = "" ] && backlog_line=" "
+    [ "$progress_line" = "" ] && progress_line=" "
+    [ "$review_line" = "" ] && review_line=" "
+    [ "$qa_line" = "" ] && qa_line=" "
+    [ "$ready_line" = "" ] && ready_line=" "
+
+    # Emit a single Markdown table row
+    echo "| $backlog_line | $progress_line | $review_line | $qa_line | $ready_line |"
+  done
+} | gum format
+
+# Cleanup
+rm "$backlog_file" "$progress_file" "$review_file" "$qa_file" "$ready_file"
