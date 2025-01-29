@@ -338,7 +338,9 @@ require('mason-lspconfig').setup()
 local servers = {
   bashls = {},
   clojure_lsp = {},
-  elixirls = {},
+  elixirls = {
+    cmd = { "~/.local/share/nvim/mason/packages/elixir-ls/language_server.sh" }
+  },
   eslint = {},
 
   lua_ls = {
