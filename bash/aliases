@@ -13,6 +13,7 @@ alias hoboken="~/dev/hoboken/bin/hoboken"
 alias l="ls -lgohG"
 alias la="ls -AlgohG"
 alias reload="source ~/dotfiles/bash/aliases"
+alias twk="task-warrior-kanban"
 alias t=tree-with-fd
 alias tf=terraform
 alias tfresh="terraform apply -refresh-only"
