@@ -14,7 +14,7 @@
 # Parses TaskWarrior tasks, truncating descriptions.
 #
 export_tasks() {
-  task "$@" export | jq -r '.[] | "\(.id), \(.description)"'
+  task status:pending "$@" export | jq -r '.[] | "\(.id), \(.description)"'
 }
 
 # Create temporary files for each "status".
