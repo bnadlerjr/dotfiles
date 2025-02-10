@@ -28,15 +28,15 @@ vim.cmd [[
 
 vim.cmd([[
 call plug#begin()
-Plug 'stevearc/dressing.nvim'                                     "Neovim plugin to improve the default vim.ui interfaces; required by Avante
-Plug 'MunifTanjim/nui.nvim'                                       "UI Component Library for Neovim; required by Avante
-Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': 'make' }     "Use your Neovim like using Cursor AI IDE!
+Plug 'stevearc/dressing.nvim'                                     " Neovim plugin to improve the default vim.ui interfaces; required by Avante
+Plug 'MunifTanjim/nui.nvim'                                       " UI Component Library for Neovim; required by Avante
+Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': 'make' }     " Use your Neovim like using Cursor AI IDE!
+Plug 'milanglacier/minuet-ai.nvim'                                " Minuet offers code completion as-you-type from popular LLMs
 
 Plug 'AndrewRadev/splitjoin.vim'                                  " Switch between single-line and multiline forms of code
 Plug 'AndrewRadev/writable_search.vim'                            " Grep for something, then write the original files directly through the search results
 Plug 'DataWraith/auto_mkdir'                                      " Allows you to save files into directories that do not exist yet
 Plug 'EdenEast/nightfox.nvim'                                     " 🦊A highly customizable theme for vim and neovim with support for lsp, treesitter and a variety of plugins
-Plug 'Exafunction/codeium.nvim'                                   " A native neovim extension for Codeium
 Plug 'Glench/Vim-Jinja2-Syntax'                                   " Jinja2 syntax highlighting
 Plug 'L3MON4D3/LuaSnip'                                           " Snippet Engine for Neovim written in Lua.
 Plug 'Olical/conjure'                                             " Interactive evaluation for Neovim.
@@ -126,10 +126,10 @@ vim.cmd('colorscheme ' .. colorscheme)
 -- Plugin Configuration
 -- ###########################################################################
 
-require('codeium').setup({})
 require('colorizer').setup()
 require('gitsigns').setup()
 require('lualine').setup({})
+require('minuet').setup({ provider = "gemini" })
 require('nvim-surround').setup()
 require('nvim-autopairs').setup({ check_ts = true })
 require("yanky").setup()
@@ -456,7 +456,7 @@ cmp.setup {
     { name = 'nvim_lua' },
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
-    { name = 'codeium' },
+    { name = 'minuet' },
     { name = 'path' },
     { name = 'git' },
   },
