@@ -66,7 +66,7 @@ Plug 'nvim-lua/plenary.nvim'                                      " All the lua 
 Plug 'nvim-lualine/lualine.nvim'                                  " A blazing fast and easy to configure neovim statusline plugin written in pure lua
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' } " FZF sorter for telescope written in c
 Plug 'nvim-telescope/telescope-ui-select.nvim'                    " Neovim core stuff can fill the telescope picker
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.8' }          " Find, Filter, Preview, Pick. All lua, all the time
+Plug 'nvim-telescope/telescope.nvim'                              " Find, Filter, Preview, Pick. All lua, all the time
 Plug 'nvim-tree/nvim-tree.lua'                                    " A file explorer tree for neovim written in lua
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }     " Nvim Treesitter configurations and abstraction layer
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware text-objects, select, move, swap, and peek support
