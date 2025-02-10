@@ -28,11 +28,6 @@ vim.cmd [[
 
 vim.cmd([[
 call plug#begin()
-Plug 'stevearc/dressing.nvim'                                     " Neovim plugin to improve the default vim.ui interfaces; required by Avante
-Plug 'MunifTanjim/nui.nvim'                                       " UI Component Library for Neovim; required by Avante
-Plug 'yetone/avante.nvim', { 'branch': 'main', 'do': 'make' }     " Use your Neovim like using Cursor AI IDE!
-Plug 'milanglacier/minuet-ai.nvim'                                " Minuet offers code completion as-you-type from popular LLMs
-
 Plug 'AndrewRadev/splitjoin.vim'                                  " Switch between single-line and multiline forms of code
 Plug 'AndrewRadev/writable_search.vim'                            " Grep for something, then write the original files directly through the search results
 Plug 'DataWraith/auto_mkdir'                                      " Allows you to save files into directories that do not exist yet
@@ -60,6 +55,7 @@ Plug 'j-hui/fidget.nvim'                                          " Extensible U
 Plug 'kylechui/nvim-surround'                                     " Add/change/delete surrounding delimiter pairs with ease.
 Plug 'lewis6991/gitsigns.nvim'                                    " Adds git related signs to the gutter, as well as utilities for managing changes
 Plug 'mhinz/vim-grepper'                                          " 👾 Helps you win at grep
+Plug 'milanglacier/minuet-ai.nvim'                                " Minuet offers code completion as-you-type from popular LLMs
 Plug 'neovim/nvim-lspconfig'                                      " Quickstart configs for Nvim LSP
 Plug 'norcalli/nvim-colorizer.lua'                                " The fastest Neovim colorizer.
 Plug 'nvim-lua/plenary.nvim'                                      " All the lua functions I don't want to write twice
@@ -71,6 +67,7 @@ Plug 'nvim-tree/nvim-tree.lua'                                    " A file explo
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }     " Nvim Treesitter configurations and abstraction layer
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware text-objects, select, move, swap, and peek support
 Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
+Plug 'olimorris/codecompanion.nvim'                               " ✨ AI-powered coding, seamlessly in Neovim
 Plug 'petertriho/cmp-git'                                         " Git source for nvim-cmp
 Plug 'rebelot/kanagawa.nvim'                                      " NeoVim dark colorscheme inspired by the colors of the famous painting by Katsushika Hokusai
 Plug 'reedes/vim-lexical'                                         " Build on Vim’s spell/thes/dict completion
@@ -138,10 +135,16 @@ vim.cmd "let g:NERDDefaultAlign = 'left'"
 vim.cmd "let NERDSpaceDelims = 1"
 vim.cmd "let test#strategy = 'spawn'"
 
--- Avante
-require('avante_lib').load()
-require('avante').setup({
-  provider = vim.env.NVIM_AI_CHAT_PROVIDER or "openai"
+-- codecompanion
+require("codecompanion").setup({
+  strategies = {
+    chat = {
+      adapter = vim.env.NVIM_AI_CHAT_PROVIDER or "openai",
+    },
+    inline = {
+      adapter = vim.env.NVIM_AI_COMPLETION_PROVIDER or "gemini",
+    },
+  },
 })
 
 -- nvim-tree
@@ -549,6 +552,12 @@ vim.keymap.set({ "n", "x" }, "gP", "<Plug>(YankyGPutBefore)")
 -- vim.keymap.set("n", "<c-p>", "<Plug>(YankyPreviousEntry)")
 -- vim.keymap.set("n", "<c-n>", "<Plug>(YankyNextEntry)")
 vim.keymap.set("n", "<c-n>", "<Plug>(YankyPreviousEntry)")
+
+-- codecompanion
+vim.keymap.set({ "n", "v" }, "<LocalLeader>ca", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>a", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
+vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
+vim.cmd([[cab cc CodeCompanion]]) -- Expand 'cc' into 'CodeCompanion' in the command line
 
 -- ###########################################################################
 -- Autocommands
