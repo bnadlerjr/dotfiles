@@ -34,3 +34,8 @@ echo " ...removing bin folder"
 rm -r ~/bin
 ln -s ${DIR}/bin ~/bin
 echo " ...bin folder re-linked"
+
+echo " ...removing ghostty folder"
+rm -r ~/.config/ghostty
+ln -s ${DIR}/ghostty ~/.config/ghostty
+echo " ...ghostty folder re-linked"
