@@ -84,6 +84,13 @@ function g() {
     git ${*:-status}
 }
 
+# Git Matchete
+if command -v git-machete >/dev/null 2>&1; then
+  gm() {
+    git machete ${*:-status}
+  }
+fi
+
 # OSX firewall UI doesn't add MOSH correctly for some reason. Add it via the
 # firewall CLI instead.
 function add_mosh_to_firewall {
