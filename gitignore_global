@@ -2,6 +2,7 @@
 *.swp
 .DS_Store
 .ackrc
+.aider*
 .bundle
 .clj-kondo
 .env
@@ -11,7 +12,9 @@
 .rvmrc
 .sass-cache
 .starscope.db
+ai_rules
 coverage
 cscope.out
 tags
 tmate*.log
+CONVENTIONS.md
