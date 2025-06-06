@@ -91,8 +91,8 @@ Plug 'tpope/vim-rhubarb'                                          " GitHub exten
 Plug 'tpope/vim-sexp-mappings-for-regular-people'                 " vim-sexp mappings rely on meta key; these don't
 Plug 'vim-ruby/vim-ruby'                                          " packaged w/ vim but this is latest and greatest
 Plug 'vim-test/vim-test'                                          " Run your tests at the speed of thought
-Plug 'williamboman/mason-lspconfig.nvim'                          " Extension to mason.nvim that makes it easier to use lspconfig
-Plug 'williamboman/mason.nvim'                                    " Easily install and manage LSP servers, DAP servers, linters, and formatters
+Plug 'mason-org/mason-lspconfig.nvim', { 'tag': 'v1.32.0' }       " Extension to mason.nvim that makes it easier to use lspconfig
+Plug 'mason-org/mason.nvim', { 'tag': 'v1.11.0' }                 " Easily install and manage LSP servers, DAP servers, linters, and formatters
 Plug 'windwp/nvim-autopairs'                                      " autopairs for neovim written by lua
 call plug#end()
 ]])
@@ -368,6 +368,10 @@ local servers = {
 
 -- Setup neovim lua configuration
 require('neodev').setup()
+
+vim.lsp.config("*", {
+  capabilities = vim.lsp.protocol.make_client_capabilities()
+})
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
