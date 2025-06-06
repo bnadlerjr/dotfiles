@@ -140,10 +140,10 @@ vim.cmd "let test#strategy = 'spawn'"
 require("codecompanion").setup({
   strategies = {
     chat = {
-      adapter = vim.env.NVIM_AI_CHAT_PROVIDER or "openai",
+      adapter = vim.env.NVIM_AI_CHAT_PROVIDER or "anthropic",
     },
     inline = {
-      adapter = vim.env.NVIM_AI_COMPLETION_PROVIDER or "gemini",
+      adapter = vim.env.NVIM_AI_COMPLETION_PROVIDER or "anthropic",
     },
   },
 })
