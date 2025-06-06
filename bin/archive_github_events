@@ -1,0 +1,181 @@
+#!/usr/bin/env ruby
+
+=begin
+
+------------------------------------------------------------------------------
+ GitHub Event Archiver: MacOS Scheduled Usage (launchd)
+------------------------------------------------------------------------------
+
+How to run this script automatically every 12 hours on MacOS using launchd:
+
+1. **Create a Launch Agent plist file:**
+
+   Save the following as:
+   ~/Library/LaunchAgents/com.user.github_event_archiver.plist
+
+   (Replace YOUR_USERNAME and the path to your script as needed.)
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.user.github_event_archiver</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/env</string>
+        <string>ruby</string>
+        <string>/Users/YOUR_USERNAME/path/to/github_event_archiver.rb</string>
+    </array>
+    <key>StartInterval</key>
+    <integer>43200</integer> <!-- 12 hours in seconds -->
+    <key>RunAtLoad</key>
+    <true/>
+    <!--
+      Log files:
+        - All output from puts/statements goes to StandardOutPath.
+        - All error and warning output goes to StandardErrorPath.
+        - You can view logs with: tail -f ~/github_event_archiver.log
+    -->
+    <key>StandardOutPath</key>
+    <string>/Users/YOUR_USERNAME/github_event_archiver.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/YOUR_USERNAME/github_event_archiver.err</string>
+</dict>
+</plist>
+
+   **Log Files:**
+     - All output from `puts` and script progress will go to:
+         ~/github_event_archiver.log
+     - Errors and warnings will go to:
+         ~/github_event_archiver.err
+     - View logs with:
+         tail -f ~/github_event_archiver.log
+         tail -f ~/github_event_archiver.err
+
+   **Log Rotation/Cleanup:**
+     - These log files can grow large over time.
+     - To clear (truncate) a log file:
+         : > ~/github_event_archiver.log
+         : > ~/github_event_archiver.err
+     - You can also automate log rotation with a cron job or MacOS's `newsyslog`.
+
+2. **Load the Launch Agent:**
+
+   Open Terminal and run:
+     launchctl load ~/Library/LaunchAgents/com.user.github_event_archiver.plist
+
+   This will start the schedule (runs immediately and then every 12 hours).
+
+3. **Unload or Reload the Agent:**
+
+   To stop the job:
+     launchctl unload ~/Library/LaunchAgents/com.user.github_event_archiver.plist
+
+   To reload after changing the plist or script:
+     launchctl unload ~/Library/LaunchAgents/com.user.github_event_archiver.plist
+     launchctl load ~/Library/LaunchAgents/com.user.github_event_archiver.plist
+
+------------------------------------------------------------------------------
+
+=end
+
+def system!(*args)
+  system(*args) || abort("\n== Command #{args} failed ==")
+end
+
+system! 'gem list "^sqlite3$" -i --silent || gem install sqlite3'
+
+require 'json'
+require 'open3'
+require 'sqlite3'
+
+USERNAME = 'bnadlerjr'
+DB_PATH = 'github_events.db'
+
+def fetch_user_events(username)
+  command = <<~CMD
+    gh api \\
+      -H "Accept: application/vnd.github+json" \\
+      --paginate \\
+      /users/#{username}/events | jq -c '.[]'
+  CMD
+  stdout, stderr, status = Open3.capture3(command)
+  raise "Failed to fetch events: #{stderr}" unless status.success?
+
+  stdout.lines.map { |line| JSON.parse(line) }
+end
+
+def ensure_db!
+  db = SQLite3::Database.new(DB_PATH)
+  db.execute <<-SQL
+    CREATE TABLE IF NOT EXISTS events (
+      id TEXT PRIMARY KEY,
+      type TEXT,
+      actor_login TEXT,
+      org_login TEXT,
+      repo_name TEXT,
+      created_at TEXT,
+      payload_action TEXT,
+      payload_number INTEGER,
+      payload_merge BOOLEAN,
+      payload_commit_count INTEGER,
+      json TEXT
+    );
+  SQL
+  db
+end
+
+def extract_fields(e)
+  payload = e['payload'] || {}
+  actor_login = e.dig('actor', 'login')
+  org_login   = e.dig('org', 'login')
+  action      = payload['action']
+  number      = payload['number']
+  merge       = payload.dig('pull_request', 'merged')
+  commit_count = payload['commits']&.size
+
+  merge_int = if merge.nil? 
+                nil
+              else
+                merge ? 1 : 0
+              end
+
+  [
+    e['id'],
+    e['type'],
+    actor_login,
+    org_login,
+    e.dig('repo', 'name'),
+    e['created_at'],
+    action,
+    number,
+    merge_int,
+    commit_count,
+    e.to_json
+  ]
+end
+
+def ingest_events(db, events)
+  db.transaction
+  stmt = db.prepare("INSERT OR IGNORE INTO events (
+    id, type, actor_login, org_login, repo_name, created_at,
+    payload_action, payload_number, payload_merge, payload_commit_count, json
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+  events.each do |e|
+    stmt.execute(*extract_fields(e))
+  end
+  stmt.close
+  db.commit
+end
+
+### Main script
+
+events = fetch_user_events(USERNAME)
+puts "Fetched #{events.size} events."
+
+db = ensure_db!
+before = db.get_first_value('SELECT COUNT(*) FROM events')
+ingest_events(db, events)
+after = db.get_first_value('SELECT COUNT(*) FROM events')
+puts "Database now has #{after} events (#{after - before} new)."

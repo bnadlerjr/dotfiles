@@ -1,0 +1,119 @@
+#!/usr/bin/env ruby
+
+def system!(*args)
+  system(*args) || abort("\n== Command #{args} failed ==")
+end
+
+system! 'gem list "^sqlite3$" -i --silent || gem install sqlite3'
+system! 'gem list "^tty-prompt$" -i --silent || gem install tty-prompt'
+system! 'gem list "^tty-table$" -i --silent || gem install tty-table'
+
+require 'sqlite3'
+require 'date'
+require 'tty-prompt'
+require 'tty-table'
+
+DB_PATH = "github_events.db"
+prompt = TTY::Prompt.new
+
+def print_header(title)
+  puts "\n=== #{title} ==="
+end
+
+def workdays_between(start_date, end_date)
+  (start_date..end_date).count { |date| (1..5).include?(date.wday) }
+end
+
+db = SQLite3::Database.new(DB_PATH)
+db.results_as_hash = true
+
+# 1. Choose date range
+default_from = (Date.today - 30).to_s
+default_to = Date.today.to_s
+from = prompt.ask("Start date (YYYY-MM-DD)?", default: default_from) { |q| q.validate(/\d{4}-\d{2}-\d{2}/, "Invalid date") }
+to = prompt.ask("End date (YYYY-MM-DD)?", default: default_to) { |q| q.validate(/\d{4}-\d{2}-\d{2}/, "Invalid date") }
+from_date = Date.parse(from)
+to_date = Date.parse(to)
+work_days = workdays_between(from_date, to_date)
+
+# 2. Choose which repos to include
+repos = db.execute("SELECT DISTINCT repo_name FROM events WHERE repo_name IS NOT NULL ORDER BY repo_name").map { |r| r['repo_name'] }
+selected_repos =
+  if repos.size == 1
+    repos # only one choice, auto-select
+  else
+    prompt.multi_select("Select repositories to include:", repos, per_page: 15, default: (1..repos.size).to_a)
+  end
+
+if selected_repos.empty?
+  puts "No repositories selected. Exiting."
+  exit 1
+end
+
+repo_clause = "(" + (["?"] * selected_repos.size).join(",") + ")"
+params_for_repos = selected_repos
+
+# 3. Report: Average commits per active day
+puts "\n\nWork days in period: #{work_days}"
+
+print_header "Commits Per Day"
+row = db.get_first_row <<-SQL, params_for_repos + [from, to]
+  SELECT
+    IFNULL(SUM(payload_commit_count), 0) AS total_commits,
+    COUNT(DISTINCT DATE(created_at)) AS days_with_commits,
+    ROUND(CAST(IFNULL(SUM(payload_commit_count), 0) AS FLOAT) / NULLIF(COUNT(DISTINCT DATE(created_at)),0), 2) AS avg_commits_per_active_day
+  FROM events
+  WHERE type = 'PushEvent'
+    AND repo_name IN #{repo_clause}
+    AND created_at BETWEEN ? AND ?
+SQL
+
+puts "Total commits: #{row['total_commits']}"
+puts "Active commit days: #{row['days_with_commits']}"
+puts "Average commits per active day: #{row['avg_commits_per_active_day']}"
+puts "Average commits per work day: #{row['total_commits'].to_f / work_days}"
+
+# 4. Report: Average PRs opened per active day
+print_header "PRs Opened Per Day"
+row = db.get_first_row <<-SQL, params_for_repos + [from, to]
+  SELECT
+    COUNT(*) AS total_prs_opened,
+    COUNT(DISTINCT DATE(created_at)) AS days_with_prs_opened,
+    ROUND(CAST(COUNT(*) AS FLOAT) / NULLIF(COUNT(DISTINCT DATE(created_at)),0), 2) AS avg_prs_opened_per_active_day
+  FROM events
+  WHERE type = 'PullRequestEvent'
+    AND payload_action = 'opened'
+    AND repo_name IN #{repo_clause}
+    AND created_at BETWEEN ? AND ?
+SQL
+
+puts "Total PRs opened: #{row['total_prs_opened']}"
+puts "Days with PRs opened: #{row['days_with_prs_opened']}"
+puts "Average PRs opened per active day: #{row['avg_prs_opened_per_active_day']}"
+puts "Average PRs opened per work day: #{row['total_prs_opened'].to_f / work_days}"
+
+# 5. Report: Average PR open-to-close/merge time (in hours)
+print_header "PR Open-to-Close/Merge Time"
+rows = db.execute <<-SQL, params_for_repos + [from, to]
+  SELECT
+    payload_number,
+    MIN(CASE WHEN payload_action = 'opened' THEN created_at END) AS opened_at,
+    MIN(CASE WHEN payload_action IN ('closed', 'merged') THEN created_at END) AS closed_at
+  FROM events
+  WHERE type = 'PullRequestEvent'
+    AND repo_name IN #{repo_clause}
+    AND created_at BETWEEN ? AND ?
+    AND payload_number IS NOT NULL
+  GROUP BY payload_number
+  HAVING opened_at IS NOT NULL AND closed_at IS NOT NULL
+SQL
+
+if rows.any?
+  pr_hours = rows.map do |r|
+    (DateTime.parse(r['closed_at']) - DateTime.parse(r['opened_at'])) * 24.0
+  end
+  avg_pr_time = pr_hours.sum / pr_hours.size
+  puts "Average PR open-to-close/merge time: #{avg_pr_time.round(2)} hours (#{rows.size} PRs)"
+else
+  puts "No PRs closed/merged in this period."
+end
