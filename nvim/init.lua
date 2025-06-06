@@ -32,6 +32,7 @@ Plug 'AndrewRadev/splitjoin.vim'                                  " Switch betwe
 Plug 'AndrewRadev/writable_search.vim'                            " Grep for something, then write the original files directly through the search results
 Plug 'DataWraith/auto_mkdir'                                      " Allows you to save files into directories that do not exist yet
 Plug 'EdenEast/nightfox.nvim'                                     " 🦊A highly customizable theme for vim and neovim with support for lsp, treesitter and a variety of plugins
+Plug 'Exafunction/windsurf.nvim'                                  " A native neovim extension for Codeium
 Plug 'Glench/Vim-Jinja2-Syntax'                                   " Jinja2 syntax highlighting
 Plug 'L3MON4D3/LuaSnip'                                           " Snippet Engine for Neovim written in Lua.
 Plug 'Olical/conjure'                                             " Interactive evaluation for Neovim.
@@ -145,6 +146,12 @@ require("codecompanion").setup({
     },
   },
 })
+
+-- windsurf
+require("codeium").setup({ enable_cmp_source = false, virtual_text = { enabled = true } })
+require('codeium.virtual_text').set_statusbar_refresh(function()
+  require('lualine').refresh()
+end)
 
 -- nvim-tree
 require("nvim-tree").setup({
