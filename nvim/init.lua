@@ -75,6 +75,7 @@ Plug 'saadparwaiz1/cmp_luasnip'                                   " luasnip comp
 Plug 'scrooloose/nerdcommenter'                                   " quickly (un)comment lines
 Plug 'sjl/vitality.vim'                                           " Make Vim play nicely with iTerm 2 and tmux
 Plug 'slim-template/vim-slim'                                     " Syntax highlighting for slim
+Plug 'synic/refactorex.nvim'                                      " Neovim plugin for RefactorEx
 Plug 'tpope/vim-abolish'                                          " easily search for, substitute, and abbreviate multiple variants of a word
 Plug 'tpope/vim-bundler'                                          " makes source navigation of bundled gems easier
 Plug 'tpope/vim-cucumber'                                         " provides syntax highlighting, indenting, and a filetype plugin
@@ -126,9 +127,9 @@ vim.cmd('colorscheme ' .. colorscheme)
 require('colorizer').setup()
 require('gitsigns').setup()
 require('lualine').setup({})
-require('minuet').setup({ provider = vim.env.NVIM_AI_COMPLETION_PROVIDER or "gemini" })
 require('nvim-surround').setup()
 require('nvim-autopairs').setup({ check_ts = true })
+require("refactorex").setup({ auto_update = true, pin_version = nil })
 require("yanky").setup()
 
 vim.cmd "let g:NERDDefaultAlign = 'left'"
@@ -330,6 +331,8 @@ local on_attach = function(_, bufnr)
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+
+  vim.keymap.set('v', '<leader>ca', vim.lsp.buf.code_action, { buffer = true, desc = 'LSP: [C]ode [A]ction' })
 
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
