@@ -55,7 +55,6 @@ Plug 'j-hui/fidget.nvim'                                          " Extensible U
 Plug 'kylechui/nvim-surround'                                     " Add/change/delete surrounding delimiter pairs with ease.
 Plug 'lewis6991/gitsigns.nvim'                                    " Adds git related signs to the gutter, as well as utilities for managing changes
 Plug 'mhinz/vim-grepper'                                          " 👾 Helps you win at grep
-Plug 'milanglacier/minuet-ai.nvim'                                " Minuet offers code completion as-you-type from popular LLMs
 Plug 'neovim/nvim-lspconfig'                                      " Quickstart configs for Nvim LSP
 Plug 'norcalli/nvim-colorizer.lua'                                " The fastest Neovim colorizer.
 Plug 'nvim-lua/plenary.nvim'                                      " All the lua functions I don't want to write twice
@@ -459,7 +458,6 @@ cmp.setup {
     { name = 'nvim_lua' },
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
-    { name = 'minuet' },
     { name = 'path' },
     { name = 'git' },
   },
