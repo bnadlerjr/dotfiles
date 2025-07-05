@@ -26,17 +26,10 @@ if command -v brew >/dev/null 2>&1; then
   fi
 
   # asdf setup
-  if [ -f $(brew --prefix)/opt/asdf/libexec/asdf.sh ]; then
-    # For new M1 systems
-    . $(brew --prefix)/opt/asdf/libexec/asdf.sh
-  fi
+  export ASDF_DATA_DIR="$HOME/.asdf"
+  export PATH="$ASDF_DATA_DIR/shims:$PATH"
 
-  if [ -f $(brew --prefix)/opt/asdf/asdf.sh ]; then
-    # For older systems
-    . $(brew --prefix)/opt/asdf/asdf.sh
-  fi
-
-  . $(brew --prefix)/opt/asdf/etc/bash_completion.d/asdf.bash
+  . $(brew --prefix)/opt/asdf/etc/bash_completion.d/asdf
 fi
 
 if [ -f /etc/bash_completion ]; then
