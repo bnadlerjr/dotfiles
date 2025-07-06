@@ -6,7 +6,7 @@ java openjdk-17.0.1
 nodejs 17.0.1
 pipx 1.7.1
 postgres 15.8
-python 3.10.1
+python 3.13.2
 ruby 3.2.1
 rust stable
 shellcheck 0.7.2
