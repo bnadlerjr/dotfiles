@@ -39,6 +39,7 @@ Plug 'Olical/conjure'                                             " Interactive 
 Plug 'OliverChao/telescope-picker-list.nvim'                      " A plugin that helps you use any pickers in telescope
 Plug 'PaterJason/cmp-conjure'                                     " nvim-cmp source for conjure.
 Plug 'RRethy/nvim-treesitter-endwise'                             " Tree-sitter aware alternative to tpope's vim-endwise
+Plug 'YounesElhjouji/nvim-copy'                                   " Copy the content of files—from visible buffers, Git-modified files, etc. to clipboard
 Plug 'elixir-editors/vim-elixir'                                  " Vim configuration files for Elixir
 Plug 'folke/neodev.nvim'                                          " Neovim setup for init.lua and plugin development with full signature help, docs and completion for the nvim lua API
 Plug 'gbprod/yanky.nvim'                                          " Improved Yank and Put functionalities for Neovim
@@ -55,6 +56,8 @@ Plug 'hrsh7th/nvim-cmp'                                           " A completion
 Plug 'j-hui/fidget.nvim'                                          " Extensible UI for Neovim notifications and LSP progress messages
 Plug 'kylechui/nvim-surround'                                     " Add/change/delete surrounding delimiter pairs with ease.
 Plug 'lewis6991/gitsigns.nvim'                                    " Adds git related signs to the gutter, as well as utilities for managing changes
+Plug 'mason-org/mason-lspconfig.nvim', { 'tag': 'v1.32.0' }       " Extension to mason.nvim that makes it easier to use lspconfig
+Plug 'mason-org/mason.nvim', { 'tag': 'v1.11.0' }                 " Easily install and manage LSP servers, DAP servers, linters, and formatters
 Plug 'mhinz/vim-grepper'                                          " 👾 Helps you win at grep
 Plug 'neovim/nvim-lspconfig'                                      " Quickstart configs for Nvim LSP
 Plug 'norcalli/nvim-colorizer.lua'                                " The fastest Neovim colorizer.
@@ -91,8 +94,6 @@ Plug 'tpope/vim-rhubarb'                                          " GitHub exten
 Plug 'tpope/vim-sexp-mappings-for-regular-people'                 " vim-sexp mappings rely on meta key; these don't
 Plug 'vim-ruby/vim-ruby'                                          " packaged w/ vim but this is latest and greatest
 Plug 'vim-test/vim-test'                                          " Run your tests at the speed of thought
-Plug 'mason-org/mason-lspconfig.nvim', { 'tag': 'v1.32.0' }       " Extension to mason.nvim that makes it easier to use lspconfig
-Plug 'mason-org/mason.nvim', { 'tag': 'v1.11.0' }                 " Easily install and manage LSP servers, DAP servers, linters, and formatters
 Plug 'windwp/nvim-autopairs'                                      " autopairs for neovim written by lua
 call plug#end()
 ]])
@@ -129,6 +130,7 @@ require('gitsigns').setup()
 require('lualine').setup({})
 require('nvim-surround').setup()
 require('nvim-autopairs').setup({ check_ts = true })
+require("nvim_copy").setup()
 require("refactorex").setup({ auto_update = true, pin_version = nil })
 require("yanky").setup()
 
