@@ -4,6 +4,7 @@
 .ackrc
 .aider*
 .bundle
+.claude
 .clj-kondo
 .env
 .idea
@@ -12,9 +13,10 @@
 .rvmrc
 .sass-cache
 .starscope.db
+CLAUDE.md
+CONVENTIONS.md
 ai_rules
 coverage
 cscope.out
 tags
 tmate*.log
-CONVENTIONS.md

@@ -5,6 +5,7 @@ shopt -s expand_aliases
 alias ..="cd .."
 alias abolish="nvim ~/.vim/after/plugin/abolish.vim"
 alias cdd="cd -"
+alias claude="$HOME/.claude/local/claude"
 alias df="df -h"
 alias dtstr="date +%Y%m%d%H%M%S"
 alias ea="nvim ~/dotfiles/bash/aliases && reload"
