@@ -3,7 +3,7 @@ clojure 1.11.1.1165
 elixir 1.18.4-otp-26
 erlang 26.0.2
 java openjdk-17.0.1
-nodejs 17.0.1
+nodejs 22.5.1
 pipx 1.7.1
 postgres 15.8
 python 3.13.2
