@@ -11,4 +11,5 @@ ruby 3.2.1
 rust stable
 shellcheck 0.7.2
 shfmt 3.10.0
+uv 0.5.9
 yarn 1.22.11
