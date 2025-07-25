@@ -72,6 +72,7 @@ Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware
 Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
 Plug 'olimorris/codecompanion.nvim'                               " ✨ AI-powered coding, seamlessly in Neovim
 Plug 'petertriho/cmp-git'                                         " Git source for nvim-cmp
+Plug 'preservim/vim-pencil'                                       " Rethinking Vim as a tool for writing
 Plug 'rebelot/kanagawa.nvim'                                      " NeoVim dark colorscheme inspired by the colors of the famous painting by Katsushika Hokusai
 Plug 'reedes/vim-lexical'                                         " Build on Vim’s spell/thes/dict completion
 Plug 'saadparwaiz1/cmp_luasnip'                                   " luasnip completion source for nvim-cmp
