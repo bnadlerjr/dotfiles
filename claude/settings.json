@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/dotfiles/claude/hooks/lint.py"
+            "command": "uv run --quiet ~/dotfiles/claude/hooks/lint.py"
           }
         ]
       }
