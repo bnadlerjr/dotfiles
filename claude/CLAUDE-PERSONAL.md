@@ -20,6 +20,15 @@
 
 ## Workflow Guidelines
 
+### Development Workflow
+1. For ANY new feature/fix:
+   - First: Research with general-purpose agent if needed
+   - Second: Consult domain expert agent for approach
+   - Third: Implement with TDD
+   - Fourth: Review with pragmatic-code-reviewer
+
+2. NEVER skip the expert consultation or code review steps
+
 ### Before Coding
 - **MUST** Ask clarifying questions for complex work
 - **SHOULD** Draft and confirm approach if ≥ 2 solutions exist
@@ -41,6 +50,22 @@
 - Don't ask for confirmation of already-provided info
 - Don't verify implementations visible in context
 - Suggest solutions beyond initial requirements
+
+## Agent Usage Guidelines
+
+### MUST Use Specialized Agents
+- **Before implementing**: Use domain-specific expert agents (e.g., elixir-phoenix-expert, typescript-react-expert) to plan approach
+- **After implementing**: Use pragmatic-code-reviewer for all code changes
+- **For complex tasks**: Use general-purpose agent for multi-step research
+
+### Agent Selection
+- Elixir/Phoenix work → elixir-phoenix-expert
+- TypeScript/React work → typescript-react-expert
+- Ruby/Rails work → ruby-rails-expert
+- Python scripting → python-automation-expert
+- Shell scripting → bash-scripting-expert
+- Code review → pragmatic-code-reviewer (ALWAYS after implementation)
+- GraphQL schema design → graphql-schema-architect
 
 ## Testing
 
