@@ -1,3 +1,16 @@
 {
-  "model": "opus"
+  "model": "opus",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/dotfiles/claude/hooks/lint.py"
+          }
+        ]
+      }
+    ]
+  }
 }
