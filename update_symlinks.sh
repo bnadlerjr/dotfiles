@@ -45,6 +45,11 @@ rm -r ~/.claude/CLAUDE.md
 ln -s ${DIR}/claude/CLAUDE-PERSONAL.md ~/.claude/CLAUDE.md
 echo " ...~/.claude/CLAUDE.md re-linked"
 
+echo " ...removing ~/.claude/settings.json"
+rm -r ~/.claude/settings.json
+ln -s ${DIR}/claude/settings.json ~/.claude/settings.json
+echo " ...~/.claude/settings.json re-linked"
+
 echo " ...removing ~/.claude/commands"
 rm -r ~/.claude/commands
 ln -s ${DIR}/claude/commands ~/.claude/commands
