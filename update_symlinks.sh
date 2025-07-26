@@ -54,3 +54,8 @@ echo " ...removing ~/.claude/commands"
 rm -r ~/.claude/commands
 ln -s ${DIR}/claude/commands ~/.claude/commands
 echo " ...~/.claude/commands re-linked"
+
+echo " ...removing ~/.claude/agents"
+rm -r ~/.claude/agents
+ln -s ${DIR}/claude/agents ~/.claude/agents
+echo " ...~/.claude/agents re-linked"
