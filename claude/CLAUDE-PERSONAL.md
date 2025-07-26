@@ -1,57 +1,77 @@
-# Claude Code Guidelines by Bob Nadler
+# Claude Code Guidelines for Bob Nadler
 
-## Implementation Best Practices
+## Code Style & Conventions
 
-### Purpose  
+### Implementation Standards
+- **MUST** Follow TDD: scaffold stub → write failing test → implement
+- **MUST** Write correct, bug-free, fully functional, secure, performant code
+- **MUST** Match existing code style in the file being edited
+- **MUST** Include assertions to validate assumptions and catch errors early
+- **NEVER** introduce new syntax variations (e.g., hash rockets vs colons)
+- **NEVER** refactor unrelated code without explicit permission
+- **NEVER** make cosmetic changes without explicit permission
+- Prefer descriptive variable names over short ones
+- Focus on readability over performance unless critical
+- Leave NO todos, placeholders, or missing pieces
 
-These rules ensure maintainability, safety, and developer velocity. 
-**MUST** rules are enforced by CI; **SHOULD** rules are strongly recommended.
+### Error Handling
+- Implement robust error handling and logging
+- Always handle edge cases explicitly
 
----
+## Workflow Guidelines
 
 ### Before Coding
+- **MUST** Ask clarifying questions for complex work
+- **SHOULD** Draft and confirm approach if ≥ 2 solutions exist
+- **SHOULD** List pros/cons for multiple approaches
+- Confirm requirements, then write code
+- Think hard through all considerations before implementation
 
-- **MUST** Ask the user clarifying questions.
-- **SHOULD** Draft and confirm an approach for complex work.  
-- **SHOULD** If ≥ 2 approaches exist, list clear pros and cons.
+### During Development
+- Make changes file by file for review opportunity
+- Be concise - minimize prose
+- Never use apologies
+- Consider security implications for all changes
+- Copy exact style from surrounding code
 
----
+### Information Handling
+- Verify information before presenting
+- If unsure, say so instead of guessing
+- Check context files for current implementations
+- Don't ask for confirmation of already-provided info
+- Don't verify implementations visible in context
+- Suggest solutions beyond initial requirements
 
-### While Coding
+## Testing
 
-- **MUST** Follow TDD: scaffold stub -> write failing test -> implement.
-- **SHOULD NOT** Add comments except for critical caveats; rely on self‑explanatory code.
+### Test Requirements
+- **SHOULD** Prefer sociable unit tests over heavy mocking
+- **SHOULD** Unit-test complex algorithms thoroughly
+- **MUST** Parameterize test inputs - no unexplained literals (42, "foo")
+- **MUST** Write tests that can fail for real defects
+- **MUST** Ensure test descriptions match final expect statements
+- **MUST** Compare to pre-computed expectations, not function output
+- **MUST** Follow same lint/style rules as production code
+- **ALWAYS** Use strong assertions: `expect(x).toEqual(1)` not `expect(x).toBeGreaterThanOrEqual(1)`
+- Test edge cases, boundaries, and unexpected input
+- Skip conditions caught by type checker
 
-1. ALWAYS match the existing code style of the file you're editing
-2. NEVER introduce new syntax variations for the same operations (e.g. don't switch from hash rockets to colons, don't introduce 'render partial:' if plain 'render' is used)
-3. NEVER refactor code that isn't broken without explicit permission
-4. NEVER make cosmetic or stylistic changes without explicit permission
-5. If you need to add code, copy the exact style from surrounding code
+## Git Conventions
+- **SHOULD NOT** Reference Claude or Anthropic in commits
+- Create feature branches like `feature/[description]`
+- Never commit directly to main/master
 
----
+## Communication Style
+- Treat user as expert
+- No feedback about understanding in comments/docs
+- Focus on facts and solutions
+- Encourage modular design principles
+- Don't summarize changes made
+- Don't suggest updates when none needed
 
-### Testing
-
-- **SHOULD** Prefer sociable unit tests over heavy mocking.  
-- **SHOULD** Unit-test complex algorithms thoroughly.
-
----
-
-### Git
-
-- **SHOULD NOT** Refer to Claude or Anthropic in commit messages.
-
----
-
-## Writing Tests Best Practices
-
-When evaluating whether a test you've implemented is good or not, use this checklist:
-
-1. SHOULD parameterize inputs; never embed unexplained literals such as 42 or "foo" directly in the test.
-2. SHOULD NOT add a test unless it can fail for a real defect. Trivial asserts (e.g., expect(2).toBe(2)) are forbidden.
-3. SHOULD ensure the test description states exactly what the final expect verifies. If the wording and assert don’t align, rename or rewrite.
-4. SHOULD compare results to independent, pre-computed expectations or to properties of the domain, never to the function’s output re-used as the oracle.
-5. SHOULD follow the same lint, type-safety, and style rules as prod code (rubocop, credo, prettier, etc.).
-6. ALWAYS use strong assertions over weaker ones e.g. `expect(x).toEqual(1)` instead of `expect(x).toBeGreaterThanOrEqual(1)`.
-7. SHOULD test edge cases, realistic input, unexpected input, and value boundaries.
-8. SHOULD NOT test conditions that are caught by the type checker.
+## Key Principles
+- Every rule must be actionable and specific
+- Anticipate user needs proactively
+- Maintain compatibility with project versions
+- Don't remove unrelated functionality
+- Fully implement all requested features
