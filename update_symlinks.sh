@@ -39,3 +39,13 @@ echo " ...removing ghostty folder"
 rm -r ~/.config/ghostty
 ln -s ${DIR}/ghostty ~/.config/ghostty
 echo " ...ghostty folder re-linked"
+
+echo " ...removing ~/.claude/CLAUDE.md"
+rm -r ~/.claude/CLAUDE.md
+ln -s ${DIR}/claude/CLAUDE-PERSONAL.md ~/.claude/CLAUDE.md
+echo " ...~/.claude/CLAUDE.md re-linked"
+
+echo " ...removing ~/.claude/commands"
+rm -r ~/.claude/commands
+ln -s ${DIR}/claude/commands ~/.claude/commands
+echo " ...~/.claude/commands re-linked"
