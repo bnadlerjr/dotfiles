@@ -158,17 +158,17 @@ def main():
         has_errors, output = format_output(results, file_path)
 
         if has_errors:
-            print(output)
-            sys.exit(1)
+            print(output, file=sys.stderr)
+            sys.exit(2)
 
         sys.exit(0)
 
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON input: {e}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(2)
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(2)
 
 
 if __name__ == "__main__":
