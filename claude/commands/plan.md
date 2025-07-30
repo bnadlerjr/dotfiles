@@ -1,6 +1,8 @@
 # Plan Command
 
-Enter plan mode to research and develop an implementation plan for: $ARGUMENTS
+Enter plan mode to research and develop an implementation plan for:
+
+$ARGUMENTS
 
 ## Instructions
 
@@ -12,6 +14,7 @@ Enter plan mode to research and develop an implementation plan for: $ARGUMENTS
 
 2. Develop a comprehensive implementation plan that includes:
    - High-level approach and architecture decisions
+   - Schemas, diagrams, or other visual representations
    - Step-by-step implementation tasks
    - Files that will need to be created or modified
    - Testing strategy
@@ -21,13 +24,14 @@ Enter plan mode to research and develop an implementation plan for: $ARGUMENTS
 
 4. After the user approves the plan:
    - Generate a slug based on the user's request (i.e. "add user auth" -> "add-user-auth")
-   - Write the complete plan to `.claude/plans/YYYY-MM-DD-{{slug}}.md` (or filename specified by user)
+   - Run `date "+%Y-%m-%d"` to get today's date
+   - Write the complete plan to `.claude/specs/{{date}}-{{slug}}.md` (or filename specified by user)
    - Stop immediately without implementing anything
    - Wait for further instructions
 
 ## Important Notes
 
-- Use any relevant custom agents (i.e. `elixir-phoenix-expert`, `ruby-rails-expert`, etc.)
+- Use any relevant custom agents (e.g. `elixir-otp-expert`, `ruby-rails-expert`, etc.)
 - The plan should include `[ ]` checkboxes so you can mark the tasks as done as you go
 - The user may want to break down parts of the plan further
 - Do not proceed with implementation unless explicitly instructed
