@@ -1,4 +1,4 @@
-Read README.md, then run git ls-files to understand the context of the project.
+Read CLAUDE.md and ~/.claude/CLAUDE.md to understand custom guidelines. Then read README.md to understand the context of the project.
 
 If $ARGUMENTS then be sure to also read $ARGUMENTS.
 

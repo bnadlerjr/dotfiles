@@ -14,10 +14,9 @@ $ARGUMENTS
 
 2. Develop a comprehensive implementation plan that includes:
    - High-level approach and architecture decisions
-   - Schemas, diagrams, or other visual representations
-   - Step-by-step implementation tasks
+   - Schemas, diagrams, and other visual representations
+   - Step-by-step implementation tasks that use an outside-in development approach (e.g. start with the highest level of abstraction and work down, using stubs or placeholders as needed)
    - Files that will need to be created or modified
-   - Testing strategy
    - Potential risks or considerations
 
 3. Present the plan using the ExitPlanMode tool
@@ -37,3 +36,4 @@ $ARGUMENTS
 - Do not proceed with implementation unless explicitly instructed
 - Focus on being thorough in research but concise in presentation
 - Include specific file paths and code patterns discovered during research
+- The generated tasks **MUST** reflect an outside-in development approach (e.g. start with the highest level of abstraction and work down, using stubs or placeholders as needed)
