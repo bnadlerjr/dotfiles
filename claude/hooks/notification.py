@@ -11,6 +11,49 @@ import platform
 import random
 import subprocess
 import sys
+import tempfile
+import time
+
+
+def get_dedup_file():
+    """Get the path to the deduplication tracking file."""
+    return os.path.join(tempfile.gettempdir(), "claude_notification_dedup.json")
+
+
+def should_skip_notification(hook_type, dedup_window=5.0):
+    """Check if we should skip this notification due to recent duplicate."""
+    dedup_file = get_dedup_file()
+    current_time = time.time()
+
+    try:
+        # Read existing deduplication data
+        if os.path.exists(dedup_file):
+            with open(dedup_file, "r") as f:
+                dedup_data = json.load(f)
+        else:
+            dedup_data = {}
+
+        # Check if this event type was recently notified
+        if hook_type in dedup_data:
+            last_time = dedup_data[hook_type]
+            if current_time - last_time < dedup_window:
+                return True  # Skip this notification
+
+        # Update the timestamp for this event type
+        dedup_data[hook_type] = current_time
+
+        # Clean old entries (older than 60 seconds)
+        dedup_data = {k: v for k, v in dedup_data.items() if current_time - v < 60}
+
+        # Write updated data
+        with open(dedup_file, "w") as f:
+            json.dump(dedup_data, f)
+
+        return False  # Don't skip
+
+    except Exception:
+        # If anything goes wrong with dedup, just allow the notification
+        return False
 
 
 def extract_project_name(project_dir=None, cwd=None):
@@ -293,6 +336,11 @@ def main():
         hook_type = input_data.get("hook_event_name", "unknown")
         if hook_type not in ["Stop", "SubagentStop", "Notification"]:
             # Exit silently for all other events
+            sys.exit(0)
+
+        # Check for duplicate notifications
+        if should_skip_notification(hook_type):
+            # Skip this notification to avoid duplicates
             sys.exit(0)
 
         # Format notification
