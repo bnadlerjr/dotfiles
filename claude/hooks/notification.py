@@ -4,9 +4,11 @@
 # dependencies = []
 # ///
 
+import glob
 import json
 import os
 import platform
+import random
 import subprocess
 import sys
 
@@ -23,16 +25,36 @@ def extract_project_name(project_dir=None, cwd=None):
     return os.path.basename(os.path.normpath(path))
 
 
+def get_custom_sound(sound_type):
+    """Get a random sound file from the specified sounds subdirectory."""
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    sounds_dir = os.path.join(script_dir, "sounds", sound_type)
+
+    # Find all audio files in the directory
+    patterns = ["*.mp3", "*.wav", "*.ogg", "*.oga", "*.m4a", "*.flac"]
+    sound_files = []
+
+    if os.path.exists(sounds_dir):
+        for pattern in patterns:
+            sound_files.extend(glob.glob(os.path.join(sounds_dir, pattern)))
+
+    if sound_files:
+        return random.choice(sound_files)
+    return None
+
+
 def get_sound_for_event(hook_type, tool_name):
     """Select appropriate sound based on event type."""
-    if hook_type == "Stop" or (hook_type == "PostToolUse" and tool_name):
-        return "Glass"  # Pleasant chime for completions
+    if hook_type == "Stop":
+        return "CUSTOM_STOP"  # Use custom stop sounds
+    elif hook_type == "PostToolUse" and tool_name:
+        return "Glass"  # Pleasant chime for tool completions
     elif hook_type == "PreToolUse" or hook_type == "UserPromptSubmit":
         return "Ping"  # Quick alert for starting operations
     elif hook_type == "SubagentStop":
         return "Hero"  # More prominent sound for subagent completion
     elif hook_type == "Notification":
-        return "Submarine"  # Deep, prominent ping for approval requests
+        return "CUSTOM_NOTIFICATION"  # Use custom notification sounds
     else:
         return "Pop"  # Gentle sound for general notifications
 
@@ -101,16 +123,48 @@ def send_macos_notification(title, message, sound):
         title = title.replace('"', '\\"')
         message = message.replace('"', '\\"')
 
-        # Build osascript command with sound
-        script = f'display notification "{message}" with title "{title}" sound name "{sound}"'
+        # Handle custom sounds
+        if sound in ["CUSTOM_NOTIFICATION", "CUSTOM_STOP"]:
+            # Get custom sound file
+            sound_type = "notification" if sound == "CUSTOM_NOTIFICATION" else "stop"
+            sound_file = get_custom_sound(sound_type)
 
-        # Execute osascript
-        subprocess.run(
-            ["osascript", "-e", script],
-            capture_output=True,
-            text=True,
-            check=False,  # Don't raise on non-zero exit
-        )
+            if sound_file:
+                # Send notification without sound
+                script = f'display notification "{message}" with title "{title}"'
+                subprocess.run(
+                    ["osascript", "-e", script],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                # Play custom sound separately using afplay
+                subprocess.run(
+                    ["afplay", sound_file],
+                    capture_output=True,
+                    check=False,
+                )
+            else:
+                # Fallback to default sound
+                fallback_sound = (
+                    "Submarine" if sound == "CUSTOM_NOTIFICATION" else "Glass"
+                )
+                script = f'display notification "{message}" with title "{title}" sound name "{fallback_sound}"'
+                subprocess.run(
+                    ["osascript", "-e", script],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+        else:
+            # Use system sound
+            script = f'display notification "{message}" with title "{title}" sound name "{sound}"'
+            subprocess.run(
+                ["osascript", "-e", script],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
     except Exception as e:
         print(f"Failed to send notification: {e}", file=sys.stderr)
 
@@ -118,8 +172,23 @@ def send_macos_notification(title, message, sound):
 def play_linux_sound(sound_name):
     """Play a sound on Linux using available sound players."""
     try:
-        # Get the sound file path
-        sound_file = get_linux_sound_file(sound_name)
+        # Handle custom sounds
+        if sound_name == "CUSTOM_NOTIFICATION":
+            sound_file = get_custom_sound("notification")
+            if not sound_file:
+                # Fallback to default notification sound
+                sound_name = "Submarine"
+                sound_file = get_linux_sound_file(sound_name)
+        elif sound_name == "CUSTOM_STOP":
+            sound_file = get_custom_sound("stop")
+            if not sound_file:
+                # Fallback to default stop sound
+                sound_name = "Glass"
+                sound_file = get_linux_sound_file(sound_name)
+        else:
+            # Get the system sound file path
+            sound_file = get_linux_sound_file(sound_name)
+
         if not sound_file:
             return
 
@@ -128,8 +197,11 @@ def play_linux_sound(sound_name):
             ["pw-play", sound_file], capture_output=True, check=False
         )
 
-        if result.returncode != 0:
-            # Try canberra-gtk-play with sound theme
+        if result.returncode != 0 and sound_name not in [
+            "CUSTOM_NOTIFICATION",
+            "CUSTOM_STOP",
+        ]:
+            # Try canberra-gtk-play with sound theme (only for system sounds)
             sound_theme_names = {
                 "Glass": "complete",
                 "Ping": "message",
