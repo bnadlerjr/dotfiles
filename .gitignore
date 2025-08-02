@@ -2,6 +2,7 @@
 *.swp
 *~
 .DS_Store
+claude/hooks/__pycache__
 docs/*.pdf
 emacs.d/.smex-items
 emacs.d/ac-comphist.dat

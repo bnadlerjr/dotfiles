@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "model": "opus",
   "hooks": {
     "PreToolUse": [
@@ -28,6 +29,10 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/notification.py"
           }
         ]
       }
@@ -38,6 +43,10 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/notification.py"
           }
         ]
       }
@@ -48,6 +57,14 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/notification.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/pushover_notification.py"
           }
         ]
       }
@@ -58,6 +75,10 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/pushover_notification.py"
           }
         ]
       }
@@ -68,6 +89,10 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/notification.py"
           }
         ]
       }
@@ -84,7 +109,6 @@
     ]
   },
   "feedbackSurveyState": {
-    "lastShownTime": 1754079952058
-  },
-  "$schema": "https://json.schemastore.org/claude-code-settings.json"
+    "lastShownTime": 1754088826871
+  }
 }
