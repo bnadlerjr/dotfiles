@@ -115,11 +115,102 @@ def send_macos_notification(title, message, sound):
         print(f"Failed to send notification: {e}", file=sys.stderr)
 
 
+def play_linux_sound(sound_name):
+    """Play a sound on Linux using available sound players."""
+    try:
+        # Get the sound file path
+        sound_file = get_linux_sound_file(sound_name)
+        if not sound_file:
+            return
+
+        # Try pw-play first (PipeWire)
+        result = subprocess.run(
+            ["pw-play", sound_file], capture_output=True, check=False
+        )
+
+        if result.returncode != 0:
+            # Try canberra-gtk-play with sound theme
+            sound_theme_names = {
+                "Glass": "complete",
+                "Ping": "message",
+                "Hero": "bell",
+                "Submarine": "suspend-error",
+                "Pop": "dialog-information",
+            }
+            theme_name = sound_theme_names.get(sound_name)
+            if theme_name:
+                result = subprocess.run(
+                    ["canberra-gtk-play", "-i", theme_name],
+                    capture_output=True,
+                    check=False,
+                )
+
+            if result.returncode != 0:
+                # Final fallback to paplay (PulseAudio compatibility layer)
+                subprocess.run(["paplay", sound_file], capture_output=True, check=False)
+    except Exception:
+        # Silently ignore sound playback errors
+        pass
+
+
+def get_linux_sound_file(sound_name):
+    """Map macOS sound names to Linux freedesktop sound files."""
+    # Map to freedesktop sound theme sounds
+    sound_map = {
+        "Glass": "/usr/share/sounds/freedesktop/stereo/complete.oga",
+        "Ping": "/usr/share/sounds/freedesktop/stereo/message.oga",
+        "Hero": "/usr/share/sounds/freedesktop/stereo/bell.oga",
+        "Submarine": "/usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga",
+        "Pop": "/usr/share/sounds/freedesktop/stereo/dialog-information.oga",
+    }
+
+    # Check if the mapped file exists
+    sound_file = sound_map.get(sound_name)
+    if sound_file and os.path.exists(sound_file):
+        return sound_file
+
+    # Fallback to any available sound
+    for fallback in sound_map.values():
+        if os.path.exists(fallback):
+            return fallback
+
+    return None
+
+
+def send_linux_notification(title, message, sound_name):
+    """Send a Linux desktop notification using notify-send with sound."""
+    try:
+        # Determine urgency based on title content
+        urgency = "critical" if "Approval" in title else "normal"
+
+        # Build notify-send command
+        cmd = [
+            "notify-send",
+            "-u",
+            urgency,
+            "-a",
+            "Claude Code",
+            "-c",
+            "im",
+            title,
+            message,
+        ]
+
+        # Send notification
+        subprocess.run(cmd, capture_output=True, text=True, check=False)
+
+        # Play sound if available
+        play_linux_sound(sound_name)
+
+    except Exception as e:
+        print(f"Failed to send notification: {e}", file=sys.stderr)
+
+
 def main():
     # Check operating system
     system = platform.system()
-    if system != "Darwin":
-        # Not macOS, exit silently
+    if system not in ["Darwin", "Linux"]:
+        # Unsupported platform, exit silently
         sys.exit(0)
 
     try:
@@ -139,8 +230,11 @@ def main():
         tool_name = input_data.get("tool_name", "")
         sound = get_sound_for_event(hook_type, tool_name)
 
-        # Send notification with sound
-        send_macos_notification(title, body, sound)
+        # Send notification with sound based on platform
+        if system == "Darwin":
+            send_macos_notification(title, body, sound)
+        elif system == "Linux":
+            send_linux_notification(title, body, sound)
 
         # Always exit successfully to avoid blocking
         sys.exit(0)
