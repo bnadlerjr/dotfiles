@@ -79,7 +79,6 @@ Plug 'saadparwaiz1/cmp_luasnip'                                   " luasnip comp
 Plug 'scrooloose/nerdcommenter'                                   " quickly (un)comment lines
 Plug 'sjl/vitality.vim'                                           " Make Vim play nicely with iTerm 2 and tmux
 Plug 'slim-template/vim-slim'                                     " Syntax highlighting for slim
-Plug 'synic/refactorex.nvim'                                      " Neovim plugin for RefactorEx
 Plug 'tpope/vim-abolish'                                          " easily search for, substitute, and abbreviate multiple variants of a word
 Plug 'tpope/vim-bundler'                                          " makes source navigation of bundled gems easier
 Plug 'tpope/vim-cucumber'                                         " provides syntax highlighting, indenting, and a filetype plugin
@@ -132,7 +131,6 @@ require('lualine').setup({})
 require('nvim-surround').setup()
 require('nvim-autopairs').setup({ check_ts = true })
 require("nvim_copy").setup()
-require("refactorex").setup({ auto_update = true, pin_version = nil })
 require("yanky").setup()
 
 vim.cmd "let g:NERDDefaultAlign = 'left'"
