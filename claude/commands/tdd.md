@@ -33,11 +33,13 @@ Do not add:
 
 Follow these steps to implement the TDD process:
 
-1. **DOMAIN EXPERT**: Choose appropriate domain expert agent (e.g., elixir-otp-expert, graphql-schema-architect, etc.).
+1. **DOMAIN EXPERT**: Choose appropriate domain expert agents (e.g. elixir-otp-expert, graphql-schema-architect, etc.).
 2. **DOMAIN EXPERT**: Analyzes the requirement and identify single testable unit.
-3. **DOMAIN EXPERT**: Writes a comprehensive test for the unit.
+3. **TEST EXPERT**: Writes a comprehensive test for the unit.
 4. Run the test and confirm it fails for the **EXPECTED** reason.
 5. **DOMAIN EXPERT**: Implements minimal code to pass the test.
 6. Run the test and confirm it passes.
 7. **DOMAIN EXPERT**: Refactors while keeping tests green.
 8. **CODE REVIEW**: Use pragmatic-code-reviewer agent to review implementation.
+8. **CODE REVIEW**: Use spurious-comment-remover agent to remove unnecessary comments.
+8. **CODE REVIEW**: Use test-value-auditor agent to remove low-value tests.
