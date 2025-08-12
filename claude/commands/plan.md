@@ -5,6 +5,7 @@ You are helping to create a detailed implementation plan for a software developm
 <quick_reference>
 ## Quick Reference
 - **Core Rule**: Every task must be completable in < 10 minutes
+- **PR Structure**: Group tasks into PRs of 100-500 lines each
 - **Approach**: TDD with RED-GREEN-REFACTOR cycle
 - **Structure**: Outside-in (UI/API layer → Business logic → Pure functions)
 - **Quality Checks**: After each task run:
@@ -84,6 +85,8 @@ Use your thinking capabilities to iterate on the plan until every task is optima
 Before proceeding to task creation, think deliberately about these critical points:
 - "Is this truly a requirement or am I describing implementation?" (think hard about this - any mention of specific Elixir syntax or code structure means you're describing HOW, not WHAT)
 - "Can each task realistically be completed in 10 minutes?" (really consider this - imagine a developer actually doing the work)
+- "How should tasks be grouped into PRs for optimal review?" (think about cohesion, size, and dependencies)
+- "Will each PR be between 100-500 lines?" (estimate based on typical line counts)
 - "Am I about to write any actual code in the plan?" (think carefully - if you're tempted to write code examples, STOP and convert to requirements)
 - "What would cause a task to exceed 10 minutes and how do I prevent it?" (consider complexity, dependencies, and scope)
 - "Are my test requirements describing behavior or implementation?" (behavior = WHAT to verify, implementation = HOW to test)
@@ -107,8 +110,9 @@ Create a comprehensive plan following **Test-Driven Outside-In Development**:
    - `test-value-auditor` - Remove low-value tests
    - `spurious-comment-remover` - Clean up unnecessary comments
 5. **Refactor** if needed, keeping tests green
-6. **Move inward** to the context layer, writing tests for business logic
-7. **Finally write pure function tests** for the innermost components
+6. **Group related tasks into PRs** for efficient review (100-500 lines per PR)
+7. **Move inward** to the context layer, writing tests for business logic
+8. **Finally write pure function tests** for the innermost components
 
 **Test Hierarchy (Outside → In):**
 
@@ -130,11 +134,11 @@ For **Hybrid Projects**:
 - Use appropriate test types based on the feature being implemented
 - API endpoints use GraphQL tests, UI features use LiveView tests
 
-**Task Sizing - The 10-Minute Rule:**
-- **Each task must be completable in under 10 minutes**
-- If a task seems larger, break it into smaller subtasks
-- One task = one test + minimal implementation to make it pass
-- Complex features should be split into multiple small, incremental tasks
+**Task & PR Sizing:**
+- **Each task**: Must be completable in under 10 minutes
+- **Each PR**: Should contain 100-500 lines total (including tests)
+- **Task grouping**: Related tasks that touch the same modules go in the same PR
+- **PR independence**: Each PR should be deployable on its own
 - Quality checks are run after implementation, not counted in the 10 minutes
 </development_flow>
 
@@ -185,14 +189,24 @@ Remember: Tests verify correctness, but the implementation should be production-
 - [ ] [Each should represent a major milestone]
 
 ## Task Breakdown Strategy
-For this feature, we'll break the work into approximately [X] tasks of < 10 minutes each:
-- **Phase 1**: Basic structure and routing ([X] tasks)
-- **Phase 2**: Core functionality with stubs ([X] tasks)
-- **Phase 3**: Integration with database ([X] tasks)
-- **Phase 4**: Error handling and edge cases ([X] tasks)
-- **Phase 5**: Refactoring and optimization ([X] tasks)
+For this feature, we'll break the work into approximately [X] PRs containing [Y] total tasks:
+
+### PR Structure Overview
+- **PR 1**: [Feature area] ([X] tasks, ~[Y] lines)
+- **PR 2**: [Feature area] ([X] tasks, ~[Y] lines)
+- **PR 3**: [Feature area] ([X] tasks, ~[Y] lines)
+- **PR 4**: [Feature area] ([X] tasks, ~[Y] lines)
+- **PR 5**: [Feature area] ([X] tasks, ~[Y] lines)
 
 Total estimated time: ~[X] minutes ([X] hours) for implementation
+Total estimated diff: ~[Y] lines across [Z] PRs
+
+**PR Size Guidelines**:
+- Each PR: 100-500 lines total (including tests)
+- Small PRs (~100-200 lines): Simple features, single responsibility
+- Medium PRs (~200-350 lines): Standard features with tests
+- Large PRs (~350-500 lines): Complex features, should consider splitting
+
 *Note: Time estimates exclude quality checks (pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover) which are run after each task*
 
 ## Technical Approach
@@ -590,26 +604,32 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 
 ### General Requirements
 1. **NEVER include actual code** - Use only plain text requirements and descriptions
-2. **Use relevant expert agents** when available:
+2. **Group tasks into PRs** - Each PR should be 100-500 lines total for optimal review
+3. **Use relevant expert agents** when available:
    - `elixir-otp-expert` for all Elixir/Phoenix projects
    - `phoenix-liveview-expert` for LiveView-specific features (if available)
    - `graphql-expert` for Absinthe/GraphQL features (if available)
-3. **Run quality check agents after each task**:
+4. **Run quality check agents after each task**:
    - `pragmatic-code-reviewer` - Reviews code for best practices and improvements
    - `test-value-auditor` - Identifies and removes tests that don't provide value
    - `spurious-comment-remover` - Removes unnecessary or obvious comments
-4. **Include checkboxes** (`[ ]`) for all objectives and tasks for progress tracking
-5. **Be specific** with file paths, function names, and code patterns discovered during research
-6. **Follow outside-in development**: Start with the user-facing layer and work inward
-7. **10-Minute Rule**: Each task must be completable in under 10 minutes
+5. **Include checkboxes (`[ ]`)** for:
+   - All objectives in the plan
+   - **Each task title** (e.g., `### [ ] Task 1.1: Task name`)
+   - All sub-steps within tasks
+   - This enables progress tracking at every level
+6. **Be specific** with file paths, function names, and code patterns discovered during research
+7. **Follow outside-in development**: Start with the user-facing layer and work inward
+8. **10-Minute Rule**: Each task must be completable in under 10 minutes
    - Break larger work into multiple small tasks
    - Estimate time for both test writing (~3 min) and implementation (~5-7 min)
    - If refactoring would exceed 10 minutes, make it a separate task
    - Quality checks are additional time, not counted in the 10 minutes
-8. **Adapt to project type**: Use appropriate patterns for LiveView vs GraphQL
-9. **Focus on planning**: Complete the planning phase thoroughly before any implementation
-10. **Concise but complete**: Include all necessary details while maintaining clarity
-11. **Requirements only**: If you catch yourself writing code, immediately replace it with plain text requirements
+9. **Estimate line counts**: Provide diff size estimates for each task to plan PR sizes
+10. **Adapt to project type**: Use appropriate patterns for LiveView vs GraphQL
+11. **Focus on planning**: Complete the planning phase thoroughly before any implementation
+12. **Concise but complete**: Include all necessary details while maintaining clarity
+13. **Requirements only**: If you catch yourself writing code, immediately replace it with plain text requirements
 </task_requirements>
 
 ## Example Task Structure
@@ -678,54 +698,78 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 
 ### Example Task Breakdown for Complex Features:
 
-**LiveView User Registration (8 tasks, ~70 minutes total):**
-- Task 1: Create route and basic LiveView mount (~8 min)
-- Task 2: Add form rendering with email field (~7 min)
-- Task 3: Handle form submit event (~9 min)
-- Task 4: Add password field and validation display (~8 min)
-- Task 5: Create context function stub (~7 min)
-- Task 6: Add database persistence (~10 min)
-- Task 7: Add success/error feedback (~9 min)
-- Task 8: Add redirect after registration (~7 min)
+**LiveView User Registration (3 PRs, 8 tasks, ~450 lines total):**
 
-**GraphQL User Management (7 tasks, ~65 minutes total):**
-- Task 1: Create user query with stub (~9 min)
-- Task 2: Add user type definition (~6 min)
-- Task 3: Create user mutation schema (~8 min)
-- Task 4: Add resolver with validation (~10 min)
-- Task 5: Connect to context layer (~8 min)
-- Task 6: Add error handling (~9 min)
-- Task 7: Add subscription for user updates (~10 min)
+**PR 1: Basic UI Structure** (~3 tasks, ~150 lines)
+- [ ] Task 1.1: Create route and basic LiveView mount (~8 min, ~50 lines)
+- [ ] Task 1.2: Add form rendering with email field (~7 min, ~40 lines)  
+- [ ] Task 1.3: Handle form submit event (~9 min, ~60 lines)
+
+**PR 2: Validations & Feedback** (~2 tasks, ~120 lines)
+- [ ] Task 2.1: Add password field and validation display (~8 min, ~60 lines)
+- [ ] Task 2.2: Add success/error feedback (~9 min, ~60 lines)
+
+**PR 3: Business Logic & Persistence** (~3 tasks, ~180 lines)
+- [ ] Task 3.1: Create context function stub (~7 min, ~40 lines)
+- [ ] Task 3.2: Add database persistence (~10 min, ~80 lines)
+- [ ] Task 3.3: Add redirect after registration (~7 min, ~60 lines)
+
+**GraphQL User Management (3 PRs, 7 tasks, ~420 lines total):**
+
+**PR 1: Query Foundation** (~3 tasks, ~150 lines)
+- [ ] Task 1.1: Create user query with stub (~9 min, ~60 lines)
+- [ ] Task 1.2: Add user type definition (~6 min, ~30 lines)
+- [ ] Task 1.3: Add field resolution (~8 min, ~60 lines)
+
+**PR 2: Mutations** (~2 tasks, ~140 lines)
+- [ ] Task 2.1: Create user mutation schema (~8 min, ~60 lines)
+- [ ] Task 2.2: Add resolver with validation (~10 min, ~80 lines)
+
+**PR 3: Advanced Features** (~2 tasks, ~130 lines)
+- [ ] Task 3.1: Connect to context layer (~8 min, ~50 lines)
+- [ ] Task 3.2: Add subscription for user updates (~10 min, ~80 lines)
 
 ### Task Breakdown Best Practices:
 
 <good_practices>
 **Correct Approach for LiveView Features:**
-Break complex LiveView features into focused, incremental tasks:
-- Task 1: Mount and basic render (~8 min) + quality checks
-- Task 2: Add form with single field (~7 min) + quality checks
-- Task 3: Handle submit event with stub (~8 min) + quality checks
-- Task 4: Add validation display (~6 min) + quality checks
-- Task 5: Connect to context layer (~9 min) + quality checks
-- Task 6: Add success feedback (~7 min) + quality checks
-- Task 7: Add error handling (~8 min) + quality checks
-- Task 8: Add live navigation (~7 min) + quality checks
+Break complex LiveView features into focused PRs with incremental tasks:
 
-Each task is independent, testable, and under 10 minutes.
+**PR 1: Basic Structure** (~3 tasks, ~150 lines)
+- [ ] Task 1.1: Mount and basic render (~8 min, ~50 lines) + quality checks
+- [ ] Task 1.2: Add form with single field (~7 min, ~40 lines) + quality checks
+- [ ] Task 1.3: Handle submit event with stub (~8 min, ~60 lines) + quality checks
+
+**PR 2: Validation & Feedback** (~2 tasks, ~100 lines)
+- [ ] Task 2.1: Add validation display (~6 min, ~50 lines) + quality checks
+- [ ] Task 2.2: Add success feedback (~7 min, ~50 lines) + quality checks
+
+**PR 3: Business Logic** (~3 tasks, ~180 lines)
+- [ ] Task 3.1: Connect to context layer (~9 min, ~60 lines) + quality checks
+- [ ] Task 3.2: Add error handling (~8 min, ~60 lines) + quality checks
+- [ ] Task 3.3: Add live navigation (~7 min, ~60 lines) + quality checks
+
+Each PR is independently reviewable and deployable.
 After each task: run pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover.
 
 **Correct Approach for GraphQL Features:**
-Break complex GraphQL features into incremental tasks:
-- Task 1: Basic query with stub resolver (~9 min) + quality checks
-- Task 2: Add type definition (~6 min) + quality checks
-- Task 3: Add field resolution (~8 min) + quality checks
-- Task 4: Add input validation (~7 min) + quality checks
-- Task 5: Connect to context (~8 min) + quality checks
-- Task 6: Add error types (~7 min) + quality checks
-- Task 7: Add subscription (~9 min) + quality checks
-- Task 8: Add dataloader optimization (~8 min) + quality checks
+Break complex GraphQL features into focused PRs with incremental tasks:
 
-Each task builds on the previous one while remaining under 10 minutes.
+**PR 1: Query Foundation** (~3 tasks, ~150 lines)
+- [ ] Task 1.1: Basic query with stub resolver (~9 min, ~60 lines) + quality checks
+- [ ] Task 1.2: Add type definition (~6 min, ~30 lines) + quality checks
+- [ ] Task 1.3: Add field resolution (~8 min, ~60 lines) + quality checks
+
+**PR 2: Mutations & Validation** (~2 tasks, ~140 lines)
+- [ ] Task 2.1: Add input validation (~7 min, ~60 lines) + quality checks
+- [ ] Task 2.2: Connect to context (~8 min, ~80 lines) + quality checks
+
+**PR 3: Advanced Features** (~3 tasks, ~170 lines)
+- [ ] Task 3.1: Add error types (~7 min, ~50 lines) + quality checks
+- [ ] Task 3.2: Add subscription (~9 min, ~70 lines) + quality checks
+- [ ] Task 3.3: Add dataloader optimization (~8 min, ~50 lines) + quality checks
+
+Each PR builds on the previous one while being independently reviewable.
 Quality checks ensure clean, maintainable code at each step.
 </good_practices>
 
@@ -740,6 +784,14 @@ Quality checks ensure clean, maintainable code at each step.
   - Even examples should be requirement lists, not code blocks
   - Every code block in the plan is a mistake - replace with requirements immediately
 
+- **PR Grouping Strategy**:
+  - Group related tasks that touch the same modules into one PR
+  - Keep infrastructure changes separate from business logic
+  - Each PR should tell a coherent story for reviewers
+  - Aim for 100-500 lines per PR for optimal review efficiency
+  - Document dependencies between PRs clearly
+  - Consider deployment order when structuring PRs
+
 - **Project Type Detection**:
   - Check for `phoenix_live_view` in mix.exs → LiveView project
   - Check for `absinthe` in mix.exs → GraphQL project
@@ -753,6 +805,7 @@ Quality checks ensure clean, maintainable code at each step.
   - Refactoring exceeding 2 minutes becomes its own task
   - Use stubbed implementations liberally to keep tasks small
   - Large refactoring should be split: one task per module/function being refactored
+  - Always provide line count estimates for PR planning
 
 - **Incremental Development**:
   - Start with the simplest possible test that fails
