@@ -13,7 +13,31 @@ You are helping to create a detailed implementation plan for a software developm
   - `spurious-comment-remover` - Clean up comments
 - **Output**: Detailed plan saved to `.claude/specs/{{date}}-{{slug}}.md`
 - **Quality**: Create production-ready solutions that impress senior engineers
+- **CRITICAL**: Plans contain requirements only, NEVER actual code
 </quick_reference>
+
+<critical_instruction>
+## CRITICAL: No Implementation Code in Plans
+
+**NEVER include actual code in the plan.** This plan is for WHAT needs to be done, not HOW to code it.
+
+❌ **WRONG** (Never do this):
+```elixir
+def mount(_params, _session, socket) do
+  {:ok, assign(socket, form: to_form(%{}))}
+end
+```
+
+✅ **CORRECT** (Always do this):
+**Implementation Requirements**:
+- Create mount function that initializes the socket
+- Set up form assigns for user input
+- Return successful mount tuple
+
+The implementing agents have full context of the codebase and will write the actual code. Your job is to specify requirements and behavior ONLY.
+
+If you find yourself writing `def`, `defmodule`, `test`, `@`, `~H`, or ANY Elixir syntax, STOP immediately and rewrite as plain text requirements.
+</critical_instruction>
 
 <core_principle>
 ## Core Principle: The 10-Minute Rule
@@ -55,6 +79,17 @@ After researching the codebase, carefully think hard on:
 
 Use your thinking capabilities to iterate on the plan until every task is optimally sized.
 </thinking_process>
+
+<critical_thinking>
+Before proceeding to task creation, think deliberately about these critical points:
+- "Is this truly a requirement or am I describing implementation?" (think hard about this - any mention of specific Elixir syntax or code structure means you're describing HOW, not WHAT)
+- "Can each task realistically be completed in 10 minutes?" (really consider this - imagine a developer actually doing the work)
+- "Am I about to write any actual code in the plan?" (think carefully - if you're tempted to write code examples, STOP and convert to requirements)
+- "What would cause a task to exceed 10 minutes and how do I prevent it?" (consider complexity, dependencies, and scope)
+- "Are my test requirements describing behavior or implementation?" (behavior = WHAT to verify, implementation = HOW to test)
+
+Take a moment to truly think through these points before creating any tasks. This thinking is crucial for creating a plan that works.
+</critical_thinking>
 
 ### Phase 3: Plan Development
 <development_flow>
@@ -367,13 +402,35 @@ my_app/
 > Listed in execution order, following TDD outside-in development
 > ⏱️ Each task should take < 10 minutes to complete (test + implementation)
 
+### ⚠️ IMPORTANT: Use Requirements, Not Code
+
+When describing tasks, NEVER write actual code. Always use plain text requirements.
+
+❌ **WRONG - Never Include Code Like This**:
+```elixir
+defmodule MyApp.SomeModule do
+  def some_function(params) do
+    # actual implementation
+  end
+end
+```
+
+✅ **CORRECT - Always Use Requirements Like This**:
+**Implementation Requirements**:
+- Create module for handling X functionality  
+- Define function that accepts Y parameters
+- Implement logic to transform data from A to B
+- Return success tuple with processed result
+
 ### For LiveView Features:
 
 #### Task 1: [LiveView Mount Test] (~8 minutes)
+**Reminder: Describe requirements only. No actual code.**
+
 - **Test First** ✅
   - **Test File**: `test/my_app_web/live/feature_live_test.exs`
   - **Test Type**: LiveView Test
-  - **Test Requirements**:
+  - **Test Requirements** (plain text only, no code):
     - Verify LiveView mounts successfully
     - Navigate to the LiveView route
     - Assert the page renders with expected content
@@ -384,21 +441,23 @@ my_app/
 - **Implementation**:
   - **File**: `lib/my_app_web/live/feature_live.ex`
   - **Action**: CREATE
-  - **Implementation Requirements**:
+  - **Implementation Requirements** (plain text only, no code):
     - Create minimal LiveView module
-    - Define mount/3 that returns {:ok, socket}
+    - Define mount function that returns success tuple with socket
     - Set initial assigns needed for render
     - Add basic render function or template
-    - Register route in router.ex
+    - Register route in router file
   - **Time to implement**: ~5 minutes
 
 ### For GraphQL/Absinthe Features:
 
 #### Task 1: [GraphQL Query Test] (~9 minutes)
+**Reminder: Describe requirements only. No actual code.**
+
 - **Test First** ✅
   - **Test File**: `test/my_app_web/schema/feature_test.exs`
   - **Test Type**: Schema Integration Test
-  - **Test Requirements**:
+  - **Test Requirements** (plain text only, no code):
     - Test GraphQL query execution
     - Define query string with expected fields
     - Set up test data using factories
@@ -410,7 +469,7 @@ my_app/
 - **Implementation**:
   - **File**: `lib/my_app_web/resolvers/feature_resolver.ex`
   - **Action**: CREATE
-  - **Implementation Requirements**:
+  - **Implementation Requirements** (plain text only, no code):
     - Create resolver with stub implementation
     - Define resolver function with proper arity
     - Return hardcoded successful response
@@ -419,10 +478,12 @@ my_app/
   - **Time to implement**: ~5 minutes
 
 ### Task 2: [Context/Business Logic Layer] (~X minutes)
+**Reminder: Describe requirements only. No actual code.**
+
 - **Test First** ✅
   - **Test File**: `test/my_app/context_name_test.exs`
   - **Test Type**: Integration/Context
-  - **Test Requirements**:
+  - **Test Requirements** (plain text only, no code):
     - Test context function behavior
     - Set up test database state if needed
     - Call context function with test parameters
@@ -435,7 +496,7 @@ my_app/
 - **Implementation**:
   - **File**: `lib/my_app/context_name.ex`
   - **Action**: CREATE/UPDATE
-  - **Implementation Requirements**:
+  - **Implementation Requirements** (plain text only, no code):
     - Implement context function
     - Define function with proper arity
     - Add pattern matching for parameters
@@ -445,11 +506,12 @@ my_app/
   - **Time to implement**: ~5 minutes
 
 ### Task 3: [Choose based on project type] (~X minutes)
+**Reminder: Describe requirements only. No actual code.**
 
 **For LiveView - Component Test:**
 - **Test First** ✅
   - **Test File**: `test/my_app_web/components/component_test.exs`
-  - **Test Requirements**:
+  - **Test Requirements** (plain text only, no code):
     - Test component rendering
     - Call render_component with test props
     - Assert HTML output contains expected elements
@@ -460,11 +522,11 @@ my_app/
 **For GraphQL - Resolver Test:**
 - **Test First** ✅
   - **Test File**: `test/my_app_web/resolvers/resolver_test.exs`
-  - **Test Requirements**:
+  - **Test Requirements** (plain text only, no code):
     - Test resolver function directly
     - Set up test data/mocks
-    - Call resolver with parent, args, resolution
-    - Assert {:ok, data} or {:error, message}
+    - Call resolver with parent, args, resolution parameters
+    - Assert success or error response
     - Verify data transformation logic
     - Test error scenarios
   - **Time**: ~3 min test, ~5 min implementation
@@ -478,7 +540,6 @@ my_app/
 - [Test flakiness risks and how to avoid]
 
 ## Success Criteria
-- [ ] All tasks are estimated at < 10 minutes each
 - [ ] **For LiveView**: All LiveView tests passing (mount, render, events work correctly)
 - [ ] **For GraphQL**: All schema tests passing (queries, mutations, subscriptions work)
 - [ ] All context tests passing (business logic works correctly)
@@ -505,7 +566,7 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 
 ### TDD Requirements
 1. **Every task must start with a test** - Always write a failing test before any production code
-2. **Tests must be executable** - Include actual test code that can be run immediately
+2. **Tests must be described as requirements** - Never include actual test code, only describe what to test
 3. **Follow Red-Green-Refactor-Review**:
    - Red: Write a failing test (~3 minutes)
    - Green: Write minimal code to pass (~5-7 minutes)
@@ -517,7 +578,7 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
    - Include time estimates for each phase
    - Quality checks are additional time, not counted in the 10 minutes
 5. **Test independence** - Each test must be able to run in isolation
-6. **Use appropriate test strategies**:
+6. **Use appropriate test strategies** (describe in requirements, don't code):
    - **Common**: ExMachina for factories, test stubs/doubles implemented as modules
    - **LiveView**: Use LiveView test helpers, test the actual view behavior
    - **GraphQL**: Test at the schema level, use context stubs when needed
@@ -525,32 +586,37 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
    - **External APIs**: Tesla.Mock for HTTP service stubbing or custom test modules
 7. **Document test setup** - Include all necessary test fixtures and factories
 8. **Quality assurance** - Every implementation must pass through the three quality check agents
+9. **NO CODE IN PLANS** - If you write any Elixir syntax, immediately delete and replace with requirements
 
 ### General Requirements
-1. **Use relevant expert agents** when available:
+1. **NEVER include actual code** - Use only plain text requirements and descriptions
+2. **Use relevant expert agents** when available:
    - `elixir-otp-expert` for all Elixir/Phoenix projects
    - `phoenix-liveview-expert` for LiveView-specific features (if available)
    - `graphql-expert` for Absinthe/GraphQL features (if available)
-2. **Run quality check agents after each task**:
+3. **Run quality check agents after each task**:
    - `pragmatic-code-reviewer` - Reviews code for best practices and improvements
    - `test-value-auditor` - Identifies and removes tests that don't provide value
    - `spurious-comment-remover` - Removes unnecessary or obvious comments
-3. **Include checkboxes** (`[ ]`) for all objectives and tasks for progress tracking
-4. **Be specific** with file paths, function names, and code patterns discovered during research
-5. **Follow outside-in development**: Start with the user-facing layer and work inward
-6. **10-Minute Rule**: Each task must be completable in under 10 minutes
+4. **Include checkboxes** (`[ ]`) for all objectives and tasks for progress tracking
+5. **Be specific** with file paths, function names, and code patterns discovered during research
+6. **Follow outside-in development**: Start with the user-facing layer and work inward
+7. **10-Minute Rule**: Each task must be completable in under 10 minutes
    - Break larger work into multiple small tasks
    - Estimate time for both test writing (~3 min) and implementation (~5-7 min)
    - If refactoring would exceed 10 minutes, make it a separate task
    - Quality checks are additional time, not counted in the 10 minutes
-7. **Adapt to project type**: Use appropriate patterns for LiveView vs GraphQL
-8. **Focus on planning**: Complete the planning phase thoroughly before any implementation
-9. **Concise but complete**: Include all necessary details while maintaining clarity
+8. **Adapt to project type**: Use appropriate patterns for LiveView vs GraphQL
+9. **Focus on planning**: Complete the planning phase thoroughly before any implementation
+10. **Concise but complete**: Include all necessary details while maintaining clarity
+11. **Requirements only**: If you catch yourself writing code, immediately replace it with plain text requirements
 </task_requirements>
 
 ## Example Task Structure
 
 ### Good Examples - Complete TDD Tasks (Under 10 Minutes):
+
+**IMPORTANT: These examples show requirements only. Never include actual Elixir code.**
 
 #### LiveView Example:
 ```markdown
@@ -569,12 +635,14 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 #### 2. GREEN - Minimal Implementation (~4 minutes)
 **Implementation Requirements** (lib/my_app_web/live/user_registration_live.ex):
 - Create minimal LiveView to pass test
-- Define LiveView module with use MyAppWeb, :live_view
-- Implement mount/3 returning {:ok, socket} with basic assigns
-- Create render function with h1 "Create Account", basic form with email input, submit button
-- Add route in router.ex: live "/register", UserRegistrationLive
+- Define LiveView module with proper structure
+- Implement mount function returning success tuple with basic assigns
+- Create render function with heading "Create Account", basic form with email input, submit button
+- Add route in router file for "/register" path pointing to UserRegistrationLive
 
 **Run test**: ✅ Passes
+
+**Note: NO ACTUAL CODE - implementing agents write the code based on these requirements**
 ```
 
 #### GraphQL Example:
@@ -593,17 +661,19 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 
 #### 2. GREEN - Add Query (~5 minutes)
 **Implementation Requirements**:
-- In lib/my_app_web/schema.ex:
-  - Add field :user, :user to query block
-  - Add arg :id, non_null(:id)
-  - Set resolve to &Resolvers.UserResolver.find/3
-- In lib/my_app_web/resolvers/user_resolver.ex:
+- In schema file:
+  - Add user field to query block
+  - Add id argument with non-null ID type
+  - Set resolver to UserResolver.find function
+- In resolver file:
   - Create resolver module
-  - Define find/3 function
-  - Return {:ok, %{id: id, email: "stub@example.com"}}
+  - Define find function with 3 parameters
+  - Return success tuple with stubbed user data
   - Just enough to make test pass
 
 **Run test**: ✅ Passes
+
+**Note: NO ACTUAL CODE - implementing agents write the code based on these requirements**
 ```
 
 ### Example Task Breakdown for Complex Features:
@@ -662,6 +732,14 @@ Quality checks ensure clean, maintainable code at each step.
 ## Important Notes
 
 <planning_guidelines>
+- **No Code Principle**:
+  - Plans contain ZERO implementation code
+  - Use plain text descriptions of requirements
+  - If you're writing `def`, `defmodule`, `test`, `@`, `~H`, or any Elixir syntax, STOP
+  - The plan describes WHAT to build, agents decide HOW to build it
+  - Even examples should be requirement lists, not code blocks
+  - Every code block in the plan is a mistake - replace with requirements immediately
+
 - **Project Type Detection**:
   - Check for `phoenix_live_view` in mix.exs → LiveView project
   - Check for `absinthe` in mix.exs → GraphQL project
@@ -698,10 +776,10 @@ Quality checks ensure clean, maintainable code at each step.
     - Test both connected and disconnected mount states when relevant
   - **For GraphQL**: 
     - Test queries, mutations, subscriptions separately
-    - Use Absinthe.run/3 for unit testing resolvers
+    - Test resolvers with appropriate tooling
     - Test error handling and validation at the schema level
     - For subscriptions, test both the subscription setup and the publish events
-  - **For OTP behaviors**: Test both the public API and handle_* callbacks
+  - **For OTP behaviors**: Test both the public API and handle callbacks
 
 - **Performance & Quality**:
   - Use `async: true` for tests that have independent state
