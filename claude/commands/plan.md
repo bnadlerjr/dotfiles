@@ -7,6 +7,10 @@ You are helping to create a detailed implementation plan for a software developm
 - **Core Rule**: Every task must be completable in < 10 minutes
 - **Approach**: TDD with RED-GREEN-REFACTOR cycle
 - **Structure**: Outside-in (UI/API layer → Business logic → Pure functions)
+- **Quality Checks**: After each task run:
+  - `pragmatic-code-reviewer` - Review implementation
+  - `test-value-auditor` - Remove low-value tests
+  - `spurious-comment-remover` - Clean up comments
 - **Output**: Detailed plan saved to `.claude/specs/{{date}}-{{slug}}.md`
 - **Quality**: Create production-ready solutions that impress senior engineers
 </quick_reference>
@@ -63,9 +67,13 @@ Create a comprehensive plan following **Test-Driven Outside-In Development**:
    - For REST: Controller tests
 2. **Write the test first** (Red phase) - test should fail initially
 3. **Implement minimal code** to pass the test (Green phase)
-4. **Refactor** if needed, keeping tests green
-5. **Move inward** to the context layer, writing tests for business logic
-6. **Finally write pure function tests** for the innermost components
+4. **Run quality checks**:
+   - `pragmatic-code-reviewer` - Review the implementation
+   - `test-value-auditor` - Remove low-value tests
+   - `spurious-comment-remover` - Clean up unnecessary comments
+5. **Refactor** if needed, keeping tests green
+6. **Move inward** to the context layer, writing tests for business logic
+7. **Finally write pure function tests** for the innermost components
 
 **Test Hierarchy (Outside → In):**
 
@@ -92,6 +100,7 @@ For **Hybrid Projects**:
 - If a task seems larger, break it into smaller subtasks
 - One task = one test + minimal implementation to make it pass
 - Complex features should be split into multiple small, incremental tasks
+- Quality checks are run after implementation, not counted in the 10 minutes
 </development_flow>
 
 ### Phase 4: Plan Output
@@ -118,6 +127,12 @@ Each task should produce high-quality, general-purpose solutions that:
 - Consider performance implications
 - Provide clear, self-documenting code
 
+**Quality Assurance Process**:
+After each implementation, three specialized agents ensure code quality:
+- **pragmatic-code-reviewer**: Validates best practices, suggests improvements, ensures production readiness
+- **test-value-auditor**: Removes redundant or low-value tests, keeping test suite lean and meaningful
+- **spurious-comment-remover**: Eliminates obvious comments, keeping only valuable documentation
+
 Remember: Tests verify correctness, but the implementation should be production-ready and robust beyond just passing tests. Focus on creating solutions that would work in real-world scenarios with unexpected inputs and edge cases.
 </quality_standards>
 
@@ -142,7 +157,8 @@ For this feature, we'll break the work into approximately [X] tasks of < 10 minu
 - **Phase 4**: Error handling and edge cases ([X] tasks)
 - **Phase 5**: Refactoring and optimization ([X] tasks)
 
-Total estimated time: ~[X] minutes ([X] hours)
+Total estimated time: ~[X] minutes ([X] hours) for implementation
+*Note: Time estimates exclude quality checks (pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover) which are run after each task*
 
 ## Technical Approach
 
@@ -207,20 +223,29 @@ For **GraphQL/Absinthe Projects**:
 **For LiveView Projects:**
 1. **Write failing LiveView test** for a small slice of functionality (~3 min)
 2. **Implement minimal LiveView mount/render** to make test pass (~5 min)
-3. **Add event handler test** for user interactions (~3 min)
-4. **Implement handle_event callback** (~5 min)
-5. **Write context tests** for business logic
-6. **All tests green** = feature complete through many small increments
+3. **Run quality checks**: pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover
+4. **Add event handler test** for user interactions (~3 min)
+5. **Implement handle_event callback** (~5 min)
+6. **Run quality checks** again
+7. **Write context tests** for business logic
+8. **All tests green** = feature complete through many small increments
 
 **For GraphQL Projects:**
 1. **Write failing schema test** for query/mutation (~3 min)
 2. **Add schema definition** with stub resolver (~5 min)
-3. **Write resolver test** for business logic (~3 min)
-4. **Implement resolver** with real logic (~5 min)
-5. **Write context tests** for data layer
-6. **All tests green** = API feature complete
+3. **Run quality checks**: pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover
+4. **Write resolver test** for business logic (~3 min)
+5. **Implement resolver** with real logic (~5 min)
+6. **Run quality checks** again
+7. **Write context tests** for data layer
+8. **All tests green** = API feature complete
 
-**Remember**: Each RED-GREEN cycle should take < 10 minutes total
+**Quality Check Workflow After Each Task**:
+- `pragmatic-code-reviewer`: Reviews implementation for best practices
+- `test-value-auditor`: Identifies and removes tests that don't provide value
+- `spurious-comment-remover`: Cleans up unnecessary or obvious comments
+
+**Remember**: Each RED-GREEN cycle should take < 10 minutes total, not including quality checks
 
 ### Test File Naming Convention
 
@@ -348,37 +373,23 @@ my_app/
 - **Test First** ✅
   - **Test File**: `test/my_app_web/live/feature_live_test.exs`
   - **Test Type**: LiveView Test
-  - **Test Code**:
-    ```elixir
-    defmodule MyAppWeb.FeatureLiveTest do
-      use MyAppWeb.ConnCase, async: true
-      import Phoenix.LiveViewTest
-      
-      describe "mount/3" do
-        test "renders initial state", %{conn: conn} do
-          {:ok, view, html} = live(conn, "/feature")
-          
-          assert html =~ "Expected Content"
-          assert has_element?(view, "#some-id")
-        end
-      end
-    end
-    ```
+  - **Test Requirements**:
+    - Verify LiveView mounts successfully
+    - Navigate to the LiveView route
+    - Assert the page renders with expected content
+    - Verify initial assigns are set correctly
+    - Check for presence of key UI elements
   - **Time to write test**: ~3 minutes
 
 - **Implementation**:
   - **File**: `lib/my_app_web/live/feature_live.ex`
   - **Action**: CREATE
-  - **Code to Pass Test**:
-    ```elixir
-    defmodule MyAppWeb.FeatureLive do
-      use MyAppWeb, :live_view
-      
-      def mount(_params, _session, socket) do
-        {:ok, assign(socket, page_title: "Feature")}
-      end
-    end
-    ```
+  - **Implementation Requirements**:
+    - Create minimal LiveView module
+    - Define mount/3 that returns {:ok, socket}
+    - Set initial assigns needed for render
+    - Add basic render function or template
+    - Register route in router.ex
   - **Time to implement**: ~5 minutes
 
 ### For GraphQL/Absinthe Features:
@@ -387,83 +398,50 @@ my_app/
 - **Test First** ✅
   - **Test File**: `test/my_app_web/schema/feature_test.exs`
   - **Test Type**: Schema Integration Test
-  - **Test Code**:
-    ```elixir
-    defmodule MyAppWeb.Schema.FeatureTest do
-      use MyAppWeb.ConnCase, async: true
-      
-      @query """
-      query GetFeature($id: ID!) {
-        feature(id: $id) {
-          id
-          name
-        }
-      }
-      """
-      
-      test "returns feature by id", %{conn: conn} do
-        # Setup test data
-        feature = insert(:feature)
-        
-        conn = post(conn, "/api/graphql", %{
-          "query" => @query,
-          "variables" => %{"id" => feature.id}
-        })
-        
-        assert %{
-          "data" => %{
-            "feature" => %{
-              "id" => ^feature.id,
-              "name" => _
-            }
-          }
-        } = json_response(conn, 200)
-      end
-    end
-    ```
+  - **Test Requirements**:
+    - Test GraphQL query execution
+    - Define query string with expected fields
+    - Set up test data using factories
+    - Execute query via post to GraphQL endpoint
+    - Assert response structure and data correctness
+    - Verify no errors in response
   - **Time to write test**: ~4 minutes
 
 - **Implementation**:
   - **File**: `lib/my_app_web/resolvers/feature_resolver.ex`
   - **Action**: CREATE
-  - **Code to Pass Test**:
-    ```elixir
-    defmodule MyAppWeb.Resolvers.FeatureResolver do
-      def get_feature(_parent, %{id: id}, _resolution) do
-        # Stub implementation
-        {:ok, %{id: id, name: "Test Feature"}}
-      end
-    end
-    ```
+  - **Implementation Requirements**:
+    - Create resolver with stub implementation
+    - Define resolver function with proper arity
+    - Return hardcoded successful response
+    - Add field definition to schema
+    - Wire resolver to schema field
   - **Time to implement**: ~5 minutes
 
 ### Task 2: [Context/Business Logic Layer] (~X minutes)
 - **Test First** ✅
   - **Test File**: `test/my_app/context_name_test.exs`
   - **Test Type**: Integration/Context
-  - **Test Code**:
-    ```elixir
-    defmodule MyApp.ContextNameTest do
-      use MyApp.DataCase, async: true
-      
-      describe "[function_name]/[arity]" do
-        test "[expected behavior]" do
-          # Test with database interaction
-          [Integration test code]
-        end
-      end
-    end
-    ```
+  - **Test Requirements**:
+    - Test context function behavior
+    - Set up test database state if needed
+    - Call context function with test parameters
+    - Assert expected return value/structure
+    - Verify database changes if applicable
+    - Check for proper error handling
   - **Expected Result**: Test fails initially
   - **Time to write test**: ~3 minutes
 
 - **Implementation**:
   - **File**: `lib/my_app/context_name.ex`
   - **Action**: CREATE/UPDATE
-  - **Code to Pass Test**:
-    ```elixir
-    [Context implementation]
-    ```
+  - **Implementation Requirements**:
+    - Implement context function
+    - Define function with proper arity
+    - Add pattern matching for parameters
+    - Implement business logic or stub
+    - Return expected success/error tuples
+    - Handle edge cases as needed
   - **Time to implement**: ~5 minutes
 
 ### Task 3: [Choose based on project type] (~X minutes)
@@ -471,44 +449,24 @@ my_app/
 **For LiveView - Component Test:**
 - **Test First** ✅
   - **Test File**: `test/my_app_web/components/component_test.exs`
-  - **Test Code**:
-    ```elixir
-    defmodule MyAppWeb.ComponentTest do
-      use MyAppWeb.ConnCase, async: true
-      import Phoenix.LiveViewTest
-      
-      test "renders component with props" do
-        html = render_component(&MyAppWeb.Components.my_component/1, 
-          prop: "value"
-        )
-        
-        assert html =~ "expected content"
-      end
-    end
-    ```
+  - **Test Requirements**:
+    - Test component rendering
+    - Call render_component with test props
+    - Assert HTML output contains expected elements
+    - Verify dynamic content renders correctly
+    - Check CSS classes and attributes
   - **Time**: ~2 min test, ~4 min implementation
 
 **For GraphQL - Resolver Test:**
 - **Test First** ✅
   - **Test File**: `test/my_app_web/resolvers/resolver_test.exs`
-  - **Test Code**:
-    ```elixir
-    defmodule MyAppWeb.Resolvers.ResolverTest do
-      use MyApp.DataCase, async: true
-      alias MyAppWeb.Resolvers.MyResolver
-      
-      test "resolver returns expected data" do
-        # Setup
-        data = insert(:factory_data)
-        
-        # Act
-        {:ok, result} = MyResolver.resolve(nil, %{id: data.id}, %{})
-        
-        # Assert
-        assert result.id == data.id
-      end
-    end
-    ```
+  - **Test Requirements**:
+    - Test resolver function directly
+    - Set up test data/mocks
+    - Call resolver with parent, args, resolution
+    - Assert {:ok, data} or {:error, message}
+    - Verify data transformation logic
+    - Test error scenarios
   - **Time**: ~3 min test, ~5 min implementation
 
 [Continue for all tasks...]
@@ -534,6 +492,9 @@ my_app/
 - [ ] Dialyzer passes without warnings
 - [ ] Credo checks pass
 - [ ] Each task can be completed independently without breaking the build
+- [ ] All code has been reviewed by pragmatic-code-reviewer agent
+- [ ] Low-value tests have been removed by test-value-auditor agent
+- [ ] Unnecessary comments have been cleaned up by spurious-comment-remover agent
 ```
 
 ## Requirements & Constraints
@@ -545,14 +506,16 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 ### TDD Requirements
 1. **Every task must start with a test** - Always write a failing test before any production code
 2. **Tests must be executable** - Include actual test code that can be run immediately
-3. **Follow Red-Green-Refactor**:
+3. **Follow Red-Green-Refactor-Review**:
    - Red: Write a failing test (~3 minutes)
    - Green: Write minimal code to pass (~5-7 minutes)
    - Refactor: Improve code while keeping tests green (if > 2 min, make it a separate task)
+   - Review: Run quality check agents (pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover)
 4. **10-Minute Task Limit**:
    - Each task = one small test + minimal implementation
    - Complex features = multiple incremental tasks
    - Include time estimates for each phase
+   - Quality checks are additional time, not counted in the 10 minutes
 5. **Test independence** - Each test must be able to run in isolation
 6. **Use appropriate test strategies**:
    - **Common**: ExMachina for factories, test stubs/doubles implemented as modules
@@ -561,22 +524,28 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
    - **Database**: Sandbox mode for test isolation
    - **External APIs**: Tesla.Mock for HTTP service stubbing or custom test modules
 7. **Document test setup** - Include all necessary test fixtures and factories
+8. **Quality assurance** - Every implementation must pass through the three quality check agents
 
 ### General Requirements
 1. **Use relevant expert agents** when available:
    - `elixir-otp-expert` for all Elixir/Phoenix projects
    - `phoenix-liveview-expert` for LiveView-specific features (if available)
    - `graphql-expert` for Absinthe/GraphQL features (if available)
-2. **Include checkboxes** (`[ ]`) for all objectives and tasks for progress tracking
-3. **Be specific** with file paths, function names, and code patterns discovered during research
-4. **Follow outside-in development**: Start with the user-facing layer and work inward
-5. **10-Minute Rule**: Each task must be completable in under 10 minutes
+2. **Run quality check agents after each task**:
+   - `pragmatic-code-reviewer` - Reviews code for best practices and improvements
+   - `test-value-auditor` - Identifies and removes tests that don't provide value
+   - `spurious-comment-remover` - Removes unnecessary or obvious comments
+3. **Include checkboxes** (`[ ]`) for all objectives and tasks for progress tracking
+4. **Be specific** with file paths, function names, and code patterns discovered during research
+5. **Follow outside-in development**: Start with the user-facing layer and work inward
+6. **10-Minute Rule**: Each task must be completable in under 10 minutes
    - Break larger work into multiple small tasks
    - Estimate time for both test writing (~3 min) and implementation (~5-7 min)
    - If refactoring would exceed 10 minutes, make it a separate task
-6. **Adapt to project type**: Use appropriate patterns for LiveView vs GraphQL
-7. **Focus on planning**: Complete the planning phase thoroughly before any implementation
-8. **Concise but complete**: Include all necessary details while maintaining clarity
+   - Quality checks are additional time, not counted in the 10 minutes
+7. **Adapt to project type**: Use appropriate patterns for LiveView vs GraphQL
+8. **Focus on planning**: Complete the planning phase thoroughly before any implementation
+9. **Concise but complete**: Include all necessary details while maintaining clarity
 </task_requirements>
 
 ## Example Task Structure
@@ -588,48 +557,23 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 ### Task 1: Create Basic LiveView Route (~8 minutes)
 
 #### 1. RED - Write Failing Test (~3 minutes)
-```elixir
-# test/my_app_web/live/user_registration_live_test.exs
-defmodule MyAppWeb.UserRegistrationLiveTest do
-  use MyAppWeb.ConnCase, async: true
-  import Phoenix.LiveViewTest
+**Test Requirements** (test/my_app_web/live/user_registration_live_test.exs):
+- Test that registration form renders
+- Navigate to /register route
+- Assert page contains "Create Account" text
+- Verify email input field is present
+- Check for submit button
 
-  test "renders registration form", %{conn: conn} do
-    {:ok, _view, html} = live(conn, "/register")
-    
-    assert html =~ "Create Account"
-    assert html =~ "name=\"user[email]\""
-  end
-end
-```
 **Run test**: ❌ Fails - route doesn't exist
 
 #### 2. GREEN - Minimal Implementation (~4 minutes)
-```elixir
-# lib/my_app_web/live/user_registration_live.ex
-defmodule MyAppWeb.UserRegistrationLive do
-  use MyAppWeb, :live_view
+**Implementation Requirements** (lib/my_app_web/live/user_registration_live.ex):
+- Create minimal LiveView to pass test
+- Define LiveView module with use MyAppWeb, :live_view
+- Implement mount/3 returning {:ok, socket} with basic assigns
+- Create render function with h1 "Create Account", basic form with email input, submit button
+- Add route in router.ex: live "/register", UserRegistrationLive
 
-  def mount(_params, _session, socket) do
-    {:ok, assign(socket, form: to_form(%{}))}
-  end
-
-  def render(assigns) do
-    ~H"""
-    <h1>Create Account</h1>
-    <.simple_form for={@form} phx-submit="save">
-      <.input field={@form[:email]} label="Email" />
-      <:actions>
-        <.button>Register</.button>
-      </:actions>
-    </.simple_form>
-    """
-  end
-end
-
-# Add route in router.ex
-live "/register", UserRegistrationLive
-```
 **Run test**: ✅ Passes
 ```
 
@@ -638,50 +582,27 @@ live "/register", UserRegistrationLive
 ### Task 1: Create User Query (~9 minutes)
 
 #### 1. RED - Write Failing Test (~3 minutes)
-```elixir
-# test/my_app_web/schema/user_queries_test.exs
-defmodule MyAppWeb.Schema.UserQueriesTest do
-  use MyAppWeb.ConnCase, async: true
+**Test Requirements** (test/my_app_web/schema/user_queries_test.exs):
+- Test user query returns user by ID
+- Create test user with factory
+- Define GraphQL query string for user(id: ID)
+- Post query to /api/graphql endpoint
+- Assert response contains user with correct id and email
 
-  @query """
-  query GetUser($id: ID!) {
-    user(id: $id) {
-      id
-      email
-    }
-  }
-  """
-
-  test "returns user by id", %{conn: conn} do
-    user = insert(:user)
-    
-    conn = post(conn, "/api/graphql", %{
-      "query" => @query,
-      "variables" => %{"id" => user.id}
-    })
-    
-    assert %{"data" => %{"user" => %{"id" => _, "email" => _}}} = 
-      json_response(conn, 200)
-  end
-end
-```
 **Run test**: ❌ Fails - query doesn't exist
 
 #### 2. GREEN - Add Query (~5 minutes)
-```elixir
-# lib/my_app_web/schema.ex
-field :user, :user do
-  arg :id, non_null(:id)
-  resolve &Resolvers.UserResolver.find/3
-end
+**Implementation Requirements**:
+- In lib/my_app_web/schema.ex:
+  - Add field :user, :user to query block
+  - Add arg :id, non_null(:id)
+  - Set resolve to &Resolvers.UserResolver.find/3
+- In lib/my_app_web/resolvers/user_resolver.ex:
+  - Create resolver module
+  - Define find/3 function
+  - Return {:ok, %{id: id, email: "stub@example.com"}}
+  - Just enough to make test pass
 
-# lib/my_app_web/resolvers/user_resolver.ex
-defmodule MyAppWeb.Resolvers.UserResolver do
-  def find(_parent, %{id: id}, _resolution) do
-    {:ok, %{id: id, email: "test@example.com"}} # Stub
-  end
-end
-```
 **Run test**: ✅ Passes
 ```
 
@@ -711,29 +632,31 @@ end
 <good_practices>
 **Correct Approach for LiveView Features:**
 Break complex LiveView features into focused, incremental tasks:
-- Task 1: Mount and basic render (~8 min)
-- Task 2: Add form with single field (~7 min)
-- Task 3: Handle submit event with stub (~8 min)
-- Task 4: Add validation display (~6 min)
-- Task 5: Connect to context layer (~9 min)
-- Task 6: Add success feedback (~7 min)
-- Task 7: Add error handling (~8 min)
-- Task 8: Add live navigation (~7 min)
+- Task 1: Mount and basic render (~8 min) + quality checks
+- Task 2: Add form with single field (~7 min) + quality checks
+- Task 3: Handle submit event with stub (~8 min) + quality checks
+- Task 4: Add validation display (~6 min) + quality checks
+- Task 5: Connect to context layer (~9 min) + quality checks
+- Task 6: Add success feedback (~7 min) + quality checks
+- Task 7: Add error handling (~8 min) + quality checks
+- Task 8: Add live navigation (~7 min) + quality checks
 
 Each task is independent, testable, and under 10 minutes.
+After each task: run pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover.
 
 **Correct Approach for GraphQL Features:**
 Break complex GraphQL features into incremental tasks:
-- Task 1: Basic query with stub resolver (~9 min)
-- Task 2: Add type definition (~6 min)
-- Task 3: Add field resolution (~8 min)
-- Task 4: Add input validation (~7 min)
-- Task 5: Connect to context (~8 min)
-- Task 6: Add error types (~7 min)
-- Task 7: Add subscription (~9 min)
-- Task 8: Add dataloader optimization (~8 min)
+- Task 1: Basic query with stub resolver (~9 min) + quality checks
+- Task 2: Add type definition (~6 min) + quality checks
+- Task 3: Add field resolution (~8 min) + quality checks
+- Task 4: Add input validation (~7 min) + quality checks
+- Task 5: Connect to context (~8 min) + quality checks
+- Task 6: Add error types (~7 min) + quality checks
+- Task 7: Add subscription (~9 min) + quality checks
+- Task 8: Add dataloader optimization (~8 min) + quality checks
 
 Each task builds on the previous one while remaining under 10 minutes.
+Quality checks ensure clean, maintainable code at each step.
 </good_practices>
 
 ## Important Notes
