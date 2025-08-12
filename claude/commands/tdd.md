@@ -41,5 +41,5 @@ Follow these steps to implement the TDD process:
 6. Run the test and confirm it passes.
 7. **DOMAIN EXPERT**: Refactors while keeping tests green.
 8. **CODE REVIEW**: Use pragmatic-code-reviewer agent to review implementation.
-8. **CODE REVIEW**: Use spurious-comment-remover agent to remove unnecessary comments.
-8. **CODE REVIEW**: Use test-value-auditor agent to remove low-value tests.
+9. **CODE REVIEW**: Use test-value-auditor agent to remove low-value tests.
+10. **CODE REVIEW**: Use spurious-comment-remover agent to remove unnecessary comments.
