@@ -60,13 +60,20 @@ Create a comprehensive, production-ready plan that goes beyond the basics. Inclu
 
 ### Phase 1: Research (Do this first)
 Thoroughly investigate the codebase to understand:
-- **Project Type**: Is this a LiveView application, API-only (Absinthe/GraphQL), or hybrid?
-- **Architecture patterns**: Phoenix contexts, LiveView usage, GraphQL schema organization, OTP supervision trees
+- **Project Type**: Is this a LiveView application, API-only (Absinthe/GraphQL), background processing (Oban), or hybrid?
+- **Entry Points**: Web UI, API endpoints, background jobs, scheduled tasks, or combinations?
+- **Architecture patterns**: Phoenix contexts, LiveView usage, GraphQL schema organization, Oban workers, OTP supervision trees
 - **Testing infrastructure**: ExUnit configuration, test helpers, factories (ExMachina)
-- **Dependencies**: Mix dependencies, hex packages in use (LiveView, Absinthe, etc.)
-- **Relevant files**: Which contexts, schemas, resolvers, LiveViews, or controllers will be impacted
+- **Dependencies**: Mix dependencies, hex packages in use (LiveView, Absinthe, Oban, etc.)
+- **Relevant files**: Which contexts, schemas, resolvers, LiveViews, workers, or controllers will be impacted
 - **Integration points**: How will new code connect with existing Phoenix/OTP systems
 - **Existing test patterns**: How are tests currently structured and organized
+- **For Oban projects specifically**:
+  - Existing workers and their patterns
+  - Queue configurations
+  - Retry strategies in use
+  - Error tracking setup
+  - Job uniqueness constraints
 
 ### Phase 2: Planning Process
 <thinking_process>
@@ -90,6 +97,7 @@ Before proceeding to task creation, think deliberately about these critical poin
 - "Am I about to write any actual code in the plan?" (think carefully - if you're tempted to write code examples, STOP and convert to requirements)
 - "What would cause a task to exceed 10 minutes and how do I prevent it?" (consider complexity, dependencies, and scope)
 - "Are my test requirements describing behavior or implementation?" (behavior = WHAT to verify, implementation = HOW to test)
+- "Are the tasks appropriate for the entry point type?" (LiveView tasks for UI, Oban tasks for jobs, GraphQL tasks for API)
 
 Take a moment to truly think through these points before creating any tasks. This thinking is crucial for creating a plan that works.
 </critical_thinking>
@@ -103,6 +111,7 @@ Create a comprehensive plan following **Test-Driven Outside-In Development**:
    - For LiveView: LiveView module tests
    - For GraphQL: Resolver/Schema tests
    - For REST: Controller tests
+   - For Oban: Job integration tests
 2. **Write the test first** (Red phase) - test should fail initially
 3. **Implement minimal code** to pass the test (Green phase)
 4. **Run quality checks**:
@@ -130,9 +139,21 @@ For **GraphQL/Absinthe Projects**:
 - **Context Tests**: Business logic with side effects  
 - **Pure Function Tests**: Stateless functions, transformations
 
+For **Oban/Background Job Projects**:
+- **Job Integration Tests**: Full job execution with real dependencies
+- **Worker Tests**: Job perform/2 function with stubbed dependencies
+- **Args Validation Tests**: Job argument validation and serialization
+- **Context Tests**: Business logic with side effects
+- **Pure Function Tests**: Stateless functions, calculations
+- **Key testing focuses**:
+  - Test job enqueuing with correct args
+  - Test job execution calls correct context functions
+  - Test job handles errors appropriately
+  - Test job idempotency (safe to run multiple times)
+
 For **Hybrid Projects**:
 - Use appropriate test types based on the feature being implemented
-- API endpoints use GraphQL tests, UI features use LiveView tests
+- API endpoints use GraphQL tests, UI features use LiveView tests, async work uses Oban tests
 
 **Task & PR Sizing:**
 - **Each task**: Must be completable in under 10 minutes
@@ -212,9 +233,9 @@ Total estimated diff: ~[Y] lines across [Z] PRs
 ## Technical Approach
 
 ### Project Type
-- **Type Identified**: [LiveView / GraphQL API / Hybrid / REST API]
-- **Primary Interface**: [Web UI / GraphQL API / Both]
-- **Testing Strategy**: [LiveView-focused / GraphQL-focused / Mixed]
+- **Type Identified**: [LiveView / GraphQL API / Oban Jobs / Hybrid / REST API]
+- **Primary Interface**: [Web UI / GraphQL API / Background Jobs / Multiple]
+- **Testing Strategy**: [LiveView-focused / GraphQL-focused / Oban-focused / Mixed]
 
 ### Architecture Decisions
 - [Key architectural choice and rationale]
@@ -227,6 +248,7 @@ Total estimated diff: ~[Y] lines across [Z] PRs
   - **Common**: ExUnit, ExMachina for factories
   - **For LiveView**: Phoenix.LiveViewTest helpers
   - **For GraphQL**: Absinthe test helpers, subscription test support
+  - **For Oban**: Oban.Testing for synchronous job execution in tests
 
 ### Implementation Strategy
 [Describe the outside-in TDD approach for this specific task]
@@ -267,6 +289,22 @@ For **GraphQL/Absinthe Projects**:
                   - Helper functions
 ```
 
+For **Oban/Background Job Projects**:
+```
+        /\        Job Integration Tests (Few)
+       /  \       - Full job execution flow
+      /    \      - Job chaining tests  
+     /______\     - Retry behavior tests
+    /        \    Worker Tests (Some)
+   /          \   - Perform function tests
+  /            \  - Args validation tests
+ /______________\ 
+                  Pure Function Tests (Many)
+                  - Data transformations
+                  - Business calculations
+                  - Helper functions
+```
+
 ### Test Execution Order
 
 **For LiveView Projects:**
@@ -288,6 +326,17 @@ For **GraphQL/Absinthe Projects**:
 6. **Run quality checks** again
 7. **Write context tests** for data layer
 8. **All tests green** = API feature complete
+
+**For Oban Projects:**
+1. **Write failing job integration test** (~3 min)
+2. **Create worker module** with basic perform function (~5 min)
+3. **Run quality checks**: pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover
+4. **Write test for job enqueuing** (~3 min)
+5. **Implement enqueuing logic** at trigger point (~5 min)
+6. **Add idempotency test** (~3 min)
+7. **Implement idempotency checks** (~5 min)
+8. **Run quality checks** again
+9. **All tests green** = background job complete
 
 **Quality Check Workflow After Each Task**:
 - `pragmatic-code-reviewer`: Reviews implementation for best practices
@@ -312,6 +361,13 @@ For **GraphQL/Absinthe Projects**:
 - Context: `test/my_app/[context]_test.exs`
 - Pure functions: `test/my_app/[module]_test.exs`
 
+For **Oban/Background Job Projects**:
+- Workers: `test/my_app/workers/[feature]_worker_test.exs`
+- Job Integration: `test/my_app/jobs/[feature]_job_test.exs`
+- Context: `test/my_app/[context]_test.exs`
+- Pure functions: `test/my_app/[module]_test.exs`
+- Job helpers: `test/support/oban_case.ex` or `test/support/job_helpers.ex`
+
 ### Coverage Goals
 
 **For LiveView Projects:**
@@ -324,6 +380,14 @@ For **GraphQL/Absinthe Projects**:
 - **Schema integration**: All queries/mutations (aim for 85% coverage)
 - **Resolvers**: All resolver functions (90% coverage)
 - **Subscriptions**: Critical real-time features (80% coverage)
+- **Context**: All public functions (90% coverage)
+- **Pure Functions**: All business logic (95% coverage)
+
+**For Oban Projects:**
+- **Job integration**: Critical job workflows (aim for 85% coverage)
+- **Worker perform**: All worker perform functions (95% coverage)
+- **Idempotency logic**: All idempotency checks (100% coverage)
+- **Error handling**: All error paths (90% coverage)
 - **Context**: All public functions (90% coverage)
 - **Pure Functions**: All business logic (95% coverage)
 
@@ -364,6 +428,23 @@ my_app/
 │   └── my_app_web/
 │       ├── schema/
 │       └── resolvers/
+└── ...
+```
+
+**For Oban/Background Job Projects:**
+```
+my_app/
+├── lib/
+│   ├── my_app/
+│   │   ├── workers/             # Oban workers
+│   │   │   └── existing_worker.ex
+│   │   └── existing_context.ex
+│   └── my_app_web/              # Web layer (if present)
+├── test/
+│   ├── my_app/
+│   │   └── workers/
+│   └── support/
+│       └── oban_case.ex         # Oban test helpers
 └── ...
 ```
 
@@ -412,6 +493,25 @@ my_app/
 └── ...
 ```
 
+**For Oban/Background Job Projects:**
+```
+my_app/
+├── lib/
+│   ├── my_app/
+│   │   ├── workers/
+│   │   │   ├── existing_worker.ex   # [Modified: if needed]
+│   │   │   └── new_feature_worker.ex # [New: Oban worker]
+│   │   ├── existing_context.ex      # [Modified: add job triggering]
+│   │   └── new_context.ex           # [New: business logic]
+│   └── my_app_web/                  # [Modified: if job triggered from web]
+├── test/
+│   ├── my_app/
+│   │   ├── workers/
+│   │   │   └── new_feature_worker_test.exs # [New worker tests]
+│   │   └── new_context_test.exs    # [New context tests]
+└── ...
+```
+
 ## Implementation Tasks
 > Listed in execution order, following TDD outside-in development
 > ⏱️ Each task should take < 10 minutes to complete (test + implementation)
@@ -438,7 +538,7 @@ end
 
 ### For LiveView Features:
 
-#### Task 1: [LiveView Mount Test] (~8 minutes)
+#### [ ] Task 1: [LiveView Mount Test] (~8 minutes)
 **Reminder: Describe requirements only. No actual code.**
 
 - **Test First** ✅
@@ -465,7 +565,7 @@ end
 
 ### For GraphQL/Absinthe Features:
 
-#### Task 1: [GraphQL Query Test] (~9 minutes)
+#### [ ] Task 1: [GraphQL Query Test] (~9 minutes)
 **Reminder: Describe requirements only. No actual code.**
 
 - **Test First** ✅
@@ -491,7 +591,37 @@ end
     - Wire resolver to schema field
   - **Time to implement**: ~5 minutes
 
-### Task 2: [Context/Business Logic Layer] (~X minutes)
+### For Oban/Background Job Features:
+
+#### [ ] Task 1: [Job Worker Test] (~9 minutes)
+**Reminder: Describe requirements only. No actual code.**
+
+- **Test First** ✅
+  - **Test File**: `test/my_app/workers/feature_worker_test.exs`
+  - **Test Type**: Worker Test
+  - **Test Requirements** (plain text only, no code):
+    - Test job enqueuing with proper args
+    - Test perform function executes successfully
+    - Test error handling and retry behavior
+    - Test idempotency (running job twice is safe)
+    - Verify side effects (emails sent, records created, etc.)
+    - Use Oban.Testing helpers for synchronous testing
+  - **Time to write test**: ~4 minutes
+
+- **Implementation**:
+  - **File**: `lib/my_app/workers/feature_worker.ex`
+  - **Action**: CREATE
+  - **Implementation Requirements** (plain text only, no code):
+    - Create Oban.Worker module
+    - Define perform function with job args parameter
+    - Add args validation at start of perform
+    - Implement idempotency checks (check if work already done)
+    - Set queue and max_attempts configuration
+    - Handle expected error cases with appropriate returns
+    - Add structured logging for debugging
+  - **Time to implement**: ~5 minutes
+
+### [ ] Task 2: [Context/Business Logic Layer] (~X minutes)
 **Reminder: Describe requirements only. No actual code.**
 
 - **Test First** ✅
@@ -519,7 +649,7 @@ end
     - Handle edge cases as needed
   - **Time to implement**: ~5 minutes
 
-### Task 3: [Choose based on project type] (~X minutes)
+### [ ] Task 3: [Choose based on project type] (~X minutes)
 **Reminder: Describe requirements only. No actual code.**
 
 **For LiveView - Component Test:**
@@ -545,6 +675,18 @@ end
     - Test error scenarios
   - **Time**: ~3 min test, ~5 min implementation
 
+**For Oban - Worker Unit Test:**
+- **Test First** ✅
+  - **Test File**: `test/my_app/workers/worker_test.exs`
+  - **Test Requirements** (plain text only, no code):
+    - Test worker perform function with stubbed dependencies
+    - Verify correct context functions are called
+    - Test various arg scenarios
+    - Test error handling within perform
+    - Verify return values for success/error/snooze
+    - Test any data transformation logic
+  - **Time**: ~3 min test, ~5 min implementation
+
 [Continue for all tasks...]
 
 ## Risks & Considerations
@@ -556,6 +698,10 @@ end
 ## Success Criteria
 - [ ] **For LiveView**: All LiveView tests passing (mount, render, events work correctly)
 - [ ] **For GraphQL**: All schema tests passing (queries, mutations, subscriptions work)
+- [ ] **For Oban**: All job workers handle retries gracefully
+- [ ] **For Oban**: Jobs are idempotent (safe to run multiple times)
+- [ ] **For Oban**: Failed jobs log errors appropriately
+- [ ] **For Oban**: Job args are validated before processing
 - [ ] All context tests passing (business logic works correctly)
 - [ ] All pure function tests passing (calculations and transformations are correct)
 - [ ] Test coverage meets targets for each layer
@@ -564,6 +710,7 @@ end
 - [ ] CI/CD pipeline remains green (mix test passes)
 - [ ] **For GraphQL**: Introspection queries work correctly
 - [ ] **For LiveView**: Live navigation works without full page reloads
+- [ ] **For Oban**: Jobs complete successfully in production-like environment
 - [ ] Dialyzer passes without warnings
 - [ ] Credo checks pass
 - [ ] Each task can be completed independently without breaking the build
@@ -596,6 +743,7 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
    - **Common**: ExMachina for factories, test stubs/doubles implemented as modules
    - **LiveView**: Use LiveView test helpers, test the actual view behavior
    - **GraphQL**: Test at the schema level, use context stubs when needed
+   - **Oban**: Use Oban.Testing for synchronous execution, test idempotency always
    - **Database**: Sandbox mode for test isolation
    - **External APIs**: Tesla.Mock for HTTP service stubbing or custom test modules
 7. **Document test setup** - Include all necessary test fixtures and factories
@@ -640,7 +788,7 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 
 #### LiveView Example:
 ```markdown
-### Task 1: Create Basic LiveView Route (~8 minutes)
+### [ ] Task 1: Create Basic LiveView Route (~8 minutes)
 
 #### 1. RED - Write Failing Test (~3 minutes)
 **Test Requirements** (test/my_app_web/live/user_registration_live_test.exs):
@@ -667,7 +815,7 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 
 #### GraphQL Example:
 ```markdown
-### Task 1: Create User Query (~9 minutes)
+### [ ] Task 1: Create User Query (~9 minutes)
 
 #### 1. RED - Write Failing Test (~3 minutes)
 **Test Requirements** (test/my_app_web/schema/user_queries_test.exs):
@@ -729,6 +877,22 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 - [ ] Task 3.1: Connect to context layer (~8 min, ~50 lines)
 - [ ] Task 3.2: Add subscription for user updates (~10 min, ~80 lines)
 
+**Oban Email Notification System (3 PRs, 8 tasks, ~430 lines total):**
+
+**PR 1: Basic Worker Setup** (~3 tasks, ~140 lines)
+- [ ] Task 1.1: Create EmailWorker with perform stub (~8 min, ~40 lines)
+- [ ] Task 1.2: Add job enqueuing from trigger point (~7 min, ~50 lines)
+- [ ] Task 1.3: Add args validation and serialization (~6 min, ~50 lines)
+
+**PR 2: Core Email Processing** (~3 tasks, ~180 lines)
+- [ ] Task 2.1: Implement email sending logic (~10 min, ~80 lines)
+- [ ] Task 2.2: Add idempotency checks (~8 min, ~50 lines)
+- [ ] Task 2.3: Add template selection logic (~7 min, ~50 lines)
+
+**PR 3: Error Handling & Monitoring** (~2 tasks, ~110 lines)
+- [ ] Task 3.1: Add retry logic and error handling (~9 min, ~60 lines)
+- [ ] Task 3.2: Add telemetry and logging (~8 min, ~50 lines)
+
 ### Task Breakdown Best Practices:
 
 <good_practices>
@@ -770,6 +934,31 @@ Break complex GraphQL features into focused PRs with incremental tasks:
 - [ ] Task 3.3: Add dataloader optimization (~8 min, ~50 lines) + quality checks
 
 Each PR builds on the previous one while being independently reviewable.
+
+**Correct Approach for Oban Background Jobs:**
+Break complex job workflows into focused PRs:
+
+**PR 1: Basic Job Structure** (~3 tasks, ~140 lines)
+- [ ] Task 1.1: Create worker with perform stub (~8 min, ~40 lines) + quality checks
+- [ ] Task 1.2: Add job enqueuing from trigger point (~7 min, ~50 lines) + quality checks
+- [ ] Task 1.3: Add args validation (~6 min, ~50 lines) + quality checks
+
+**PR 2: Core Processing** (~3 tasks, ~180 lines)
+- [ ] Task 2.1: Implement main job logic (~10 min, ~80 lines) + quality checks
+- [ ] Task 2.2: Add idempotency checks (~8 min, ~50 lines) + quality checks
+- [ ] Task 2.3: Add progress tracking/logging (~7 min, ~50 lines) + quality checks
+
+**PR 3: Error Handling & Monitoring** (~2 tasks, ~120 lines)
+- [ ] Task 3.1: Add error handling and retry logic (~9 min, ~60 lines) + quality checks
+- [ ] Task 3.2: Add telemetry and monitoring (~8 min, ~60 lines) + quality checks
+
+Key considerations for Oban jobs:
+- Always test idempotency (job can run multiple times safely)
+- Include structured logging for debugging
+- Consider job uniqueness constraints
+- Plan for partial failure scenarios
+- Test with Oban.Testing for synchronous execution in tests
+
 Quality checks ensure clean, maintainable code at each step.
 </good_practices>
 
@@ -795,7 +984,8 @@ Quality checks ensure clean, maintainable code at each step.
 - **Project Type Detection**:
   - Check for `phoenix_live_view` in mix.exs → LiveView project
   - Check for `absinthe` in mix.exs → GraphQL project
-  - Both present → Hybrid project (choose approach based on feature)
+  - Check for `oban` in mix.exs → Background job project
+  - Multiple present → Hybrid project (choose approach based on feature)
   - Adjust test strategy and file structure accordingly
 
 - **Task Sizing Strategy**:
@@ -832,6 +1022,13 @@ Quality checks ensure clean, maintainable code at each step.
     - Test resolvers with appropriate tooling
     - Test error handling and validation at the schema level
     - For subscriptions, test both the subscription setup and the publish events
+  - **For Oban**:
+    - Test job enqueuing with correct args
+    - Test perform function with various input scenarios
+    - Test idempotency - job can be safely run multiple times
+    - Test error handling and retry behavior
+    - Use Oban.Testing helpers for synchronous test execution
+    - Test job uniqueness constraints if configured
   - **For OTP behaviors**: Test both the public API and handle callbacks
 
 - **Performance & Quality**:
