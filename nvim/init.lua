@@ -567,6 +567,11 @@ vim.keymap.set('n', 'qc', ":cclose<CR>", { noremap = true, desc = 'Close quickfi
 
 vim.keymap.set('n', '<leader>g', ":Git<CR>", { noremap = true, desc = 'Fugitive status buffer' })
 
+vim.keymap.set('n', '<leader>cp', function()
+  vim.fn.setreg('+', vim.fn.expand('%'))
+  print('Copied: ' .. vim.fn.expand('%'))
+end, { desc = 'Copy relative path' })
+
 vim.keymap.set('c', "%%", "<C-R>=expand('%:h').'/'<CR>", { noremap = true, desc = 'Expand current file path' })
 vim.keymap.set('', '<leader>e', ":NvimTreeFindFileToggle<CR>", { desc = 'Open file tree' })
 
