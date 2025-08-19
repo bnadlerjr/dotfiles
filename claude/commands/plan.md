@@ -54,7 +54,7 @@ If a task seems larger than 10 minutes, break it down into smaller incremental t
 ## Task
 Create an implementation plan for: $ARGUMENTS
 
-Create a comprehensive, production-ready plan that goes beyond the basics. Include thoughtful edge cases, error handling strategies, and performance considerations. Make this a plan that would impress a senior engineering team. Give it your all and create an exceptional implementation strategy.
+Create a comprehensive, production-ready plan that goes beyond the basics. Include thoughtful edge cases, error handling strategies, and performance considerations. Make this a plan that would impress a senior engineering team. Give it your all and ultrathink to create an exceptional implementation strategy.
 
 ## Process Overview
 
