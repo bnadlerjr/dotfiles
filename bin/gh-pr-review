@@ -1,0 +1,399 @@
+#!/usr/bin/env bash
+# Review GitHub Pull Request - Retrieves PR diff and full file contents
+# Usage: gh-pr-review [-d|--debug] <PR_NUMBER>
+#   -d, --debug    Enable debug output
+
+set -euo pipefail
+
+# Debug mode flag
+DEBUG=false
+
+# Color codes for output (only when connected to terminal)
+if [ -t 1 ]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    BLUE='\033[0;34m'
+    NC='\033[0m' # No Color
+else
+    RED=''
+    GREEN=''
+    BLUE=''
+    NC=''
+fi
+
+# Error handler
+error() {
+    echo -e "${RED}Error: $1${NC}" >&2
+    exit 1
+}
+
+# Info message
+info() {
+    echo -e "${BLUE}$1${NC}" >&2
+}
+
+# Success message  
+success() {
+    echo -e "${GREEN}$1${NC}" >&2
+}
+
+# Debug message
+debug() {
+    if [ "$DEBUG" = true ]; then
+        echo -e "${BLUE}[DEBUG]${NC} $1" >&2
+    fi
+}
+
+# Analyze API error and provide meaningful message
+analyze_error() {
+    local error_msg="$1"
+    
+    if [[ "$error_msg" == *"404"* ]] || [[ "$error_msg" == *"Not Found"* ]]; then
+        echo "_[File deleted or moved in this PR]_"
+    elif [[ "$error_msg" == *"403"* ]] || [[ "$error_msg" == *"Forbidden"* ]]; then
+        echo "_[Permission denied - check repository access]_"
+    elif [[ "$error_msg" == *"rate limit"* ]]; then
+        echo "_[API rate limit exceeded - try again later]_"
+    elif [[ "$error_msg" == *"too large"* ]] || [[ "$error_msg" == *"exceeds"* ]]; then
+        echo "_[File too large to display via API]_"
+    elif [[ "$error_msg" == *"timeout"* ]]; then
+        echo "_[Request timeout - file may be too large or network issue]_"
+    else
+        echo "_[Unable to retrieve file]_"
+        if [ "$DEBUG" = true ]; then
+            echo "Error details: ${error_msg:0:200}" >&2
+        fi
+    fi
+}
+
+# Get language identifier for code block based on file extension
+get_language_id() {
+    local filepath="$1"
+    local extension="${filepath##*.}"
+    local filename="${filepath##*/}"
+    
+    # Handle special filenames
+    case "$filename" in
+        Dockerfile*) echo "dockerfile"; return ;;
+        Makefile*) echo "makefile"; return ;;
+        *.gemspec) echo "ruby"; return ;;
+        Gemfile*) echo "ruby"; return ;;
+        Rakefile*) echo "ruby"; return ;;
+        Brewfile*) echo "ruby"; return ;;
+        *.podspec) echo "ruby"; return ;;
+        Pipfile*) echo "toml"; return ;;
+        .gitignore|.dockerignore) echo "gitignore"; return ;;
+        .env*) echo "bash"; return ;;
+    esac
+    
+    # Handle by extension
+    case "$extension" in
+        # Web
+        js|mjs|cjs) echo "javascript" ;;
+        jsx) echo "jsx" ;;
+        ts|mts|cts) echo "typescript" ;;
+        tsx) echo "tsx" ;;
+        html|htm) echo "html" ;;
+        css) echo "css" ;;
+        scss|sass) echo "scss" ;;
+        less) echo "less" ;;
+        vue) echo "vue" ;;
+        svelte) echo "svelte" ;;
+        
+        # Programming languages
+        py) echo "python" ;;
+        rb) echo "ruby" ;;
+        go) echo "go" ;;
+        rs) echo "rust" ;;
+        java) echo "java" ;;
+        kt|kts) echo "kotlin" ;;
+        scala|sc) echo "scala" ;;
+        c) echo "c" ;;
+        cpp|cc|cxx|c++) echo "cpp" ;;
+        h|hpp) echo "cpp" ;;
+        cs) echo "csharp" ;;
+        fs|fsx) echo "fsharp" ;;
+        swift) echo "swift" ;;
+        m|mm) echo "objectivec" ;;
+        php) echo "php" ;;
+        pl|pm) echo "perl" ;;
+        lua) echo "lua" ;;
+        r|R) echo "r" ;;
+        jl) echo "julia" ;;
+        dart) echo "dart" ;;
+        elm) echo "elm" ;;
+        clj|cljs|cljc) echo "clojure" ;;
+        ex|exs) echo "elixir" ;;
+        erl|hrl) echo "erlang" ;;
+        nim) echo "nim" ;;
+        cr) echo "crystal" ;;
+        zig) echo "zig" ;;
+        v) echo "v" ;;
+        
+        # Shell/Scripts
+        sh) echo "bash" ;;
+        bash) echo "bash" ;;
+        zsh) echo "zsh" ;;
+        fish) echo "fish" ;;
+        ps1) echo "powershell" ;;
+        bat|cmd) echo "batch" ;;
+        
+        # Config/Data
+        json) echo "json" ;;
+        jsonc) echo "jsonc" ;;
+        json5) echo "json5" ;;
+        yaml|yml) echo "yaml" ;;
+        toml) echo "toml" ;;
+        ini|cfg|conf) echo "ini" ;;
+        xml) echo "xml" ;;
+        sql) echo "sql" ;;
+        graphql|gql) echo "graphql" ;;
+        proto) echo "protobuf" ;;
+        
+        # Markup/Docs
+        md|markdown) echo "markdown" ;;
+        rst) echo "rst" ;;
+        adoc|asciidoc) echo "asciidoc" ;;
+        tex) echo "latex" ;;
+        
+        # Other
+        vim) echo "vim" ;;
+        diff|patch) echo "diff" ;;
+        
+        # Default to plain text
+        *) echo "" ;;
+    esac
+}
+
+# Validate prerequisites
+if ! command -v gh &> /dev/null; then
+    error "gh CLI not found. Install from https://cli.github.com"
+fi
+
+if ! command -v jq &> /dev/null; then
+    error "jq not found. Please install jq for JSON processing"
+fi
+
+if ! command -v python3 &> /dev/null; then
+    error "python3 not found. Please install Python 3 for URL encoding"
+fi
+
+# Check authentication
+if ! gh auth status &> /dev/null; then
+    error "Not authenticated. Run 'gh auth login' first"
+fi
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -d|--debug)
+            DEBUG=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [-d|--debug] <PR_NUMBER>" >&2
+            echo "  -d, --debug    Enable debug output" >&2
+            echo "  -h, --help     Show this help message" >&2
+            echo "" >&2
+            echo "Example: $0 123" >&2
+            echo "         $0 --debug 456" >&2
+            exit 0
+            ;;
+        *)
+            PR_NUM="$1"
+            shift
+            ;;
+    esac
+done
+
+# Validate PR number was provided
+if [ -z "${PR_NUM:-}" ]; then
+    echo "Usage: $0 [-d|--debug] <PR_NUMBER>" >&2
+    echo "Example: $0 123" >&2
+    exit 2
+fi
+
+# Validate PR number is numeric
+if ! [[ "$PR_NUM" =~ ^[0-9]+$ ]]; then
+    error "Invalid PR number: $PR_NUM (must be numeric)"
+fi
+
+# Auto-detect repository from current directory
+if ! REPO_INFO=$(gh repo view --json nameWithOwner 2>/dev/null); then
+    error "Not in a GitHub repository directory or repository not found"
+fi
+
+REPO_NAME=$(echo "$REPO_INFO" | jq -r '.nameWithOwner')
+info "Repository: $REPO_NAME"
+
+# Create temporary directory for downloads
+TMPDIR=$(mktemp -d -t gh-pr-review.XXXXXX)
+trap 'rm -rf "$TMPDIR"' EXIT INT TERM
+
+info "Fetching PR #$PR_NUM information..."
+
+# Get PR metadata with additional file info and body
+if ! PR_DATA=$(gh pr view "$PR_NUM" --json headRefOid,files,title,state,author,baseRefOid,body 2>/dev/null); then
+    error "Failed to fetch PR #$PR_NUM. Verify the PR exists and you have access"
+fi
+
+# Extract PR information
+PR_TITLE=$(echo "$PR_DATA" | jq -r '.title')
+PR_STATE=$(echo "$PR_DATA" | jq -r '.state')
+PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login')
+PR_BODY=$(echo "$PR_DATA" | jq -r '.body // "No description provided"')
+HEAD_SHA=$(echo "$PR_DATA" | jq -r '.headRefOid')
+
+info "PR #$PR_NUM: $PR_TITLE"
+info "Author: $PR_AUTHOR | State: $PR_STATE"
+info "Head SHA: $HEAD_SHA"
+
+# Output PR Overview
+echo ""
+echo "## Pull Request Overview"
+echo ""
+echo "**Title:** $PR_TITLE"
+echo ""
+echo "$PR_BODY"
+echo ""
+
+# Output PR diff
+echo "## PR Diff"
+echo ""
+echo '```diff'
+
+if ! gh pr diff "$PR_NUM"; then
+    error "Failed to retrieve PR diff"
+fi
+
+echo '```'
+echo ""
+echo "## File Contents"
+echo ""
+
+# Get list of changed files
+FILES=$(echo "$PR_DATA" | jq -r '.files[].path')
+
+if [ -z "$FILES" ]; then
+    info "No files changed in this PR"
+    exit 0
+fi
+
+# Process each changed file
+while IFS= read -r filepath; do
+    echo ""
+    echo "### File: \`$filepath\`"
+    echo ""
+    
+    debug "Processing file: $filepath"
+    
+    # Get language for syntax highlighting
+    LANG_ID=$(get_language_id "$filepath")
+    
+    # Capture both stdout and stderr for debugging
+    ERROR_FILE="${TMPDIR}/api_error"
+    VERBOSE_FLAG=""
+    if [ "$DEBUG" = true ]; then
+        VERBOSE_FLAG="--verbose"
+    fi
+    
+    # Method 1: Try without encoding first (gh handles basic encoding)
+    API_PATH="repos/${REPO_NAME}/contents/${filepath}"
+    debug "Method 1: Direct path API call"
+    debug "API endpoint: $API_PATH?ref=${HEAD_SHA}"
+    
+    if gh api ${VERBOSE_FLAG} "${API_PATH}?ref=${HEAD_SHA}" \
+       --header 'Accept: application/vnd.github.v3.raw' \
+       > "${TMPDIR}/file_content" 2>"${ERROR_FILE}"; then
+        
+        debug "Successfully downloaded file (Method 1: direct path)"
+        
+        # Check if file is binary or text
+        if file "${TMPDIR}/file_content" | grep -q "text\|ASCII\|UTF"; then
+            echo "\`\`\`${LANG_ID}"
+            cat "${TMPDIR}/file_content"
+            echo "\`\`\`"
+        else
+            echo "_[Binary file - content not displayed]_"
+        fi
+        
+    else
+        # Capture the error for debugging
+        API_ERROR=$(<"${ERROR_FILE}")
+        debug "Method 1 failed: $API_ERROR"
+        
+        # Method 2: Try with proper URL encoding
+        debug "Method 2: URL-encoded path"
+        
+        # Proper URL encoding for GitHub API
+        # Spaces should be %20, not + 
+        encoded_path=$(printf '%s' "$filepath" | python3 -c "import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read().strip(), safe='/'))")
+        debug "Encoded path: $encoded_path"
+        
+        API_PATH_ENCODED="repos/${REPO_NAME}/contents/${encoded_path}"
+        debug "API endpoint: $API_PATH_ENCODED?ref=${HEAD_SHA}"
+        
+        if gh api ${VERBOSE_FLAG} "${API_PATH_ENCODED}?ref=${HEAD_SHA}" \
+           --header 'Accept: application/vnd.github.v3.raw' \
+           > "${TMPDIR}/file_content" 2>"${ERROR_FILE}"; then
+            
+            debug "Successfully downloaded file (Method 2: encoded path)"
+            
+            # Check if file is binary or text
+            if file "${TMPDIR}/file_content" | grep -q "text\|ASCII\|UTF"; then
+                echo "\`\`\`${LANG_ID}"
+                cat "${TMPDIR}/file_content"
+                echo "\`\`\`"
+            else
+                echo "_[Binary file - content not displayed]_"
+            fi
+            
+        else
+            API_ERROR=$(<"${ERROR_FILE}")
+            debug "Method 2 failed: $API_ERROR"
+            
+            # Method 3: Try using the trees API to get blob SHA
+            debug "Method 3: Using trees API to get blob SHA"
+            
+            # Get the tree for the commit
+            TREE_DATA=$(gh api ${VERBOSE_FLAG} "repos/${REPO_NAME}/git/trees/${HEAD_SHA}?recursive=1" 2>"${ERROR_FILE}" || echo "{}")
+            
+            # Find the blob SHA for this file
+            BLOB_SHA=$(echo "$TREE_DATA" | jq -r --arg path "$filepath" '.tree[] | select(.path == $path) | .sha')
+            
+            if [ -n "$BLOB_SHA" ] && [ "$BLOB_SHA" != "null" ]; then
+                debug "Found blob SHA: $BLOB_SHA"
+                
+                # Try to get the blob content
+                if gh api ${VERBOSE_FLAG} "repos/${REPO_NAME}/git/blobs/${BLOB_SHA}" \
+                   --header 'Accept: application/vnd.github.v3.raw' \
+                   > "${TMPDIR}/file_content" 2>"${ERROR_FILE}"; then
+                    
+                    debug "Successfully downloaded file (Method 3: blob SHA)"
+                    
+                    # Check if file is binary or text
+                    if file "${TMPDIR}/file_content" | grep -q "text\|ASCII\|UTF"; then
+                        echo "\`\`\`${LANG_ID}"
+                        cat "${TMPDIR}/file_content"
+                        echo "\`\`\`"
+                    else
+                        echo "_[Binary file - content not displayed]_"
+                    fi
+                else
+                    BLOB_ERROR=$(<"${ERROR_FILE}")
+                    debug "Blob download failed: $BLOB_ERROR"
+                    
+                    # Final error analysis
+                    analyze_error "$API_ERROR"
+                fi
+            else
+                debug "Could not find blob SHA for file"
+                
+                # Final error analysis
+                analyze_error "$API_ERROR"
+            fi
+        fi
+    fi
+done <<< "$FILES"
+
+success "PR info extracted!"
