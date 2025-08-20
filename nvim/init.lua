@@ -67,6 +67,7 @@ Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' } " FZF sorter f
 Plug 'nvim-telescope/telescope-ui-select.nvim'                    " Neovim core stuff can fill the telescope picker
 Plug 'nvim-telescope/telescope.nvim'                              " Find, Filter, Preview, Pick. All lua, all the time
 Plug 'nvim-tree/nvim-tree.lua'                                    " A file explorer tree for neovim written in lua
+Plug 'nvim-tree/nvim-web-devicons'                                " Provides Nerd Font icons (glyphs) for use by neovim plugins
 Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }     " Nvim Treesitter configurations and abstraction layer
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware text-objects, select, move, swap, and peek support
 Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
@@ -77,6 +78,7 @@ Plug 'rebelot/kanagawa.nvim'                                      " NeoVim dark 
 Plug 'reedes/vim-lexical'                                         " Build on Vim’s spell/thes/dict completion
 Plug 'saadparwaiz1/cmp_luasnip'                                   " luasnip completion source for nvim-cmp
 Plug 'scrooloose/nerdcommenter'                                   " quickly (un)comment lines
+Plug 'sindrets/diffview.nvim'                                     " Single tabpage interface for easily cycling through diffs for all modified files for any git rev
 Plug 'sjl/vitality.vim'                                           " Make Vim play nicely with iTerm 2 and tmux
 Plug 'slim-template/vim-slim'                                     " Syntax highlighting for slim
 Plug 'tpope/vim-abolish'                                          " easily search for, substitute, and abbreviate multiple variants of a word
@@ -135,6 +137,13 @@ require("yanky").setup()
 vim.cmd "let g:NERDDefaultAlign = 'left'"
 vim.cmd "let NERDSpaceDelims = 1"
 vim.cmd "let test#strategy = 'spawn'"
+
+-- diffview
+require('diffview').setup({
+  default_args = {
+    DiffviewOpen = { "--imply-local" },
+  }
+})
 
 -- gitsigns
 require('gitsigns').setup({
@@ -618,6 +627,10 @@ vim.keymap.set({ "n", "v" }, "<LocalLeader>ca", "<cmd>CodeCompanionActions<cr>",
 vim.keymap.set({ "n", "v" }, "<LocalLeader>a", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
 vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
 vim.cmd([[cab cc CodeCompanion]]) -- Expand 'cc' into 'CodeCompanion' in the command line
+
+-- diffview
+vim.keymap.set({ "n", "v" }, "<LocalLeader>do", "<cmd>DiffviewOpen<cr>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<LocalLeader>dc", "<cmd>DiffviewClose<cr>", { noremap = true, silent = true })
 
 -- ###########################################################################
 -- Autocommands
