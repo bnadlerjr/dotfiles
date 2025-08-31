@@ -50,6 +50,11 @@ rm -r ~/.claude/settings.json
 ln -s ${DIR}/claude/settings.json ~/.claude/settings.json
 echo " ...~/.claude/settings.json re-linked"
 
+echo " ...removing ~/.config/ccstatusline/settings.json"
+rm -r ~/.config/ccstatusline/settings.json
+ln -s ${DIR}/claude/ccstatusline.json ~/.config/ccstatusline/settings.json
+echo " ...~/.config/ccstatusline/settings.json re-linked"
+
 echo " ...removing ~/.claude/commands"
 rm -r ~/.claude/commands
 ln -s ${DIR}/claude/commands ~/.claude/commands

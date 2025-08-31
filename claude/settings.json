@@ -109,5 +109,10 @@
   },
   "feedbackSurveyState": {
     "lastShownTime": 1754088826871
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccstatusline@latest",
+    "padding": 0
   }
 }
