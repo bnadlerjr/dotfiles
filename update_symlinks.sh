@@ -64,3 +64,8 @@ echo " ...removing ~/.claude/agents"
 rm -r ~/.claude/agents
 ln -s ${DIR}/claude/agents ~/.claude/agents
 echo " ...~/.claude/agents re-linked"
+
+echo " ...removing ~/.config/karabiner/karabiner.json"
+rm -r ~/.config/karabiner/karabiner.json
+ln -s ${DIR}/karabiner/karabiner.json ~/.config/karabiner/karabiner.json
+echo " ...~/.config/karabiner/karabiner.json re-linked"

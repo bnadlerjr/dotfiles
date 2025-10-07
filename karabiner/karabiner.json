@@ -1,0 +1,78 @@
+{
+  "profiles": [
+    {
+      "complex_modifications": {
+        "rules": [
+          {
+            "manipulators": [
+              {
+                "description": "Change End to Hyper Key",
+                "from": {
+                  "key_code": "end"
+                },
+                "to": [
+                  {
+                    "key_code": "left_shift",
+                    "modifiers": ["left_command", "left_control", "left_option"]
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "description": "Change PgDn to Hyper Key",
+                "from": {
+                  "key_code": "page_down"
+                },
+                "to": [
+                  {
+                    "key_code": "left_shift",
+                    "modifiers": ["left_command", "left_control", "left_option"]
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "description": "Change Home to Command + Option",
+                "from": {
+                  "key_code": "home"
+                },
+                "to": [
+                  {
+                    "key_code": "left_command",
+                    "modifiers": ["left_option"]
+                  }
+                ],
+                "type": "basic"
+              },
+              {
+                "description": "Change PgUp to Command + Option",
+                "from": {
+                  "key_code": "page_up"
+                },
+                "to": [
+                  {
+                    "key_code": "left_command",
+                    "modifiers": ["left_option"]
+                  }
+                ],
+                "type": "basic"
+              }
+            ]
+          }
+        ]
+      },
+      "name": "Default profile",
+      "selected": true,
+      "simple_modifications": [
+        {
+          "from": { "key_code": "caps_lock" },
+          "to": [{ "key_code": "left_control" }]
+        }
+      ],
+      "virtual_hid_keyboard": {
+        "country_code": 0,
+        "keyboard_type_v2": "ansi"
+      }
+    }
+  ]
+}
