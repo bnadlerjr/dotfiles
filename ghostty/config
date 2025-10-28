@@ -4,3 +4,4 @@ font-family = RobotoMono Nerd Font
 font-size = 18
 shell-integration-features = no-cursor
 theme = nightfox
+keybind = shift+enter=text:\n
