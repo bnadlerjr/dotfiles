@@ -47,10 +47,11 @@ If you encounter a mismatch:
    - Green: Write minimal code to pass.
    - Refactor: Improve code while keeping tests green.
    - Review: Run quality check agents (pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover).
-3. **Test independence** - Each test must be able to run in isolation
-6. **Use appropriate test strategies** - Prefer stubs,fakes, etc. over verified mocks (e.g. prefer Detroit style over London style).
-7. **Document test setup** - Include all necessary test fixtures and factories
-8. **Quality assurance** - Every implementation must pass through the three quality check agents
+3. **Consult specialized agents** - Consult specialized agents in parallel as needed
+4. **Test independence** - Each test must be able to run in isolation
+5. **Use appropriate test strategies** - Prefer stubs,fakes, etc. over verified mocks (e.g. prefer Detroit style over London style).
+6. **Document test setup** - Include all necessary test fixtures and factories
+7. **Quality assurance** - Every implementation must pass through the three quality check agents
 
 ## Verification Approach
 

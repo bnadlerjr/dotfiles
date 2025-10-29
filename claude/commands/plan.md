@@ -50,7 +50,7 @@ Then wait for the user's input.
 
    - Use the **codebase-locator** agent to find all files related to the ticket/task
    - Use the **codebase-analyzer** agent to understand how the current implementation works
-   - If relevant, use the **thoughts-locator** agent to find any existing thoughts documents about this feature
+   - If relevant, use the **docs-locator** agent to find any existing thoughts documents about this feature
    - If a Jira ticket is mentioned, use the **jira-ticket-reader** agent to get full details
 
    These agents will:
@@ -69,6 +69,7 @@ Then wait for the user's input.
    - Identify any discrepancies or misunderstandings
    - Note assumptions that need verification
    - Determine true scope based on codebase reality
+   - Consult specialized agents in parallel as needed
 
 5. **Present informed understanding and focused questions**:
    ```
