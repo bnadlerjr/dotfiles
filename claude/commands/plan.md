@@ -1,1040 +1,440 @@
-# Plan Command - Implementation Planning Assistant with TDD
+---
+description: Create detailed implementation plans through interactive research and iteration
+model: opus
+---
 
-You are helping to create a detailed implementation plan for a software development task. Your goal is to research the codebase thoroughly and produce a comprehensive, actionable plan that follows Test-Driven Development with an outside-in approach.
+# Implementation Plan
 
-<quick_reference>
-## Quick Reference
-- **Core Rule**: Every task must be completable in < 10 minutes
-- **PR Structure**: Group tasks into PRs of 100-500 lines each
-- **Approach**: TDD with RED-GREEN-REFACTOR cycle
-- **Structure**: Outside-in (UI/API layer → Business logic → Pure functions)
-- **Quality Checks**: After each task run:
-  - `pragmatic-code-reviewer` - Review implementation
-  - `test-value-auditor` - Remove low-value tests
-  - `spurious-comment-remover` - Clean up comments
-- **Output**: Detailed plan saved to `.claude/specs/{{date}}-{{slug}}.md`
-- **Quality**: Create production-ready solutions that impress senior engineers
-- **CRITICAL**: Plans contain requirements only, NEVER actual code
-</quick_reference>
+You are tasked with creating detailed implementation plans through an interactive, iterative process. You should be skeptical, thorough, and work collaboratively with the user to produce high-quality technical specifications.
 
-<critical_instruction>
-## CRITICAL: No Implementation Code in Plans
+## Initial Response
 
-**NEVER include actual code in the plan.** This plan is for WHAT needs to be done, not HOW to code it.
+When this command is invoked:
 
-❌ **WRONG** (Never do this):
-```elixir
-def mount(_params, _session, socket) do
-  {:ok, assign(socket, form: to_form(%{}))}
-end
+1. **Check if parameters were provided**:
+   - If a file path or ticket reference was provided as a parameter, skip the default message
+   - Immediately read any provided files FULLY
+   - Begin the research process
+
+2. **If no parameters provided**, respond with:
+```
+I'll help you create a detailed implementation plan. Let me start by understanding what we're building.
+
+Please provide:
+1. The task/ticket description (or reference to a ticket file)
+2. Any relevant context, constraints, or specific requirements
+3. Links to related research or previous implementations
+
+I'll analyze this information and work with you to create a comprehensive plan.
+
+Tip: For deeper analysis, try: `/plan think deeply about thoughts/allison/tickets/eng_1234.md`
 ```
 
-✅ **CORRECT** (Always do this):
-**Implementation Requirements**:
-- Create mount function that initializes the socket
-- Set up form assigns for user input
-- Return successful mount tuple
+Then wait for the user's input.
 
-The implementing agents have full context of the codebase and will write the actual code. Your job is to specify requirements and behavior ONLY.
+## Process Steps
 
-If you find yourself writing `def`, `defmodule`, `test`, `@`, `~H`, or ANY Elixir syntax, STOP immediately and rewrite as plain text requirements.
-</critical_instruction>
+### Step 1: Context Gathering & Initial Analysis
 
-<core_principle>
-## Core Principle: The 10-Minute Rule
-Every task in the plan must be completable in under 10 minutes. This ensures:
-- Rapid feedback loops
-- Maintainable focus and momentum
-- Clear, measurable progress
-- Reduced cognitive load
+1. **Read all mentioned files immediately and FULLY**:
+   - Ticket files (e.g., `.claude/docs/tickets/eng_1234.md`)
+   - Research documents (e.g., `.claude/docs/research/eng_1234.md`)
+   - Related implementation plans (e.g., `.claude/docs/plans/eng_1234.md`)
+   - Any JSON/data files mentioned
+   - **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files
+   - **CRITICAL**: DO NOT spawn sub-tasks before reading these files yourself in the main context
+   - **NEVER** read files partially - if a file is mentioned, read it completely
 
-If a task seems larger than 10 minutes, break it down into smaller incremental tasks.
-</core_principle>
+2. **Spawn initial research tasks to gather context**:
+   Before asking the user any questions, use specialized agents to research in parallel:
 
-## Task
-Create an implementation plan for: $ARGUMENTS
+   - Use the **codebase-locator** agent to find all files related to the ticket/task
+   - Use the **codebase-analyzer** agent to understand how the current implementation works
+   - If relevant, use the **thoughts-locator** agent to find any existing thoughts documents about this feature
+   - If a Jira ticket is mentioned, use the **jira-ticket-reader** agent to get full details
 
-Create a comprehensive, production-ready plan that goes beyond the basics. Include thoughtful edge cases, error handling strategies, and performance considerations. Make this a plan that would impress a senior engineering team. Give it your all and ultrathink to create an exceptional implementation strategy.
+   These agents will:
+   - Find relevant source files, configs, and tests
+   - Identify the specific directories to focus on
+   - Trace data flow and key functions
+   - Return detailed explanations with file:line references
 
-## Process Overview
+3. **Read all files identified by research tasks**:
+   - After research tasks complete, read ALL files they identified as relevant
+   - Read them FULLY into the main context
+   - This ensures you have complete understanding before proceeding
 
-### Phase 1: Research (Do this first)
-Thoroughly investigate the codebase to understand:
-- **Project Type**: Is this a LiveView application, API-only (Absinthe/GraphQL), background processing (Oban), or hybrid?
-- **Entry Points**: Web UI, API endpoints, background jobs, scheduled tasks, or combinations?
-- **Architecture patterns**: Phoenix contexts, LiveView usage, GraphQL schema organization, Oban workers, OTP supervision trees
-- **Testing infrastructure**: ExUnit configuration, test helpers, factories (ExMachina)
-- **Dependencies**: Mix dependencies, hex packages in use (LiveView, Absinthe, Oban, etc.)
-- **Relevant files**: Which contexts, schemas, resolvers, LiveViews, workers, or controllers will be impacted
-- **Integration points**: How will new code connect with existing Phoenix/OTP systems
-- **Existing test patterns**: How are tests currently structured and organized
-- **For Oban projects specifically**:
-  - Existing workers and their patterns
-  - Queue configurations
-  - Retry strategies in use
-  - Error tracking setup
-  - Job uniqueness constraints
+4. **Analyze and verify understanding**:
+   - Cross-reference the ticket requirements with actual code
+   - Identify any discrepancies or misunderstandings
+   - Note assumptions that need verification
+   - Determine true scope based on codebase reality
 
-### Phase 2: Planning Process
-<thinking_process>
-After researching the codebase, carefully think hard on:
-1. **Quality of discovered patterns** - Are the existing patterns worth following or do they need improvement?
-2. **Optimal task breakdown** - How can this feature be split into truly independent 10-minute chunks?
-3. **Task dependencies** - What's the minimal ordering required between tasks?
-4. **Time validation** - For each task, genuinely assess: can this be done in 10 minutes?
-5. **Risk identification** - What could cause a task to exceed 10 minutes and how to prevent it?
-6. **Design emergence** - How will the design naturally evolve through the TDD process?
+5. **Present informed understanding and focused questions**:
+   ```
+   Based on the ticket and my research of the codebase, I understand we need to [accurate summary].
 
-Use your thinking capabilities to iterate on the plan until every task is optimally sized.
-</thinking_process>
+   I've found that:
+   - [Current implementation detail with file:line reference]
+   - [Relevant pattern or constraint discovered]
+   - [Potential complexity or edge case identified]
 
-<critical_thinking>
-Before proceeding to task creation, think deliberately about these critical points:
-- "Is this truly a requirement or am I describing implementation?" (think hard about this - any mention of specific Elixir syntax or code structure means you're describing HOW, not WHAT)
-- "Can each task realistically be completed in 10 minutes?" (really consider this - imagine a developer actually doing the work)
-- "How should tasks be grouped into PRs for optimal review?" (think about cohesion, size, and dependencies)
-- "Will each PR be between 100-500 lines?" (estimate based on typical line counts)
-- "Am I about to write any actual code in the plan?" (think carefully - if you're tempted to write code examples, STOP and convert to requirements)
-- "What would cause a task to exceed 10 minutes and how do I prevent it?" (consider complexity, dependencies, and scope)
-- "Are my test requirements describing behavior or implementation?" (behavior = WHAT to verify, implementation = HOW to test)
-- "Are the tasks appropriate for the entry point type?" (LiveView tasks for UI, Oban tasks for jobs, GraphQL tasks for API)
+   Questions that my research couldn't answer:
+   - [Specific technical question that requires human judgment]
+   - [Business logic clarification]
+   - [Design preference that affects implementation]
+   ```
 
-Take a moment to truly think through these points before creating any tasks. This thinking is crucial for creating a plan that works.
-</critical_thinking>
+   Only ask questions that you genuinely cannot answer through code investigation.
 
-### Phase 3: Plan Development
-<development_flow>
-Create a comprehensive plan following **Test-Driven Outside-In Development**:
+### Step 2: Research & Discovery
 
-**Development Flow:**
-1. **Start with the outermost layer tests**:
-   - For LiveView: LiveView module tests
-   - For GraphQL: Resolver/Schema tests
-   - For REST: Controller tests
-   - For Oban: Job integration tests
-2. **Write the test first** (Red phase) - test should fail initially
-3. **Implement minimal code** to pass the test (Green phase)
-4. **Run quality checks**:
-   - `pragmatic-code-reviewer` - Review the implementation
-   - `test-value-auditor` - Remove low-value tests
-   - `spurious-comment-remover` - Clean up unnecessary comments
-5. **Refactor** if needed, keeping tests green
-6. **Group related tasks into PRs** for efficient review (100-500 lines per PR)
-7. **Move inward** to the context layer, writing tests for business logic
-8. **Finally write pure function tests** for the innermost components
+After getting initial clarifications:
 
-**Test Hierarchy (Outside → In):**
+1. **If the user corrects any misunderstanding**:
+   - DO NOT just accept the correction
+   - Spawn new research tasks to verify the correct information
+   - Read the specific files/directories they mention
+   - Only proceed once you've verified the facts yourself
 
-For **LiveView Projects**:
-- **LiveView Tests**: Mount, render, handle_event, handle_info tests
-- **Component Tests**: Stateless function components
-- **Controller Tests**: HTTP endpoints for non-LiveView routes
-- **Context Tests**: Business logic with side effects
-- **Pure Function Tests**: Stateless functions, calculations
+2. **Create a research todo list** using TodoWrite to track exploration tasks
 
-For **GraphQL/Absinthe Projects**:
-- **Schema/Integration Tests**: Full GraphQL query/mutation tests
-- **Resolver Tests**: Individual resolver functions
-- **Subscription Tests**: GraphQL subscription behavior
-- **Context Tests**: Business logic with side effects  
-- **Pure Function Tests**: Stateless functions, transformations
+3. **Spawn parallel sub-tasks for comprehensive research**:
+   - Create multiple Task agents to research different aspects concurrently
+   - Use the right agent for each type of research:
 
-For **Oban/Background Job Projects**:
-- **Job Integration Tests**: Full job execution with real dependencies
-- **Worker Tests**: Job perform/2 function with stubbed dependencies
-- **Args Validation Tests**: Job argument validation and serialization
-- **Context Tests**: Business logic with side effects
-- **Pure Function Tests**: Stateless functions, calculations
-- **Key testing focuses**:
-  - Test job enqueuing with correct args
-  - Test job execution calls correct context functions
-  - Test job handles errors appropriately
-  - Test job idempotency (safe to run multiple times)
+   **For deeper investigation:**
+   - **codebase-locator** - To find more specific files (e.g., "find all files that handle [specific component]")
+   - **codebase-analyzer** - To understand implementation details (e.g., "analyze how [system] works")
+   - **codebase-pattern-finder** - To find similar features we can model after
 
-For **Hybrid Projects**:
-- Use appropriate test types based on the feature being implemented
-- API endpoints use GraphQL tests, UI features use LiveView tests, async work uses Oban tests
+   **For historical context:**
+   - **thoughts-locator** - To find any research, plans, or decisions about this area
+   - **thoughts-analyzer** - To extract key insights from the most relevant documents
 
-**Task & PR Sizing:**
-- **Each task**: Must be completable in under 10 minutes
-- **Each PR**: Should contain 100-500 lines total (including tests)
-- **Task grouping**: Related tasks that touch the same modules go in the same PR
-- **PR independence**: Each PR should be deployable on its own
-- Quality checks are run after implementation, not counted in the 10 minutes
-</development_flow>
+   **For related tickets:**
+   - **jira-searcher** - To find similar issues or past implementations
 
-### Phase 4: Plan Output
-After user approval, save the plan to: `.claude/specs/{{date}}-{{slug}}.md`
-- Generate slug from request (e.g., "add user auth" → "add-user-auth")
-- Use `date "+%Y-%m-%d"` for the date prefix
-- Stop after saving - do NOT begin implementation
+   Each agent knows how to:
+   - Find the right files and code patterns
+   - Identify conventions and patterns to follow
+   - Look for integration points and dependencies
+   - Return specific file:line references
+   - Find tests and examples
 
-**Important**: The plan should adapt its examples and structure based on whether the project uses:
-- **LiveView** (phoenix_live_view dependency)
-- **GraphQL** (absinthe dependency)  
-- **Both** (hybrid - choose based on the specific feature)
-- **REST only** (neither - use controller examples)
+3. **Wait for ALL sub-tasks to complete** before proceeding
 
-## Implementation Quality
+4. **Present findings and design options**:
+   ```
+   Based on my research, here's what I found:
 
-<quality_standards>
-Each task should produce high-quality, general-purpose solutions that:
-- Work correctly for all valid inputs, not just test cases
-- Follow Elixir idioms and best practices  
-- Are maintainable and extendable
-- Solve the actual problem comprehensively
-- Include proper error handling and edge cases
-- Consider performance implications
-- Provide clear, self-documenting code
+   **Current State:**
+   - [Key discovery about existing code]
+   - [Pattern or convention to follow]
 
-**Quality Assurance Process**:
-After each implementation, three specialized agents ensure code quality:
-- **pragmatic-code-reviewer**: Validates best practices, suggests improvements, ensures production readiness
-- **test-value-auditor**: Removes redundant or low-value tests, keeping test suite lean and meaningful
-- **spurious-comment-remover**: Eliminates obvious comments, keeping only valuable documentation
+   **Design Options:**
+   1. [Option A] - [pros/cons]
+   2. [Option B] - [pros/cons]
 
-Remember: Tests verify correctness, but the implementation should be production-ready and robust beyond just passing tests. Focus on creating solutions that would work in real-world scenarios with unexpected inputs and edge cases.
-</quality_standards>
+   **Open Questions:**
+   - [Technical uncertainty]
+   - [Design decision needed]
 
-## Plan Document Template
+   Which approach aligns best with your vision?
+   ```
 
-```markdown
-# [Descriptive Title]
+### Step 3: Plan Structure Development
 
-## High-Level Objective
-[Single paragraph describing the overall goal and business value]
+Once aligned on approach:
 
-## Mid-Level Objectives
-- [ ] [Concrete, measurable objective 1]
-- [ ] [Concrete, measurable objective 2]
-- [ ] [Each should represent a major milestone]
+1. **Create initial plan outline**:
+   ```
+   Here's my proposed plan structure:
 
-## Task Breakdown Strategy
-For this feature, we'll break the work into approximately [X] PRs containing [Y] total tasks:
+   ## Overview
+   [1-2 sentence summary]
 
-### PR Structure Overview
-- **PR 1**: [Feature area] ([X] tasks, ~[Y] lines)
-- **PR 2**: [Feature area] ([X] tasks, ~[Y] lines)
-- **PR 3**: [Feature area] ([X] tasks, ~[Y] lines)
-- **PR 4**: [Feature area] ([X] tasks, ~[Y] lines)
-- **PR 5**: [Feature area] ([X] tasks, ~[Y] lines)
+   ## Implementation Phases:
+   1. [Phase name] - [what it accomplishes]
+   2. [Phase name] - [what it accomplishes]
+   3. [Phase name] - [what it accomplishes]
 
-Total estimated time: ~[X] minutes ([X] hours) for implementation
-Total estimated diff: ~[Y] lines across [Z] PRs
+   Does this phasing make sense? Should I adjust the order or granularity?
+   ```
 
-**PR Size Guidelines**:
-- Each PR: 100-500 lines total (including tests)
-- Small PRs (~100-200 lines): Simple features, single responsibility
-- Medium PRs (~200-350 lines): Standard features with tests
-- Large PRs (~350-500 lines): Complex features, should consider splitting
+2. **Get feedback on structure** before writing details
 
-*Note: Time estimates exclude quality checks (pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover) which are run after each task*
+### Step 4: Detailed Plan Writing
 
-## Technical Approach
+After structure approval:
 
-### Project Type
-- **Type Identified**: [LiveView / GraphQL API / Oban Jobs / Hybrid / REST API]
-- **Primary Interface**: [Web UI / GraphQL API / Background Jobs / Multiple]
-- **Testing Strategy**: [LiveView-focused / GraphQL-focused / Oban-focused / Mixed]
+1. **Write the plan** to `.claude/docs/plans/YYYY-MM-DD-ENG-XXXX-description.md`
+   - Run the `git metadata` script to generate all relevant metadata
+   - Format: `YYYY-MM-DD-ENG-XXXX-description.md` where:
+     - YYYY-MM-DD is today's date
+     - ENG-XXXX is the ticket number (omit if no ticket)
+     - description is a brief kebab-case description
+   - Examples:
+     - With ticket: `2025-01-08-ENG-1478-parent-child-tracking.md`
+     - Without ticket: `2025-01-08-improve-error-handling.md`
+2. **Use this template structure**:
 
-### Architecture Decisions
-- [Key architectural choice and rationale]
-- [Technology selection and why]
+````markdown
+# [Feature/Task Name] Implementation Plan
 
-### Dependencies & Requirements
-- Existing: [What current code/libraries will be used]
-- New: [What needs to be added]
-- Testing Tools: 
-  - **Common**: ExUnit, ExMachina for factories
-  - **For LiveView**: Phoenix.LiveViewTest helpers
-  - **For GraphQL**: Absinthe test helpers, subscription test support
-  - **For Oban**: Oban.Testing for synchronous job execution in tests
+## Overview
 
-### Implementation Strategy
-[Describe the outside-in TDD approach for this specific task]
+[Brief description of what we're implementing and why]
+
+## Current State Analysis
+
+[What exists now, what's missing, key constraints discovered]
+
+## Desired End State
+
+[A Specification of the desired end state after this plan is complete, and how to verify it]
+
+### Key Discoveries:
+- [Important finding with file:line reference]
+- [Pattern to follow]
+- [Constraint to work within]
+
+## What We're NOT Doing
+
+[Explicitly list out-of-scope items to prevent scope creep]
+
+## Implementation Approach
+
+[High-level strategy and reasoning]
+
+## Phase 1: [Descriptive Name]
+
+### Overview
+[What this phase accomplishes]
+
+### Changes Required:
+
+#### 1. [Component/File Group]
+**File**: `path/to/file.ext`
+**Changes**: [Summary of changes]
+
+```[language]
+// Specific code to add/modify
+```
+
+### Success Criteria:
+
+#### Automated Verification:
+- [ ] Migration applies cleanly
+- [ ] Unit tests pass
+- [ ] Type checking passes
+- [ ] Linting passes
+- [ ] Integration tests pass
+
+#### Manual Verification:
+- [ ] Feature works as expected when tested via UI
+- [ ] Performance is acceptable under load
+- [ ] Edge case handling verified manually
+- [ ] No regressions in related features
+
+**Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
+
+---
+
+## Phase 2: [Descriptive Name]
+
+[Similar structure with both automated and manual success criteria...]
+
+---
 
 ## Testing Strategy
 
-### Test Pyramid
+### Unit Tests:
+- [What to test]
+- [Key edge cases]
 
-For **LiveView Projects**:
-```
-        /\        LiveView Tests (Few)
-       /  \       - Mount/render tests
-      /    \      - Event handler tests  
-     /______\     - Live navigation tests
-    /        \    Context Tests (Some)
-   /          \   - Business logic with DB
-  /            \  - GenServer/OTP tests
- /______________\ 
-                  Pure Function Tests (Many)
-                  - Schema validations
-                  - Pure transformations
-                  - Helper functions
-```
+### Integration Tests:
+- [End-to-end scenarios]
 
-For **GraphQL/Absinthe Projects**:
-```
-        /\        Schema Integration Tests (Few)
-       /  \       - Full query/mutation tests
-      /    \      - Subscription tests  
-     /______\     - Error handling tests
-    /        \    Resolver Tests (Some)
-   /          \   - Resolver logic tests
-  /            \  - Dataloader tests
- /______________\ 
-                  Pure Function Tests (Many)
-                  - Type coercions
-                  - Pure transformations
-                  - Helper functions
-```
+### Manual Testing Steps:
+1. [Specific step to verify feature]
+2. [Another verification step]
+3. [Edge case to test manually]
 
-For **Oban/Background Job Projects**:
-```
-        /\        Job Integration Tests (Few)
-       /  \       - Full job execution flow
-      /    \      - Job chaining tests  
-     /______\     - Retry behavior tests
-    /        \    Worker Tests (Some)
-   /          \   - Perform function tests
-  /            \  - Args validation tests
- /______________\ 
-                  Pure Function Tests (Many)
-                  - Data transformations
-                  - Business calculations
-                  - Helper functions
-```
+## Performance Considerations
 
-### Test Execution Order
+[Any performance implications or optimizations needed]
 
-**For LiveView Projects:**
-1. **Write failing LiveView test** for a small slice of functionality (~3 min)
-2. **Implement minimal LiveView mount/render** to make test pass (~5 min)
-3. **Run quality checks**: pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover
-4. **Add event handler test** for user interactions (~3 min)
-5. **Implement handle_event callback** (~5 min)
-6. **Run quality checks** again
-7. **Write context tests** for business logic
-8. **All tests green** = feature complete through many small increments
+## Migration Notes
 
-**For GraphQL Projects:**
-1. **Write failing schema test** for query/mutation (~3 min)
-2. **Add schema definition** with stub resolver (~5 min)
-3. **Run quality checks**: pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover
-4. **Write resolver test** for business logic (~3 min)
-5. **Implement resolver** with real logic (~5 min)
-6. **Run quality checks** again
-7. **Write context tests** for data layer
-8. **All tests green** = API feature complete
+[If applicable, how to handle existing data/systems]
 
-**For Oban Projects:**
-1. **Write failing job integration test** (~3 min)
-2. **Create worker module** with basic perform function (~5 min)
-3. **Run quality checks**: pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover
-4. **Write test for job enqueuing** (~3 min)
-5. **Implement enqueuing logic** at trigger point (~5 min)
-6. **Add idempotency test** (~3 min)
-7. **Implement idempotency checks** (~5 min)
-8. **Run quality checks** again
-9. **All tests green** = background job complete
+## References
 
-**Quality Check Workflow After Each Task**:
-- `pragmatic-code-reviewer`: Reviews implementation for best practices
-- `test-value-auditor`: Identifies and removes tests that don't provide value
-- `spurious-comment-remover`: Cleans up unnecessary or obvious comments
+- Original ticket: `.claude/docs/tickets/eng_XXXX.md`
+- Related research: `.claude/docs/research/[relevant].md`
+- Similar implementation: `[file:line]`
+````
 
-**Remember**: Each RED-GREEN cycle should take < 10 minutes total, not including quality checks
+### Step 5: Sync and Review
 
-### Test File Naming Convention
+1. **Present the draft plan location**:
+   ```
+   I've created the initial implementation plan at:
+   `.claude/docs/plans/YYYY-MM-DD-ENG-XXXX-description.md`
 
-For **LiveView Projects**:
-- LiveView: `test/my_app_web/live/[feature]_live_test.exs`
-- Components: `test/my_app_web/components/[component]_test.exs`
-- Controllers: `test/my_app_web/controllers/[resource]_controller_test.exs`
-- Context: `test/my_app/[context]_test.exs`  
-- Pure functions: `test/my_app/[module]_test.exs`
+   Please review it and let me know:
+   - Are the phases properly scoped?
+   - Are the success criteria specific enough?
+   - Any technical details that need adjustment?
+   - Missing edge cases or considerations?
+   ```
 
-For **GraphQL/Absinthe Projects**:
-- Schema Integration: `test/my_app_web/schema/[resource]_test.exs`
-- Resolvers: `test/my_app_web/resolvers/[resource]_resolver_test.exs`
-- Subscriptions: `test/my_app_web/schema/subscriptions/[resource]_test.exs`
-- Context: `test/my_app/[context]_test.exs`
-- Pure functions: `test/my_app/[module]_test.exs`
+2. **Iterate based on feedback** - be ready to:
+   - Add missing phases
+   - Adjust technical approach
+   - Clarify success criteria (both automated and manual)
+   - Add/remove scope items
 
-For **Oban/Background Job Projects**:
-- Workers: `test/my_app/workers/[feature]_worker_test.exs`
-- Job Integration: `test/my_app/jobs/[feature]_job_test.exs`
-- Context: `test/my_app/[context]_test.exs`
-- Pure functions: `test/my_app/[module]_test.exs`
-- Job helpers: `test/support/oban_case.ex` or `test/support/job_helpers.ex`
+3. **Continue refining** until the user is satisfied
 
-### Coverage Goals
+## Important Guidelines
 
-**For LiveView Projects:**
-- **LiveView modules**: Critical user paths (aim for 80% coverage)
-- **Event handlers**: All handle_event callbacks (90% coverage)
-- **Context**: All public functions (90% coverage)
-- **Pure Functions**: All business logic (95% coverage)
+1. **Be Skeptical**:
+   - Question vague requirements
+   - Identify potential issues early
+   - Ask "why" and "what about"
+   - Don't assume - verify with code
 
-**For GraphQL Projects:**
-- **Schema integration**: All queries/mutations (aim for 85% coverage)
-- **Resolvers**: All resolver functions (90% coverage)
-- **Subscriptions**: Critical real-time features (80% coverage)
-- **Context**: All public functions (90% coverage)
-- **Pure Functions**: All business logic (95% coverage)
+2. **Be Interactive**:
+   - Don't write the full plan in one shot
+   - Get buy-in at each major step
+   - Allow course corrections
+   - Work collaboratively
 
-**For Oban Projects:**
-- **Job integration**: Critical job workflows (aim for 85% coverage)
-- **Worker perform**: All worker perform functions (95% coverage)
-- **Idempotency logic**: All idempotency checks (100% coverage)
-- **Error handling**: All error paths (90% coverage)
-- **Context**: All public functions (90% coverage)
-- **Pure Functions**: All business logic (95% coverage)
+3. **Be Thorough**:
+   - Read all context files COMPLETELY before planning
+   - Research actual code patterns using parallel sub-tasks
+   - Include specific file paths and line numbers
+   - Write measurable success criteria with clear automated vs manual distinction
 
-## File Context
+4. **Be Practical**:
+   - Focus on incremental, testable changes
+   - Consider migration and rollback
+   - Think about edge cases
+   - Include "what we're NOT doing"
 
-### Starting State
+5. **Track Progress**:
+   - Use TodoWrite to track planning tasks
+   - Update todos as you complete research
+   - Mark planning tasks complete when done
 
-**For LiveView Projects:**
-```
-my_app/
-├── lib/
-│   ├── my_app/
-│   │   └── existing_context.ex
-│   └── my_app_web/
-│       ├── live/                 # LiveView modules
-│       ├── components/           # Function components
-│       └── controllers/          # REST controllers
-├── test/
-│   ├── my_app/
-│   └── my_app_web/
-│       └── live/
-└── ...
-```
+6. **No Open Questions in Final Plan**:
+   - If you encounter open questions during planning, STOP
+   - Research or ask for clarification immediately
+   - Do NOT write the plan with unresolved questions
+   - The implementation plan must be complete and actionable
+   - Every decision must be made before finalizing the plan
 
-**For GraphQL/Absinthe Projects:**
-```
-my_app/
-├── lib/
-│   ├── my_app/
-│   │   └── existing_context.ex
-│   └── my_app_web/
-│       ├── schema.ex            # Root schema
-│       ├── schema/
-│       │   └── types/           # GraphQL types
-│       └── resolvers/           # Resolver modules
-├── test/
-│   ├── my_app/
-│   └── my_app_web/
-│       ├── schema/
-│       └── resolvers/
-└── ...
-```
+## Success Criteria Guidelines
 
-**For Oban/Background Job Projects:**
-```
-my_app/
-├── lib/
-│   ├── my_app/
-│   │   ├── workers/             # Oban workers
-│   │   │   └── existing_worker.ex
-│   │   └── existing_context.ex
-│   └── my_app_web/              # Web layer (if present)
-├── test/
-│   ├── my_app/
-│   │   └── workers/
-│   └── support/
-│       └── oban_case.ex         # Oban test helpers
-└── ...
-```
+**Always separate success criteria into two categories:**
 
-### Target State
+1. **Automated Verification** (can be run by execution agents):
+   - Commands that can be run: `mix test`, `npm run lint`, etc.
+   - Specific files that should exist
+   - Code compilation/type checking
+   - Automated test suites
 
-**For LiveView Projects:**
-```
-my_app/
-├── lib/
-│   ├── my_app/
-│   │   ├── existing_context.ex     # [Modified: what changed]
-│   │   └── new_context.ex          # [New: business logic]
-│   └── my_app_web/
-│       └── live/
-│           └── new_feature_live.ex  # [New: LiveView module]
-├── test/
-│   ├── my_app/
-│   │   └── new_context_test.exs    # [New context tests]
-│   └── my_app_web/
-│       └── live/
-│           └── new_feature_live_test.exs  # [New LiveView tests]
-└── ...
-```
+2. **Manual Verification** (requires human testing):
+   - UI/UX functionality
+   - Performance under real conditions
+   - Edge cases that are hard to automate
+   - User acceptance criteria
 
-**For GraphQL/Absinthe Projects:**
-```
-my_app/
-├── lib/
-│   ├── my_app/
-│   │   ├── existing_context.ex     # [Modified: what changed]
-│   │   └── new_context.ex          # [New: business logic]
-│   └── my_app_web/
-│       ├── schema/
-│       │   └── types/
-│       │       └── new_type.ex     # [New: GraphQL type]
-│       └── resolvers/
-│           └── new_resolver.ex     # [New: resolver functions]
-├── test/
-│   ├── my_app/
-│   │   └── new_context_test.exs    # [New context tests]
-│   └── my_app_web/
-│       ├── schema/
-│       │   └── new_mutations_test.exs  # [New schema tests]
-│       └── resolvers/
-│           └── new_resolver_test.exs   # [New resolver tests]
-└── ...
-```
-
-**For Oban/Background Job Projects:**
-```
-my_app/
-├── lib/
-│   ├── my_app/
-│   │   ├── workers/
-│   │   │   ├── existing_worker.ex   # [Modified: if needed]
-│   │   │   └── new_feature_worker.ex # [New: Oban worker]
-│   │   ├── existing_context.ex      # [Modified: add job triggering]
-│   │   └── new_context.ex           # [New: business logic]
-│   └── my_app_web/                  # [Modified: if job triggered from web]
-├── test/
-│   ├── my_app/
-│   │   ├── workers/
-│   │   │   └── new_feature_worker_test.exs # [New worker tests]
-│   │   └── new_context_test.exs    # [New context tests]
-└── ...
-```
-
-## Implementation Tasks
-> Listed in execution order, following TDD outside-in development
-> ⏱️ Each task should take < 10 minutes to complete (test + implementation)
-
-### ⚠️ IMPORTANT: Use Requirements, Not Code
-
-When describing tasks, NEVER write actual code. Always use plain text requirements.
-
-❌ **WRONG - Never Include Code Like This**:
-```elixir
-defmodule MyApp.SomeModule do
-  def some_function(params) do
-    # actual implementation
-  end
-end
-```
-
-✅ **CORRECT - Always Use Requirements Like This**:
-**Implementation Requirements**:
-- Create module for handling X functionality  
-- Define function that accepts Y parameters
-- Implement logic to transform data from A to B
-- Return success tuple with processed result
-
-### For LiveView Features:
-
-#### [ ] Task 1: [LiveView Mount Test] (~8 minutes)
-**Reminder: Describe requirements only. No actual code.**
-
-- **Test First** ✅
-  - **Test File**: `test/my_app_web/live/feature_live_test.exs`
-  - **Test Type**: LiveView Test
-  - **Test Requirements** (plain text only, no code):
-    - Verify LiveView mounts successfully
-    - Navigate to the LiveView route
-    - Assert the page renders with expected content
-    - Verify initial assigns are set correctly
-    - Check for presence of key UI elements
-  - **Time to write test**: ~3 minutes
-
-- **Implementation**:
-  - **File**: `lib/my_app_web/live/feature_live.ex`
-  - **Action**: CREATE
-  - **Implementation Requirements** (plain text only, no code):
-    - Create minimal LiveView module
-    - Define mount function that returns success tuple with socket
-    - Set initial assigns needed for render
-    - Add basic render function or template
-    - Register route in router file
-  - **Time to implement**: ~5 minutes
-
-### For GraphQL/Absinthe Features:
-
-#### [ ] Task 1: [GraphQL Query Test] (~9 minutes)
-**Reminder: Describe requirements only. No actual code.**
-
-- **Test First** ✅
-  - **Test File**: `test/my_app_web/schema/feature_test.exs`
-  - **Test Type**: Schema Integration Test
-  - **Test Requirements** (plain text only, no code):
-    - Test GraphQL query execution
-    - Define query string with expected fields
-    - Set up test data using factories
-    - Execute query via post to GraphQL endpoint
-    - Assert response structure and data correctness
-    - Verify no errors in response
-  - **Time to write test**: ~4 minutes
-
-- **Implementation**:
-  - **File**: `lib/my_app_web/resolvers/feature_resolver.ex`
-  - **Action**: CREATE
-  - **Implementation Requirements** (plain text only, no code):
-    - Create resolver with stub implementation
-    - Define resolver function with proper arity
-    - Return hardcoded successful response
-    - Add field definition to schema
-    - Wire resolver to schema field
-  - **Time to implement**: ~5 minutes
-
-### For Oban/Background Job Features:
-
-#### [ ] Task 1: [Job Worker Test] (~9 minutes)
-**Reminder: Describe requirements only. No actual code.**
-
-- **Test First** ✅
-  - **Test File**: `test/my_app/workers/feature_worker_test.exs`
-  - **Test Type**: Worker Test
-  - **Test Requirements** (plain text only, no code):
-    - Test job enqueuing with proper args
-    - Test perform function executes successfully
-    - Test error handling and retry behavior
-    - Test idempotency (running job twice is safe)
-    - Verify side effects (emails sent, records created, etc.)
-    - Use Oban.Testing helpers for synchronous testing
-  - **Time to write test**: ~4 minutes
-
-- **Implementation**:
-  - **File**: `lib/my_app/workers/feature_worker.ex`
-  - **Action**: CREATE
-  - **Implementation Requirements** (plain text only, no code):
-    - Create Oban.Worker module
-    - Define perform function with job args parameter
-    - Add args validation at start of perform
-    - Implement idempotency checks (check if work already done)
-    - Set queue and max_attempts configuration
-    - Handle expected error cases with appropriate returns
-    - Add structured logging for debugging
-  - **Time to implement**: ~5 minutes
-
-### [ ] Task 2: [Context/Business Logic Layer] (~X minutes)
-**Reminder: Describe requirements only. No actual code.**
-
-- **Test First** ✅
-  - **Test File**: `test/my_app/context_name_test.exs`
-  - **Test Type**: Integration/Context
-  - **Test Requirements** (plain text only, no code):
-    - Test context function behavior
-    - Set up test database state if needed
-    - Call context function with test parameters
-    - Assert expected return value/structure
-    - Verify database changes if applicable
-    - Check for proper error handling
-  - **Expected Result**: Test fails initially
-  - **Time to write test**: ~3 minutes
-
-- **Implementation**:
-  - **File**: `lib/my_app/context_name.ex`
-  - **Action**: CREATE/UPDATE
-  - **Implementation Requirements** (plain text only, no code):
-    - Implement context function
-    - Define function with proper arity
-    - Add pattern matching for parameters
-    - Implement business logic or stub
-    - Return expected success/error tuples
-    - Handle edge cases as needed
-  - **Time to implement**: ~5 minutes
-
-### [ ] Task 3: [Choose based on project type] (~X minutes)
-**Reminder: Describe requirements only. No actual code.**
-
-**For LiveView - Component Test:**
-- **Test First** ✅
-  - **Test File**: `test/my_app_web/components/component_test.exs`
-  - **Test Requirements** (plain text only, no code):
-    - Test component rendering
-    - Call render_component with test props
-    - Assert HTML output contains expected elements
-    - Verify dynamic content renders correctly
-    - Check CSS classes and attributes
-  - **Time**: ~2 min test, ~4 min implementation
-
-**For GraphQL - Resolver Test:**
-- **Test First** ✅
-  - **Test File**: `test/my_app_web/resolvers/resolver_test.exs`
-  - **Test Requirements** (plain text only, no code):
-    - Test resolver function directly
-    - Set up test data/mocks
-    - Call resolver with parent, args, resolution parameters
-    - Assert success or error response
-    - Verify data transformation logic
-    - Test error scenarios
-  - **Time**: ~3 min test, ~5 min implementation
-
-**For Oban - Worker Unit Test:**
-- **Test First** ✅
-  - **Test File**: `test/my_app/workers/worker_test.exs`
-  - **Test Requirements** (plain text only, no code):
-    - Test worker perform function with stubbed dependencies
-    - Verify correct context functions are called
-    - Test various arg scenarios
-    - Test error handling within perform
-    - Verify return values for success/error/snooze
-    - Test any data transformation logic
-  - **Time**: ~3 min test, ~5 min implementation
-
-[Continue for all tasks...]
-
-## Risks & Considerations
-- [Potential issue and mitigation strategy]
-- [Breaking changes and how to handle]
-- [Performance implications]
-- [Test flakiness risks and how to avoid]
-
-## Success Criteria
-- [ ] **For LiveView**: All LiveView tests passing (mount, render, events work correctly)
-- [ ] **For GraphQL**: All schema tests passing (queries, mutations, subscriptions work)
-- [ ] **For Oban**: All job workers handle retries gracefully
-- [ ] **For Oban**: Jobs are idempotent (safe to run multiple times)
-- [ ] **For Oban**: Failed jobs log errors appropriately
-- [ ] **For Oban**: Job args are validated before processing
-- [ ] All context tests passing (business logic works correctly)
-- [ ] All pure function tests passing (calculations and transformations are correct)
-- [ ] Test coverage meets targets for each layer
-- [ ] No tests were skipped or commented out
-- [ ] Tests can run in isolation and with `async: true` where appropriate
-- [ ] CI/CD pipeline remains green (mix test passes)
-- [ ] **For GraphQL**: Introspection queries work correctly
-- [ ] **For LiveView**: Live navigation works without full page reloads
-- [ ] **For Oban**: Jobs complete successfully in production-like environment
-- [ ] Dialyzer passes without warnings
-- [ ] Credo checks pass
-- [ ] Each task can be completed independently without breaking the build
-- [ ] All code has been reviewed by pragmatic-code-reviewer agent
-- [ ] Low-value tests have been removed by test-value-auditor agent
-- [ ] Unnecessary comments have been cleaned up by spurious-comment-remover agent
-```
-
-## Requirements & Constraints
-
-<task_requirements>
-### The 10-Minute Rule (CRITICAL)
-Every task MUST be completable in under 10 minutes. This is non-negotiable. Break down any larger work into multiple small, incremental tasks.
-
-### TDD Requirements
-1. **Every task must start with a test** - Always write a failing test before any production code
-2. **Tests must be described as requirements** - Never include actual test code, only describe what to test
-3. **Follow Red-Green-Refactor-Review**:
-   - Red: Write a failing test (~3 minutes)
-   - Green: Write minimal code to pass (~5-7 minutes)
-   - Refactor: Improve code while keeping tests green (if > 2 min, make it a separate task)
-   - Review: Run quality check agents (pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover)
-4. **10-Minute Task Limit**:
-   - Each task = one small test + minimal implementation
-   - Complex features = multiple incremental tasks
-   - Include time estimates for each phase
-   - Quality checks are additional time, not counted in the 10 minutes
-5. **Test independence** - Each test must be able to run in isolation
-6. **Use appropriate test strategies** (describe in requirements, don't code):
-   - **Common**: ExMachina for factories, test stubs/doubles implemented as modules
-   - **LiveView**: Use LiveView test helpers, test the actual view behavior
-   - **GraphQL**: Test at the schema level, use context stubs when needed
-   - **Oban**: Use Oban.Testing for synchronous execution, test idempotency always
-   - **Database**: Sandbox mode for test isolation
-   - **External APIs**: Tesla.Mock for HTTP service stubbing or custom test modules
-7. **Document test setup** - Include all necessary test fixtures and factories
-8. **Quality assurance** - Every implementation must pass through the three quality check agents
-9. **NO CODE IN PLANS** - If you write any Elixir syntax, immediately delete and replace with requirements
-
-### General Requirements
-1. **NEVER include actual code** - Use only plain text requirements and descriptions
-2. **Group tasks into PRs** - Each PR should be 100-500 lines total for optimal review
-3. **Use relevant expert agents** when available:
-   - `elixir-otp-expert` for all Elixir/Phoenix projects
-   - `phoenix-liveview-expert` for LiveView-specific features (if available)
-   - `graphql-expert` for Absinthe/GraphQL features (if available)
-4. **Run quality check agents after each task**:
-   - `pragmatic-code-reviewer` - Reviews code for best practices and improvements
-   - `test-value-auditor` - Identifies and removes tests that don't provide value
-   - `spurious-comment-remover` - Removes unnecessary or obvious comments
-5. **Include checkboxes (`[ ]`)** for:
-   - All objectives in the plan
-   - **Each task title** (e.g., `### [ ] Task 1.1: Task name`)
-   - All sub-steps within tasks
-   - This enables progress tracking at every level
-6. **Be specific** with file paths, function names, and code patterns discovered during research
-7. **Follow outside-in development**: Start with the user-facing layer and work inward
-8. **10-Minute Rule**: Each task must be completable in under 10 minutes
-   - Break larger work into multiple small tasks
-   - Estimate time for both test writing (~3 min) and implementation (~5-7 min)
-   - If refactoring would exceed 10 minutes, make it a separate task
-   - Quality checks are additional time, not counted in the 10 minutes
-9. **Estimate line counts**: Provide diff size estimates for each task to plan PR sizes
-10. **Adapt to project type**: Use appropriate patterns for LiveView vs GraphQL
-11. **Focus on planning**: Complete the planning phase thoroughly before any implementation
-12. **Concise but complete**: Include all necessary details while maintaining clarity
-13. **Requirements only**: If you catch yourself writing code, immediately replace it with plain text requirements
-</task_requirements>
-
-## Example Task Structure
-
-### Good Examples - Complete TDD Tasks (Under 10 Minutes):
-
-**IMPORTANT: These examples show requirements only. Never include actual Elixir code.**
-
-#### LiveView Example:
+**Format example:**
 ```markdown
-### [ ] Task 1: Create Basic LiveView Route (~8 minutes)
+### Success Criteria:
 
-#### 1. RED - Write Failing Test (~3 minutes)
-**Test Requirements** (test/my_app_web/live/user_registration_live_test.exs):
-- Test that registration form renders
-- Navigate to /register route
-- Assert page contains "Create Account" text
-- Verify email input field is present
-- Check for submit button
+#### Automated Verification:
+- [ ] Database migration runs successfully
+- [ ] All unit tests pass
+- [ ] No linting errors
+- [ ] API endpoint returns 200
 
-**Run test**: ❌ Fails - route doesn't exist
-
-#### 2. GREEN - Minimal Implementation (~4 minutes)
-**Implementation Requirements** (lib/my_app_web/live/user_registration_live.ex):
-- Create minimal LiveView to pass test
-- Define LiveView module with proper structure
-- Implement mount function returning success tuple with basic assigns
-- Create render function with heading "Create Account", basic form with email input, submit button
-- Add route in router file for "/register" path pointing to UserRegistrationLive
-
-**Run test**: ✅ Passes
-
-**Note: NO ACTUAL CODE - implementing agents write the code based on these requirements**
+#### Manual Verification:
+- [ ] New feature appears correctly in the UI
+- [ ] Performance is acceptable with 1000+ items
+- [ ] Error messages are user-friendly
+- [ ] Feature works correctly on mobile devices
 ```
 
-#### GraphQL Example:
-```markdown
-### [ ] Task 1: Create User Query (~9 minutes)
+## Common Patterns
 
-#### 1. RED - Write Failing Test (~3 minutes)
-**Test Requirements** (test/my_app_web/schema/user_queries_test.exs):
-- Test user query returns user by ID
-- Create test user with factory
-- Define GraphQL query string for user(id: ID)
-- Post query to /api/graphql endpoint
-- Assert response contains user with correct id and email
+### For Database Changes:
+- Start with schema/migration
+- Add store methods
+- Update business logic
+- Expose via API
+- Update clients
 
-**Run test**: ❌ Fails - query doesn't exist
+### For New Features:
+- Research existing patterns first
+- Start with data model
+- Build backend logic
+- Add API endpoints
+- Implement UI last
 
-#### 2. GREEN - Add Query (~5 minutes)
-**Implementation Requirements**:
-- In schema file:
-  - Add user field to query block
-  - Add id argument with non-null ID type
-  - Set resolver to UserResolver.find function
-- In resolver file:
-  - Create resolver module
-  - Define find function with 3 parameters
-  - Return success tuple with stubbed user data
-  - Just enough to make test pass
+### For Refactoring:
+- Document current behavior
+- Plan incremental changes
+- Maintain backwards compatibility
+- Include migration strategy
 
-**Run test**: ✅ Passes
+## Sub-task Spawning Best Practices
 
-**Note: NO ACTUAL CODE - implementing agents write the code based on these requirements**
+When spawning research sub-tasks:
+
+1. **Spawn multiple tasks in parallel** for efficiency
+2. **Each task should be focused** on a specific area
+3. **Provide detailed instructions** including:
+   - Exactly what to search for
+   - Which directories to focus on
+   - What information to extract
+   - Expected output format
+4. **Be EXTREMELY specific about directories**:
+   - Include the full path context in your prompts
+5. **Specify read-only tools** to use
+6. **Request specific file:line references** in responses
+7. **Wait for all tasks to complete** before synthesizing
+8. **Verify sub-task results**:
+   - If a sub-task returns unexpected results, spawn follow-up tasks
+   - Cross-check findings against the actual codebase
+   - Don't accept results that seem incorrect
+
+Example of spawning multiple tasks:
+```python
+# Spawn these tasks concurrently:
+tasks = [
+    Task("Research database schema", db_research_prompt),
+    Task("Find API patterns", api_research_prompt),
+    Task("Investigate UI components", ui_research_prompt),
+    Task("Check test patterns", test_research_prompt)
+]
 ```
 
-### Example Task Breakdown for Complex Features:
+## Example Interaction Flow
 
-**LiveView User Registration (3 PRs, 8 tasks, ~450 lines total):**
+```
+User: /plan
+Assistant: I'll help you create a detailed implementation plan...
 
-**PR 1: Basic UI Structure** (~3 tasks, ~150 lines)
-- [ ] Task 1.1: Create route and basic LiveView mount (~8 min, ~50 lines)
-- [ ] Task 1.2: Add form rendering with email field (~7 min, ~40 lines)  
-- [ ] Task 1.3: Handle form submit event (~9 min, ~60 lines)
+User: We need to add parent-child tracking for Claude sub-tasks. See .claude/docs/tickets/eng_1478.md
+Assistant: Let me read that ticket file completely first...
 
-**PR 2: Validations & Feedback** (~2 tasks, ~120 lines)
-- [ ] Task 2.1: Add password field and validation display (~8 min, ~60 lines)
-- [ ] Task 2.2: Add success/error feedback (~9 min, ~60 lines)
+[Reads file fully]
 
-**PR 3: Business Logic & Persistence** (~3 tasks, ~180 lines)
-- [ ] Task 3.1: Create context function stub (~7 min, ~40 lines)
-- [ ] Task 3.2: Add database persistence (~10 min, ~80 lines)
-- [ ] Task 3.3: Add redirect after registration (~7 min, ~60 lines)
+Based on the ticket, I understand we need to track parent-child relationships for Claude sub-task events in the daemon. Before I start planning, I have some questions...
 
-**GraphQL User Management (3 PRs, 7 tasks, ~420 lines total):**
-
-**PR 1: Query Foundation** (~3 tasks, ~150 lines)
-- [ ] Task 1.1: Create user query with stub (~9 min, ~60 lines)
-- [ ] Task 1.2: Add user type definition (~6 min, ~30 lines)
-- [ ] Task 1.3: Add field resolution (~8 min, ~60 lines)
-
-**PR 2: Mutations** (~2 tasks, ~140 lines)
-- [ ] Task 2.1: Create user mutation schema (~8 min, ~60 lines)
-- [ ] Task 2.2: Add resolver with validation (~10 min, ~80 lines)
-
-**PR 3: Advanced Features** (~2 tasks, ~130 lines)
-- [ ] Task 3.1: Connect to context layer (~8 min, ~50 lines)
-- [ ] Task 3.2: Add subscription for user updates (~10 min, ~80 lines)
-
-**Oban Email Notification System (3 PRs, 8 tasks, ~430 lines total):**
-
-**PR 1: Basic Worker Setup** (~3 tasks, ~140 lines)
-- [ ] Task 1.1: Create EmailWorker with perform stub (~8 min, ~40 lines)
-- [ ] Task 1.2: Add job enqueuing from trigger point (~7 min, ~50 lines)
-- [ ] Task 1.3: Add args validation and serialization (~6 min, ~50 lines)
-
-**PR 2: Core Email Processing** (~3 tasks, ~180 lines)
-- [ ] Task 2.1: Implement email sending logic (~10 min, ~80 lines)
-- [ ] Task 2.2: Add idempotency checks (~8 min, ~50 lines)
-- [ ] Task 2.3: Add template selection logic (~7 min, ~50 lines)
-
-**PR 3: Error Handling & Monitoring** (~2 tasks, ~110 lines)
-- [ ] Task 3.1: Add retry logic and error handling (~9 min, ~60 lines)
-- [ ] Task 3.2: Add telemetry and logging (~8 min, ~50 lines)
-
-### Task Breakdown Best Practices:
-
-<good_practices>
-**Correct Approach for LiveView Features:**
-Break complex LiveView features into focused PRs with incremental tasks:
-
-**PR 1: Basic Structure** (~3 tasks, ~150 lines)
-- [ ] Task 1.1: Mount and basic render (~8 min, ~50 lines) + quality checks
-- [ ] Task 1.2: Add form with single field (~7 min, ~40 lines) + quality checks
-- [ ] Task 1.3: Handle submit event with stub (~8 min, ~60 lines) + quality checks
-
-**PR 2: Validation & Feedback** (~2 tasks, ~100 lines)
-- [ ] Task 2.1: Add validation display (~6 min, ~50 lines) + quality checks
-- [ ] Task 2.2: Add success feedback (~7 min, ~50 lines) + quality checks
-
-**PR 3: Business Logic** (~3 tasks, ~180 lines)
-- [ ] Task 3.1: Connect to context layer (~9 min, ~60 lines) + quality checks
-- [ ] Task 3.2: Add error handling (~8 min, ~60 lines) + quality checks
-- [ ] Task 3.3: Add live navigation (~7 min, ~60 lines) + quality checks
-
-Each PR is independently reviewable and deployable.
-After each task: run pragmatic-code-reviewer, test-value-auditor, spurious-comment-remover.
-
-**Correct Approach for GraphQL Features:**
-Break complex GraphQL features into focused PRs with incremental tasks:
-
-**PR 1: Query Foundation** (~3 tasks, ~150 lines)
-- [ ] Task 1.1: Basic query with stub resolver (~9 min, ~60 lines) + quality checks
-- [ ] Task 1.2: Add type definition (~6 min, ~30 lines) + quality checks
-- [ ] Task 1.3: Add field resolution (~8 min, ~60 lines) + quality checks
-
-**PR 2: Mutations & Validation** (~2 tasks, ~140 lines)
-- [ ] Task 2.1: Add input validation (~7 min, ~60 lines) + quality checks
-- [ ] Task 2.2: Connect to context (~8 min, ~80 lines) + quality checks
-
-**PR 3: Advanced Features** (~3 tasks, ~170 lines)
-- [ ] Task 3.1: Add error types (~7 min, ~50 lines) + quality checks
-- [ ] Task 3.2: Add subscription (~9 min, ~70 lines) + quality checks
-- [ ] Task 3.3: Add dataloader optimization (~8 min, ~50 lines) + quality checks
-
-Each PR builds on the previous one while being independently reviewable.
-
-**Correct Approach for Oban Background Jobs:**
-Break complex job workflows into focused PRs:
-
-**PR 1: Basic Job Structure** (~3 tasks, ~140 lines)
-- [ ] Task 1.1: Create worker with perform stub (~8 min, ~40 lines) + quality checks
-- [ ] Task 1.2: Add job enqueuing from trigger point (~7 min, ~50 lines) + quality checks
-- [ ] Task 1.3: Add args validation (~6 min, ~50 lines) + quality checks
-
-**PR 2: Core Processing** (~3 tasks, ~180 lines)
-- [ ] Task 2.1: Implement main job logic (~10 min, ~80 lines) + quality checks
-- [ ] Task 2.2: Add idempotency checks (~8 min, ~50 lines) + quality checks
-- [ ] Task 2.3: Add progress tracking/logging (~7 min, ~50 lines) + quality checks
-
-**PR 3: Error Handling & Monitoring** (~2 tasks, ~120 lines)
-- [ ] Task 3.1: Add error handling and retry logic (~9 min, ~60 lines) + quality checks
-- [ ] Task 3.2: Add telemetry and monitoring (~8 min, ~60 lines) + quality checks
-
-Key considerations for Oban jobs:
-- Always test idempotency (job can run multiple times safely)
-- Include structured logging for debugging
-- Consider job uniqueness constraints
-- Plan for partial failure scenarios
-- Test with Oban.Testing for synchronous execution in tests
-
-Quality checks ensure clean, maintainable code at each step.
-</good_practices>
-
-## Important Notes
-
-<planning_guidelines>
-- **No Code Principle**:
-  - Plans contain ZERO implementation code
-  - Use plain text descriptions of requirements
-  - If you're writing `def`, `defmodule`, `test`, `@`, `~H`, or any Elixir syntax, STOP
-  - The plan describes WHAT to build, agents decide HOW to build it
-  - Even examples should be requirement lists, not code blocks
-  - Every code block in the plan is a mistake - replace with requirements immediately
-
-- **PR Grouping Strategy**:
-  - Group related tasks that touch the same modules into one PR
-  - Keep infrastructure changes separate from business logic
-  - Each PR should tell a coherent story for reviewers
-  - Aim for 100-500 lines per PR for optimal review efficiency
-  - Document dependencies between PRs clearly
-  - Consider deployment order when structuring PRs
-
-- **Project Type Detection**:
-  - Check for `phoenix_live_view` in mix.exs → LiveView project
-  - Check for `absinthe` in mix.exs → GraphQL project
-  - Check for `oban` in mix.exs → Background job project
-  - Multiple present → Hybrid project (choose approach based on feature)
-  - Adjust test strategy and file structure accordingly
-
-- **Task Sizing Strategy**:
-  - One test + minimal implementation = one task
-  - Tests that require > 3 minutes indicate excessive complexity - split them
-  - Implementation requiring > 7 minutes indicates excessive scope - break it down
-  - Refactoring exceeding 2 minutes becomes its own task
-  - Use stubbed implementations liberally to keep tasks small
-  - Large refactoring should be split: one task per module/function being refactored
-  - Always provide line count estimates for PR planning
-
-- **Incremental Development**:
-  - Start with the simplest possible test that fails
-  - Write just enough code to pass that one test
-  - Allow future requirements to emerge naturally through subsequent tasks
-  - Let the design emerge through many small tasks
-
-- **Testing Philosophy**:
-  - Tests drive the design - let failing tests guide what code to write
-  - Each test should test ONE thing - keep tests focused and simple
-  - Test behavior, not implementation - tests should survive refactoring
-  - Use descriptive test names that explain what is being tested and expected
-  - Include both happy path and edge case tests in your plan
-  - Consider test data management and cleanup strategies
-  - Document any test utilities or helpers that need to be created
-
-- **Framework-Specific Testing**:
-  - **For LiveView**: 
-    - Test mount, render, handle_event, handle_info, and handle_params callbacks
-    - Use Phoenix.LiveViewTest helpers for simulating user interactions
-    - Test both connected and disconnected mount states when relevant
-  - **For GraphQL**: 
-    - Test queries, mutations, subscriptions separately
-    - Test resolvers with appropriate tooling
-    - Test error handling and validation at the schema level
-    - For subscriptions, test both the subscription setup and the publish events
-  - **For Oban**:
-    - Test job enqueuing with correct args
-    - Test perform function with various input scenarios
-    - Test idempotency - job can be safely run multiple times
-    - Test error handling and retry behavior
-    - Use Oban.Testing helpers for synchronous test execution
-    - Test job uniqueness constraints if configured
-  - **For OTP behaviors**: Test both the public API and handle callbacks
-
-- **Performance & Quality**:
-  - Use `async: true` for tests that have independent state
-  - Leverage ExUnit's built-in assertions and refute macros for clear test expressions
-  - Consider property-based testing with StreamData for complex domain logic
-  - Use doctests for simple pure functions to keep documentation and tests in sync
-  - Focus on creating production-ready code that handles edge cases gracefully
-</planning_guidelines>
+[Interactive process continues...]
+```
