@@ -78,7 +78,7 @@ Then wait for the user's research query.
    - Answer the user's specific questions with concrete evidence
 
 5. **Gather metadata for the research document:**
-   - Run the `git metadata` script to generate all relevant metadata
+   - You **MUST** run the `git metadata` command to generate all relevant metadata
    - Filename: `.claude/research/YYYY-MM-DD-description.md`
      - Format: `YYYY-MM-DD-description.md` where:
        - YYYY-MM-DD is today's date

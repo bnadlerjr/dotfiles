@@ -170,7 +170,7 @@ Once aligned on approach:
 After structure approval:
 
 1. **Write the plan** to `.claude/docs/plans/YYYY-MM-DD-ENG-XXXX-description.md`
-   - Run the `git metadata` script to generate all relevant metadata
+   - You **MUST** run the `git metadata` command to generate all relevant metadata
    - Format: `YYYY-MM-DD-ENG-XXXX-description.md` where:
      - YYYY-MM-DD is today's date
      - ENG-XXXX is the ticket number (omit if no ticket)
