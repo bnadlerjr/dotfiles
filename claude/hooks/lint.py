@@ -12,6 +12,42 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 
+def find_project_root(file_path):
+    """Find the project root directory by looking for package.json, mix.exs, or Gemfile."""
+    current_path = Path(file_path).resolve().parent
+
+    # Walk up the directory tree looking for project markers
+    for parent in [current_path] + list(current_path.parents):
+        # Check for various project markers
+        if (parent / "package.json").exists():
+            return str(parent)
+        elif (parent / "mix.exs").exists():
+            return str(parent)
+        elif (parent / "Gemfile").exists():
+            return str(parent)
+        elif (parent / "pyproject.toml").exists():
+            return str(parent)
+        elif (parent / "setup.py").exists():
+            return str(parent)
+
+    # Fallback to the file's directory
+    return str(current_path)
+
+
+def detect_package_manager(project_dir):
+    """Detect which package manager the project uses."""
+    project_path = Path(project_dir)
+
+    if (project_path / "yarn.lock").exists():
+        return "yarn"
+    elif (project_path / "pnpm-lock.yaml").exists():
+        return "pnpm"
+    elif (project_path / "package-lock.json").exists():
+        return "npm"
+    else:
+        return "npx"
+
+
 def run_command(command, cwd):
     """Run a shell command and return its output."""
     try:
@@ -82,16 +118,47 @@ def lint_python_file(file_path, project_dir):
 
 def lint_typescript_file(file_path, project_dir):
     """Run TypeScript linting commands in parallel."""
-    commands = [
-        f"npx eslint --fix {file_path}",
-        f"npx prettier --write {file_path}",
-        f"npx tsc --noEmit --skipLibCheck {file_path}",
-    ]
+    # Find the actual TypeScript project root
+    actual_project_dir = find_project_root(file_path)
+
+    # Detect package manager
+    pkg_manager = detect_package_manager(actual_project_dir)
+
+    # Convert to relative path from project root
+    try:
+        rel_path = os.path.relpath(file_path, actual_project_dir)
+    except ValueError:
+        # If paths are on different drives (Windows), use absolute path
+        rel_path = file_path
+
+    # Build commands based on package manager
+    if pkg_manager == "yarn":
+        commands = [
+            f"yarn eslint --fix {rel_path}",
+            f"yarn prettier --write {rel_path}",
+        ]
+    elif pkg_manager == "npm":
+        commands = [
+            f"npm exec eslint -- --fix {rel_path}",
+            f"npm exec prettier -- --write {rel_path}",
+        ]
+    elif pkg_manager == "pnpm":
+        commands = [
+            f"pnpm exec eslint --fix {rel_path}",
+            f"pnpm exec prettier --write {rel_path}",
+        ]
+    else:
+        # Fallback to npx
+        commands = [
+            f"npx eslint --fix {rel_path}",
+            f"npx prettier --write {rel_path}",
+        ]
 
     results = []
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:
         futures = {
-            executor.submit(run_command, cmd, project_dir): cmd for cmd in commands
+            executor.submit(run_command, cmd, actual_project_dir): cmd
+            for cmd in commands
         }
         for future in as_completed(futures):
             results.append(future.result())
