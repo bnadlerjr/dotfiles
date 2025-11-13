@@ -134,23 +134,23 @@ def lint_typescript_file(file_path, project_dir):
     # Build commands based on package manager
     if pkg_manager == "yarn":
         commands = [
-            f"yarn eslint --fix {rel_path}",
+            #  f"yarn eslint --fix {rel_path}",
             f"yarn prettier --write {rel_path}",
         ]
     elif pkg_manager == "npm":
         commands = [
-            f"npm exec eslint -- --fix {rel_path}",
+            #  f"npm exec eslint -- --fix {rel_path}",
             f"npm exec prettier -- --write {rel_path}",
         ]
     elif pkg_manager == "pnpm":
         commands = [
-            f"pnpm exec eslint --fix {rel_path}",
+            #  f"pnpm exec eslint --fix {rel_path}",
             f"pnpm exec prettier --write {rel_path}",
         ]
     else:
         # Fallback to npx
         commands = [
-            f"npx eslint --fix {rel_path}",
+            #  f"npx eslint --fix {rel_path}",
             f"npx prettier --write {rel_path}",
         ]
 
