@@ -1,3 +1,7 @@
+---
+model: opus
+---
+
 ## Changes Review - Multi-Agent Analysis
 
 ### Context

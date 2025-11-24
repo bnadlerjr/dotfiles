@@ -1,3 +1,7 @@
+---
+model: sonnet
+---
+
 # TDD Debug Fix
 Fix bug described in $ARGUMENTS using test-driven development with comprehensive analysis.
 

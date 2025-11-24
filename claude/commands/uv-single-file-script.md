@@ -1,3 +1,7 @@
+---
+model: sonnet
+---
+
 <context>
 You are generating a self-contained Python script for Claude Code hooks using UV (Astral's package manager) for dependency management. This script will be executed in a sandboxed environment with automatic dependency installation and must follow established patterns for reliability and performance.
 </context>

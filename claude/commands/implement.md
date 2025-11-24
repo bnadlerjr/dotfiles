@@ -1,5 +1,6 @@
 ---
 description: Implement technical plans from .claude/docs/plans with verification
+model: sonnet
 ---
 
 # Implement Plan

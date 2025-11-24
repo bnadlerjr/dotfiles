@@ -1,3 +1,7 @@
+---
+model: sonnet
+---
+
 # Apply Code Review Suggestions
 
 The following suggestions were made during a code review. Your objective is to use the appropriate agents to evaluate the suggestions and implement the changes.
