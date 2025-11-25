@@ -49,7 +49,7 @@ Include ALL of the following that are present in the backend plan:
 
 ## Output Format
 Provide the handoff document in Markdown format with clear sections and subsections. Use code blocks for schema definitions and data structures.
-**Write the handoff document** to `.claude/docs/handoffs/YYYY-MM-DD-ENG-XXXX-description.md`
+**Write the handoff document** to `$(claude-docs-path handoffs)/YYYY-MM-DD-ENG-XXXX-description.md`
    - You **MUST** run the `git metadata` command to generate all relevant metadata
    - Format: `YYYY-MM-DD-ENG-XXXX-description.md` where:
      - YYYY-MM-DD is today's date

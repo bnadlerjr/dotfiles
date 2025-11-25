@@ -71,7 +71,7 @@ Then wait for the user's research query.
    - IMPORTANT: Wait for ALL sub-agent tasks to complete before proceeding
    - Compile all sub-agent results (both codebase and docs findings)
    - Prioritize live codebase findings as primary source of truth
-   - Use .claude/docs/ findings as supplementary historical context
+   - Use docs directory findings as supplementary historical context
    - Connect findings across different components
    - Include specific file paths and line numbers for reference
    - Highlight patterns, connections, and architectural decisions
@@ -79,7 +79,7 @@ Then wait for the user's research query.
 
 5. **Gather metadata for the research document:**
    - You **MUST** run the `git metadata` command to generate all relevant metadata
-   - Filename: `.claude/research/YYYY-MM-DD-description.md`
+   - Filename: `$(claude-docs-path research)/YYYY-MM-DD-description.md`
      - Format: `YYYY-MM-DD-description.md` where:
        - YYYY-MM-DD is today's date
        - description is a brief kebab-case description of the research topic
@@ -132,13 +132,13 @@ Then wait for the user's research query.
      ## Architecture Documentation
      [Current patterns, conventions, and design implementations found in the codebase]
 
-     ## Historical Context (from .claude/docs/)
-     [Relevant insights from .claude/docs/ directory with references]
-     - `.claude/docs/something.md` - Historical decision about X
-     - `.claude/docs/notes.md` - Past exploration of Y
+     ## Historical Context
+     [Relevant insights from docs directory with references]
+     - `$(claude-docs-path)/something.md` - Historical decision about X
+     - `$(claude-docs-path)/notes.md` - Past exploration of Y
 
      ## Related Research
-     [Links to other research documents in .claude/docs/research/]
+     [Links to other research documents in `$(claude-docs-path research)/`]
 
      ## Open Questions
      [Any areas that need further investigation]
@@ -167,7 +167,7 @@ Then wait for the user's research query.
 ## Important notes:
 - Always use parallel Task agents to maximize efficiency and minimize context usage
 - Always run fresh codebase research - never rely solely on existing research documents
-- The .claude/docs/ directory provides historical context to supplement live findings
+- The docs directory (via `claude-docs-path`) provides historical context to supplement live findings
 - Focus on finding concrete file paths and line numbers for developer reference
 - Research documents should be self-contained with all necessary context
 - Each sub-agent prompt should be specific and focused on read-only documentation operations
@@ -176,7 +176,7 @@ Then wait for the user's research query.
 - Link to GitHub when possible for permanent references
 - Keep the main agent focused on synthesis, not deep file reading
 - Have sub-agents document examples and usage patterns as they exist
-- Explore all of .claude/docs/ directory, not just research subdirectory
+- Explore all of docs directory (via `claude-docs-path`), not just research subdirectory
 - **CRITICAL**: You and all sub-agents are documentarians, not evaluators
 - **REMEMBER**: Document what IS, not what SHOULD BE
 - **NO RECOMMENDATIONS**: Only describe the current state of the codebase

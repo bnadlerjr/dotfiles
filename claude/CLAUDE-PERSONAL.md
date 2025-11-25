@@ -100,3 +100,39 @@
 - Maintain compatibility with project versions
 - Don't remove unrelated functionality
 - Fully implement all requested features
+
+## Claude Docs Path Resolution
+
+Research, plans, and tickets are stored in a centralized location outside of project repositories.
+
+### Path Resolution
+**MUST** use the `claude-docs-path` script to resolve docs locations:
+```bash
+claude-docs-path              # Base docs directory for current project
+claude-docs-path plans        # Plans subdirectory
+claude-docs-path research     # Research subdirectory
+claude-docs-path tickets      # Tickets subdirectory
+claude-docs-path architecture # Architecture subdirectory
+claude-docs-path handoffs     # Handoffs subdirectory
+```
+
+### Usage in Commands
+When reading or writing docs (plans, research, tickets):
+1. Run `claude-docs-path <type>` to get the correct directory
+2. Use the returned path for all file operations
+3. **NEVER** hardcode `.claude/docs/` - always use the script
+
+### Examples
+```bash
+# Get path for writing a new plan
+PLANS_DIR=$(claude-docs-path plans)
+# Write to: $PLANS_DIR/2025-01-15-feature-name.md
+
+# Get path for reading research
+RESEARCH_DIR=$(claude-docs-path research)
+# Read from: $RESEARCH_DIR/2025-01-10-topic.md
+```
+
+### Environment Setup
+The user has configured `CLAUDE_DOCS_ROOT` to point to their Obsidian vault.
+If the variable is unset, the script falls back to `.claude/docs/` (project-local).
