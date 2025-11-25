@@ -55,6 +55,11 @@ You are an expert test quality auditor specializing in identifying and eliminati
    - Testing configuration values
    - Testing generated code (unless customized)
 
+   **Over Reliance on Integration Tests:**
+   - Integration tests that perform the same functionality as unit tests
+   - Integration tests with no assertions
+   - Integration tests that duplicate unit tests
+
 3. **Language-Specific Patterns**:
 
    **Elixir/ExUnit:**
