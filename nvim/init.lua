@@ -394,7 +394,22 @@ local servers = {
   solargraph = {},
   stimulus_ls = {},
   tailwindcss = {},
-  ts_ls = {}
+  ts_ls = {
+    typescript = {
+      preferences = {
+        includeCompletionsForModuleExports = true,
+        includeCompletionsForImportStatements = true,
+        includeCompletionsWithInsertText = true,
+      }
+    },
+    javascript = {
+      preferences = {
+        includeCompletionsForModuleExports = true,
+        includeCompletionsForImportStatements = true,
+        includeCompletionsWithInsertText = true,
+      }
+    }
+  }
 }
 
 -- Setup neovim lua configuration
@@ -437,7 +452,10 @@ null_ls.setup({
     null_ls.builtins.formatting.cljstyle,
     null_ls.builtins.formatting.djlint,
     null_ls.builtins.formatting.mix,
-    null_ls.builtins.formatting.prettierd,
+    null_ls.builtins.formatting.prettierd.with({
+      filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "css", "html",
+        "json" }
+    }),
     null_ls.builtins.formatting.rubocop,
     null_ls.builtins.formatting.shellharden,
     null_ls.builtins.formatting.shfmt
@@ -634,10 +652,31 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('v', '<leader>ca', vim.lsp.buf.code_action, { buffer = ev.buf, desc = 'LSP: [C]ode [A]ction' })
 
     vim.api.nvim_buf_create_user_command(ev.buf, 'Format', function(_)
-      vim.lsp.buf.format()
+      vim.lsp.buf.format({
+        filter = function(client)
+          return client.name ~= "eslint" and client.name ~= "ts_ls"
+        end
+      })
     end, { desc = 'Format current buffer with LSP' })
   end
 })
+
+-- ###########################################################################
+-- LSP Utilities
+-- ###########################################################################
+
+-- Synchronously organize TypeScript/JavaScript imports
+local function organize_imports_sync()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local params = {
+    command = "_typescript.organizeImports",
+    arguments = { vim.api.nvim_buf_get_name(bufnr) },
+    title = ""
+  }
+
+  -- Synchronous request with 500ms timeout to ensure it completes before save
+  vim.lsp.buf_request_sync(bufnr, "workspace/executeCommand", params, 500)
+end
 
 -- Highlight on yank
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
@@ -692,8 +731,17 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Autoformat files using LSP before saving; only doing this for languages
 -- that have "official" formatters
 vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = "*.ex,*.exs,*.heex,*.lua,*.js,*.jsx,*.ts,*.tsx",
+  pattern = "*.ex,*.exs,*.heex,*.lua",
   command = ":Format"
+})
+
+-- For TypeScript/JavaScript files, organize imports first, then format
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.js,*.jsx,*.ts,*.tsx",
+  callback = function()
+    organize_imports_sync()
+    vim.cmd("Format")
+  end
 })
 
 -- Fix known issue with slim plugin
