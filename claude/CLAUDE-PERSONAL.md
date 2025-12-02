@@ -101,6 +101,34 @@
 - Don't remove unrelated functionality
 - Fully implement all requested features
 
+## Claude Docs Git Metadata Resolution
+
+When a command or agent needs to retrieve docs metadata, it **MUST** use the
+custom `git metadata` command to resolve the correct metadata.
+
+### Output Fields
+- `Current Date/Time (TZ)` - Timestamp with timezone
+- `Current Git Commit Hash` - Full commit SHA
+- `Current Branch Name` - Active branch
+- `Repository Name` - Project name
+- `Area` - Project grouping
+- `Timestamp For Filename` - Formatted for filenames (YYYY-MM-DD_HH-MM-SS)
+
+### When to Use
+**ALWAYS** run `git metadata` when:
+1. Creating new plan/research/ticket documents (use `Timestamp For Filename`)
+2. Including commit context in documents (use `Current Git Commit Hash`)
+3. Referencing the current branch in documentation
+
+### Example Usage
+```bash
+# Get metadata before creating a document
+git metadata
+
+# Parse specific field
+TIMESTAMP=$(git metadata | grep "Timestamp For Filename" | cut -d: -f2 | tr -d ' ')
+```
+
 ## Claude Docs Path Resolution
 
 Research, plans, and tickets are stored in a centralized location outside of project repositories.
