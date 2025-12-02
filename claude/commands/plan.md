@@ -181,6 +181,14 @@ After structure approval:
 2. **Use this template structure**:
 
 ````markdown
+---
+tags: [plan, ai]
+Area: <Area name from metadata>
+Created: [[<Current data in YYYY-MM-DD format>]]
+Modified: <Current data in YYYY-MM-DD format>
+Project: [[<prompt the user for the project name or infer from research document>]]
+---
+
 # [Feature/Task Name] Implementation Plan
 
 ## Overview

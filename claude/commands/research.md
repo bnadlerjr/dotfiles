@@ -92,14 +92,11 @@ Then wait for the user's research query.
    - Structure the document with YAML frontmatter followed by content:
      ```markdown
      ---
-     date: [Current date and time with timezone in ISO format]
-     git_commit: [Current commit hash]
-     branch: [Current branch name]
-     repository: [Repository name]
-     topic: "[User's Question/Topic]"
-     tags: [research, codebase, relevant-component-names]
-     status: complete
-     last_updated: [Current date in YYYY-MM-DD format]
+     tags: [research, ai]
+     Area: <Area name from metadata>
+     Created: [[<Current data in YYYY-MM-DD format>]]
+     Modified: <Current data in YYYY-MM-DD format>
+     Project: [[<prompt the user for the project name>]]
      ---
 
      # Research: [User's Question/Topic]
@@ -108,6 +105,10 @@ Then wait for the user's research query.
      **Git Commit**: [Current commit hash from step 4]
      **Branch**: [Current branch name from step 4]
      **Repository**: [Repository name]
+     **Topic**: [User's Question/Topic]
+     **Tags**: [research, codebase, relevant-component-names]
+     **Status**: complete
+     **Last Updated**: [Current date in YYYY-MM-DD format]
 
      ## Research Question
      [Original user query]
@@ -158,8 +159,8 @@ Then wait for the user's research query.
 
 9. **Handle follow-up questions:**
    - If the user has follow-up questions, append to the same research document
-   - Update the frontmatter fields `last_updated` to reflect the update
-   - Add `last_updated_note: "Added follow-up research for [brief description]"` to frontmatter
+   - Update the heading fields `Last Updated` to reflect the update
+   - Add `Last Updated Note: "Added follow-up research for [brief description]"` to headings
    - Add a new section: `## Follow-up Research [timestamp]`
    - Spawn new sub-agents as needed for additional investigation
    - Continue updating the document and syncing
@@ -189,6 +190,4 @@ Then wait for the user's research query.
 - **Frontmatter consistency**:
   - Always include frontmatter at the beginning of research documents
   - Keep frontmatter fields consistent across all research documents
-  - Update frontmatter when adding follow-up research
-  - Use snake_case for multi-word field names (e.g., `last_updated`, `git_commit`)
   - Tags should be relevant to the research topic and components studied
