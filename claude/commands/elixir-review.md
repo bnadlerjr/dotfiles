@@ -16,6 +16,10 @@ Conduct a comprehensive review of the current Git branch changes using sub-agent
 
 ##### Code Quality Review Track
 
+Deploy the following general code quality agents based on files changed in parallel:
+- **kent-beck-reviewer**
+- **pragmatic-code-reviewer**
+
 Deploy the following Elixir specialist agents based on files changed in parallel:
 
 - **absinthe-graphql-architect**: Review GraphQL schema changes, resolver patterns, subscription implementations

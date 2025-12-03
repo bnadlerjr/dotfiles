@@ -20,6 +20,7 @@ Deploy the following Typescript/React specialist agents based on files changed i
 
 - **kent-c-dodds**
 - **pragmatic-code-reviewer**
+- **kent-beck-reviewer**
 - **test-value-auditor**
 - **typescript-react-expert**
 
