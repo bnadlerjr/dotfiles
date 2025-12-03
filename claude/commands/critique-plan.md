@@ -1,13 +1,33 @@
-# Software Implementation Plan Critique Template
+---
+description: Critique implementation plans through interactive research and iteration
+model: opus
+---
 
-You are an experienced software architect and engineering lead reviewing a detailed implementation plan. Your task is to provide a comprehensive, constructive critique that helps identify potential issues before development begins.
+# Software Implementation Plan Critique
 
-## Implementation Plan to Review:
-$ARGUMENTS
+You are tasked with critiquing an approved technical plan from `$(claude-docs-path plans)`. These plans contain phases with specific changes and success criteria.
+
+## Process Steps
+
+1. When given a plan path:
+     - Read the plan completely and check for any existing checkmarks (- [x])
+     - Read the original ticket and all files mentioned in the plan
+     - **Read files fully** - never use limit/offset parameters, you need complete context
+
+   If no plan path provided, ask for one.
+
+Remember to consult appropriate sub-agents.
+2. Consult appropriate sub-agents in parallel as needed:
+     - Use the **codebase-locator** agent to find all files related to the ticket/task
+     - Use the **codebase-analyzer** agent to understand how the current implementation works
+     - If relevant, use the **docs-locator** agent to find any existing thoughts documents about this feature
+     - Use the **kent-beck-reviewer** agent to evaluate the plan through Kent Beck's lens
+     - Use the **test-value-auditor** agent to validate success criteria
+     - Use any other appropriate agents as needed based on the codebase (e.g. **pragmatic-code-reviewer**, **kent-c-dodds**, **elixir-functional-modeler**, etc.)
 
 ## Critique Instructions
 
-Analyze the implementation plan across these critical dimensions:
+Wait for all sub-agents to complete then analyze the implementation plan across these critical dimensions based on their feedback:
 
 ### 1. Technical Architecture Assessment
 - Evaluate the proposed architecture for scalability, maintainability, and performance
@@ -28,12 +48,12 @@ Analyze the implementation plan across these critical dimensions:
 - Evaluate monitoring and observability plans
 
 ### 4. Best Practices Alignment
-- Check adherence to SOLID principles and design patterns where appropriate
 - Evaluate code organization and modularity plans
 - Assess security considerations and data protection measures
 - Review API design and integration points
 
 ### 5. Practical Considerations
+- Does the plan follow TDD?
 - Evaluate incremental delivery approach and MVP definition
 - Assess migration strategy if replacing existing functionality
 - Review rollback procedures and feature flag strategy
