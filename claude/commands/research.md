@@ -97,6 +97,7 @@ Then wait for the user's research query.
      Created: [[<Current data in YYYY-MM-DD format>]]
      Modified: <Current data in YYYY-MM-DD format>
      Project: [[<prompt the user for the project name>]]
+     AutoNoteMover: disable
      ---
 
      # Research: [User's Question/Topic]
