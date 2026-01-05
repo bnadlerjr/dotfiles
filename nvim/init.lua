@@ -120,6 +120,9 @@ vim.o.wrap = true                      -- Turn on line wrapping
 vim.wo.number = true                   -- Display line numbers
 vim.wo.signcolumn = 'yes'              -- Always show signcolumn
 
+-- Use system clipboard for all yank and paste operations
+vim.opt.clipboard:append("unnamedplus")
+
 local colorscheme = vim.env.NVIM_COLORSCHEME or 'nightfox'
 vim.cmd('colorscheme ' .. colorscheme)
 
