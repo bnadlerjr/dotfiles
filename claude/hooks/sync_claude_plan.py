@@ -1,27 +1,146 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.8"
-# dependencies = []
+# dependencies = ["pyyaml"]
 # ///
 
 """
 Sync Claude Code plans to project-specific directory.
 
-This PostToolUse hook moves plan files from ~/.claude/plans/ to the
-project-specific plans directory (via claude-docs-path) and creates
+This PostToolUse hook for ExitPlanMode moves plan files from ~/.claude/plans/
+to the project-specific plans directory (via claude-docs-path) and creates
 a symlink back for Claude Code compatibility.
+
+The hook receives plan content via tool_response.plan and the file path via
+tool_response.filePath when Claude exits plan mode.
 
 The target filename is derived from the H1 header in the markdown content,
 following the pattern: YYYY-MM-DD-<slugified-h1>.md
+
+Additionally, this hook ensures proper Obsidian-compatible YAML frontmatter
+is present with metadata from `git metadata`.
 """
 
 import json
 import re
-import shutil
 import subprocess
 import sys
 from datetime import date
 from pathlib import Path
+
+import yaml
+
+FRONTMATTER_PATTERN = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
+
+DEFAULT_TAGS = ["plan", "ai"]
+
+
+class ObsidianDumper(yaml.SafeDumper):
+    """Custom YAML dumper for Obsidian-compatible frontmatter."""
+
+    pass
+
+
+def _str_representer(dumper, data):
+    """Represent strings, keeping wiki-links readable."""
+    if data.startswith("[[") and data.endswith("]]"):
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+
+
+ObsidianDumper.add_representer(str, _str_representer)
+
+
+def get_git_metadata() -> dict[str, str]:
+    """Get metadata from git metadata command."""
+    try:
+        result = subprocess.run(
+            ["git", "metadata"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode != 0:
+            return {}
+
+        metadata = {}
+        for line in result.stdout.strip().split("\n"):
+            if ":" in line:
+                key, value = line.split(":", 1)
+                metadata[key.strip()] = value.strip()
+        return metadata
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return {}
+
+
+def parse_frontmatter(content: str) -> tuple[dict, str]:
+    """Parse YAML frontmatter from markdown content.
+
+    Returns:
+        Tuple of (frontmatter_dict, body_content)
+    """
+    match = FRONTMATTER_PATTERN.match(content)
+    if match:
+        try:
+            frontmatter = yaml.safe_load(match.group(1))
+            if not isinstance(frontmatter, dict):
+                frontmatter = {}
+            body = content[match.end() :]
+            return frontmatter, body
+        except yaml.YAMLError:
+            return {}, content
+    return {}, content
+
+
+def build_frontmatter(existing: dict, git_metadata: dict) -> dict:
+    """Build complete frontmatter by merging existing with git metadata."""
+    today = date.today().isoformat()
+
+    frontmatter = existing.copy()
+
+    # Ensure tags include defaults
+    existing_tags = frontmatter.get("tags", [])
+    if isinstance(existing_tags, str):
+        existing_tags = [existing_tags]
+    merged_tags = list(dict.fromkeys(DEFAULT_TAGS + existing_tags))
+    frontmatter["tags"] = merged_tags
+
+    # Set Area from git metadata if not present
+    if "Area" not in frontmatter and "Area" in git_metadata:
+        frontmatter["Area"] = git_metadata["Area"]
+
+    # Set Created if not present (Obsidian wiki-link format)
+    if "Created" not in frontmatter:
+        frontmatter["Created"] = f"[[{today}]]"
+
+    # Always update Modified
+    frontmatter["Modified"] = today
+
+    # Disable AutoNoteMover for plans (they're already in the right place)
+    if "AutoNoteMover" not in frontmatter:
+        frontmatter["AutoNoteMover"] = "disable"
+
+    return frontmatter
+
+
+def serialize_frontmatter(frontmatter: dict) -> str:
+    """Serialize frontmatter dict to YAML string with --- delimiters."""
+    yaml_content = yaml.dump(
+        frontmatter,
+        Dumper=ObsidianDumper,
+        default_flow_style=False,
+        allow_unicode=True,
+        sort_keys=False,
+    )
+    return f"---\n{yaml_content}---\n"
+
+
+def ensure_frontmatter(content: str) -> str:
+    """Ensure content has proper Obsidian frontmatter with metadata."""
+    git_metadata = get_git_metadata()
+    existing_fm, body = parse_frontmatter(content)
+    updated_fm = build_frontmatter(existing_fm, git_metadata)
+    return serialize_frontmatter(updated_fm) + body
 
 
 def get_target_plans_dir() -> str | None:
@@ -118,23 +237,19 @@ def main():
     except json.JSONDecodeError:
         sys.exit(0)
 
-    # Only process Write tool
-    if input_data.get("tool_name") != "Write":
+    # Only process ExitPlanMode tool
+    if input_data.get("tool_name") != "ExitPlanMode":
         sys.exit(0)
 
-    tool_input = input_data.get("tool_input", {})
-    file_path = tool_input.get("file_path", "")
-    content = tool_input.get("content", "")
+    # Get plan content and file path from tool_response
+    tool_response = input_data.get("tool_response", {})
+    file_path = tool_response.get("filePath", "")
+    content = tool_response.get("plan", "")
 
-    if not file_path:
+    if not file_path or not content:
         sys.exit(0)
 
-    # Only process files in ~/.claude/plans/
-    claude_plans_dir = Path.home() / ".claude" / "plans"
     file_path = Path(file_path)
-
-    if not str(file_path).startswith(str(claude_plans_dir)):
-        sys.exit(0)
 
     # Skip if already a symlink (already processed)
     if file_path.is_symlink():
@@ -156,18 +271,26 @@ def main():
     target_filename = generate_filename(content, file_path.name)
     target_path = find_unique_path(target_dir, target_filename)
 
-    # Move file to target location
+    # Ensure proper frontmatter with metadata
+    updated_content = ensure_frontmatter(content)
+
+    # Write updated content to target location
     try:
-        shutil.move(str(file_path), str(target_path))
+        target_path.write_text(updated_content, encoding="utf-8")
     except OSError:
         sys.exit(0)
 
-    # Create symlink back to original location
+    # Remove original file and create symlink back
     try:
+        file_path.unlink()
         file_path.symlink_to(target_path)
     except OSError:
-        # If symlink fails, restore the file
-        shutil.move(str(target_path), str(file_path))
+        # If symlink fails, keep updated content in original location
+        try:
+            target_path.unlink()
+            file_path.write_text(updated_content, encoding="utf-8")
+        except OSError:
+            pass
         sys.exit(0)
 
 
