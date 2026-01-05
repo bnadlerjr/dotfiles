@@ -29,6 +29,8 @@ def find_project_root(file_path):
             return str(parent)
         elif (parent / "setup.py").exists():
             return str(parent)
+        elif any(parent.glob("*.tf")):
+            return str(parent)
 
     # Fallback to the file's directory
     return str(current_path)
@@ -166,6 +168,26 @@ def lint_typescript_file(file_path, project_dir):
     return results
 
 
+def lint_terraform_file(file_path, project_dir):
+    """Run Terraform formatting and validation in parallel."""
+    tf_dir = str(Path(file_path).parent)
+
+    commands = [
+        f"terraform fmt {file_path}",
+        f"terraform -chdir={tf_dir} validate",
+    ]
+
+    results = []
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = {
+            executor.submit(run_command, cmd, project_dir): cmd for cmd in commands
+        }
+        for future in as_completed(futures):
+            results.append(future.result())
+
+    return results
+
+
 def format_output(results, file_path):
     """Format linting results for output."""
     has_errors = False
@@ -217,6 +239,8 @@ def main():
             results = lint_python_file(file_path, project_dir)
         elif path.suffix in [".ts", ".tsx", ".js", ".jsx"]:
             results = lint_typescript_file(file_path, project_dir)
+        elif path.suffix in [".tf", ".tfvars"]:
+            results = lint_terraform_file(file_path, project_dir)
         else:
             # No linting for other file types
             sys.exit(0)
