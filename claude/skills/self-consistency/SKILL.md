@@ -1,6 +1,6 @@
 ---
 name: self-consistency
-description: Generates multiple independent reasoning paths and selects the answer by majority vote or consensus. Use for verification, catching edge cases, high-stakes decisions, or any problem where multiple valid approaches exist. Triggers on "verify", "double-check", "are you sure", or when confidence in a single approach is insufficient.
+description: Generates multiple independent reasoning paths and selects the answer by majority vote or consensus. Use when user asks to verify, double-check, or validate important work. Recognizes requests like "make sure this is right", "double-check", "verify", "is this correct", "validate my approach", "check for errors", "are you sure", "this is critical so please verify". Also applies automatically for high-stakes implementations where errors would be costly.
 ---
 
 # Self-Consistency

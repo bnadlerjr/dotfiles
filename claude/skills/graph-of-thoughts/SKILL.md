@@ -1,6 +1,6 @@
 ---
 name: graph-of-thoughts
-description: Graph-structured reasoning that aggregates, refines, and synthesizes insights from multiple sources or reasoning chains. Use for combining research findings, merging partial solutions, iterative refinement, or any task requiring convergence of diverse inputs. Triggers on "synthesize", "combine insights", "aggregate findings", or multi-source integration.
+description: Graph-structured reasoning that aggregates, refines, and synthesizes insights from multiple sources or reasoning chains. Use when user provides multiple inputs that need combining, or asks to synthesize findings. Recognizes requests like "combine these ideas", "synthesize my research", "put this together", "merge these approaches", "based on all of this, what should I do", "taking everything into account", "integrate these findings". Also applies after research or brainstorming when convergence is needed.
 ---
 
 # Graph of Thoughts (GoT)

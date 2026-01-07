@@ -1,6 +1,6 @@
 ---
 name: skeleton-of-thought
-description: Two-phase reasoning that generates a high-level skeleton first, then expands each point. Use for planning, document creation, presentations, or any structured output where seeing the whole before details prevents drift. Triggers on "outline first", "create a plan", "structure this", or requests for organized multi-part outputs.
+description: Two-phase reasoning that generates a high-level skeleton first, then expands each point. Use when user asks for a plan, outline, or structured approach. Recognizes requests like "create a plan", "outline the steps", "how should I structure this", "what's the roadmap", "break this into phases", "give me a high-level overview first", "plan out the implementation", "what are the main parts". Also applies before implementing features or creating multi-section documents.
 ---
 
 # Skeleton of Thought (SoT)

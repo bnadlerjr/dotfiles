@@ -1,6 +1,6 @@
 ---
 name: program-of-thoughts
-description: Separates reasoning from computation by generating executable code for calculations. Use for mathematical problems, data transformations, financial calculations, or any task where LLM arithmetic is error-prone. Triggers on numerical calculations, "compute", "calculate precisely", or problems involving large numbers or complex formulas.
+description: Separates reasoning from computation by generating executable code for calculations. Use when user asks for calculations, data processing, or numerical analysis. Recognizes requests like "calculate", "compute", "how much would", "what's the total", "analyze this data", "crunch the numbers", "figure out the math", "process these values". Also applies automatically when implementing logic that involves arithmetic, formulas, or data transformations—generate code instead of computing mentally.
 ---
 
 # Program of Thoughts (PoT)

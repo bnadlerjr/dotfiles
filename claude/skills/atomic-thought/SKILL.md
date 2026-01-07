@@ -1,6 +1,6 @@
 ---
 name: atomic-thought
-description: Decomposition-based reasoning that breaks problems into independent, self-contained units. Use for multi-hop reasoning, research tasks, complex fact-gathering, or any problem where accumulated context causes interference. Triggers on requests involving "break down", "decompose", "research independently", or multi-source synthesis.
+description: Decomposition-based reasoning that breaks problems into independent, self-contained units. Use when user asks to research a topic, understand something before building, gather information, investigate options, or learn about unfamiliar technology. Recognizes requests like "research X", "what do I need to know about", "help me understand", "look into", "investigate", "I need to learn about X before implementing". Also applies when answering requires combining facts from multiple independent areas.
 ---
 
 # Atomic Thought (AoT)

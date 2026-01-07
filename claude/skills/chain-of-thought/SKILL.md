@@ -1,6 +1,6 @@
 ---
 name: chain-of-thought
-description: Sequential step-by-step reasoning where each step builds on the previous. Use for mathematical problems, logical deductions, debugging, or any task with a clear single-path solution. Triggers on "step by step", "walk through", "show your work", or multi-step problems requiring explicit reasoning traces.
+description: Sequential step-by-step reasoning where each step builds on the previous. Use when user asks to explain reasoning, solve step-by-step problems, or debug issues. Recognizes requests like "walk me through", "explain your reasoning", "show your work", "how did you get that", "step by step", "debug this", "trace through the logic", "why does this happen". Also applies for math problems, logical deductions, and causal analysis.
 ---
 
 # Chain of Thought (CoT)

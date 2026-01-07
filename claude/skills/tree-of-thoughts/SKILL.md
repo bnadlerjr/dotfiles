@@ -1,6 +1,6 @@
 ---
 name: tree-of-thoughts
-description: Branching reasoning that explores multiple solution paths simultaneously with evaluation and backtracking. Use for strategic planning, puzzles, design decisions, brainstorming alternatives, or any problem where the first approach may not be optimal. Triggers on "explore options", "compare approaches", "what are the alternatives", or problems requiring lookahead.
+description: Branching reasoning that explores multiple solution paths simultaneously with evaluation and backtracking. Use when user asks for options, alternatives, or different approaches. Recognizes requests like "what are my options", "how should I approach this", "what's the best way to", "help me decide between", "brainstorm solutions", "explore different approaches", "I'm not sure which way to go", "pros and cons", "compare approaches". Also applies when the first solution might not be optimal and exploration is valuable.
 ---
 
 # Tree of Thoughts (ToT)
