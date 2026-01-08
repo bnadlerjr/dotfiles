@@ -34,7 +34,7 @@ Create detailed implementation plans through an interactive, iterative process. 
    - **codebase-locator** → Find all relevant files
    - **codebase-analyzer** → Understand current implementation
    - **docs-locator** → Find existing documentation
-   - **jira-ticket-searcher** → Get ticket details (if Jira mentioned)
+   - **jira-cli-expert** → Get ticket details (if Jira mentioned)
 
 3. **Present informed understanding**:
    ```
@@ -143,7 +143,7 @@ Use these agents for research (all read-only, work in plan mode):
 | `codebase-pattern-finder` | Find similar features to model after |
 | `docs-locator` | Find existing documentation |
 | `docs-analyzer` | Extract insights from documents |
-| `jira-ticket-searcher` | Find related Jira tickets |
+| `jira-cli-expert` | Jira operations (search, create, transition, etc.) |
 
 ## Common Patterns
 

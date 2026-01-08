@@ -38,7 +38,7 @@ Key principles:
 • Bounded: Include "What We're NOT Doing" section
 • Testable: Separate automated vs manual success criteria
 
-Available research agents: codebase-locator, codebase-analyzer, codebase-pattern-finder, docs-locator, docs-analyzer, jira-ticket-searcher
+Available research agents: codebase-locator, codebase-analyzer, codebase-pattern-finder, docs-locator, docs-analyzer, jira-cli-expert
 
 Template at: ~/dotfiles/claude/skills/implementation-planning/templates/plan-template.md
 </plan_mode_context>"""
