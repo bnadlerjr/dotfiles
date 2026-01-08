@@ -3,6 +3,7 @@
 *~
 .DS_Store
 claude/hooks/__pycache__
+claude/templates
 docs/*.pdf
 emacs.d/.smex-items
 emacs.d/ac-comphist.dat
