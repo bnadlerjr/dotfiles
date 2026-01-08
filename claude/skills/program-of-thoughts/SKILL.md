@@ -1,11 +1,29 @@
 ---
 name: program-of-thoughts
-description: Separates reasoning from computation by generating executable code for calculations. Use when user asks for calculations, data processing, or numerical analysis. Recognizes requests like "calculate", "compute", "how much would", "what's the total", "analyze this data", "crunch the numbers", "figure out the math", "process these values". Also applies automatically when implementing logic that involves arithmetic, formulas, or data transformations—generate code instead of computing mentally.
+description: "INVOKE for calculations and data processing. Produces executable code instead of mental math. Use when precision matters or numbers are complex. Triggers: calculations, numerical analysis, data transformations, any arithmetic where errors would be costly."
 ---
 
 # Program of Thoughts (PoT)
 
 Delegates computation to code execution, keeping reasoning in natural language.
+
+## MUST Invoke When
+
+- Any calculation with more than 2 operations
+- Large numbers or complex formulas
+- User asks to "calculate", "compute", or "analyze data"
+- Financial calculations (interest, amortization, etc.)
+- Statistics or probability computations
+- Data transformations requiring precision
+
+## Output Commitment
+
+This skill produces **visible structured output**:
+- Natural language explanation of the approach
+- Executable code with clear variable names
+- Executed results with interpretation
+
+Do NOT compute mentally—invoke this skill to generate and run code.
 
 ## Core Mechanism
 

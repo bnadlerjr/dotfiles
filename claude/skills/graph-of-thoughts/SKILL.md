@@ -1,11 +1,30 @@
 ---
 name: graph-of-thoughts
-description: Graph-structured reasoning that aggregates, refines, and synthesizes insights from multiple sources or reasoning chains. Use when user provides multiple inputs that need combining, or asks to synthesize findings. Recognizes requests like "combine these ideas", "synthesize my research", "put this together", "merge these approaches", "based on all of this, what should I do", "taking everything into account", "integrate these findings". Also applies after research or brainstorming when convergence is needed.
+description: "INVOKE after research or brainstorming to synthesize findings. Produces visible aggregation with conflict resolution. Use when multiple inputs need combining into coherent output. Triggers: synthesizing research, combining ideas, merging approaches, integrating findings."
 ---
 
 # Graph of Thoughts (GoT)
 
 Models reasoning as an arbitrary graph with aggregation, refinement, and feedback operations.
+
+## MUST Invoke When
+
+- Synthesizing research from multiple sources
+- Combining brainstormed ideas into a coherent plan
+- User asks to "combine", "synthesize", or "integrate" findings
+- Merging partial solutions from different approaches
+- After divergent exploration (ToT) when convergence is needed
+- Multiple inputs need to become one coherent output
+
+## Output Commitment
+
+This skill produces **visible structured output**:
+- Extracted insights from each source
+- Identified agreements and conflicts
+- Resolution of conflicts with reasoning
+- Unified synthesis with provenance
+
+Do NOT just pick one input—invoke this skill to show synthesis process.
 
 ## Core Mechanism
 

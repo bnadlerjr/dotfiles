@@ -1,11 +1,29 @@
 ---
 name: tree-of-thoughts
-description: Branching reasoning that explores multiple solution paths simultaneously with evaluation and backtracking. Use when user asks for options, alternatives, or different approaches. Recognizes requests like "what are my options", "how should I approach this", "what's the best way to", "help me decide between", "brainstorm solutions", "explore different approaches", "I'm not sure which way to go", "pros and cons", "compare approaches". Also applies when the first solution might not be optimal and exploration is valuable.
+description: "INVOKE when multiple approaches exist and exploration is valuable. Produces visible branching with evaluation and recommendation. Use before implementation when comparing options. Triggers: comparing approaches, exploring alternatives, brainstorming solutions, pros/cons analysis."
 ---
 
 # Tree of Thoughts (ToT)
 
 Explores multiple reasoning paths as a tree, evaluating candidates and backtracking from dead ends.
+
+## MUST Invoke When
+
+- Multiple valid implementation approaches exist
+- User asks "what are my options" or "how should I approach this"
+- Comparing alternatives or trade-offs
+- Brainstorming where diverse options are valuable
+- The first solution might not be optimal
+- Design decisions with significant consequences
+
+## Output Commitment
+
+This skill produces **visible structured output**:
+- 2-4 distinct approaches with reasoning
+- Evaluation of each (feasibility, trade-offs, risks)
+- Clear recommendation with justification
+
+Do NOT pick the first approach—invoke this skill to explore alternatives visibly.
 
 ## Core Mechanism
 

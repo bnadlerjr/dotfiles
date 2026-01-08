@@ -1,11 +1,28 @@
 ---
 name: skeleton-of-thought
-description: Two-phase reasoning that generates a high-level skeleton first, then expands each point. Use when user asks for a plan, outline, or structured approach. Recognizes requests like "create a plan", "outline the steps", "how should I structure this", "what's the roadmap", "break this into phases", "give me a high-level overview first", "plan out the implementation", "what are the main parts". Also applies before implementing features or creating multi-section documents.
+description: "INVOKE for planning and outlining before implementation. Produces visible skeleton then expansion. Use before implementing features or creating structured documents. Triggers: planning, outlining, structuring approaches, roadmaps, breaking into phases."
 ---
 
 # Skeleton of Thought (SoT)
 
 Generates structure before content—outline first, then parallel expansion.
+
+## MUST Invoke When
+
+- Planning implementation of a feature
+- User asks for a "plan", "outline", or "roadmap"
+- Creating multi-section documents or responses
+- Structuring complex output before writing
+- Breaking work into phases or components
+
+## Output Commitment
+
+This skill produces **visible structured output**:
+- Phase 1: Skeleton only (major sections, no details)
+- Phase 2: Expansion of each skeleton point
+- Clear separation between structure and content
+
+Do NOT jump to implementation—invoke this skill to show skeleton first.
 
 ## Core Mechanism
 

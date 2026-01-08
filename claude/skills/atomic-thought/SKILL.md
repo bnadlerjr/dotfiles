@@ -1,11 +1,28 @@
 ---
 name: atomic-thought
-description: Decomposition-based reasoning that breaks problems into independent, self-contained units. Use when user asks to research a topic, understand something before building, gather information, investigate options, or learn about unfamiliar technology. Recognizes requests like "research X", "what do I need to know about", "help me understand", "look into", "investigate", "I need to learn about X before implementing". Also applies when answering requires combining facts from multiple independent areas.
+description: "INVOKE for research tasks and multi-source understanding. Produces visible dependency graphs and contracted answers. Use during research phase of workflow. Triggers: researching topics, gathering information before building, combining facts from multiple independent areas."
 ---
 
 # Atomic Thought (AoT)
 
 Decomposes problems into independent atomic units that can be reasoned about without historical context dependency.
+
+## MUST Invoke When
+
+- Researching a topic before implementation
+- Combining facts from 2+ independent knowledge areas
+- User asks to "understand", "research", "investigate", or "look into" something
+- Gathering information to inform a decision
+- Multi-hop queries requiring information from multiple sources
+
+## Output Commitment
+
+This skill produces **visible structured output**:
+- Dependency graph of sub-questions
+- Explicit answers to each atomic unit
+- Contracted final answer with clear provenance
+
+Do NOT use extended thinking alone—invoke this skill to show your decomposition.
 
 ## Core Mechanism
 

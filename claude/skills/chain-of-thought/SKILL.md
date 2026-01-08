@@ -1,11 +1,29 @@
 ---
 name: chain-of-thought
-description: Sequential step-by-step reasoning where each step builds on the previous. Use when user asks to explain reasoning, solve step-by-step problems, or debug issues. Recognizes requests like "walk me through", "explain your reasoning", "show your work", "how did you get that", "step by step", "debug this", "trace through the logic", "why does this happen". Also applies for math problems, logical deductions, and causal analysis.
+description: "INVOKE for debugging and step-by-step problem solving. Produces visible reasoning trace with each step shown. Use when tracing logic, explaining reasoning, or debugging issues. Triggers: debugging, tracing execution, explaining how something works, step-by-step problems."
 ---
 
 # Chain of Thought (CoT)
 
 Linear reasoning that makes intermediate steps explicit.
+
+## MUST Invoke When
+
+- Debugging code or tracing execution flow
+- User asks to "walk through", "explain", or "show your work"
+- Solving problems with clear sequential dependencies
+- Causal analysis ("why does this happen?")
+- Math problems or logical deductions
+- Any task requiring an auditable reasoning trail
+
+## Output Commitment
+
+This skill produces **visible structured output**:
+- Numbered steps, each building on the previous
+- Explicit state at each step
+- Verification against original question
+
+Do NOT use extended thinking alone—invoke this skill to show your step-by-step trace.
 
 ## Core Mechanism
 

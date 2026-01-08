@@ -1,11 +1,30 @@
 ---
 name: self-consistency
-description: Generates multiple independent reasoning paths and selects the answer by majority vote or consensus. Use when user asks to verify, double-check, or validate important work. Recognizes requests like "make sure this is right", "double-check", "verify", "is this correct", "validate my approach", "check for errors", "are you sure", "this is critical so please verify". Also applies automatically for high-stakes implementations where errors would be costly.
+description: "INVOKE for verification and high-stakes decisions. Produces multiple independent reasoning paths with consensus check. Use before finalizing critical work. Triggers: verification, double-checking, validating approaches, high-stakes implementations where errors are costly."
 ---
 
 # Self-Consistency
 
 Samples multiple reasoning paths and aggregates for reliability.
+
+## MUST Invoke When
+
+- Verifying important conclusions before finalizing
+- User asks to "double-check", "verify", or "make sure this is right"
+- High-stakes implementations where errors are costly
+- Single-path confidence is insufficient
+- Edge case detection is important
+- Critical decisions that need validation
+
+## Output Commitment
+
+This skill produces **visible structured output**:
+- 3-5 independent reasoning paths
+- Answer from each path
+- Consensus check and discrepancy analysis
+- Final answer with confidence assessment
+
+Do NOT trust single reasoning path—invoke this skill to verify through multiple approaches.
 
 ## Core Mechanism
 
