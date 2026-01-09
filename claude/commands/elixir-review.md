@@ -6,13 +6,20 @@ model: opus
 
 ### Context
 
-Conduct a comprehensive review of the current Git branch changes using sub-agent system to analyze different aspects in parallel. Synthesize all agent feedback into actionable recommendations.
+Conduct a comprehensive review of the current Git branch changes using sub-agent system to analyze different aspects in parallel. Synthesize all agent feedback into actionable recommendations using structured thinking patterns.
 
 ### Execution Strategy
 
 #### Phase 1: Parallel Analysis (Execute Simultaneously)
 
 **IMPORTANT**: You MUST parallelize agent execution to optimize performance.
+
+##### Agent Review Methodology
+
+Each agent should apply appropriate thinking patterns during analysis:
+
+- **`chain-of-thought`**: When tracing execution bugs, data flow issues, or causal analysis ("why does this happen?")
+- **`atomic-thought`**: When reviewing complex multi-component changes that can be decomposed into independent units
 
 ##### Code Quality Review Track
 
@@ -46,12 +53,41 @@ Execute both in parallel:
 - **documentation-craftsperson**: Review moduledocs, function docs, inline comments for accuracy and completeness
 - **spurious-comment-remover**: Flag outdated, redundant, or misleading comments for removal
 
-#### Phase 2: Synthesis (After Parallel Completion)
+#### Phase 2: Synthesis (Using Graph of Thoughts)
 
-Consolidate all agent reports into a unified review with:
+**INVOKE `graph-of-thoughts` skill** to consolidate all agent reports into a unified review.
+
+##### Synthesis Process
+
+```
+Step 1 - Extract: From each agent report, identify:
+   - Core findings (issues, recommendations)
+   - Severity assessments
+   - File:line references
+
+Step 2 - Align: Identify where agents agree
+   - Merge duplicate findings, noting consensus
+   - Strengthen confidence for multi-agent agreement
+
+Step 3 - Conflict: Identify where agents disagree
+   - Document each conflict with both positions
+   - Analyze why the disagreement exists
+
+Step 4 - Resolve: For each conflict, invoke `tree-of-thoughts`:
+   - Generate 2-3 interpretations
+   - Evaluate against project context and constraints
+   - Select resolution with explicit reasoning
+
+Step 5 - Integrate: Produce unified output with:
+   - Synthesized findings with provenance (which agents found what)
+   - Confidence levels based on agent agreement
+   - Remaining uncertainties flagged for human review
+```
+
+##### Consolidated Output Structure
 
 1. **Critical Issues Dashboard**
-    
+
     - Security vulnerabilities
     - Runtime errors/bugs
     - Data integrity risks
@@ -66,20 +102,48 @@ Consolidate all agent reports into a unified review with:
     ```
 
 3. **Cross-Agent Conflicts**
-    
+
     - Identify where agents disagree
-    - Resolve with explanation
+    - Resolution with `tree-of-thoughts` reasoning
 4. **Improvement Roadmap**
-    
+
     - Must fix before merge
     - Should fix soon
     - Consider for refactoring
+
+#### Phase 3: Final Validation (Using Self-Consistency)
+
+**INVOKE `self-consistency` skill** before issuing the merge recommendation.
+
+Verify through 3 independent perspectives:
+
+```
+Perspective 1 (Security & Safety):
+- Are all security vulnerabilities addressed?
+- Are there runtime error risks remaining?
+- [Analysis → Recommendation]
+
+Perspective 2 (Correctness & Quality):
+- Are all critical/high issues resolved?
+- Does the code behave as intended?
+- [Analysis → Recommendation]
+
+Perspective 3 (Maintainability & Standards):
+- Does this follow project conventions?
+- Will this be maintainable long-term?
+- [Analysis → Recommendation]
+
+Consensus Check:
+- Do all perspectives agree on merge readiness?
+- If disagreement, which perspective raises valid blockers?
+- Final recommendation with confidence level
+```
 
 ### Agent Coordination Rules
 
 - Agents work on overlapping files independently
 - Duplicate findings should be merged, noting agreement between agents
-- Conflicting recommendations should be highlighted for human review
+- Conflicting recommendations trigger `tree-of-thoughts` exploration
 - Performance-critical paths get priority from all relevant agents
 
 ### Output Format
@@ -93,6 +157,7 @@ Structure the final report in markdown with the following sections:
 - Total issues found: X
 - Critical: X | High: X | Medium: X | Low: X
 - Merge recommendation: [Block/Proceed with fixes/Ready to merge]
+- Recommendation confidence: [High/Medium/Low] (based on self-consistency check)
 
 ## 🚨 Blocking Issues
 ### Issue 1: [Title]
@@ -143,5 +208,13 @@ Structure the final report in markdown with the following sections:
 - **Disagreement on `file.ex:34`**:
     - Agent A suggests:...
     - Agent B suggests:...
-    - Resolution:... [with rationale]
+    - Resolution:... [with tree-of-thoughts rationale]
+
+### Validation Summary
+
+Self-consistency check results:
+- Security perspective: [Pass/Concern]
+- Correctness perspective: [Pass/Concern]
+- Maintainability perspective: [Pass/Concern]
+- Consensus: [Achieved/Partial - details]
 ```
