@@ -21,20 +21,32 @@
 ## Workflow Guidelines
 
 ### Development Workflow
-1. For ANY new feature/fix:
-   - First: Research with general-purpose agent if needed
-   - Second: Consult domain expert agent for approach
-   - Third: Implement with TDD
-   - Fourth: Review with pragmatic-code-reviewer
+For significant features or changes, invoke the `coding-workflow` skill which orchestrates:
+1. **Research** → `atomic-thought` for gathering information
+2. **Brainstorm** → `tree-of-thoughts` or `graph-of-thoughts` for approaches
+3. **Plan** → `skeleton-of-thought` then `chain-of-thought` for details
+4. **Implement** → `program-of-thoughts` + `self-consistency` for verification
 
-2. NEVER skip the expert consultation or code review steps
+For all implementations:
+- **MUST** consult domain-specific expert agent before implementing
+- **MUST** review with `pragmatic-code-reviewer` after implementing
+- **NEVER** skip the expert consultation or code review steps
+
+### Plan Mode
+Use `EnterPlanMode` for:
+- New features requiring architectural decisions
+- Changes affecting multiple files
+- Tasks with multiple valid approaches
+- Unclear requirements needing exploration
+
+Skip plan mode only for:
+- Single-line fixes, typos, obvious bugs
+- Tasks with explicit, detailed instructions from user
 
 ### Before Coding
 - **MUST** Ask clarifying questions for complex work
-- **SHOULD** Draft and confirm approach if ≥ 2 solutions exist
-- **SHOULD** List pros/cons for multiple approaches
 - Confirm requirements, then write code
-- Think hard through all considerations before implementation
+- Think through all considerations before implementation
 
 ### During Development
 - Make changes file by file for review opportunity
@@ -53,19 +65,23 @@
 
 ## Agent Usage Guidelines
 
-### MUST Use Specialized Agents
-- **Before implementing**: Use domain-specific expert agents (e.g., elixir-phoenix-expert, typescript-react-expert) to plan approach
-- **After implementing**: Use pragmatic-code-reviewer for all code changes
-- **For complex tasks**: Use general-purpose agent for multi-step research
+### Principle
+Use domain-specific expert agents matching the technology stack. Agent descriptions indicate when to use each. When uncertain which agent applies, check available agents via the Task tool.
 
-### Agent Selection
-- Elixir/Phoenix work → elixir-phoenix-expert
-- TypeScript/React work → typescript-react-expert
-- Ruby/Rails work → ruby-rails-expert
-- Python scripting → python-automation-expert
-- Shell scripting → bash-scripting-expert
-- Code review → pragmatic-code-reviewer (ALWAYS after implementation)
-- GraphQL schema design → graphql-schema-architect
+### Common Patterns
+- **Elixir/Phoenix**: Use appropriate specialist (phoenix-framework-specialist, liveview-interactive-expert, ecto-database-master, elixir-otp-expert, elixir-functional-modeler, absinthe-graphql-architect, exunit-testing-strategist)
+- **TypeScript/React**: typescript-react-expert, kent-c-dodds for review
+- **Shell scripting**: bash-scripting-expert
+- **Code review**: pragmatic-code-reviewer (ALWAYS after implementation), kent-beck-reviewer for design review
+- **Test quality**: test-value-auditor, exunit-testing-strategist
+- **Codebase exploration**: codebase-search-navigator, serena-codebase-locator
+
+### User-Invocable Commands
+- `/bugfix` - TDD-based debugging workflow
+- `/plan` - Interactive implementation planning
+- `/elixir-review`, `/react-review` - Multi-agent code review
+- `/research` - Document codebase context
+- `/implement` - Execute technical plans with verification
 
 ## Thinking Pattern Skills
 
@@ -111,7 +127,7 @@ Extended thinking handles internal reasoning. These skills produce **visible str
 - Skip conditions caught by type checker
 
 ## Git Conventions
-- **SHOULD NOT** Reference Claude or Anthropic in commits
+- **MUST NOT** Reference Claude, Anthropic, or AI in commits - no "Co-Authored-By" lines, no "Claude suggested", no AI attribution of any kind
 - Create feature branches like `feature/[description]`
 - Never commit directly to main/master
 
