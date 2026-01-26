@@ -125,11 +125,14 @@
     "command": "npx -y ccstatusline@latest",
     "padding": 0
   },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true,
+    "critical-thinking@claude-kit": true,
+    "test-driven-development@claude-kit": true,
+    "prompt-writer@claude-kit": true
+  },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754088826871
-  },
-  "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": true
   }
 }
