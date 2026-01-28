@@ -86,13 +86,13 @@ Use domain-specific expert agents matching the technology stack. Agent descripti
 ## Thinking Pattern Skills
 
 ### When to Invoke
-**MUST** check if a thinking pattern skill applies before complex reasoning tasks.
-These skills produce visible, structured reasoning - not just internal thinking.
+**MUST** check if a thinking pattern applies before complex reasoning tasks.
+Use `/thinking` to auto-select or `/thinking <pattern>` for explicit selection.
 
-### Skill Selection by Task Type
+### Pattern Selection by Task Type
 
-| Task Type | Skill | Trigger |
-|-----------|-------|---------|
+| Task Type | Pattern | Trigger |
+|-----------|---------|---------|
 | Research/understanding | `atomic-thought` | Need to combine facts from multiple areas |
 | Debugging/tracing logic | `chain-of-thought` | Step-by-step problem solving |
 | Calculations/data processing | `program-of-thoughts` | Generate code instead of computing mentally |
@@ -103,14 +103,14 @@ These skills produce visible, structured reasoning - not just internal thinking.
 
 ### Integration with Existing Workflow
 
-1. **Before implementation planning**: Use `skeleton-of-thought` or `tree-of-thoughts`
-2. **During research phase**: Use `atomic-thought` for decomposition
-3. **When debugging**: Use `chain-of-thought` for systematic tracing
-4. **Before finalizing approach**: Use `self-consistency` for validation
-5. **After brainstorming**: Use `graph-of-thoughts` to synthesize
+1. **Before implementation planning**: `/thinking skeleton-of-thought` or `/thinking tree-of-thoughts`
+2. **During research phase**: `/thinking atomic-thought` for decomposition
+3. **When debugging**: `/thinking chain-of-thought` for systematic tracing
+4. **Before finalizing approach**: `/thinking self-consistency` for validation
+5. **After brainstorming**: `/thinking graph-of-thoughts` to synthesize
 
 ### Key Principle
-Extended thinking handles internal reasoning. These skills produce **visible structured output** that you can review and validate. When in doubt, invoke the skill - structured reasoning is always preferable to hidden reasoning for non-trivial problems.
+Extended thinking handles internal reasoning. These patterns produce **visible structured output** that you can review and validate. When in doubt, invoke `/thinking` - structured reasoning is always preferable to hidden reasoning for non-trivial problems.
 
 ## Testing
 
