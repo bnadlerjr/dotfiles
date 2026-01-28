@@ -15,6 +15,30 @@ Create behavior-focused user stories using BDD principles. Stories describe desi
 - User asks to "write a story" or "create acceptance criteria"
 - Converting vague requirements into testable specifications
 
+## Invocation
+
+**Command**: `/agile-story` or `/agile-story [description]`
+
+### Initial Response
+
+When invoked:
+
+1. **If a description was provided**: Begin discovery by asking clarifying questions about the provided topic
+
+2. **If no description provided**, respond with:
+```
+I'll help you write a behavior-focused user story. Let me understand what we're building.
+
+What user need or feature would you like to define?
+
+You can provide:
+- A brief description of the need
+- A ticket reference to expand
+- A vague idea to explore together
+
+I'll guide you through discovery, drafting, and acceptance criteria.
+```
+
 ## Core Principles
 
 1. **Behavior over Implementation**: Describe what users experience, not how it's built
@@ -81,6 +105,17 @@ Create behavior-focused user stories using BDD principles. Stories describe desi
 - [Term]: [Definition in business language]
 ```
 
+### User Confirmation
+
+Present your understanding, then use **AskUserQuestion** to confirm:
+
+- Header: "Understanding"
+- Question: "Does this capture the user need correctly?"
+- Options:
+  - "Yes, proceed to drafting" → Continue to Phase 2
+  - "Mostly, minor adjustments" → Ask what to adjust, then re-confirm
+  - "No, significant gaps" → Return to discovery questions
+
 ---
 
 ## Phase 2: Story Drafting
@@ -144,6 +179,18 @@ Available for orders in "confirmed" or "processing" status that haven't
 been handed off to shipping.
 ```
 
+### User Feedback
+
+Present the draft, then use **AskUserQuestion** to get feedback:
+
+- Header: "Story draft"
+- Question: "How does this story draft look?"
+- Options:
+  - "Good, write acceptance criteria" → Continue to Phase 3
+  - "Adjust the narrative" → Ask what to change, revise, re-confirm
+  - "Story is too large, split it" → Use `skeleton-of-thought` to propose splits
+  - "Start over" → Return to Phase 1
+
 ---
 
 ## Phase 3: Acceptance Criteria
@@ -200,6 +247,35 @@ been handed off to shipping.
 | Identifying all scenarios | `skeleton-of-thought` | Outline scenario types first, then detail |
 | Complex business logic | `chain-of-thought` | Trace each path step-by-step |
 | Verifying completeness | `chain-of-thought` | Walk through each scenario systematically |
+
+### Scenario Outline
+
+Use `skeleton-of-thought` to outline scenarios first:
+```
+I'll outline the scenarios we need:
+1. [Happy path]
+2. [Alternative: ...]
+3. [Failure: ...]
+4. [Edge case: ...]
+```
+
+Use **AskUserQuestion** to confirm scenario coverage:
+- Header: "Scenarios"
+- Question: "Are these the right scenarios to detail?"
+- Options:
+  - "Yes, detail them" → Write Given-When-Then for each
+  - "Add more scenarios" → Ask which scenarios are missing
+  - "Remove some" → Ask which to remove
+
+### Criteria Confirmation
+
+After detailing scenarios, use **AskUserQuestion**:
+- Header: "Criteria"
+- Question: "Are these acceptance criteria complete?"
+- Options:
+  - "Yes, finalize the story" → Continue to Phase 4
+  - "Adjust scenarios" → Ask what to change
+  - "Add edge cases" → Discuss and add
 
 ### Example Criteria
 
@@ -261,6 +337,43 @@ been handed off to shipping.
 3. Is each scenario independently verifiable?
 4. Are all failure modes covered?
 5. Is the story small enough for one iteration?
+
+### Final Presentation
+
+Present final story with quality checks:
+
+```
+## Story: [Title]
+
+[Narrative]
+
+### Context
+[When this applies]
+
+### Acceptance Criteria
+[All scenarios]
+
+---
+
+Quality checks:
+- ✅ Behavior-focused (no implementation details)
+- ✅ Domain language throughout
+- ✅ Narrative form (no template)
+- ✅ Small and testable
+- ✅ Failure modes included
+- ✅ Scenarios are independent
+```
+
+### Next Action
+
+Use **AskUserQuestion** for next action:
+- Header: "Next step"
+- Question: "Story is complete. What would you like to do?"
+- Options:
+  - "Create Jira ticket" → Use `jira-cli-expert` to create ticket
+  - "Save to file" → Write to `$(claude-docs-path tickets)/`
+  - "Write related story" → Start new story with shared context
+  - "Done" → End workflow
 
 ---
 
@@ -389,3 +502,13 @@ Acceptance criteria map directly to test cases:
 - `chain-of-thought` → Tracing business logic
 - `graph-of-thoughts` → Synthesizing discovery findings
 - `self-consistency` → Final validation
+
+---
+
+## Tips for Better Stories
+
+- Stories are conversation starters, not complete specs
+- If you can't test it, rewrite it
+- Smaller is almost always better
+- Domain experts should understand every word
+- Implementation details belong in the plan, not the story
