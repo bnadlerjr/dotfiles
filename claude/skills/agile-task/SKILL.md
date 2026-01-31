@@ -33,6 +33,17 @@ STORY_INPUT: $ARGUMENTS
 - If the story spans multiple systems or has unclear boundaries, use `/thinking atomic` to decompose requirements first
 - If verification keeps finding gaps, use `/thinking self-consistency` to evaluate completeness from multiple perspectives
 
+### Optional: For Modification-Heavy Stories
+
+- If the story primarily modifies existing code (vs. greenfield), quickly scan relevant modules to identify integration points
+- Keep this lightweight—5 minutes max—don't get pulled into implementation details
+
+### Handling Open Questions
+
+- If the story has open questions, create an explicit task: "Resolve: [question]"
+- Skip tasks that depend on open questions—don't speculate on work that may not exist
+- Note dependencies in the output so reviewers know the list is intentionally incomplete
+
 ## Workflow
 
 1. **Gather the Story**
