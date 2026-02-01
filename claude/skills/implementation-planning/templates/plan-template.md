@@ -27,6 +27,15 @@
 
 [High-level strategy and reasoning]
 
+## Phase Dependencies
+
+[Optional - include only if phases have non-linear dependencies]
+
+| Phase | Depends On | Blocks |
+|-------|------------|--------|
+| Phase 2 | Phase 1 | Phase 3 |
+| Phase 3 | Phase 1, Phase 2 | - |
+
 ---
 
 ## Phase 1: [Descriptive Name]

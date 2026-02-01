@@ -1,6 +1,7 @@
 ---
 name: implementation-planning
-description: Create detailed implementation plans through interactive research and iteration. Use when in plan mode, planning features, designing implementations, breaking down tasks into phases, or when the user asks "how should I implement X", "plan this feature", or wants a technical specification.
+description: Creates detailed implementation plans through interactive research and iteration. Use when in plan mode, planning features, designing implementations, breaking down tasks into phases, or when the user asks "how should I implement X", "plan this feature", or wants a technical specification.
+allowed-tools: Read, Glob, Grep, Task, TodoWrite
 ---
 
 # Implementation Planning
@@ -9,11 +10,14 @@ Create detailed implementation plans through an interactive, iterative process. 
 
 ## Quick Start
 
-1. User provides context (ticket, feature request, or task)
-2. Claude researches with agents, presents understanding with `file:line` references
-3. User clarifies/corrects → Claude verifies corrections
-4. Claude presents structure outline → user approves
-5. Claude details each phase → exits with ExitPlanMode
+Given a task or ticket:
+
+1. **Read** all referenced documents FULLY (run `claude-docs-path <type>` to resolve paths)
+2. **Research** by spawning `serena-codebase-locator` + `codebase-analyzer` in parallel
+3. **Present** understanding with `file:line` references, ask only unanswerable questions
+4. **Verify** any user corrections against code before accepting
+5. **Outline** the phase structure, get approval
+6. **Detail** each phase, then exit with ExitPlanMode
 
 ## When This Skill Applies
 
@@ -34,9 +38,9 @@ Create detailed implementation plans through an interactive, iterative process. 
 ### Step 1: Context Gathering
 
 1. **Read all mentioned files FULLY** (tickets, research, existing plans)
-   - Use `$(claude-docs-path tickets)/` for tickets
-   - Use `$(claude-docs-path research)/` for research docs
-   - Use `$(claude-docs-path plans)/` for existing plans
+   - Run `claude-docs-path tickets` to get the tickets directory path
+   - Run `claude-docs-path research` to get the research docs path
+   - Run `claude-docs-path plans` to get the existing plans path
    - **NEVER** read files partially
 
 2. **Spawn research agents in parallel**:
@@ -111,7 +115,7 @@ Get feedback before proceeding.
 When user approves structure, present the complete plan. Use the template in [templates/plan-template.md](templates/plan-template.md).
 
 **Important**: In plan mode, when you exit via ExitPlanMode, the plan will be automatically:
-- Saved to `$(claude-docs-path plans)/`
+- Saved to the plans directory (run `claude-docs-path plans` for path)
 - Given proper Obsidian frontmatter
 - Named based on the H1 header
 
@@ -142,9 +146,19 @@ If you encounter open questions during planning:
 3. Do NOT present a plan with unresolved questions
 4. Every decision must be made before finalizing
 
+### Handling Edge Cases
+
+- **No existing patterns found**: Document this explicitly in the plan; propose a new pattern with justification for the approach chosen
+- **Conflicting information**: Escalate to user with specific details about what conflicts and where (include `file:line` references)
+- **User corrections conflict with code**: Present the discrepancy—don't silently accept either version
+- **Agent failures or empty results**: Retry with different query terms; fall back to manual Glob/Grep; if still unsuccessful, note the gap and ask user for guidance
+- **Scope ambiguity**: Default to smaller scope; explicitly list what's deferred in "What We're NOT Doing"
+
+See also: [Common Mistakes](#common-mistakes)
+
 ## Agent Reference
 
-Use these agents for research (all read-only, work in plan mode):
+Quick reference for common research agents (all read-only, work in plan mode). Agents are discovered dynamically—check Task tool for current availability.
 
 | Agent | Purpose |
 |-------|---------|
@@ -154,6 +168,12 @@ Use these agents for research (all read-only, work in plan mode):
 | `docs-locator` | Find existing documentation |
 | `docs-analyzer` | Extract insights from documents |
 | `jira-cli-expert` | Jira operations (search, create, transition, etc.) |
+
+## Related Skills
+
+- **research**: For deeper codebase exploration before planning
+- **thinking-patterns**: For structured approach selection (`/thinking tree-of-thoughts` for comparing approaches)
+- **breaking-down-stories**: For decomposing user stories into tasks after planning
 
 ## Common Patterns
 
@@ -184,7 +204,7 @@ Use these agents for research (all read-only, work in plan mode):
 Input: "Plan the implementation for PROJ-123"
 
 Expected behavior:
-1. Read ticket from `$(claude-docs-path tickets)/`
+1. Read ticket (run `claude-docs-path tickets` for path)
 2. Spawn `serena-codebase-locator` + `codebase-analyzer` agents in parallel
 3. Present findings:
    ```
@@ -226,10 +246,22 @@ Expected behavior:
 Input: "Plan implementation based on the auth research doc"
 
 Expected behavior:
-1. Read research doc FULLY from `$(claude-docs-path research)/`
+1. Read research doc FULLY (run `claude-docs-path research` for path)
 2. Extract key decisions already made
 3. Present understanding without re-asking resolved questions
 4. Proceed to structure outline faster (context already gathered)
+
+**Example 4: Handling user correction**
+
+Context: Claude presented understanding that "the API uses REST endpoints"
+User correction: "Actually, we're using GraphQL for this service"
+
+Expected behavior:
+1. **Don't just accept** - spawn `codebase-analyzer` to verify
+2. If GraphQL found: "You're right, I found the schema at `src/graphql/schema.graphql:1`. Updating my understanding."
+3. If REST found: "I found REST handlers at `src/api/routes.py:45` but no GraphQL. Can you point me to the GraphQL implementation?"
+4. If both found: "I found both REST (`src/api/routes.py:45`) and GraphQL (`src/graphql/schema.graphql:1`). Which should this feature use?"
+5. Update plan only after verification
 
 ## Common Mistakes
 
