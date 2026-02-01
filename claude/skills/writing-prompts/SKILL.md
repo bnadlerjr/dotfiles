@@ -1,9 +1,9 @@
 ---
-name: prompt-writer
-description: "Use when writing agentic prompts - system prompts, workflow prompts, delegation prompts, or meta prompts"
+name: writing-prompts
+description: Write agentic prompts including system prompts, workflow prompts, delegation prompts, and meta prompts. Use when creating commands, automating workflows, making tasks reusable, or when the user says "write a prompt", "create a command", or "automate this".
 ---
 
-# Prompt Writer
+# Writing Prompts
 
 ## Overview
 
@@ -15,6 +15,14 @@ The prompt is the fundamental unit of engineering. Every prompt you create becom
 3. **Your Agents** - Must execute it reliably
 
 **Core Principle:** Consistency beats complexity. Use the same format across all your prompts.
+
+## Quick Start
+
+Tell me what task you want to automate:
+
+> "Create a prompt that reviews my code changes before commit"
+
+I'll identify the appropriate level (1-7) and produce a ready-to-use prompt with the right sections.
 
 ## When to Use
 
@@ -29,11 +37,6 @@ The prompt is the fundamental unit of engineering. Every prompt you create becom
 - "automate this workflow"
 - "make this reusable"
 - Three times marks a pattern → capture it as a prompt
-
-## Variables
-
-USER_REQUEST: The user's description of what prompt to create
-TARGET_CONTEXT: Where the prompt will be used (Claude Code command, system prompt, tool definition)
 
 ## Instructions
 
@@ -58,13 +61,13 @@ Each level builds on the previous. Most work happens at levels 2-4.
 | 7 | Self-Improving | Expertise grows | Domain experts that learn |
 
 **For detailed examples, read the appropriate level file:**
-- @levels/1-high-level.md
-- @levels/2-workflow.md
-- @levels/3-control-flow.md
-- @levels/4-delegation.md
-- @levels/5-higher-order.md
-- @levels/6-template-meta.md
-- @levels/7-self-improving.md
+- [Level 1: High-Level](levels/1-high-level.md)
+- [Level 2: Workflow](levels/2-workflow.md)
+- [Level 3: Control Flow](levels/3-control-flow.md)
+- [Level 4: Delegation](levels/4-delegation.md)
+- [Level 5: Higher-Order](levels/5-higher-order.md)
+- [Level 6: Template Meta](levels/6-template-meta.md)
+- [Level 7: Self-Improving](levels/7-self-improving.md)
 
 ## Composable Sections
 
@@ -151,7 +154,7 @@ Every prompt follows this three-step structure:
    - Numbered steps with clear action verbs
    - Reference variables by name
    - Include control flow where needed
-   - Read @levels/<N>-<name>.md for the appropriate level's patterns
+   - Read the appropriate level file (see links above) for patterns
 
 4. **Test and Iterate**
    - Run with representative inputs
@@ -181,3 +184,42 @@ allowed-tools: <if restricting tools>
 ```
 
 State the level used and why. If the prompt could be simpler, say so.
+
+## Common Mistakes
+
+- **Over-engineering**: Starting at Level 5+ when Level 2 suffices
+- **Section bloat**: Adding sections "just in case"—each must earn its place
+- **Wrong prompt type**: Writing workflows for system prompts (use Purpose/Instructions instead)
+- **Missing context**: Sub-agent prompts that assume shared state (they're stateless)
+- **Vague workflows**: Steps like "analyze the code" instead of specific actions
+
+## Example Session
+
+**User:** Create a prompt that summarizes my git changes
+
+**Response:** This is a Level 2 Workflow prompt—sequential steps with structured output.
+
+```markdown
+---
+description: Summarize recent git changes
+allowed-tools: Bash, Read
+---
+
+# Git Summary
+
+Summarize recent git changes for quick review.
+
+## Workflow
+
+1. Run `git status` to identify modified files
+2. Run `git diff --stat` for change overview
+3. Run `git log --oneline -5` for recent commits
+4. Synthesize findings into summary
+
+## Report
+
+Provide:
+- Files changed (added/modified/deleted)
+- Key changes by area
+- Recent commit messages
+```
