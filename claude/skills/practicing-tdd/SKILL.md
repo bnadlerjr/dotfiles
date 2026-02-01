@@ -1,6 +1,6 @@
 ---
-name: test-driven-development
-description: Use when implementing any feature or bugfix, before writing implementation code
+name: practicing-tdd
+description: Enforces test-first development with Red-Green-Refactor cycle. Use when implementing features, fixing bugs, writing tests, or when someone mentions TDD, test-driven, "test first", or "write a failing test".
 ---
 
 # Test-Driven Development (TDD)
@@ -12,6 +12,14 @@ Write the test first. Watch it fail. Write minimal code to pass.
 **Core principle:** If you didn't watch the test fail, you don't know if it tests the right thing.
 
 **Violating the letter of the rules is violating the spirit of the rules.**
+
+## Quick Start
+
+1. Write one failing test describing desired behavior
+2. Run it - confirm it fails for the right reason
+3. Write minimal code to pass
+4. Run it - confirm it passes
+5. Refactor if needed, keeping tests green
 
 ## When to Use
 
@@ -72,7 +80,7 @@ digraph tdd_cycle {
 
 Write one minimal test showing what should happen.
 
-<Good>
+**Good:**
 ```typescript
 test('retries failed operations 3 times', async () => {
   let attempts = 0;
@@ -88,10 +96,9 @@ test('retries failed operations 3 times', async () => {
   expect(attempts).toBe(3);
 });
 ```
-Clear name, tests real behavior, one thing
-</Good>
+Clear name, tests real behavior, one thing.
 
-<Bad>
+**Bad:**
 ```typescript
 test('retry works', async () => {
   const mock = jest.fn()
@@ -102,8 +109,7 @@ test('retry works', async () => {
   expect(mock).toHaveBeenCalledTimes(3);
 });
 ```
-Vague name, tests mock not code
-</Bad>
+Vague name, tests mock not code.
 
 **Requirements:**
 - One behavior
@@ -131,7 +137,7 @@ Confirm:
 
 Write simplest code to pass the test.
 
-<Good>
+**Good:**
 ```typescript
 async function retryOperation<T>(fn: () => Promise<T>): Promise<T> {
   for (let i = 0; i < 3; i++) {
@@ -144,10 +150,9 @@ async function retryOperation<T>(fn: () => Promise<T>): Promise<T> {
   throw new Error('unreachable');
 }
 ```
-Just enough to pass
-</Good>
+Just enough to pass.
 
-<Bad>
+**Bad:**
 ```typescript
 async function retryOperation<T>(
   fn: () => Promise<T>,
@@ -160,8 +165,7 @@ async function retryOperation<T>(
   // YAGNI
 }
 ```
-Over-engineered
-</Bad>
+Over-engineered.
 
 Don't add features, refactor other code, or "improve" beyond the test.
 
@@ -356,7 +360,7 @@ Never fix bugs without a test.
 
 ## Testing Anti-Patterns
 
-When adding mocks or test utilities, read @testing-anti-patterns.md to avoid common pitfalls:
+When adding mocks or test utilities, see [Testing Anti-Patterns](testing-anti-patterns.md) to avoid common pitfalls:
 - Testing mock behavior instead of real behavior
 - Adding test-only methods to production classes
 - Mocking without understanding dependencies
