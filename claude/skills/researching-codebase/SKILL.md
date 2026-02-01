@@ -1,11 +1,11 @@
 ---
-name: research
-description: "Document codebase as-is with thoughts directory for historical context. Use when exploring existing implementations, understanding architecture, or gathering context before changes. Produces structured research documents with code references."
+name: researching-codebase
+description: "Researches and documents existing codebase implementations. Use when exploring how code works, understanding architecture, answering 'how does X work?' questions, or gathering context before making changes. Produces structured research documents with code references."
 ---
 
 # Research Codebase
 
-Conduct comprehensive research across the codebase to answer user questions by spawning parallel sub-agents and synthesizing their findings.
+Conduct comprehensive research across the codebase to answer user questions by spawning parallel agents and synthesizing their findings.
 
 ## When This Skill Applies
 
@@ -18,7 +18,7 @@ Conduct comprehensive research across the codebase to answer user questions by s
 
 ## Invocation
 
-**Command**: `/research` or `/research [topic]`
+**Command**: `/researching-codebase` or `/researching-codebase [topic]`
 
 ### Initial Response
 
@@ -33,19 +33,15 @@ I'm ready to research the codebase. Please provide your research question or are
 
 ## Critical Principle
 
-**YOUR ONLY JOB IS TO DOCUMENT AND EXPLAIN THE CODEBASE AS IT EXISTS TODAY**
+**Focus on documentation.** Your primary job is to explain the codebase as it exists today.
 
-- DO NOT suggest improvements or changes unless explicitly asked
-- DO NOT perform root cause analysis unless explicitly asked
-- DO NOT propose future enhancements unless explicitly asked
-- DO NOT critique the implementation or identify problems
-- DO NOT recommend refactoring, optimization, or architectural changes
-- ONLY describe what exists, where it exists, how it works, and how components interact
+- Describe what exists, where it exists, how it works, and how components interact
 - You are creating a technical map/documentation of the existing system
+- Only suggest improvements or identify problems if explicitly asked
 
 ---
 
-## Phase 1: File Reading & Decomposition
+## Decomposition Phase
 
 **Goal**: Understand the research context and break down the question.
 
@@ -53,7 +49,7 @@ I'm ready to research the codebase. Please provide your research question or are
 
 If the user mentions specific files (tickets, docs, JSON):
 - Read them FULLY using the Read tool WITHOUT limit/offset parameters
-- **CRITICAL**: Read these files yourself in the main context before spawning any sub-tasks
+- **CRITICAL**: Read these files yourself in the main context before spawning any agents
 - This ensures you have full context before decomposing the research
 
 ### Step 2: Analyze and Decompose
@@ -70,15 +66,15 @@ Present your understanding of the research question and decomposition, then use 
 - Header: "Research plan"
 - Question: "Does this capture your research question correctly?"
 - Options:
-  - "Yes, proceed with research" → Continue to Phase 2
+  - "Yes, proceed with research" → Continue to Research Phase
   - "Adjust the scope" → Ask what to adjust, then re-confirm
   - "Let me clarify" → Wait for clarification
 
 ---
 
-## Phase 2: Parallel Research
+## Research Phase
 
-**Goal**: Spawn specialized sub-agents to gather information concurrently.
+**Goal**: Spawn specialized agents to gather information concurrently.
 
 ### Specialized Agents
 
@@ -106,18 +102,18 @@ Present your understanding of the research question and decomposition, then use 
 
 ### Important
 
-- WAIT for ALL sub-agent tasks to complete before proceeding to Phase 3
+- WAIT for ALL agent tasks to complete before proceeding to Synthesis Phase
 - All agents are documentarians, not critics—they describe what exists without suggesting improvements
 
 ---
 
-## Phase 3: Synthesis & Documentation
+## Synthesis Phase
 
 **Goal**: Compile findings and generate the research document.
 
 ### Step 1: Synthesize Findings
 
-- Compile all sub-agent results (both codebase and docs findings)
+- Compile all agent results (both codebase and docs findings)
 - Prioritize live codebase findings as primary source of truth
 - Use docs directory findings as supplementary historical context
 - Connect findings across different components
@@ -139,10 +135,7 @@ Examples:
 
 ### Step 3: Generate Research Document
 
-Use **AskUserQuestion** to get the project name:
-- Header: "Project"
-- Question: "What project name should I use for this research document?"
-- Options: [Provide 2-3 likely options based on repository name, or let user specify]
+Infer the project name from the repository name via `git metadata`. If ambiguous, ask the user.
 
 Generate the document using the template at `templates/research-document.md`.
 
@@ -169,13 +162,13 @@ Present a summary of the document, then use **AskUserQuestion**:
 - Header: "Document review"
 - Question: "Here's the research document. Does it address your question?"
 - Options:
-  - "Yes, looks good" → Continue to Phase 4
+  - "Yes, looks good" → Continue to Follow-up Phase
   - "Add more detail on [area]" → Expand that section
   - "I have follow-up questions" → Address them and update document
 
 ---
 
-## Phase 4: Presentation & Follow-up
+## Follow-up Phase
 
 **Goal**: Present findings and handle additional questions.
 
@@ -192,7 +185,7 @@ If the user has follow-up questions:
 - Update the heading fields `Last Updated` to reflect the update
 - Add `Last Updated Note: "Added follow-up research for [brief description]"` to headings
 - Add a new section: `## Follow-up Research [timestamp]`
-- Spawn new sub-agents as needed for additional investigation
+- Spawn new agents as needed for additional investigation
 - Continue updating the document
 
 ### Next Action
@@ -237,9 +230,9 @@ Use **AskUserQuestion** for next action:
 
 ### Skipping Agent Completion
 ```
-❌ Synthesizing findings before all sub-agents return
+❌ Synthesizing findings before all agents return
 
-✅ ALWAYS wait for ALL sub-agents to complete before synthesizing
+✅ ALWAYS wait for ALL agents to complete before synthesizing
 ```
 
 ### Placeholder Values
@@ -251,31 +244,81 @@ Use **AskUserQuestion** for next action:
 
 ---
 
-## Quick Reference
+## Troubleshooting
 
-**Phase 1 - File Reading & Decomposition**: Read mentioned files fully, decompose research question, confirm understanding
+**`git metadata` fails:**
+- Verify you're in a git repository: `git rev-parse --git-dir`
+- Check if the command exists: `which git-metadata` or check aliases
+- Fall back to manual: `git log -1 --format="%H"` for commit hash
 
-**Phase 2 - Parallel Research**: Spawn locator agents first, then analyzer agents, wait for ALL to complete
+**`claude-docs-path` returns nothing:**
+- Check if `CLAUDE_DOCS_ROOT` is set: `echo $CLAUDE_DOCS_ROOT`
+- Fall back to `.claude/docs/research/` in project root
 
-**Phase 3 - Synthesis & Documentation**: Compile findings, gather metadata via `git metadata`, generate document with frontmatter
+**Agent returns empty results:**
+- Verify the search terms match what's in the codebase
+- Try broader search terms with a different agent
+- Check if the component exists at all using `serena-codebase-locator`
 
-**Phase 4 - Presentation & Follow-up**: Present summary, handle follow-ups by appending to document
+**Research scope too broad:**
+- Narrow to specific components or files
+- Break into multiple focused research sessions
+- Ask user to prioritize which aspect to investigate first
 
-**Agent Selection**:
-- `serena-codebase-locator` → Find where things are
-- `codebase-analyzer` → Understand how code works
-- `codebase-pattern-finder` → Find usage examples
-- `docs-locator` → Discover relevant documents
-- `docs-analyzer` → Extract document insights
-- `web-search-researcher` → External resources (only if requested)
+---
 
-**Critical Ordering**:
-1. ALWAYS read mentioned files first before spawning sub-tasks
-2. ALWAYS wait for all sub-agents to complete before synthesizing
-3. ALWAYS gather metadata before writing the document
-4. NEVER write the research document with placeholder values
+## Example Session
 
-**Remember**: You are a documentarian, not an evaluator. Document what IS, not what SHOULD BE.
+**User**: `/researching-codebase How does user authentication work in this app?`
+
+**Decomposition Phase output:**
+```
+I'll research the authentication flow by investigating:
+1. Entry points (login routes, middleware)
+2. Token/session management
+3. User validation logic
+4. Protected route enforcement
+
+Spawning agents:
+- serena-codebase-locator: "authentication login routes middleware"
+- codebase-analyzer: "src/auth/" (after locator finds it)
+```
+
+**Synthesized finding excerpt:**
+```
+## Authentication Flow
+
+### Entry Point
+Login requests hit `src/routes/auth.ts:23-45`, which validates
+credentials against the User model.
+
+### Session Management
+Sessions are stored in Redis via `src/lib/session.ts:12`. The
+`createSession()` function generates a JWT with 24h expiry.
+
+### Protected Routes
+The `requireAuth` middleware (`src/middleware/auth.ts:8-34`)
+checks the Authorization header and validates the JWT signature.
+```
+
+---
+
+## Agent Selection
+
+| Agent | Purpose |
+|-------|---------|
+| `serena-codebase-locator` | Find where files and components live |
+| `codebase-analyzer` | Understand how specific code works |
+| `codebase-pattern-finder` | Find usage examples |
+| `docs-locator` | Discover relevant documents |
+| `docs-analyzer` | Extract document insights |
+| `web-search-researcher` | External resources (only if requested) |
+
+**Critical rules:**
+1. Read mentioned files before spawning agents
+2. Wait for ALL agents to complete before synthesizing
+3. Gather metadata before writing the document
+4. Never use placeholder values
 
 ---
 
