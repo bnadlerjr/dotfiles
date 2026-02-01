@@ -7,6 +7,48 @@ description: Expert guidance for creating, writing, and refining Claude Code Ski
 
 This skill teaches how to create effective Claude Code Skills following Anthropic's official specification.
 
+## Quick Start
+
+Create a new skill in `~/.claude/skills/`:
+
+```bash
+mkdir -p ~/.claude/skills/my-skill-name
+```
+
+```markdown
+# ~/.claude/skills/my-skill-name/SKILL.md
+---
+name: my-skill-name
+description: Generates weekly status reports from git logs. Use when the user asks for status updates, weekly reports, or standup summaries.
+---
+
+# My Skill Name
+
+## Quick Start
+Run `git log --since="1 week ago"` and summarize changes by author.
+
+## Instructions
+1. Gather commits from the past week
+2. Group by author and category (feature, fix, chore)
+3. Summarize in bullet points
+
+## Examples
+**Input:** "Generate my weekly status"
+**Output:**
+- **Features:** Added user authentication (3 commits)
+- **Fixes:** Resolved login timeout issue
+- **Chores:** Updated dependencies
+```
+
+## Relationship to Prompt Writing
+
+Skills are prompts packaged for Claude Code. For foundational prompt engineering—including the seven levels of complexity, composable sections, and the Input→Workflow→Output pattern—see the [writing-prompts](../writing-prompts/SKILL.md) skill.
+
+This skill focuses on *packaging* prompts as skills:
+- YAML frontmatter for discovery
+- Progressive disclosure via reference files
+- Claude Code tool integration
+
 ## Core Principles
 
 ### 1. Skills Are Prompts
@@ -131,37 +173,46 @@ Rules and constraints...
 
 ```markdown
 ---
-name: your-skill-name
-description: [What it does]. Use when [trigger conditions].
+name: formatting-sql
+description: Formats SQL queries with consistent style and indentation. Use when the user has messy SQL, asks to format queries, or mentions SQL style.
 ---
 
-# Your Skill Name
+# Formatting SQL
 
 ## Quick Start
 
-[Immediate actionable example]
-
-```[language]
-[Code example]
-```
+Paste your SQL and I'll format it with consistent indentation, uppercase keywords, and aligned clauses.
 
 ## Instructions
 
-[Core guidance]
+1. Uppercase all SQL keywords (SELECT, FROM, WHERE, JOIN)
+2. Place each major clause on its own line
+3. Indent subqueries by 2 spaces
+4. Align column lists vertically
+5. Add blank lines between CTEs
 
 ## Examples
 
-**Example 1:**
-Input: [description]
-Output:
+**Input:**
+```sql
+select u.id,u.name,o.total from users u join orders o on u.id=o.user_id where o.total>100
 ```
-[result]
+
+**Output:**
+```sql
+SELECT
+  u.id,
+  u.name,
+  o.total
+FROM users u
+JOIN orders o ON u.id = o.user_id
+WHERE o.total > 100
 ```
 
 ## Guidelines
 
-- [Constraint 1]
-- [Constraint 2]
+- Preserve existing comments
+- Don't change query logic, only formatting
 ```
 
 ### Step 3: Add Reference Files (If Needed)
@@ -218,20 +269,18 @@ Provide output templates for consistent results:
 ```markdown
 ## Report Template
 
-```markdown
-# [Analysis Title]
+# Code Review: {filename}
 
-## Executive Summary
-[One paragraph overview]
+## Summary
+{One paragraph describing overall code quality and main concerns}
 
-## Key Findings
-- Finding 1
-- Finding 2
+## Issues Found
+- **Line {n}:** {description of issue}
+- **Line {n}:** {description of issue}
 
 ## Recommendations
-1. [Action item]
-2. [Action item]
-```
+1. Extract {function_name} to reduce complexity
+2. Add error handling for {edge_case}
 ```
 
 ### Workflow Pattern
@@ -239,20 +288,27 @@ Provide output templates for consistent results:
 For complex multi-step tasks:
 
 ```markdown
-## Migration Workflow
+## Database Migration Workflow
 
-Copy this checklist:
+1. **Backup the database**
+   ```bash
+   pg_dump -Fc mydb > backup_$(date +%Y%m%d).dump
+   ```
 
-```
-- [ ] Step 1: Backup database
-- [ ] Step 2: Run migration script
-- [ ] Step 3: Validate output
-- [ ] Step 4: Update configuration
-```
+2. **Run migration in a transaction**
+   ```bash
+   psql mydb -c "BEGIN; \i migration.sql; -- verify results before COMMIT"
+   ```
 
-**Step 1: Backup database**
-Run: `./scripts/backup.sh`
-...
+3. **Validate data integrity**
+   ```bash
+   psql mydb -c "SELECT COUNT(*) FROM users WHERE email IS NULL"
+   ```
+   Expected: 0 rows
+
+4. **Commit or rollback**
+   - If validation passes: `COMMIT;`
+   - If validation fails: `ROLLBACK;` and restore from backup
 ```
 
 ### Conditional Pattern
