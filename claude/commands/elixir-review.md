@@ -27,14 +27,14 @@ Deploy the following general code quality agents based on files changed in paral
 - **kent-beck-reviewer**
 - **pragmatic-code-reviewer**
 
-Deploy the following Elixir specialist agents based on files changed in parallel:
+Deploy the following Elixir specialist reviewers based on files changed in parallel (reference the `developing-elixir` skill for expertise):
 
-- **absinthe-graphql-architect**: Review GraphQL schema changes, resolver patterns, subscription implementations
-- **ecto-database-master**: Analyze database migrations, query optimizations, schema designs, changesets
-- **elixir-functional-modeler**: Assess functional patterns, data transformations, pipeline compositions
-- **elixir-otp-expert**: Evaluate supervision trees, GenServer implementations, fault tolerance patterns
-- **liveview-interactive-expert**: Review LiveView components, hooks, real-time features, client-server state
-- **phoenix-framework-specialist**: Check controller patterns, context boundaries, routing, plugs
+- **graphql-absinthe**: Review GraphQL schema changes, resolver patterns, subscription implementations
+- **ecto-database**: Analyze database migrations, query optimizations, schema designs, changesets
+- **functional-modeling**: Assess functional patterns, data transformations, pipeline compositions
+- **otp-patterns**: Evaluate supervision trees, GenServer implementations, fault tolerance patterns
+- **liveview**: Review LiveView components, hooks, real-time features, client-server state
+- **phoenix-framework**: Check controller patterns, context boundaries, routing, plugs
 
 Each specialist should produce:
 
@@ -44,7 +44,7 @@ Each specialist should produce:
 
 ##### Testing Track
 
-- **exunit-testing-strategist**: Audit test coverage, identify missing test cases, review test quality and assertions
+- **testing-exunit**: Audit test coverage, identify missing test cases, review test quality and assertions (reference `developing-elixir` skill)
 
 ##### Documentation Track
 
@@ -96,9 +96,9 @@ Step 5 - Integrate: Produce unified output with:
 
     ```
     path/to/file.ex:
-      - [CRITICAL] Line 45: SQL injection risk (ecto-database-master)
-      - [HIGH] Line 23: Missing supervision (elixir-otp-expert)
-      - [MEDIUM] Line 67: Test coverage gap (exunit-testing-strategist)
+      - [CRITICAL] Line 45: SQL injection risk (ecto-database)
+      - [HIGH] Line 23: Missing supervision (otp-patterns)
+      - [MEDIUM] Line 67: Test coverage gap (testing-exunit)
     ```
 
 3. **Cross-Agent Conflicts**
@@ -163,7 +163,7 @@ Structure the final report in markdown with the following sections:
 ### Issue 1: [Title]
 - **File**: `path/to/file.ex:45`
 - **Severity**: CRITICAL
-- **Detected by**: ecto-database-master, pragmatic-code-reviewer
+- **Detected by**: ecto-database, pragmatic-code-reviewer
 - **Problem**: Detailed description of the issue
 - **Fix**: Description of the fix
 
@@ -197,11 +197,11 @@ Structure the final report in markdown with the following sections:
 
 ### 📊 Agent Coverage Report
 
-| Agent                        | Files Reviewed | Issues Found       |
+| Reviewer                     | Files Reviewed | Issues Found       |
 | ---------------------------- | -------------- | ------------------ |
-| ecto-database-master         | 5 files        | 3 critical, 2 high |
-| elixir-otp-expert            | 3 files        | 1 high, 4 medium   |
-| [continue for all agents...] |                |                    |
+| ecto-database                | 5 files        | 3 critical, 2 high |
+| otp-patterns                 | 3 files        | 1 high, 4 medium   |
+| [continue for all reviewers] |                |                    |
 
 ### Conflicts & Resolutions
 

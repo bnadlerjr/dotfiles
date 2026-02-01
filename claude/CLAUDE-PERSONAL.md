@@ -72,11 +72,11 @@ After completing code changes, invoke the `code-simplifier` sub-agent to review 
 Use domain-specific expert agents matching the technology stack. Agent descriptions indicate when to use each. When uncertain which agent applies, check available agents via the Task tool.
 
 ### Common Patterns
-- **Elixir/Phoenix**: Use appropriate specialist (phoenix-framework-specialist, liveview-interactive-expert, ecto-database-master, elixir-otp-expert, elixir-functional-modeler, absinthe-graphql-architect, exunit-testing-strategist)
+- **Elixir/Phoenix**: Use the `developing-elixir` skill (covers Phoenix, LiveView, Ecto, OTP, functional modeling, Absinthe GraphQL, ExUnit testing)
 - **TypeScript/React**: typescript-react-expert, kent-c-dodds for review
 - **Shell scripting**: bash-scripting-expert
 - **Code review**: pragmatic-code-reviewer (ALWAYS after implementation), kent-beck-reviewer for design review
-- **Test quality**: test-value-auditor, exunit-testing-strategist
+- **Test quality**: test-value-auditor, `developing-elixir` skill (testing-exunit reference)
 - **Codebase exploration**: codebase-search-navigator, serena-codebase-locator
 
 ### User-Invocable Commands

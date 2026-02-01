@@ -753,10 +753,10 @@ Every task MUST be completable in under 10 minutes. This is non-negotiable. Brea
 ### General Requirements
 1. **NEVER include actual code** - Use only plain text requirements and descriptions
 2. **Group tasks into PRs** - Each PR should be 100-500 lines total for optimal review
-3. **Use relevant expert agents** when available:
-   - `elixir-otp-expert` for all Elixir/Phoenix projects
-   - `phoenix-liveview-expert` for LiveView-specific features (if available)
-   - `graphql-expert` for Absinthe/GraphQL features (if available)
+3. **Use relevant expertise** when available:
+   - `developing-elixir` skill for all Elixir/Phoenix projects
+   - Reference `developing-elixir/references/liveview.md` for LiveView-specific features
+   - Reference `developing-elixir/references/graphql-absinthe.md` for Absinthe/GraphQL features
 4. **Run quality check agents after each task**:
    - `pragmatic-code-reviewer` - Reviews code for best practices and improvements
    - `test-value-auditor` - Identifies and removes tests that don't provide value
