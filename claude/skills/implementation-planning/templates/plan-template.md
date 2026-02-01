@@ -45,20 +45,19 @@
 // Specific code to add/modify
 ```
 
-### Success Criteria
+### Done When
 
-#### Automated Verification
-- [ ] Migration applies cleanly
-- [ ] Unit tests pass
-- [ ] Type checking passes
-- [ ] Linting passes
+- [ ] [Behavior-based criterion, e.g., "User can create a new account"]
+- [ ] [Another observable outcome]
+- [ ] Type checking and linting pass
 
-#### Manual Verification
-- [ ] Feature works in UI
-- [ ] Performance acceptable
-- [ ] Edge cases handled
+### Manual Verification
 
-**Note**: Pause for manual verification before proceeding to next phase.
+Before proceeding to next phase:
+- [ ] [Specific thing to verify in UI/API/CLI]
+- [ ] [Another manual check]
+
+**Note**: Implementation follows TDD—automated tests are written as part of each change, not as a separate step. Manual verification ensures the feature works end-to-end before proceeding.
 
 ---
 
@@ -78,30 +77,19 @@
 // Specific code to add/modify
 ```
 
-### Success Criteria
+### Done When
 
-#### Automated Verification
-- [ ] Tests pass
-- [ ] Type checking passes
+- [ ] [Behavior-based criterion]
+- [ ] [Another observable outcome]
+- [ ] Type checking and linting pass
 
-#### Manual Verification
-- [ ] Feature works as expected
-- [ ] No regressions
+### Manual Verification
+
+Before proceeding to next phase:
+- [ ] [Specific thing to verify]
+- [ ] [Another manual check]
 
 ---
-
-## Testing Strategy
-
-### Unit Tests
-- [What to test]
-- [Key edge cases]
-
-### Integration Tests
-- [End-to-end scenarios]
-
-### Manual Testing
-1. [Specific verification step]
-2. [Another step]
 
 ## Performance Considerations
 
