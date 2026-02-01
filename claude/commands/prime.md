@@ -1,9 +1,16 @@
 ---
-model: sonnet
+description: Gain a general understanding of the codebase
 ---
 
-Read CLAUDE.md, ~/.claude/CLAUDE.md and .claude/CLAUDE.local.md to understand custom guidelines. Then read README.md to understand the context of the project.
+# Prime
 
-If $ARGUMENTS then be sure to also read $ARGUMENTS.
+Execute the `Workflow` and `Report` sections to understand the codebase then summarize your understanding.
 
-**WAIT FOR USER INPUT. DO NOT MAKE ANY CHANGES.**
+## Workflow
+
+- Run `git ls-files` to list all files in the repository.
+- Read `README.md` for an overview of the project.
+
+## Report
+
+Summarize your understanding of the codebase.
