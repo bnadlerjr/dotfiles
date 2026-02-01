@@ -9,10 +9,19 @@ The following suggestions were made during a code review. Your objective is to u
 $ARGUMENTS
 
 ## Process
+
 1. **DOMAIN EXPERT**: Choose appropriate domain expertise (e.g., `developing-elixir` skill, graphql-schema-architect, etc.).
 2. **DOMAIN EXPERT**: Analyzes the suggestion.
-3. Implement the suggestion **ONLY IF IT MAKES SENSE**.
-4. Run tests to confirm the suggestion works as expected.
-5. **CODE REVIEW**: Use pragmatic-code-reviewer agent to review implementation.
-6. **CODE REVIEW**: Use spurious-comment-remover agent to remove unnecessary comments.
-7. **CODE REVIEW**: Use test-value-auditor agent to remove low-value tests.
+3. **EVALUATE** before implementing (see `receiving-code-review` skill for edge cases):
+   - Is this technically correct for THIS codebase?
+   - Does it break existing functionality?
+   - Is it a YAGNI violation (unused feature)?
+   - Does the reviewer have full context?
+
+   If evaluation fails: **Push back with technical reasoning**, don't implement blindly.
+
+4. **IMPLEMENT** the suggestion **ONLY IF EVALUATION PASSES**.
+5. Run tests to confirm the suggestion works as expected.
+6. **CODE REVIEW**: Use pragmatic-code-reviewer agent to review implementation.
+7. **CODE REVIEW**: Use spurious-comment-remover agent to remove unnecessary comments.
+8. **CODE REVIEW**: Use test-value-auditor agent to remove low-value tests.
