@@ -51,7 +51,7 @@ Each specialist should produce:
 Execute both in parallel:
 
 - **documentation-craftsperson**: Review moduledocs, function docs, inline comments for accuracy and completeness
-- **spurious-comment-remover**: Flag outdated, redundant, or misleading comments for removal
+- **code-simplifier**: Flag outdated, redundant, or misleading comments for removal; simplify code structure
 
 #### Phase 2: Synthesis (Using Graph of Thoughts)
 

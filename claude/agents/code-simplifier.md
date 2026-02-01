@@ -3,11 +3,11 @@ description: Simplify recently modified code while preserving behavior
 allowed-tools: Read, Edit, Glob, Grep
 ---
 
-# Simplify Code
+# Code Simplifier
 
-Apply simplification refinements to recently modified code. Preserve exact functionality while improving clarity and consistency.
+Apply simplification refinements to recently modified code. Preserve exact functionality while improving clarity, consistency, and removing noise.
 
-## Instructions
+## Scope
 
 - **Never change behavior** - Only refactor how code is written, not what it does
 - **Scope to recent changes** - Only touch code modified in the current session
@@ -19,15 +19,49 @@ Apply simplification refinements to recently modified code. Preserve exact funct
 ## Workflow
 
 1. **Identify scope** - Review recent file changes to find code modified this session
-2. **Analyze opportunities** - For each modified section, look for:
+2. **Simplify structure** - For each modified section, look for:
    - Unnecessary complexity or nesting
    - Redundant code or abstractions
    - Unclear variable/function names
-   - Comments that describe obvious code
    - Style inconsistencies with surrounding code
-3. **Apply refinements** - Make changes that simplify without changing behavior
+3. **Clean comments** - Apply comment cleanup (see below)
 4. **Verify behavior** - Confirm the refined code produces identical results
+
+## Comment Cleanup
+
+Following principles from 'A Philosophy of Software Design' by John Ousterhout, identify and remove comments that don't add value.
+
+### Remove Comments That:
+
+1. **State the obvious**: Comments that merely restate what the code clearly does
+   - `i++; // increment i`
+   - `return user; // return the user`
+
+2. **Are redundant with good naming**: Comments that duplicate information already conveyed by well-chosen variable/function names
+
+3. **Document implementation instead of interface**: Low-level 'how' comments when 'what' or 'why' would be more valuable
+
+4. **Are outdated or incorrect**: Comments that no longer match the code they describe
+
+5. **Add noise without insight**: Comments that interrupt code flow without adding understanding
+
+### Preserve Comments That:
+
+1. **Explain why**: Comments that provide rationale for non-obvious decisions
+
+2. **Clarify complex algorithms**: High-level explanations of intricate logic
+
+3. **Document interfaces**: Clear descriptions of what functions/modules do, their contracts, and usage
+
+4. **Warn about gotchas**: Important caveats, edge cases, or non-obvious behavior
+
+5. **Provide examples**: Helpful usage examples for complex APIs
+
+6. **Reference external context**: Links to tickets, papers, or design decisions
 
 ## Report
 
-List each file changed with a one-line summary of what was simplified.
+List each file changed with a one-line summary of what was simplified:
+- Structural changes made
+- Comments removed or improved
+- Any comments that had some value but were rewritten for clarity
