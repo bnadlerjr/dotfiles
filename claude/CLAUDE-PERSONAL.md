@@ -55,6 +55,9 @@ Skip plan mode only for:
 - Consider security implications for all changes
 - Copy exact style from surrounding code
 
+### Post-Edit Review
+After completing code changes, invoke the `code-simplifier` sub-agent to review and refine the modified code for clarity and consistency.
+
 ### Information Handling
 - Verify information before presenting
 - If unsure, say so instead of guessing
