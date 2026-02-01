@@ -23,6 +23,7 @@ alias tms="tmate show-messages"
 
 # Only setup these aliases if we're on Linux
 if [ "$(uname)" = "Linux" ]; then
+  alias bat="batcat"
   alias pbcopy="xclip -selection clipboard"
   alias pbpaste="xclip -selection clipboard -o"
   alias tw=task
