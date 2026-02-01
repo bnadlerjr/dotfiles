@@ -22,6 +22,6 @@ $ARGUMENTS
 
 4. **IMPLEMENT** the suggestion **ONLY IF EVALUATION PASSES**.
 5. Run tests to confirm the suggestion works as expected.
-6. **CODE REVIEW**: Use pragmatic-code-reviewer agent to review implementation.
+6. **CODE REVIEW**: Use `reviewing-code` skill to review implementation.
 7. **CODE REVIEW**: Use code-simplifier agent to simplify code and remove unnecessary comments.
 8. **CODE REVIEW**: Use test-value-auditor agent to remove low-value tests.

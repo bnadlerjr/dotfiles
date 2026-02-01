@@ -21,9 +21,9 @@ Remember to consult appropriate sub-agents.
      - Use the **codebase-locator** agent to find all files related to the ticket/task
      - Use the **codebase-analyzer** agent to understand how the current implementation works
      - If relevant, use the **docs-locator** agent to find any existing thoughts documents about this feature
-     - Use the **kent-beck-reviewer** agent to evaluate the plan through Kent Beck's lens
+     - Use `reviewing-code` skill (Kent Beck reference) to evaluate the plan through Kent Beck's lens
      - Use the **test-value-auditor** agent to validate success criteria
-     - Use any other appropriate agents as needed based on the codebase (e.g. **pragmatic-code-reviewer**, **kent-c-dodds**, **developing-elixir** skill, etc.)
+     - Use any other appropriate agents as needed based on the codebase (e.g. `reviewing-code` skill, `developing-elixir` skill, etc.)
 
 ## Critique Instructions
 

@@ -29,7 +29,7 @@ For significant features or changes, invoke the `coding-workflow` skill which or
 
 For all implementations:
 - **MUST** consult domain-specific expert agent before implementing
-- **MUST** review with `pragmatic-code-reviewer` after implementing
+- **MUST** review with `reviewing-code` skill after implementing
 - **NEVER** skip the expert consultation or code review steps
 
 ### Plan Mode
@@ -73,9 +73,9 @@ Use domain-specific expert agents matching the technology stack. Agent descripti
 
 ### Common Patterns
 - **Elixir/Phoenix**: Use the `developing-elixir` skill (covers Phoenix, LiveView, Ecto, OTP, functional modeling, Absinthe GraphQL, ExUnit testing)
-- **TypeScript/React**: typescript-react-expert, kent-c-dodds for review
+- **TypeScript/React**: typescript-react-expert, `reviewing-code` skill (Kent C. Dodds reference)
 - **Shell scripting**: bash-scripting-expert
-- **Code review**: pragmatic-code-reviewer (ALWAYS after implementation), kent-beck-reviewer for design review
+- **Code review**: `reviewing-code` skill (ALWAYS after implementation; Kent Beck reference for design review)
 - **Test quality**: test-value-auditor, `developing-elixir` skill (testing-exunit reference)
 - **Codebase exploration**: codebase-search-navigator, serena-codebase-locator
 
