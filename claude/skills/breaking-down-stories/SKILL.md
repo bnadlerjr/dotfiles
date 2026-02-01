@@ -1,32 +1,28 @@
 ---
 name: breaking-down-stories
-description: Break down a user story into small, actionable tasks. Use when decomposing user stories, planning sprint work, creating task lists from tickets, or when the user mentions story breakdown, task decomposition, or sprint planning.
+description: Breaks down user stories into small, actionable tasks. Use when decomposing user stories, planning sprint work, creating task lists from tickets, or when the user mentions story breakdown, task decomposition, or sprint planning.
 argument-hint: [story or ticket reference]
 ---
 
-# Task Breakdown
+# Breaking Down Stories
 
-Decompose a user story into small, actionable tasks using simultaneous brainstorming. Tasks should be completable in a few hours each.
+Decompose a user story into small, actionable tasks using holistic brainstorming—consider all work categories at once rather than thinking sequentially through the story.
 
 ## Quick Start
 
-Given a story, generate a flat task list:
+Given a story, generate a flat task list where each task is small enough to complete in a single focused session:
 
 ```markdown
-## Tasks for: User Resets Forgotten Password
+## Tasks for: [Story Title]
 
-- [ ] Add password reset request endpoint with email lookup
-- [ ] Create reset token generation with secure random and expiration
-- [ ] Add email template for password reset link
-- [ ] Add password reset confirmation endpoint with token validation
-- [ ] Add rate limiting for reset requests
-- [ ] Update login page with "Forgot password?" link
-- [ ] Add error handling for expired/invalid tokens
+- [ ] Task description (action + context)
+- [ ] Task description (action + context)
+...
 ```
 
 ## Instructions
 
-- Each task should be 1-4 hours of work
+- Each task should be completable in a single focused work session
 - Include ALL work needed to complete the story (code, tests, builds, design, docs)
 - Keep task descriptions brief—leave room for implementers to work out details
 - Do NOT sequence tasks or assign owners—just brainstorm the work
@@ -34,16 +30,25 @@ Given a story, generate a flat task list:
 
 ### TDD Guardrails
 
-- NEVER create standalone test tasks (e.g., "Write tests for User class")
-- Code tasks include both production and test code—implementers follow TDD (test first, then implement)
-- Valid: "Add User class with validation" (tests are implicit)
+- NEVER create standalone test tasks—tests are implicit in every implementation task
+- Implementers follow TDD: write failing test first, then implement
+- Valid: "Add User class with validation" (tests written as part of implementation)
 - Invalid: "Add User class" + "Write tests for User class" (redundant split)
-- Test-only tasks are acceptable ONLY for: test infrastructure, test fixtures/factories, or test configuration
+- Invalid: "Set up test fixtures for users" (fixtures created when first test needs them)
+
+### Story Quality Guardrails
+
+Before breaking down a story, verify it's ready:
+
+- **Missing acceptance criteria**: Ask for clarification or create a "Define acceptance criteria for [feature]" task
+- **Too vague**: If you can't identify concrete work, the story needs refinement—flag this to the user
+- **Too large** (spans multiple epics): Suggest splitting into smaller stories first
+- **Missing user/value**: If "who" or "why" is unclear, ask before proceeding
 
 ### For Complex Stories
 
-- If the story spans multiple systems or has unclear boundaries, use `/thinking atomic` to decompose requirements first
-- If verification keeps finding gaps, use `/thinking self-consistency` to evaluate completeness from multiple perspectives
+- If the story spans multiple systems or has unclear boundaries, invoke the `thinking-patterns` skill with `atomic` to decompose requirements first
+- If verification keeps finding gaps, invoke the `thinking-patterns` skill with `self-consistency` to evaluate completeness from multiple perspectives
 
 ### For Modification-Heavy Stories
 
@@ -59,18 +64,18 @@ Given a story, generate a flat task list:
 ## Workflow
 
 1. **Gather the Story**
-   - If input is a ticket reference (e.g., "PROJ-123"), fetch the ticket details
+   - If input is a ticket reference (e.g., "PROJ-123"), use available tools to fetch details (e.g., `jira issue view PROJ-123`)
    - If input is prose, use it directly
    - Identify: who is the user, what do they want, why do they want it
 
-2. **Brainstorm Tasks Simultaneously**
-   - Generate all tasks at once (not sequentially)
-   - Think across categories: code changes, configuration, documentation, deployment, infrastructure
+2. **Brainstorm Tasks Holistically**
+   - Consider all work categories at once: code changes, configuration, documentation, deployment, infrastructure
    - Include non-obvious work: "Update build script", "Add migration", "Update API docs"
+   - Don't think sequentially through the story—capture all work regardless of order
 
 3. **Right-Size Each Task**
-   - Split anything larger than ~4 hours
-   - Combine anything smaller than ~30 minutes
+   - Split tasks that span multiple concerns or would take multiple sessions
+   - Combine trivial tasks that are always done together
    - Each task should be independently completable
 
 4. **Verify Completeness**
@@ -78,10 +83,24 @@ Given a story, generate a flat task list:
    - Ask: "If all these tasks are done, is the story shippable?"
    - Add any missing tasks
 
-5. **Check TDD Compliance**
-   - Scan for any "write tests for X" tasks
-   - Merge test tasks into their corresponding implementation tasks
-   - Confirm test infrastructure tasks (if any) are truly standalone concerns
+5. **Check Task Quality**
+   - Scan for any test-related tasks → remove them (tests are implicit)
+   - Scan for "and" in task names → likely compound tasks, split them
+   - Scan for vague tasks like "Implement feature" → add specificity
+   - Confirm task count is reasonable (5-15 typical; fewer suggests tasks too large, more suggests story too large)
+
+## Anti-Patterns
+
+Avoid these common mistakes:
+
+| Bad Task | Problem | Better Task |
+|----------|---------|-------------|
+| "Write tests for login" | Separated test task | Remove—tests are implicit |
+| "Set up test factories" | Test infrastructure task | Remove—created when first needed |
+| "Implement authentication" | Too vague | "Add JWT token generation on login" |
+| "Update code and fix bug" | Compound task | Split into two tasks |
+| "Use bcrypt for passwords" | Implementation detail | "Add secure password hashing" |
+| "Research options" | Not actionable | "Resolve: which auth library to use" |
 
 ## Example
 
@@ -157,3 +176,8 @@ Output tasks as a simple list:
 ```
 
 Keep descriptions to one line. No estimates, no assignments, no implementation details.
+
+## Related Skills
+
+- `writing-agile-stories` - Create well-formed stories before breaking them down
+- `implementation-planning` - Create detailed plans for individual tasks
