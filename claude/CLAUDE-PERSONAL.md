@@ -73,7 +73,7 @@ Use domain-specific expert agents matching the technology stack. Agent descripti
 
 ### Common Patterns
 - **Elixir/Phoenix**: Use the `developing-elixir` skill (covers Phoenix, LiveView, Ecto, OTP, functional modeling, Absinthe GraphQL, ExUnit testing)
-- **TypeScript/React**: typescript-react-expert, `reviewing-code` skill (Kent C. Dodds reference)
+- **TypeScript/React**: Use the `developing-typescript` skill (covers TypeScript core, React architecture, GraphQL integration, testing, performance optimization), `reviewing-code` skill (Kent C. Dodds reference)
 - **Shell scripting**: bash-scripting-expert
 - **Code review**: `reviewing-code` skill (ALWAYS after implementation; Kent Beck reference for design review)
 - **Test quality**: test-value-auditor, `developing-elixir` skill (testing-exunit reference)
