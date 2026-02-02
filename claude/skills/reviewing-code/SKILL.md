@@ -7,15 +7,68 @@ description: Pragmatic code review that balances quality with real-world constra
 
 Practical code review focused on maintainability, readability, and catching real problems.
 
-## Quick Start
+## Invocation
 
-1. **Read the code** - Understand purpose and context first
-2. **Check against plan** - If a plan exists, verify alignment
-3. **Identify issues** - Focus on bugs, security, and maintenance problems
-4. **Categorize findings** - Critical (must fix) vs Suggestions (nice to have)
-5. **Provide actionable feedback** - Specific examples, not vague complaints
+**Always run code reviews in a separate agent** to avoid polluting the main context.
 
-## Core Principles
+Use the Task tool with `subagent_type: "general-purpose"`:
+
+```
+Task tool:
+  subagent_type: general-purpose
+  description: "Review code changes"
+  prompt: |
+    Review the following code changes using the reviewing-code skill methodology.
+
+    Read the skill at: ~/.claude/skills/reviewing-code/SKILL.md
+
+    Files to review:
+    - [list files or use "git diff" output]
+
+    Plan reference (if applicable):
+    - [path to implementation plan]
+
+    Focus areas:
+    - [specific concerns or "general review"]
+
+    Return a structured review with:
+    1. Summary (2-3 sentences)
+    2. Critical Issues (must fix, with file:line references)
+    3. Suggestions (nice to have)
+    4. Questions (clarifications needed)
+```
+
+### Quick Invocation Examples
+
+**Review staged changes:**
+```
+Task: general-purpose
+prompt: "Review staged git changes. Run `git diff --cached` to see changes. Use reviewing-code skill methodology. Return Critical Issues and Suggestions only."
+```
+
+**Review specific files:**
+```
+Task: general-purpose
+prompt: "Review src/auth/middleware.ts and src/auth/types.ts. Focus on security and error handling. Use reviewing-code skill methodology."
+```
+
+**Multi-agent review (complex PRs):**
+```
+Launch in parallel:
+- Task: general-purpose, prompt: "Review using Kent Beck style (see ~/.claude/skills/reviewing-code/references/kent-beck.md)"
+- Task: general-purpose, prompt: "Review test quality (see ~/.claude/skills/reviewing-code/references/test-quality.md)"
+- Task: general-purpose, prompt: "Review for [stack-specific concerns]"
+
+Then synthesize findings using graph-of-thoughts pattern.
+```
+
+---
+
+## Review Methodology
+
+The following sections define HOW to conduct reviews. Reviewer agents should read and follow this methodology.
+
+### Core Principles
 
 - **Readability trumps cleverness** - If the code is easy to follow, it's probably good enough
 - **Be conservative with refactoring** - Only recommend changes with compelling, concrete benefits
@@ -23,20 +76,20 @@ Practical code review focused on maintainability, readability, and catching real
 - **Respect existing patterns** - Consistency over imposing ideal patterns
 - **Distinguish severity clearly** - "Must fix" vs "consider improving"
 
-## Review Process
+### Review Process
 
-### 1. Initial Assessment
+#### 1. Initial Assessment
 
 Read through the code to understand its purpose. Ask yourself: Can I follow what this is doing without difficulty? If yes, lean toward approval while still checking for specific issues.
 
-### 2. Plan Alignment (When Applicable)
+#### 2. Plan Alignment (When Applicable)
 
 If there's an implementation plan or requirements document:
 - Compare implementation against the original plan
 - Identify deviations - are they justified improvements or problematic departures?
 - Verify all planned functionality was implemented
 
-### 3. Function/Method Analysis
+#### 3. Function/Method Analysis
 
 - **Complexity**: Flag excessive nesting (>3 levels) or too many branches
 - **Data structures**: Would parsers, trees, stacks, queues, or state machines make it clearer?
@@ -45,7 +98,7 @@ If there's an implementation plan or requirements document:
 - **Dependencies**: Identify hidden dependencies that should be explicit
 - **Naming**: Clear and consistent with the codebase?
 
-### 4. Class/Module Review (OO Code)
+#### 4. Class/Module Review (OO Code)
 
 - Single responsibility - does the class have one clear purpose?
 - Method cohesion - do all methods belong together?
@@ -53,7 +106,7 @@ If there's an implementation plan or requirements document:
 - Dependency injection - are dependencies injected rather than created internally?
 - Minimal public interface - well-defined API?
 
-### 5. Code Smell Detection
+#### 5. Code Smell Detection
 
 Flag these patterns:
 - Functions over 50 lines (unless algorithmically necessary)
@@ -63,7 +116,7 @@ Flag these patterns:
 - Magic numbers and strings
 - Overly generic names (`handle_data`, `process_item`)
 
-### 6. Extraction Recommendations
+#### 6. Extraction Recommendations
 
 Only suggest extracting when:
 - Code is actually used in multiple places (true DRY violation)
@@ -71,20 +124,20 @@ Only suggest extracting when:
 - Extensive comments are needed to follow the original
 - A clear, reusable abstraction is waiting to emerge
 
-### 7. Language-Specific Patterns
+#### 7. Language-Specific Patterns
 
 - **Functional**: Missed opportunities for map/filter/reduce?
 - **OO**: Anemic domain models or god objects?
 - **Dynamic**: Runtime type safety issues?
 - **All**: Consistent and complete error handling?
 
-### 8. Performance and Security
+#### 8. Performance and Security
 
 - Only flag obvious performance issues (N+1 queries, exponential algorithms)
 - Look for common security mistakes (SQL injection, unvalidated input, exposed secrets)
 - Avoid premature optimization - recommend profiling first
 
-## Output Format
+### Output Format
 
 Structure reviews as follows:
 
@@ -103,7 +156,7 @@ Clarifications needed about business logic or design decisions.
 ### Positive Observations
 What's done well (when applicable). Keep brief.
 
-## Communication Style
+### Communication Style
 
 - Start with what works well before addressing issues
 - Provide specific, actionable examples when suggesting alternatives
@@ -112,7 +165,7 @@ What's done well (when applicable). Keep brief.
 - Focus feedback on the code, never make it personal
 - Frame suggestions constructively: "Consider..." or "What if..."
 
-## Issue Categories
+### Issue Categories
 
 | Category | Description | Action |
 |----------|-------------|--------|
@@ -120,7 +173,7 @@ What's done well (when applicable). Keep brief.
 | **Important** | Significant maintenance burden, unclear logic | Should fix |
 | **Suggestion** | Readability improvements, minor optimizations | Nice to have |
 
-## When NOT to Nitpick
+### When NOT to Nitpick
 
 Skip feedback on:
 - Style preferences already handled by linters
@@ -128,7 +181,7 @@ Skip feedback on:
 - Code that works and is readable, even if you'd write it differently
 - Theoretical improvements with no practical benefit
 
-## Test Quality Review
+### Test Quality Review
 
 When reviewing test code, evaluate whether each test provides genuine value. Low-value tests slow down suites and create maintenance burden without preventing regressions.
 
@@ -150,7 +203,7 @@ When reviewing test code, evaluate whether each test provides genuine value. Low
 
 For detailed patterns by language, see [test-quality.md](references/test-quality.md).
 
-## Example Review
+### Example Review
 
 ```markdown
 ### Summary
@@ -171,9 +224,11 @@ Authentication middleware implementation. Handles JWT validation and role-based 
 - Error messages don't leak sensitive information.
 ```
 
-## Multi-Agent Review (For Comprehensive Analysis)
+---
 
-For thorough review of Git branch changes, use parallel specialist agents then synthesize findings.
+## Multi-Agent Review
+
+For comprehensive PR reviews, launch multiple specialist agents in parallel via the Task tool, then synthesize findings.
 
 ### When to Use
 
@@ -181,59 +236,70 @@ For thorough review of Git branch changes, use parallel specialist agents then s
 - Pre-merge validation
 - Complex features touching multiple domains
 
-### Phase 1: Parallel Analysis
+### Phase 1: Launch Specialist Agents
 
-Deploy specialist reviewers in parallel based on files changed.
+Launch agents in parallel based on files changed. Each agent reads the relevant reference file and reviews the diff.
 
-**Thinking Patterns for Analysis:**
-- **`chain-of-thought`**: Tracing bugs, data flow, render cycles, state issues ("why does this happen?")
-- **`atomic-thought`**: Decomposing complex multi-component changes into independent units
+**Agent Prompts:**
 
-**General Quality Reviewers:**
-- **Kent Beck style**: Design simplicity, TDD, incremental progress (see [kent-beck.md](references/kent-beck.md))
-- **Test quality**: Redundant coverage, testing anti-patterns (see [test-quality.md](references/test-quality.md))
+```
+# Kent Beck design review
+Task: general-purpose
+prompt: |
+  Review git diff using Kent Beck style.
+  Read: ~/.claude/skills/reviewing-code/references/kent-beck.md
+  Focus: Simplicity, TDD, incremental progress.
+  Return: Issues with file:line references.
 
-**Language-Specific Specialists** (select based on stack):
+# Test quality review
+Task: general-purpose
+prompt: |
+  Review test changes using test quality methodology.
+  Read: ~/.claude/skills/reviewing-code/references/test-quality.md
+  Focus: Duplicate coverage, over-mocking, implementation tests.
+  Return: Low-value tests to remove or refactor.
 
-For Elixir/Phoenix (reference `developing-elixir` skill):
-- **graphql-absinthe**: Schema changes, resolver patterns, subscriptions
-- **ecto-database**: Migrations, queries, schemas, changesets
-- **functional-modeling**: Functional patterns, data transformations, pipelines
-- **otp-patterns**: Supervision trees, GenServer, fault tolerance
-- **liveview**: Components, hooks, real-time features
-- **phoenix-framework**: Controllers, contexts, routing, plugs
-- **testing-exunit**: Test coverage, assertions, test quality
+# Stack-specific review (select one)
+Task: general-purpose
+prompt: |
+  Review using developing-elixir skill expertise.
+  Focus: OTP patterns, Ecto queries, Phoenix conventions.
+  Return: Issues with file:line references.
 
-For TypeScript/React:
-- **typescript-react-expert**: Type safety, hooks, performance, architecture
-- **Kent C. Dodds style**: Testing patterns, component design, accessibility (see [kent-c-dodds.md](references/kent-c-dodds.md))
+Task: general-purpose
+prompt: |
+  Review using Kent C. Dodds style.
+  Read: ~/.claude/skills/reviewing-code/references/kent-c-dodds.md
+  Focus: React patterns, testing library usage, component design.
+  Return: Issues with file:line references.
+```
 
-Each specialist produces:
+Each agent returns:
 1. Issues with severity (critical/high/medium/low)
 2. Specific `file:line` references
 3. Recommended fixes
 
-### Phase 2: Synthesis
+### Phase 2: Synthesize Findings
 
-Use `graph-of-thoughts` pattern to consolidate findings:
+After agents complete, use `graph-of-thoughts` to consolidate:
 
-1. **Extract**: Core findings, severities, file references from each agent
+1. **Extract**: Core findings from each agent
 2. **Align**: Merge duplicates, note consensus (strengthens confidence)
-3. **Conflict**: Document disagreements with both positions
+3. **Conflict**: Document disagreements
 4. **Resolve**: Use `tree-of-thoughts` for conflicts
-5. **Integrate**: Unified findings with provenance and confidence levels
+5. **Integrate**: Unified findings with confidence levels
 
-### Phase 3: Final Validation
+### Phase 3: Validate
 
-Use `self-consistency` pattern with 3 perspectives:
+Use `self-consistency` with 3 perspectives:
 
-1. **Security & Safety**: Vulnerabilities addressed? Runtime risks?
-2. **Correctness & Quality**: Critical issues resolved? Correct behavior?
-3. **Maintainability**: Follows conventions? Long-term maintainable?
+1. **Security & Safety**: Vulnerabilities? Runtime risks?
+2. **Correctness**: Critical issues resolved?
+3. **Maintainability**: Follows conventions?
 
 Issue merge recommendation only if consensus achieved.
 
-### Multi-Agent Output Format
+### Output Format
 
 ```markdown
 # Git Changes Review Report
@@ -280,12 +346,16 @@ Issue merge recommendation only if consensus achieved.
 - Consensus: [Achieved/Partial]
 ```
 
-## Persona Review Styles
+---
+
+## Persona References
 
 For focused reviews with specific philosophies, see:
 
 - [Kent Beck style](references/kent-beck.md) - TDD, simplicity, XP principles. Use for design reviews or plan critiques.
 - [Kent C. Dodds style](references/kent-c-dodds.md) - React/Testing Library philosophy, AHA programming. Use for React/TypeScript reviews.
+
+---
 
 ## The Bottom Line
 
