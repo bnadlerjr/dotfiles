@@ -195,6 +195,8 @@ After green only:
 
 Keep tests green. Don't add behavior.
 
+For systematic refactoring with code smell detection, see the [refactoring-code](../refactoring-code/SKILL.md) skill.
+
 ### Repeat
 
 Next failing test for next feature.
