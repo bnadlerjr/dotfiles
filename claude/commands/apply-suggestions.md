@@ -12,7 +12,7 @@ $ARGUMENTS
 
 1. **DOMAIN EXPERT**: Choose appropriate domain expertise (e.g., `developing-elixir` skill, `developing-typescript` skill, etc.).
 2. **DOMAIN EXPERT**: Analyzes the suggestion.
-3. **EVALUATE** before implementing (see `receiving-code-review` skill for edge cases):
+3. **EVALUATE** before implementing (see `receiving-code-review`):
    - Is this technically correct for THIS codebase?
    - Does it break existing functionality?
    - Is it a YAGNI violation (unused feature)?
