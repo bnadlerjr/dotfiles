@@ -133,6 +133,7 @@ Extended thinking handles internal reasoning. These patterns produce **visible s
 - **MUST NOT** Reference Claude, Anthropic, or AI in commits - no "Co-Authored-By" lines, no "Claude suggested", no AI attribution of any kind
 - Create feature branches like `feature/[description]`
 - Never commit directly to main/master
+- For commit message formatting, use the `writing-git-commits` skill (Tim Pope style)
 
 ## Communication Style
 - Treat user as expert
