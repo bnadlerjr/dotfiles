@@ -12,7 +12,7 @@ Create detailed implementation plans through an interactive, iterative process. 
 
 Given a task or ticket:
 
-1. **Read** all referenced documents FULLY (run `claude-docs-path <type>` to resolve paths)
+1. **Read** all referenced documents FULLY (see [managing-claude-docs](../managing-claude-docs/SKILL.md) for path resolution)
 2. **Research** by spawning `serena-codebase-locator` + `codebase-analyzer` in parallel
 3. **Present** understanding with `file:line` references, ask only unanswerable questions
 4. **Verify** any user corrections against code before accepting

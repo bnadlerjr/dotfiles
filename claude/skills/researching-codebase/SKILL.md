@@ -123,11 +123,11 @@ Present your understanding of the research question and decomposition, then use 
 
 ### Step 2: Gather Metadata
 
+For document path resolution and frontmatter, see the [managing-claude-docs](../managing-claude-docs/SKILL.md) skill.
+
 **MUST** run the `git metadata` command to generate all relevant metadata.
 
 Filename format: `$(claude-docs-path research)/YYYY-MM-DD-description.md`
-- YYYY-MM-DD is today's date
-- description is a brief kebab-case description of the research topic
 
 Examples:
 - `2025-01-08-parent-child-tracking.md`

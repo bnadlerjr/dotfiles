@@ -149,66 +149,17 @@ Extended thinking handles internal reasoning. These patterns produce **visible s
 - Don't remove unrelated functionality
 - Fully implement all requested features
 
-## Claude Docs Git Metadata Resolution
+## Claude Documentation
 
-When a command or agent needs to retrieve docs metadata, it **MUST** use the
-custom `git metadata` command to resolve the correct metadata.
+For creating and managing plans, research, tickets, architecture docs, and handoffs, invoke the `managing-claude-docs` skill. This skill provides:
+- Path resolution via `claude-docs-path`
+- Metadata via `git metadata`
+- Document templates
+- Obsidian frontmatter conventions
 
-### Output Fields
-- `Current Date/Time (TZ)` - Timestamp with timezone
-- `Current Git Commit Hash` - Full commit SHA
-- `Current Branch Name` - Active branch
-- `Repository Name` - Project name
-- `Area` - Project grouping
-- `Timestamp For Filename` - Formatted for filenames (YYYY-MM-DD_HH-MM-SS)
-
-### When to Use
-**ALWAYS** run `git metadata` when:
-1. Creating new plan/research/ticket documents (use `Timestamp For Filename`)
-2. Including commit context in documents (use `Current Git Commit Hash`)
-3. Referencing the current branch in documentation
-
-### Example Usage
+Key commands (see skill for details):
 ```bash
-# Get metadata before creating a document
-git metadata
-
-# Parse specific field
-TIMESTAMP=$(git metadata | grep "Timestamp For Filename" | cut -d: -f2 | tr -d ' ')
+claude-docs-path plans        # Get plans directory
+claude-docs-path research     # Get research directory
+git metadata                  # Get document metadata
 ```
-
-## Claude Docs Path Resolution
-
-Research, plans, and tickets are stored in a centralized location outside of project repositories.
-
-### Path Resolution
-**MUST** use the `claude-docs-path` script to resolve docs locations:
-```bash
-claude-docs-path              # Base docs directory for current project
-claude-docs-path plans        # Plans subdirectory
-claude-docs-path research     # Research subdirectory
-claude-docs-path tickets      # Tickets subdirectory
-claude-docs-path architecture # Architecture subdirectory
-claude-docs-path handoffs     # Handoffs subdirectory
-```
-
-### Usage in Commands
-When reading or writing docs (plans, research, tickets):
-1. Run `claude-docs-path <type>` to get the correct directory
-2. Use the returned path for all file operations
-3. **NEVER** hardcode `.claude/docs/` - always use the script
-
-### Examples
-```bash
-# Get path for writing a new plan
-PLANS_DIR=$(claude-docs-path plans)
-# Write to: $PLANS_DIR/2025-01-15-feature-name.md
-
-# Get path for reading research
-RESEARCH_DIR=$(claude-docs-path research)
-# Read from: $RESEARCH_DIR/2025-01-10-topic.md
-```
-
-### Environment Setup
-The user has configured `CLAUDE_DOCS_ROOT` to point to their Obsidian vault.
-If the variable is unset, the script falls back to `.claude/docs/` (project-local).

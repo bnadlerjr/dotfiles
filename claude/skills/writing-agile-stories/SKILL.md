@@ -249,7 +249,7 @@ Use **AskUserQuestion**:
 
 Actions:
 - **Create Jira ticket**: Use `jira-cli-expert` agent
-- **Save to file**: Write to `$(claude-docs-path tickets)/`
+- **Save to file**: Write to `$(claude-docs-path tickets)/` (see [managing-claude-docs](../managing-claude-docs/SKILL.md) for path resolution)
 - **Write related story**: Start new story with shared context
 
 ---

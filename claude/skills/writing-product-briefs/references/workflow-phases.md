@@ -335,7 +335,7 @@ Use **AskUserQuestion** for next action:
 - Header: "Next step"
 - Question: "Brief is complete. What would you like to do?"
 - Options:
-  - "Save to file" → Write to `$(claude-docs-path)/` with timestamp
+  - "Save to file" → Write to docs directory (see [managing-claude-docs](../../managing-claude-docs/SKILL.md) for path resolution)
   - "Generate user stories" → Use `agile-story` for each scenario
   - "Create implementation plan" → Use `implementation-planning`
   - "Done" → End workflow
