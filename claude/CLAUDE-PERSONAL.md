@@ -76,7 +76,7 @@ Use domain-specific expert agents matching the technology stack. Agent descripti
 - **TypeScript/React**: Use the `developing-typescript` skill (covers TypeScript core, React architecture, GraphQL integration, testing, performance optimization), `reviewing-code` skill (Kent C. Dodds reference)
 - **Shell scripting**: bash-scripting-expert
 - **Code review**: `reviewing-code` skill (ALWAYS after implementation; Kent Beck reference for design review)
-- **Test quality**: test-value-auditor, `developing-elixir` skill (testing-exunit reference)
+- **Test quality**: `reviewing-code` skill (test-quality reference), `developing-elixir` skill (testing-exunit reference)
 - **Codebase exploration**: codebase-search-navigator, serena-codebase-locator
 
 ### User-Invocable Commands

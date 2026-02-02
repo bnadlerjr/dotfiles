@@ -128,6 +128,28 @@ Skip feedback on:
 - Code that works and is readable, even if you'd write it differently
 - Theoretical improvements with no practical benefit
 
+## Test Quality Review
+
+When reviewing test code, evaluate whether each test provides genuine value. Low-value tests slow down suites and create maintenance burden without preventing regressions.
+
+**Quick Assessment:**
+- Does this test prevent a real regression?
+- Could this test ever catch a real bug?
+- Is this testing behavior or implementation?
+
+**Common Low-Value Patterns:**
+- Tests that break on refactor without behavior change (implementation testing)
+- Multiple tests covering the same behavior (duplicate coverage)
+- Tests where everything is mocked except trivial logic (over-mocking)
+- Tests of getters/setters, direct delegation, or framework behavior (trivial tests)
+
+**Recommendations:**
+- Flag for removal with specific reasoning
+- Suggest combining into parameterized tests
+- Convert implementation tests to behavior tests
+
+For detailed patterns by language, see [test-quality.md](references/test-quality.md).
+
 ## Example Review
 
 ```markdown
@@ -169,7 +191,7 @@ Deploy specialist reviewers in parallel based on files changed.
 
 **General Quality Reviewers:**
 - **Kent Beck style**: Design simplicity, TDD, incremental progress (see [kent-beck.md](references/kent-beck.md))
-- **test-value-auditor**: Test quality, redundant coverage, testing anti-patterns
+- **Test quality**: Redundant coverage, testing anti-patterns (see [test-quality.md](references/test-quality.md))
 
 **Language-Specific Specialists** (select based on stack):
 
