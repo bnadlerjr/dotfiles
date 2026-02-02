@@ -5,15 +5,15 @@ model: opus
 
 # Generate Stories from Source
 
-Transform product specification documents into well-formed user stories using the `agile-story` skill methodology.
+Transform product specification documents into well-formed user stories using the `writing-agile-stories` skill methodology.
 
 ## Dependencies
 
-- **agile-story skill**: `~/dotfiles/claude/skills/agile-story/SKILL.md`
+- **writing-agile-stories skill**: `~/dotfiles/claude/skills/writing-agile-stories/SKILL.md`
 - **Thinking patterns**: atomic-thought, skeleton-of-thought, tree-of-thoughts, chain-of-thought, self-consistency
 - **MCP Servers** (optional):
   - Notion MCP - for fetching Notion pages directly
-  - Jira MCP - alternative to jira-cli-expert
+  - Jira MCP - alternative to `managing-jira` skill
 
 ## Initial Response
 
@@ -56,7 +56,7 @@ Generic URL (starts with http:// or https://, not Notion)
   → Use WebFetch to retrieve content
 
 Jira Reference (matches [A-Z]+-[0-9]+)
-  → Use jira-cli-expert agent to fetch epic details
+  → Use `managing-jira` skill to fetch epic details
   → Command: jira issue view PROJ-123
 
 No source provided
@@ -325,7 +325,7 @@ Based on the document, I've identified these stories:
 
 ## Phase 4: Story Generation
 
-**Apply `agile-story` skill** for each story.
+**Apply `writing-agile-stories` skill** for each story.
 
 ### Generation Process
 
@@ -351,7 +351,7 @@ For each story in the approved outline:
 
 ### Quality Checklist (per story)
 
-Apply the agile-story skill quality checks:
+Apply the writing-agile-stories skill quality checks:
 - [ ] Behavior-focused (no implementation details)
 - [ ] Domain language throughout
 - [ ] Narrative form (no "As a user" template)
@@ -484,7 +484,7 @@ Synthesize: Do the paths agree? Any gaps or over-coverage?
 - Question: "Where should I save these stories?"
 - Options:
   - "Markdown file" → Write to claude-docs-path
-  - "Jira tickets" → Create via jira-cli-expert
+  - "Jira tickets" → Create via `managing-jira` skill
   - "Both markdown and Jira" → Do both
   - "Display only" → End without saving
 
@@ -567,7 +567,7 @@ Appetite: [If from ShapeUp]
 
 ### Jira Output
 
-Use `jira-cli-expert` agent:
+Use `managing-jira` skill:
 
 1. **Create Epic** (if source is a pitch/canvas):
    ```
@@ -604,7 +604,7 @@ Use `jira-cli-expert` agent:
 | 2. Analysis | `atomic-thought` | Decompose document into independent concerns |
 | 3. Extraction | `skeleton-of-thought` | Outline stories before detailing |
 | 3. Extraction | `tree-of-thoughts` | Explore story slicing options when large |
-| 4. Generation | `agile-story` skill | Full story methodology |
+| 4. Generation | `writing-agile-stories` skill | Full story methodology |
 | 4. Generation | `chain-of-thought` | Trace complex business logic for AC |
 | 5. Verification | `self-consistency` | Multi-path verification of coverage |
 
@@ -672,7 +672,7 @@ You may want to manually identify:
 This document already contains user stories.
 
 Would you like me to:
-1. Refine the existing stories using the agile-story methodology
+1. Refine the existing stories using the writing-agile-stories methodology
 2. Generate new stories and compare to existing
 3. Extract non-story content and generate fresh stories
 ```

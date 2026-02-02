@@ -248,7 +248,7 @@ Use **AskUserQuestion**:
 - Options: "Create Jira ticket" | "Save to file" | "Write related story" | "Done"
 
 Actions:
-- **Create Jira ticket**: Use `jira-cli-expert` agent
+- **Create Jira ticket**: Use `managing-jira` skill
 - **Save to file**: Write to `$(claude-docs-path tickets)/` (see [managing-claude-docs](../managing-claude-docs/SKILL.md) for path resolution)
 - **Write related story**: Start new story with shared context
 
@@ -291,7 +291,7 @@ A story is ready when:
 - Story defines WHAT to build
 - Plan defines HOW to build it
 
-**With Jira**: Create tickets via `jira-cli-expert`
+**With Jira**: Create tickets via `managing-jira` skill
 - Title = Story title
 - Description = Narrative + context
 - Acceptance Criteria = Checklist

@@ -47,7 +47,7 @@ If you encounter a mismatch:
    - Red: Write a failing test. Ensure it fails for the EXPECTED reason before writing any production code.
    - Green: Write minimal code to pass.
    - Refactor: Improve code while keeping tests green.
-   - Review: Run quality checks (`reviewing-code` skill, test-value-auditor, code-simplifier).
+   - Review: Run quality checks (`reviewing-code` skill, code-simplifier).
 3. **Consult specialized agents** - Consult specialized agents in parallel as needed
 4. **Test independence** - Each test must be able to run in isolation
 5. **Use appropriate test strategies** - Prefer stubs,fakes, etc. over verified mocks (e.g. prefer Detroit style over London style).

@@ -10,7 +10,7 @@ $ARGUMENTS
 
 ## Process
 
-1. **DOMAIN EXPERT**: Choose appropriate domain expertise (e.g., `developing-elixir` skill, graphql-schema-architect, etc.).
+1. **DOMAIN EXPERT**: Choose appropriate domain expertise (e.g., `developing-elixir` skill, `developing-typescript` skill, etc.).
 2. **DOMAIN EXPERT**: Analyzes the suggestion.
 3. **EVALUATE** before implementing (see `receiving-code-review` skill for edge cases):
    - Is this technically correct for THIS codebase?
@@ -24,4 +24,3 @@ $ARGUMENTS
 5. Run tests to confirm the suggestion works as expected.
 6. **CODE REVIEW**: Use `reviewing-code` skill to review implementation.
 7. **CODE REVIEW**: Use code-simplifier agent to simplify code and remove unnecessary comments.
-8. **CODE REVIEW**: Use test-value-auditor agent to remove low-value tests.

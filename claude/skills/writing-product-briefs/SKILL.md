@@ -212,7 +212,7 @@ Key elements demonstrated:
 ## Integration with Other Skills
 
 ### Before User Stories
-Product Brief → `agile-story`
+Product Brief → `writing-agile-stories`
 - Scenarios become story candidates
 - Personas inform the "who"
 - Metrics validate story priority

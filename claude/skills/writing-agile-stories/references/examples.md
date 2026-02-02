@@ -1,6 +1,6 @@
 # Agile Story Examples
 
-Complete examples demonstrating the agile-story skill.
+Complete examples demonstrating the writing-agile-stories skill.
 
 ---
 
