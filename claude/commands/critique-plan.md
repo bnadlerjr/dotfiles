@@ -18,7 +18,7 @@ You are tasked with critiquing an approved technical plan from `$(claude-docs-pa
 
 Remember to consult appropriate sub-agents.
 2. Consult appropriate sub-agents in parallel as needed:
-     - Use the **serena-codebase-locator** agent to find all files related to the ticket/task
+     - Use the **codebase-navigator** agent to find all files related to the ticket/task
      - Use the **codebase-analyzer** agent to understand how the current implementation works
      - If relevant, use the **docs-locator** agent to find any existing thoughts documents about this feature
      - Use `reviewing-code` skill (Kent Beck reference) to evaluate the plan through Kent Beck's lens

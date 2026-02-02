@@ -13,7 +13,7 @@ Create detailed implementation plans through an interactive, iterative process. 
 Given a task or ticket:
 
 1. **Read** all referenced documents FULLY (see [managing-claude-docs](../managing-claude-docs/SKILL.md) for path resolution)
-2. **Research** by spawning `serena-codebase-locator` + `codebase-analyzer` in parallel
+2. **Research** by spawning `codebase-navigator` + `codebase-analyzer` in parallel
 3. **Present** understanding with `file:line` references, ask only unanswerable questions
 4. **Verify** any user corrections against code before accepting
 5. **Outline** the phase structure, get approval
@@ -44,7 +44,7 @@ Given a task or ticket:
    - **NEVER** read files partially
 
 2. **Spawn research agents in parallel**:
-   - **serena-codebase-locator** → Find all relevant files
+   - **codebase-navigator** → Find all relevant files
    - **codebase-analyzer** → Understand current implementation
    - **docs-locator** → Find existing documentation
    - **managing-jira** skill → Get ticket details (if Jira mentioned)
@@ -162,7 +162,7 @@ Quick reference for common research agents (all read-only, work in plan mode). A
 
 | Agent | Purpose |
 |-------|---------|
-| `serena-codebase-locator` | Find relevant files |
+| `codebase-navigator` | Find relevant files |
 | `codebase-analyzer` | Understand implementation details |
 | `codebase-pattern-finder` | Find similar features to model after |
 | `docs-locator` | Find existing documentation |
@@ -205,7 +205,7 @@ Input: "Plan the implementation for PROJ-123"
 
 Expected behavior:
 1. Read ticket (run `claude-docs-path tickets` for path)
-2. Spawn `serena-codebase-locator` + `codebase-analyzer` agents in parallel
+2. Spawn `codebase-navigator` + `codebase-analyzer` agents in parallel
 3. Present findings:
    ```
    Based on PROJ-123, I understand we need to add rate limiting to the API.

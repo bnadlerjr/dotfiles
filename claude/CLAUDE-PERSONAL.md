@@ -77,7 +77,7 @@ Use domain-specific expert agents matching the technology stack. Agent descripti
 - **Shell scripting**: bash-scripting-expert
 - **Code review**: `reviewing-code` skill (ALWAYS after implementation; Kent Beck reference for design review)
 - **Test quality**: `reviewing-code` skill (test-quality reference), `developing-elixir` skill (testing-exunit reference)
-- **Codebase exploration**: codebase-search-navigator, serena-codebase-locator
+- **Codebase exploration**: codebase-navigator
 
 ### User-Invocable Commands
 - `/bugfix` - TDD-based debugging workflow

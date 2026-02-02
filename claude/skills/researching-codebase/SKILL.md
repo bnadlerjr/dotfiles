@@ -79,7 +79,7 @@ Present your understanding of the research question and decomposition, then use 
 ### Specialized Agents
 
 **For codebase research:**
-- **serena-codebase-locator**: Find WHERE files and components live
+- **codebase-navigator**: Find WHERE files and components live
 - **codebase-analyzer**: Understand HOW specific code works (without critiquing it)
 - **codebase-pattern-finder**: Find examples of existing patterns (without evaluating them)
 
@@ -258,7 +258,7 @@ Use **AskUserQuestion** for next action:
 **Agent returns empty results:**
 - Verify the search terms match what's in the codebase
 - Try broader search terms with a different agent
-- Check if the component exists at all using `serena-codebase-locator`
+- Check if the component exists at all using `codebase-navigator`
 
 **Research scope too broad:**
 - Narrow to specific components or files
@@ -280,7 +280,7 @@ I'll research the authentication flow by investigating:
 4. Protected route enforcement
 
 Spawning agents:
-- serena-codebase-locator: "authentication login routes middleware"
+- codebase-navigator: "authentication login routes middleware"
 - codebase-analyzer: "src/auth/" (after locator finds it)
 ```
 
@@ -307,7 +307,7 @@ checks the Authorization header and validates the JWT signature.
 
 | Agent | Purpose |
 |-------|---------|
-| `serena-codebase-locator` | Find where files and components live |
+| `codebase-navigator` | Find where files and components live |
 | `codebase-analyzer` | Understand how specific code works |
 | `codebase-pattern-finder` | Find usage examples |
 | `docs-locator` | Discover relevant documents |
