@@ -42,16 +42,17 @@ jira issue list --jql "sprint in openSprints() AND assignee = currentUser()"
 
 **Output formats:**
 ```bash
-jira issue list --output json    # For parsing
-jira issue list --output table   # Formatted table
+jira issue list --plain --no-headers           # For scripting
+jira issue list --plain --columns key,summary  # Specific columns
 ```
 
 ### View Issue Details
 
 ```bash
-jira issue view PROJ-123              # Full details
-jira issue view PROJ-123 --comments   # Include comments
-jira issue view PROJ-123 --web        # Open in browser
+jira issue view PROJ-123                # Full details
+jira issue view PROJ-123 --comments 5   # Include last 5 comments
+jira issue view PROJ-123 --raw          # JSON output
+jira open PROJ-123                      # Open in browser
 ```
 
 ### Create Issues
@@ -119,9 +120,8 @@ jira issue move PROJ-123 "Done" --resolution "Fixed"
 ### Comments
 
 ```bash
-jira issue comment PROJ-123 "Comment text"
-jira issue comment PROJ-123 "Multi-line
-comment text"
+jira issue comment add PROJ-123 -b"Comment text"
+jira issue comment add PROJ-123 --template /path/to/comment.md
 ```
 
 ### Assign Issues
@@ -129,15 +129,17 @@ comment text"
 ```bash
 jira issue assign PROJ-123 $(jira me)           # Self-assign
 jira issue assign PROJ-123 "user@example.com"   # Specific user
-jira issue assign PROJ-123 "unassigned"         # Unassign
+jira issue assign PROJ-123 x                    # Unassign
+jira issue assign PROJ-123 default              # Default assignee
 ```
 
 ### Link Issues
 
 ```bash
-jira issue link PROJ-123 PROJ-124 "blocks"
-jira issue link PROJ-123 PROJ-125 "relates to"
-jira issue link PROJ-123 PROJ-126 "duplicates"
+jira issue link PROJ-123 PROJ-124 "Blocks"    # PROJ-123 blocks PROJ-124
+jira issue link PROJ-123 PROJ-125 "Relates"
+jira issue link PROJ-123 PROJ-126 "Duplicate"
+jira issue link PROJ-EPIC PROJ-STORY "Epic-Story"
 ```
 
 ## Sprint & Epic Operations
@@ -166,7 +168,7 @@ jira issue assign PROJ-123 $(jira me)
 **Complete issue:**
 ```bash
 jira issue move PROJ-123 "Done" --resolution "Fixed"
-jira issue comment PROJ-123 "Completed in PR #123"
+jira issue comment add PROJ-123 -b"Completed in PR #123"
 ```
 
 **Daily standup:**
@@ -193,11 +195,18 @@ fi
 ## Best Practices
 
 1. **Always use `$(jira me)`** for current user instead of hardcoding
-2. **Prefer non-interactive mode** with explicit flags
+2. **Prefer non-interactive mode** with `--no-input` and explicit flags
 3. **Validate transitions** by checking available transitions first
-4. **Use JSON output** when parsing programmatically
-5. **Suppress stderr** when parsing: `jira issue view PROJ-123 2>/dev/null`
+4. **Use `--plain --no-headers`** when parsing output programmatically
+5. **Write multi-line content to /tmp first** - the CLI chokes on multi-line strings:
+   ```bash
+   cat > /tmp/jira_body.md <<'EOF'
+   Description content here...
+   EOF
+   jira issue create -tStory -s"Summary" -b"$(cat /tmp/jira_body.md)" --no-input
+   ```
 
-## JQL Reference
+## References
 
-For advanced JQL queries, operators, functions, and bulk operations, see [jql-reference.md](references/jql-reference.md).
+- [cli-reference.md](references/cli-reference.md) - Complete command reference with all flags and options
+- [jql-reference.md](references/jql-reference.md) - Advanced JQL queries, operators, functions, and bulk operations
