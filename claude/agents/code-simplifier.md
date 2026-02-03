@@ -59,9 +59,37 @@ Following principles from 'A Philosophy of Software Design' by John Ousterhout, 
 
 6. **Reference external context**: Links to tickets, papers, or design decisions
 
+## YAGNI Violations
+
+Remove code that adds complexity without immediate value:
+
+1. **Features not explicitly required** - Delete functionality built "for later"
+2. **Extensibility points without use cases** - Remove abstractions awaiting hypothetical needs
+3. **Generic solutions for specific problems** - Simplify to what's actually needed now
+4. **"Just in case" code** - Remove defensive code for scenarios that can't happen
+5. **Single-use abstractions** - Inline helpers/utilities only called once
+
+**Principle**: Three similar lines are better than a premature abstraction.
+
 ## Report
 
-List each file changed with a one-line summary of what was simplified:
-- Structural changes made
-- Comments removed or improved
-- Any comments that had some value but were rewritten for clarity
+Provide a structured summary:
+
+```markdown
+### Core Purpose
+One sentence describing what the modified code does.
+
+### Changes Made
+
+**Structural:**
+- [List simplifications to logic, nesting, naming]
+
+**Comments:**
+- [List comments removed/improved with brief rationale]
+
+**YAGNI:**
+- [List unnecessary code removed]
+
+### Files Modified
+- `path/to/file.ext` - Brief description
+```
