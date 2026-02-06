@@ -73,10 +73,6 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/notification.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ~/dotfiles/claude/hooks/pushover_notification.py"
           }
         ]
       }
@@ -87,10 +83,6 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ~/dotfiles/claude/hooks/pushover_notification.py"
           }
         ]
       }
