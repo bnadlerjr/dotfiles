@@ -209,27 +209,6 @@ Key elements demonstrated:
 
 ---
 
-## Integration with Other Skills
-
-### Before User Stories
-Product Brief → `writing-agile-stories`
-- Scenarios become story candidates
-- Personas inform the "who"
-- Metrics validate story priority
-
-### Before Implementation
-Product Brief → `implementation-planning`
-- Brief defines success criteria for the plan
-- Scenarios reveal key technical requirements
-
-### With Research
-`research` → Product Brief
-- Research findings inform thesis claims
-- User research reveals personas
-- Competitive analysis shapes antithesis
-
----
-
 ## Tips for Better Briefs
 
 - The brief is complete when it enables action, not when it's comprehensive
