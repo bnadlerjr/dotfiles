@@ -8,6 +8,10 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
           }
         ]
       }
@@ -40,6 +44,10 @@
           },
           {
             "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
+          },
+          {
+            "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/notification.py"
           }
         ]
@@ -51,6 +59,10 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
           },
           {
             "type": "command",
@@ -72,6 +84,10 @@
           },
           {
             "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
+          },
+          {
+            "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/notification.py"
           }
         ]
@@ -83,6 +99,10 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
           }
         ]
       }
@@ -93,6 +113,10 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
           },
           {
             "type": "command",
@@ -107,6 +131,80 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
+          },
+          {
+            "type": "command",
+            "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
           }
         ]
       }
