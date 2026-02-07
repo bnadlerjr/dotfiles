@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Review GitHub Pull Request - Retrieves PR diff and full file contents
-# Usage: gh-pr-review [-d|--debug] <PR_NUMBER>
+# Retrieves PR diff and full file contents
+# Usage: gh-pr-prepare-diff [-d|--debug] <PR_NUMBER>
 #   -d, --debug    Enable debug output
 
 set -euo pipefail
@@ -227,7 +227,7 @@ REPO_NAME=$(echo "$REPO_INFO" | jq -r '.nameWithOwner')
 info "Repository: $REPO_NAME"
 
 # Create temporary directory for downloads
-TMPDIR=$(mktemp -d -t gh-pr-review.XXXXXX)
+TMPDIR=$(mktemp -d -t gh-pr-prepare-diff.XXXXXX)
 trap 'rm -rf "$TMPDIR"' EXIT INT TERM
 
 info "Fetching PR #$PR_NUM information..."

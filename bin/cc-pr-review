@@ -1,0 +1,150 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.8"
+# dependencies = []
+# ///
+
+"""
+Review a Pull Request using Claude Code in non-interactive mode.
+
+Reads a markdown-formatted PR (full files + diffs) from STDIN and pipes it
+to `claude -p` with a structured code review prompt.
+
+Usage:
+    gh-pr-prepare-diff 123 | cc-pr-review
+    cat pr.md | cc-pr-review
+"""
+
+import subprocess
+import sys
+
+REVIEW_PROMPT = r"""# PR Code Review
+
+Analyze a Pull Request code diff with full file context and provide concise, actionable suggestions to fix bugs, problems, and improve code quality.
+
+## Review Methodology
+
+If the file `~/.claude/skills/reviewing-code/SKILL.md` exists, read it and apply its methodology (core principles, review process, issue categories, output format, and communication style) to this review. Adapt its output format to the report structure below.
+
+If the skill file does not exist, proceed with the instructions below as-is.
+
+## Input Format
+
+The input piped via STDIN contains:
+
+**1. Full files** — Complete source for every file touched by the PR, wrapped in:
+```
+### File: `src/file1.ex`
+<full file content>
+```
+
+**2. Diff hunks** — The PR diff showing changes, wrapped in:
+```diff
+@@ ... @@ def func1():
+ unchanged code line
++new code line
+-removed code line
+```
+
+Line prefixes: `+` = added, `-` = removed, ` ` = unchanged context.
+
+## Instructions
+
+- **Review surface is new code only** — lines prefixed with `+` in the diff. Lines prefixed with `-` are context only.
+- **Use full file content to evaluate hunks** — Check that new code is consistent with the file's existing patterns, types, imports, module structure, and conventions.
+- Never suggest changes already made in the PR.
+- Never flag missing imports or declarations if they exist in the full file but not the diff hunk.
+- If code ends at a scope-opening boundary (`if`, `for`, `try`, `do`, `{`), treat it as a boundary — not incomplete code.
+- Surround all code references (variables, functions, files) with backticks.
+- Provide at most 10 suggestions. Return fewer if fewer apply. Return none if none apply.
+
+## Workflow
+
+1. **Read full files** — For each file in the input, read the complete source to understand its structure, conventions, types, and existing patterns.
+2. **Parse the diff** — Identify all files and hunks. Extract the new code lines (prefixed with `+`) as the review surface.
+3. **If the diff contains no `+` lines**, STOP immediately and report "No new code to review."
+4. **IMPORTANT: For each file in the diff, execute the following:**
+
+<file-review-loop>
+  - Cross-reference each `+` hunk against the full file to understand where the new code sits and what it interacts with.
+  - Identify issues in priority order:
+    1. **Bugs** — Logic errors, off-by-one, null/nil hazards, race conditions, incorrect use of existing functions or types visible in the full file
+    2. **Security** — Injection, auth bypass, data exposure
+    3. **Performance** — N+1 queries, unnecessary allocations, missing indexes, inefficient use of APIs available in the file
+    4. **Correctness** — Edge cases, error handling gaps, contract violations, inconsistency with patterns established in the same file
+    5. **Maintainability** — Unclear naming, divergence from file conventions, duplication of logic already present in the full file
+  - For each issue found, draft a suggestion with: file, line range, severity, description, and a concrete fix.
+</file-review-loop>
+
+5. **Deduplicate and rank** — Remove duplicate suggestions. Rank by severity (bugs first, maintainability last). Keep at most 10.
+
+## Report
+
+Return suggestions as a markdown list. If no suggestions apply, return an empty list.
+
+For each suggestion:
+
+```
+### <number>. <concise title>
+
+**File:** `<file_path>` (lines <start>-<end>)
+**Severity:** Bug | Security | Performance | Correctness | Maintainability
+
+<1-2 sentence description of the problem and why it matters>
+
+**Suggestion:**
+\`\`\`<lang>
+<concrete code fix>
+\`\`\`
+```
+
+If no pertinent suggestions exist:
+
+```
+No suggestions — the changes look good.
+```
+"""
+
+
+def main() -> int:
+    """Read PR content from STDIN and launch Claude Code to review it."""
+    pr_content = sys.stdin.read()
+    if not pr_content.strip():
+        print("Error: No input received from STDIN", file=sys.stderr)
+        print("Usage: gh-pr-prepare-diff <PR_NUMBER> | cc-pr-review", file=sys.stderr)
+        return 1
+
+    line_count = pr_content.count("\n")
+    print(f"Reviewing PR ({line_count} lines)...", file=sys.stderr)
+
+    try:
+        result = subprocess.run(
+            [
+                "claude",
+                "-p",
+                REVIEW_PROMPT,
+                "--mcp-config",
+                '{"mcpServers":{}}',
+                "--strict-mcp-config",
+                "--settings",
+                '{"disableAllHooks":true}',
+                "--disable-slash-commands",
+                "--no-session-persistence",
+                "--tools",
+                "Read",
+            ],
+            input=pr_content,
+            text=True,
+            check=False,
+        )
+        return result.returncode
+    except FileNotFoundError:
+        print("Error: 'claude' not found in PATH", file=sys.stderr)
+        return 1
+    except KeyboardInterrupt:
+        print("\nInterrupted", file=sys.stderr)
+        return 130
+
+
+if __name__ == "__main__":
+    sys.exit(main())
