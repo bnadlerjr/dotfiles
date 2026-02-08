@@ -123,11 +123,7 @@ Present your understanding of the research question and decomposition, then use 
 
 ### Step 2: Gather Metadata
 
-For document path resolution and frontmatter, see the [managing-claude-docs](../managing-claude-docs/SKILL.md) skill.
-
 **MUST** run the `git metadata` command to generate all relevant metadata.
-
-Filename format: `$(claude-docs-path research)/YYYY-MM-DD-description.md`
 
 Examples:
 - `2025-01-08-parent-child-tracking.md`
@@ -251,10 +247,6 @@ Use **AskUserQuestion** for next action:
 - Check if the command exists: `which git-metadata` or check aliases
 - Fall back to manual: `git log -1 --format="%H"` for commit hash
 
-**`claude-docs-path` returns nothing:**
-- Check if `CLAUDE_DOCS_ROOT` is set: `echo $CLAUDE_DOCS_ROOT`
-- Fall back to `.claude/docs/research/` in project root
-
 **Agent returns empty results:**
 - Verify the search terms match what's in the codebase
 - Try broader search terms with a different agent
@@ -335,8 +327,3 @@ For complex research:
 - `graph-of-thoughts` → Synthesize findings from multiple agents
 - `chain-of-thought` → Trace execution paths through code
 
-### Documentation Lifecycle
-Research documents live in `$(claude-docs-path research)/` and provide:
-- Historical context for future research
-- Starting point for implementation planning
-- Reference for understanding past decisions

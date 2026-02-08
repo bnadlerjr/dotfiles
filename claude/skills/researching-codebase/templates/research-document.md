@@ -50,11 +50,9 @@ AutoNoteMover: disable
 
 ## Historical Context
 [Relevant insights from docs directory with references]
-- `$(claude-docs-path)/something.md` - Historical decision about X
-- `$(claude-docs-path)/notes.md` - Past exploration of Y
 
 ## Related Research
-[Links to other research documents in `$(claude-docs-path research)/`]
+[Links to other related research documents]
 
 ## Open Questions
 [Any areas that need further investigation]

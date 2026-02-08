@@ -5,7 +5,7 @@ model: opus
 
 # Software Implementation Plan Critique
 
-You are tasked with critiquing an approved technical plan from `$(claude-docs-path plans)`. These plans contain phases with specific changes and success criteria.
+You are tasked with critiquing an approved technical plan. These plans contain phases with specific changes and success criteria.
 
 ## Process Steps
 

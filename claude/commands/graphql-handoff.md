@@ -49,15 +49,7 @@ Include ALL of the following that are present in the backend plan:
 
 ## Output Format
 Provide the handoff document in Markdown format with clear sections and subsections. Use code blocks for schema definitions and data structures.
-**Write the handoff document** to `$(claude-docs-path handoffs)/YYYY-MM-DD-ENG-XXXX-description.md`
-   - You **MUST** run the `git metadata` command to generate all relevant metadata
-   - Format: `YYYY-MM-DD-ENG-XXXX-description.md` where:
-     - YYYY-MM-DD is today's date
-     - ENG-XXXX is the ticket number (omit if no ticket)
-     - description is a brief kebab-case description
-   - Examples:
-     - With ticket: `2025-01-08-ENG-1478-parent-child-tracking.md`
-     - Without ticket: `2025-01-08-improve-error-handling.md`
+Present the handoff document to the user in markdown format.
 
 ## Input
 Backend Plan: $ARGUMENTS

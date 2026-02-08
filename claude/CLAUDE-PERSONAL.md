@@ -150,17 +150,3 @@ Extended thinking handles internal reasoning. These patterns produce **visible s
 - Don't remove unrelated functionality
 - Fully implement all requested features
 
-## Claude Documentation
-
-For creating and managing plans, research, tickets, architecture docs, and handoffs, invoke the `managing-claude-docs` skill. This skill provides:
-- Path resolution via `claude-docs-path`
-- Metadata via `git metadata`
-- Document templates
-- Obsidian frontmatter conventions
-
-Key commands (see skill for details):
-```bash
-claude-docs-path plans        # Get plans directory
-claude-docs-path research     # Get research directory
-git metadata                  # Get document metadata
-```

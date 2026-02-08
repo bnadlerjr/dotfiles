@@ -12,7 +12,7 @@ Create detailed implementation plans through an interactive, iterative process. 
 
 Given a task or ticket:
 
-1. **Read** all referenced documents FULLY (see [managing-claude-docs](../managing-claude-docs/SKILL.md) for path resolution)
+1. **Read** all referenced documents FULLY
 2. **Research** by spawning `codebase-navigator` + `codebase-analyzer` in parallel
 3. **Present** understanding with `file:line` references, ask only unanswerable questions
 4. **Verify** any user corrections against code before accepting
@@ -38,9 +38,6 @@ Given a task or ticket:
 ### Step 1: Context Gathering
 
 1. **Read all mentioned files FULLY** (tickets, research, existing plans)
-   - Run `claude-docs-path tickets` to get the tickets directory path
-   - Run `claude-docs-path research` to get the research docs path
-   - Run `claude-docs-path plans` to get the existing plans path
    - **NEVER** read files partially
 
 2. **Spawn research agents in parallel**:
@@ -114,12 +111,7 @@ Get feedback before proceeding.
 
 When user approves structure, present the complete plan. Use the template in [templates/plan-template.md](templates/plan-template.md).
 
-**Important**: In plan mode, when you exit via ExitPlanMode, the plan will be automatically:
-- Saved to the plans directory (run `claude-docs-path plans` for path)
-- Given proper Obsidian frontmatter
-- Named based on the H1 header
-
-So ensure your plan has a clear H1 header like `# [Feature Name] Implementation Plan`.
+Ensure your plan has a clear H1 header like `# [Feature Name] Implementation Plan`.
 
 ## Guidelines
 
@@ -204,7 +196,7 @@ Quick reference for common research agents (all read-only, work in plan mode). A
 Input: "Plan the implementation for PROJ-123"
 
 Expected behavior:
-1. Read ticket (run `claude-docs-path tickets` for path)
+1. Read ticket
 2. Spawn `codebase-navigator` + `codebase-analyzer` agents in parallel
 3. Present findings:
    ```
@@ -246,7 +238,7 @@ Expected behavior:
 Input: "Plan implementation based on the auth research doc"
 
 Expected behavior:
-1. Read research doc FULLY (run `claude-docs-path research` for path)
+1. Read research doc FULLY
 2. Extract key decisions already made
 3. Present understanding without re-asking resolved questions
 4. Proceed to structure outline faster (context already gathered)

@@ -483,16 +483,14 @@ Synthesize: Do the paths agree? Any gaps or over-coverage?
 - Header: "Output"
 - Question: "Where should I save these stories?"
 - Options:
-  - "Markdown file" → Write to claude-docs-path
+  - "Markdown file" → Write to a markdown file
   - "Jira tickets" → Create via `managing-jira` skill
   - "Both markdown and Jira" → Do both
   - "Display only" → End without saving
 
 ### Markdown Output
 
-1. Run `git metadata` to get current metadata
-2. Run `claude-docs-path tickets` to get output directory
-3. Write file with naming: `YYYY-MM-DD-[source-title]-stories.md`
+Write file with naming: `YYYY-MM-DD-[source-title]-stories.md`
 
 **Output Template**:
 

@@ -31,15 +31,6 @@
         ]
       },
       {
-        "matcher": "ExitPlanMode",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "uv run ~/dotfiles/claude/hooks/sync_claude_plan.py"
-          }
-        ]
-      },
-      {
         "matcher": ".*",
         "hooks": [
           {

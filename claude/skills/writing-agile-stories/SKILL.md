@@ -245,11 +245,10 @@ Present the complete story with quality checks:
 Use **AskUserQuestion**:
 - Header: "Next step"
 - Question: "Story is complete. What would you like to do?"
-- Options: "Create Jira ticket" | "Save to file" | "Write related story" | "Done"
+- Options: "Create Jira ticket" | "Write related story" | "Done"
 
 Actions:
 - **Create Jira ticket**: Use `managing-jira` skill
-- **Save to file**: Write to `$(claude-docs-path tickets)/` (see [managing-claude-docs](../managing-claude-docs/SKILL.md) for path resolution)
 - **Write related story**: Start new story with shared context
 
 ---

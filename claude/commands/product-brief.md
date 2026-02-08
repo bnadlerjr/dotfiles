@@ -2,7 +2,7 @@
 description: Generate a Product Brief from text, file, or Notion document with iterative review
 argument-hint: "[source: text, file path, or Notion URL/title]"
 model: opus
-allowed-tools: Read, Write, Edit, Task, AskUserQuestion, Bash(git metadata, claude-docs-path, date)
+allowed-tools: Read, Write, Edit, Task, AskUserQuestion, Bash(git metadata, date)
 ---
 
 # Generate Product Brief
@@ -14,7 +14,7 @@ Create a Product Brief using the `writing-product-briefs` skill with iterative m
 ## Variables
 
 - **SOURCE**: `$ARGUMENTS` - Text, file path, or Notion URL/title
-- **OUTPUT_PATH**: Determined in Phase 7 (claude-docs-path or user-specified)
+- **OUTPUT_PATH**: Determined in Phase 7 (user-specified)
 - **MAX_REVIEW_CYCLES**: 2 (fixed - prevents infinite refinement loops)
 
 ## Dependencies
@@ -377,15 +377,8 @@ When the validation agent completes:
 - Header: "Output"
 - Question: "Where should I save the final Product Brief?"
 - Options:
-  - "Claude docs (plans directory)" → Save to claude-docs-path
   - "Display only" → Show but don't save
   - "Custom path" → Ask for path
-
-### Save to Claude Docs
-
-1. Run `git metadata` to get current timestamp
-2. Run `claude-docs-path plans` to get output directory
-3. Write file with naming: `YYYY-MM-DD_HH-MM-SS-product-brief-[title].md`
 
 ### Final Output Format
 
@@ -463,4 +456,4 @@ The review is taking longer than expected. Options:
 3. Launches Review 1 agent (clean context)
 4. Incorporates feedback
 5. Launches Review 2 agent (clean context)
-6. Finalizes and saves to claude-docs-path
+6. Finalizes and presents the brief
