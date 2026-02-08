@@ -130,9 +130,37 @@ jira issue create --no-input \
   -b"$(cat /tmp/jira_body.md)"
 ```
 
+## Editing Issues
+
+```bash
+# Edit summary
+jira issue edit ISSUE-KEY --summary "New summary"
+
+# Edit description
+jira issue edit ISSUE-KEY --body "New description"
+
+# Edit priority
+jira issue edit ISSUE-KEY --priority High
+
+# Edit assignee
+jira issue edit ISSUE-KEY --assignee $(jira me)
+
+# Add label
+jira issue edit ISSUE-KEY --label "new-label"
+
+# Add to epic
+jira issue edit ISSUE-KEY --parent EPIC-KEY
+
+# Remove from epic
+jira issue edit ISSUE-KEY --parent ""
+```
+
 ## Transitioning Issues
 
 ```bash
+# View available transitions
+jira issue transitions ISSUE-KEY
+
 # Move to a state
 jira issue move ISSUE-KEY "In Progress"
 jira issue move ISSUE-KEY "Done"
