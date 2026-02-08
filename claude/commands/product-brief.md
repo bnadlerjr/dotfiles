@@ -2,7 +2,7 @@
 description: Generate a Product Brief from text, file, or Notion document with iterative review
 argument-hint: "[source: text, file path, or Notion URL/title]"
 model: opus
-allowed-tools: Read, Write, Edit, Task, AskUserQuestion, Bash(git metadata, date)
+allowed-tools: Read, Write, Edit, Task, AskUserQuestion, Bash(date)
 ---
 
 # Generate Product Brief
