@@ -58,7 +58,7 @@ project registry and the frontmatter schema below.
 
 Key rules:
 - `tags` must always include `claude-artifact` plus the artifact type tag (`research`, `plan`, or `handoff`).
-- `area` must be one of: `Work`, `Personal Projects`, `One-off`.
+- `area` must be one of: `Work`, `Side Projects`, `One-off`.
 - `repositories` lists every repo this artifact touches (e.g. `["org/api", "org/web"]`).
 - `updated` must be set to today's date on every edit.
 - For work artifacts, `jira_epic` is required.
@@ -68,7 +68,7 @@ Key rules:
 ```yaml
 ---
 tags: [claude-artifact, resource, <type>] # type = research | plan | handoff
-Area: [Work, Personal Projects, One-off]  # from projects.yaml; can be a list
+Area: [Work, Side Projects, One-off]  # from projects.yaml; can be a list
 Created: [[2026-02-08]]                   # set once; formatted as Obsidian link
 Modified: 2026-02-08                      # update on every edit
 AutoNoteMover: disable                    # disable AutoNoteMover Obsidian plugin
