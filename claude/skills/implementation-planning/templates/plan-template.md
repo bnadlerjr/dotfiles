@@ -1,3 +1,5 @@
+[YAML frontmatter per CLAUDE-PERSONAL.md "Artifact Management" schema]
+
 # [Feature/Task Name] Implementation Plan
 
 ## Overview

@@ -5,25 +5,9 @@ Structure for research documents. See SKILL.md for metadata gathering and filena
 ## Template
 
 ```markdown
----
-tags: [research, ai]
-Area: <Area name from metadata>
-Created: [[<Current date in YYYY-MM-DD format>]]
-Modified: <Current date in YYYY-MM-DD format>
-Project: [[<project name from user>]]
-AutoNoteMover: disable
----
+[YAML frontmatter per CLAUDE-PERSONAL.md "Artifact Management" schema]
 
 # Research: [User's Question/Topic]
-
-**Date**: [Current date and time with timezone]
-**Git Commit**: [Current commit hash]
-**Branch**: [Current branch name]
-**Repository**: [Repository name]
-**Topic**: [User's Question/Topic]
-**Tags**: [research, codebase, relevant-component-names]
-**Status**: complete
-**Last Updated**: [Current date in YYYY-MM-DD format]
 
 ## Research Question
 [Original user query]
@@ -64,12 +48,7 @@ AutoNoteMover: disable
 
 ### Frontmatter
 - All fields required
-- Get `Area` and `Project` from `git metadata` output (infer from repo name)
-
-### Header Fields
-- Metadata block provides context for future reference
-- `Status` should be `complete` when document is finalized
-- Update `Last Updated` when adding follow-up research
+- Populate from `projects.yaml` per CLAUDE-PERSONAL.md artifact management schema
 
 ### Detailed Findings
 - Group by component or logical area

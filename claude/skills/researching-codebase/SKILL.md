@@ -123,21 +123,21 @@ Present your understanding of the research question and decomposition, then use 
 
 ### Step 2: Gather Metadata
 
-**MUST** run the `git metadata` command to generate all relevant metadata.
-
-Examples:
-- `2025-01-08-parent-child-tracking.md`
-- `2025-01-08-authentication-flow.md`
+Look up project context from `$CLAUDE_DOCS_ROOT/projects.yaml` following the
+rules in the "Artifact Management" section of CLAUDE-PERSONAL.md. This
+determines `Area`, `Project`, `ProjectSlug`, `JiraEpic`, and `Repositories`
+for the frontmatter.
 
 ### Step 3: Generate Research Document
 
-Infer the project name from the repository name via `git metadata`. If ambiguous, ask the user.
+Write the document to `$CLAUDE_DOCS_ROOT/research/` using the naming convention
+`research--<slug>.md` where slug describes what this research covers (not the
+project name). If the project is ambiguous, ask the user.
 
 Generate the document using the template at `templates/research-document.md`.
 
 **Required sections**:
-- YAML frontmatter (tags, Area, Created, Modified, Project)
-- Header metadata block (Date, Git Commit, Branch, Repository, Topic, Tags, Status)
+- YAML frontmatter per CLAUDE-PERSONAL.md artifact management schema
 - Research Question, Summary, Detailed Findings
 - Code References with file:line format
 - Architecture Documentation, Historical Context, Related Research
@@ -178,8 +178,7 @@ Present a summary of the document, then use **AskUserQuestion**:
 
 If the user has follow-up questions:
 - Append to the same research document
-- Update the heading fields `Last Updated` to reflect the update
-- Add `Last Updated Note: "Added follow-up research for [brief description]"` to headings
+- Update `Modified` in the frontmatter to today's date
 - Add a new section: `## Follow-up Research [timestamp]`
 - Spawn new agents as needed for additional investigation
 - Continue updating the document
@@ -241,11 +240,6 @@ Use **AskUserQuestion** for next action:
 ---
 
 ## Troubleshooting
-
-**`git metadata` fails:**
-- Verify you're in a git repository: `git rev-parse --git-dir`
-- Check if the command exists: `which git-metadata` or check aliases
-- Fall back to manual: `git log -1 --format="%H"` for commit hash
 
 **Agent returns empty results:**
 - Verify the search terms match what's in the codebase
@@ -309,7 +303,7 @@ checks the Authorization header and validates the JWT signature.
 **Critical rules:**
 1. Read mentioned files before spawning agents
 2. Wait for ALL agents to complete before synthesizing
-3. Gather metadata before writing the document
+3. Look up project context from projects.yaml before writing the document
 4. Never use placeholder values
 
 ---
