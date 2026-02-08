@@ -1,5 +1,110 @@
 # Claude Code Guidelines for Bob Nadler
 
+## Artifact Management
+
+**ALWAYS APPLIES.** Whenever you produce a research document, plan, or handoff —
+whether via a slash command, the built-in plan tool, or ad hoc — the rules below
+govern where and how the file is written. No exceptions.
+
+**ADRs are the exception** — they live in the repository, not the vault. See the
+ADR section below.
+
+### Paths
+
+- **Artifact root:** `$CLAUDE_DOCS_ROOT` (resolves to `~/path-to/YourVault/claude-artifacts/`)
+- **Research:** `$CLAUDE_DOCS_ROOT/research/`
+- **Plans:** `$CLAUDE_DOCS_ROOT/plans/`
+- **Handoffs:** `$CLAUDE_DOCS_ROOT/handoffs/`
+- **Project registry:** `$CLAUDE_DOCS_ROOT/projects.yaml`
+
+### Templates
+
+Artifact body structure comes from the existing slash command skills (e.g.
+`/plan`, `/research`, `/handoff`). The skill defines the content layout.
+These CLAUDE.md rules define **where the file goes** and **what metadata it
+carries**. Both layers always apply together.
+
+### File naming
+
+`<type>--<slug>.md` where type is `research`, `plan`, or `handoff` and slug is a
+kebab-case name describing what this specific artifact covers (not the project
+name). A project will have many artifacts.
+
+Examples:
+- `plan--auth-token-refresh-flow.md`
+- `plan--auth-session-store-cutover.md`
+- `research--token-expiry-current-state.md`
+- `handoff--auth-migration-phase1-to-backend.md`
+
+### Project context
+
+**Never hardcode project metadata. Always look it up.**
+
+1. Read `$CLAUDE_DOCS_ROOT/projects.yaml` to get the list of known projects.
+2. Determine which project this artifact belongs to:
+   - If the user specifies a project, use that.
+   - If the current repository appears in a project's `repositories` list, suggest
+     that project but confirm with the user if multiple projects match.
+   - If no project applies, use `area: One-off` with no project fields.
+3. Copy the project's `name`, `area`, `jira_epic`, and `repositories` into the
+   artifact's frontmatter.
+4. If the user names a project that doesn't exist in the registry, ask whether to
+   add it, then append the new entry to `projects.yaml`.
+
+### Required frontmatter
+
+Every artifact MUST include the full frontmatter block. Populate it from the
+project registry and the frontmatter schema below.
+
+Key rules:
+- `tags` must always include `claude-artifact` plus the artifact type tag (`research`, `plan`, or `handoff`).
+- `area` must be one of: `Work`, `Personal Projects`, `One-off`.
+- `repositories` lists every repo this artifact touches (e.g. `["org/api", "org/web"]`).
+- `updated` must be set to today's date on every edit.
+- For work artifacts, `jira_epic` is required.
+
+#### Frontmatter schema
+
+```yaml
+---
+tags: [claude-artifact, resource, <type>] # type = research | plan | handoff
+Area: [Work, Personal Projects, One-off]  # from projects.yaml; can be a list
+Created: [[2026-02-08]]                   # set once; formatted as Obsidian link
+Modified: 2026-02-08                      # update on every edit
+AutoNoteMover: disable                    # disable AutoNoteMover Obsidian plugin
+Project: [[Auth Service Migration]]       # from projects.yaml; formatted as Obsidian link
+ProjectSlug: auth-service-migration       # from projects.yaml
+JiraEpic: PROJ-123                        # required when "Work" is in Area list
+Repositories: ["org/api", "org/web"]      # from projects.yaml
+Status: Active | Complete | Archived      # status of the artifact
+---
+```
+
+### Using the plan tool
+
+When using the built-in `/plan` tool or `--plan` flag, you MUST:
+1. Read `projects.yaml` to determine project context.
+2. Write the plan file to `$CLAUDE_DOCS_ROOT/plans/` (not `.claude/plans/`).
+3. Use the full plan template frontmatter.
+4. Follow the naming convention: `plan--<slug>.md` where the slug describes this
+   specific plan's scope, not the project name.
+
+### Finding existing artifacts
+
+Before creating a new artifact, check for existing ones:
+```bash
+# List all artifacts for a project:
+grep -rl "project_slug: auth-service-migration" $CLAUDE_DOCS_ROOT/
+
+# List by type:
+ls $CLAUDE_DOCS_ROOT/plans/
+ls $CLAUDE_DOCS_ROOT/research/
+ls $CLAUDE_DOCS_ROOT/handoffs/
+
+# Search by content:
+grep -rl "token refresh" $CLAUDE_DOCS_ROOT/
+```
+
 ## Code Style & Conventions
 
 ### Implementation Standards
