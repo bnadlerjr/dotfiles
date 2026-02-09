@@ -39,6 +39,7 @@ import yaml
 MARKER_FILE = Path.home() / ".claude" / ".plan-mode-active"
 PLANS_DIR = Path.home() / ".claude" / "plans"
 
+PLAN_PREFIX_RE = re.compile(r"^(Implementation\s+)?Plan\s*[:—–-]\s*", re.IGNORECASE)
 PLAN_SUFFIX_RE = re.compile(r"\s*[—–-]\s*(Implementation\s+)?Plan\s*$", re.IGNORECASE)
 GIT_REMOTE_RE = re.compile(r"(?:git@github\.com:|https://github\.com/)(.+?)(?:\.git)?$")
 
@@ -56,6 +57,7 @@ def extract_slug(content):
     for line in content.splitlines():
         if line.startswith("# ") or line.startswith("## "):
             heading = line.lstrip("#").strip()
+            heading = PLAN_PREFIX_RE.sub("", heading)
             heading = PLAN_SUFFIX_RE.sub("", heading)
             slug = heading.lower()
             slug = re.sub(r"[^a-z0-9]+", "-", slug)
