@@ -19,6 +19,7 @@ For immediate help, identify your task type and consult the relevant reference:
 | Controllers, routing, plugs, channels | [phoenix-framework](references/phoenix-framework.md) | MVC patterns, authentication, WebSockets |
 | LiveView components, forms | [liveview](references/liveview.md) | Real-time UI, hooks, streams |
 | Schemas, queries, migrations | [ecto-database](references/ecto-database.md) | Associations, changesets, transactions |
+| Safe migrations, schema changes | [safe-ecto-migrations](references/safe-ecto-migrations.md) | Concurrent indexes, zero-downtime DDL |
 | GenServer, Supervisor, processes | [otp-patterns](references/otp-patterns.md) | Fault tolerance, state management |
 | Domain modeling, value objects | [functional-modeling](references/functional-modeling.md) | Parse-don't-validate, DDD |
 | GraphQL schemas, resolvers | [graphql-absinthe](references/graphql-absinthe.md) | Subscriptions, dataloader |
@@ -100,6 +101,12 @@ User: "Process order confirmations asynchronously"
 → Consult otp-patterns.md for process decisions, phoenix-framework.md for Oban
 ```
 
+**Writing a database migration:**
+```
+User: "I need to add an index to the posts table"
+→ Consult safe-ecto-migrations.md for concurrent index creation
+```
+
 ## Anti-Patterns to Avoid
 
 ### Premature OTP
@@ -124,4 +131,4 @@ User: "Process order confirmations asynchronously"
 
 For programmatic access (e.g., parallel reviews), use these identifiers:
 
-`phoenix-framework` · `liveview` · `ecto-database` · `otp-patterns` · `functional-modeling` · `graphql-absinthe` · `testing-exunit`
+`phoenix-framework` · `liveview` · `ecto-database` · `safe-ecto-migrations` · `otp-patterns` · `functional-modeling` · `graphql-absinthe` · `testing-exunit`

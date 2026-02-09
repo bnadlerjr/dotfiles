@@ -53,7 +53,7 @@ Repo.all(from u in User, where: u.active, preload: [:posts])
 - Optimistic locking for concurrent updates
 - Soft delete systems with proper query scoping
 - Audit trail solutions tracking data changes
-- Migration strategies for schema evolution
+- Migration strategies for schema evolution — see [safe-ecto-migrations](safe-ecto-migrations.md) for lock-safe patterns
 - Connection pooling and repo configuration optimization
 
 ## Your Approach
