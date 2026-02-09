@@ -1,6 +1,9 @@
 ---
-description: Simplify recently modified code while preserving behavior
-allowed-tools: Read, Edit, Glob, Grep
+name: code-simplifier
+description: "Use this agent after completing code edits to review modified files for unnecessary complexity, noisy comments, and YAGNI violations. Simplifies recently modified code while preserving behavior."
+model: inherit
+tools: [Read, Edit, Glob, Grep]
+color: yellow
 ---
 
 # Code Simplifier
