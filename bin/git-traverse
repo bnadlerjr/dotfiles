@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Update trunk and traverse branches with git-machete.
+#
+# Checks out the trunk branch (main or master), pulls the latest changes, then
+# runs git-machete traverse to update dependent branches.
+#
+# USAGE:
+#   git traverse
+#
+
+# -e: Exit immediately on error
+# -u: Treat unset variables as errors
+set -eu
+
+if git show-ref --verify --quiet refs/heads/main; then
+    trunk="main"
+elif git show-ref --verify --quiet refs/heads/master; then
+    trunk="master"
+else
+    echo "error: neither 'main' nor 'master' branch found" >&2
+    exit 1
+fi
+
+git checkout "$trunk"
+git pull
+git machete traverse
