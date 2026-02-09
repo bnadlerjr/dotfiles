@@ -105,6 +105,15 @@ ls $CLAUDE_DOCS_ROOT/handoffs/
 grep -rl "token refresh" $CLAUDE_DOCS_ROOT/
 ```
 
+## ADRs
+
+ADRs are NOT vault artifacts. They live in the repository, not in `$CLAUDE_DOCS_ROOT`.
+
+- File naming: `adr-NNNN--<slug>.md` (sequential per repo).
+- Use the ADR skill/template for content structure.
+- For cross-cutting decisions, write the ADR in the primary repo and note
+  affected repos in the ADR body.
+
 ## Code Style & Conventions
 
 ### Implementation Standards

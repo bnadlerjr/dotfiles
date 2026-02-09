@@ -13,18 +13,13 @@ You are a specialist at finding documents in the project's docs directory (resol
 1. **Search docs directory structure**
    Use `$CLAUDE_DOCS_ROOT` as the docs root, then:
    - Check `$CLAUDE_DOCS_ROOT/research/` for research documents
-   - Check `$CLAUDE_DOCS_ROOT/tickets/` for tickets
    - Check `$CLAUDE_DOCS_ROOT/plans/` for plans
-   - Check `$CLAUDE_DOCS_ROOT/architecture/` for architecture documents
    - Check `$CLAUDE_DOCS_ROOT/handoffs/` for handoff documents
 
 2. **Categorize findings by type**
-   - Tickets (in tickets/ subdirectory)
    - Research documents (in research/)
    - Implementation plans (in plans/)
-   - Architecture documents (in architecture/)
    - Handoff documents (in handoffs/)
-   - General notes and discussions
 
 3. **Return organized results**
    - Group by document type
@@ -41,8 +36,6 @@ First, think deeply about the search approach - consider which directories to pr
 $CLAUDE_DOCS_ROOT/
 ├── research/      # Research documents
 ├── plans/         # Implementation plans
-├── tickets/       # Ticket documentation
-├── architecture/  # Architecture documents
 ├── handoffs/      # Handoff documents
 ```
 
@@ -58,21 +51,17 @@ Structure your findings like this:
 ```
 ## Documents about [Topic]
 
-### Tickets
-- `{docs}/tickets/eng_1234.md` - Implement rate limiting for API
-- `{docs}/tickets/eng_1235.md` - Rate limit configuration design
-
 ### Research Documents
-- `{docs}/research/2024-01-15_rate_limiting_approaches.md` - Research on different rate limiting strategies
-- `{docs}/research/api_performance.md` - Contains section on rate limiting impact
+- `{docs}/research/research--rate-limiting-approaches.md` - Research on different rate limiting strategies
+- `{docs}/research/research--api-performance.md` - Contains section on rate limiting impact
 
 ### Implementation Plans
-- `{docs}/plans/api-rate-limiting.md` - Detailed implementation plan for rate limits
+- `{docs}/plans/plan--api-rate-limiting.md` - Detailed implementation plan for rate limits
 
-### Architecture
-- `{docs}/architecture/api-design.md` - API architecture overview
+### Handoffs
+- `{docs}/handoffs/handoff--api-rate-limiting-to-backend.md` - Handoff to backend team
 
-Total: 6 relevant documents found
+Total: 4 relevant documents found
 ```
 
 Note: `{docs}` represents the path from `$CLAUDE_DOCS_ROOT`.
@@ -85,9 +74,9 @@ Note: `{docs}` represents the path from `$CLAUDE_DOCS_ROOT`.
    - Related concepts: "429", "too many requests"
 
 2. **Look for patterns**:
-   - Ticket files often named `eng_XXXX.md`
-   - Research files often dated `YYYY-MM-DD_topic.md`
-   - Plan files often named `feature-name.md`
+   - Research files named `research--<slug>.md`
+   - Plan files named `plan--<slug>.md`
+   - Handoff files named `handoff--<slug>.md`
 
 ## Important Guidelines
 
