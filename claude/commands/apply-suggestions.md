@@ -1,26 +1,73 @@
 ---
+description: Evaluate and apply code review suggestions with domain expertise
+argument-hint: <suggestions from code review>
 model: opus
 ---
 
 # Apply Code Review Suggestions
 
-The following suggestions were made during a code review. Your objective is to use the appropriate agents to evaluate the suggestions and implement the changes.
+Evaluate code review suggestions using domain expertise and the `receiving-code-review` skill, then implement only those that pass technical evaluation.
 
-$ARGUMENTS
+## Variables
 
-## Process
+SUGGESTIONS: $ARGUMENTS
+TECH_STACK: detected from codebase context (Elixir, TypeScript, Bash, etc.)
+DOMAIN_SKILL: mapped from TECH_STACK (`developing-elixir`, `developing-typescript`, `developing-bash`, etc.)
 
-1. **DOMAIN EXPERT**: Choose appropriate domain expertise (e.g., `developing-elixir` skill, `developing-typescript` skill, etc.).
-2. **DOMAIN EXPERT**: Analyzes the suggestion.
-3. **EVALUATE** before implementing (see `receiving-code-review`):
+## Instructions
+
+- If SUGGESTIONS is empty, STOP immediately and ask for them.
+- Treat suggestions as proposals to evaluate, not orders to follow.
+- Push back with technical reasoning when a suggestion fails evaluation. Do NOT implement.
+- Implement one suggestion at a time, testing after each.
+- No performative agreement — state what changed and why.
+
+## Workflow
+
+### Phase 1: Parse and Prepare
+
+1. Apply `/thinking atomic-thought` to decompose SUGGESTIONS into distinct, independent suggestions. For each, identify: the specific change requested, affected files, and the reviewer's underlying concern.
+
+2. Detect TECH_STACK from the affected files and invoke the corresponding DOMAIN_SKILL to establish domain expertise.
+
+### Phase 2: Evaluate and Implement
+
+IMPORTANT: For each suggestion, execute the following:
+
+<suggestion-loop>
+
+3. **Evaluate** — Apply `/thinking chain-of-thought` using the `receiving-code-review` skill:
    - Is this technically correct for THIS codebase?
    - Does it break existing functionality?
-   - Is it a YAGNI violation (unused feature)?
+   - Is it a YAGNI violation (adding unused features)?
    - Does the reviewer have full context?
+   - Does it conflict with existing architectural decisions?
 
-   If evaluation fails: **Push back with technical reasoning**, don't implement blindly.
+   If the evaluation is borderline, apply `/thinking self-consistency` with three independent paths (correctness, maintainability, codebase consistency). Accept only on consensus.
 
-4. **IMPLEMENT** the suggestion **ONLY IF EVALUATION PASSES**.
-5. Run tests to confirm the suggestion works as expected.
-6. **CODE REVIEW**: Use `reviewing-code` skill to review implementation.
-7. **CODE REVIEW**: Use code-simplifier agent to simplify code and remove unnecessary comments.
+4. **Decide**:
+   - If evaluation fails: Push back with technical reasoning. Record the rejection rationale. Do NOT implement.
+   - If evaluation passes: Proceed to implementation.
+
+5. **Implement** the accepted suggestion.
+
+6. **Test** — Run relevant tests to confirm the change works and causes no regressions.
+
+</suggestion-loop>
+
+### Phase 3: Review and Simplify
+
+7. **Review** — Use the `reviewing-code` skill to review all implemented changes.
+
+8. **Simplify** — Use the `code-simplifier` agent to remove unnecessary complexity and noisy comments from modified files.
+
+## Report
+
+| # | Suggestion | Verdict | Reasoning |
+|---|------------|---------|-----------|
+| 1 | [Brief description] | Accepted / Rejected | [1-sentence rationale] |
+
+- **Changes implemented**: List files and what changed
+- **Test results**: Suite name, pass/fail
+- **Review findings**: Summary from reviewing-code
+- **Simplification**: Summary from code-simplifier
