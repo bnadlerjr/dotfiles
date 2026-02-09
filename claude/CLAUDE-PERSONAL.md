@@ -82,12 +82,19 @@ Status: Active | Complete | Archived      # status of the artifact
 
 ### Using the plan tool
 
-When using the built-in `/plan` tool or `--plan` flag, you MUST:
-1. Read `projects.yaml` to determine project context.
-2. Write the plan file to `$CLAUDE_DOCS_ROOT/plans/` (not `.claude/plans/`).
-3. Use the full plan template frontmatter.
-4. Follow the naming convention: `plan--<slug>.md` where the slug describes this
-   specific plan's scope, not the project name.
+When using the built-in plan mode (via `EnterPlanMode`, `--plan`, or Shift+Tab):
+
+**During plan mode** (restricted to `~/.claude/plans/` file):
+1. Write the plan content following the plan template
+2. Include proper structure but skip vault frontmatter (it will be added when saving)
+
+**After plan mode exits** (user approves, implementation begins):
+1. Read `projects.yaml` to determine project context
+2. Copy the plan to `$CLAUDE_DOCS_ROOT/plans/plan--<slug>.md`
+3. Add full artifact frontmatter (per the frontmatter schema above)
+4. Follow the naming convention: `plan--<slug>.md`
+
+A hook will remind you to do this after plan mode exits.
 
 ### Finding existing artifacts
 

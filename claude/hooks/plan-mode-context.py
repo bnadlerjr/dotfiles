@@ -13,6 +13,19 @@ implementation-planning skill. The skill contains the full methodology.
 
 import json
 import sys
+from pathlib import Path
+
+
+MARKER_FILE = Path.home() / ".claude" / ".plan-mode-active"
+
+
+def write_plan_mode_marker(session_id):
+    """Write marker file so save-plan-artifact hook knows plan mode was active."""
+    try:
+        MARKER_FILE.parent.mkdir(parents=True, exist_ok=True)
+        MARKER_FILE.write_text(session_id or "unknown")
+    except OSError:
+        pass
 
 
 def main():
@@ -25,6 +38,9 @@ def main():
 
     if permission_mode != "plan":
         sys.exit(0)
+
+    session_id = input_data.get("session_id", "unknown")
+    write_plan_mode_marker(session_id)
 
     # Output context that Claude will see
     # Keep it minimal - the skill has the full instructions
