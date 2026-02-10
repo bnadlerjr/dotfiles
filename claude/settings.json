@@ -223,6 +223,9 @@
     "command": "npx -y ccstatusline@latest",
     "padding": 0
   },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754088826871
