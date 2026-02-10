@@ -198,12 +198,11 @@ def find_latest_plan():
     """Find the most recently modified .md file in ~/.claude/plans/."""
     if not PLANS_DIR.exists():
         return None
-    plans = sorted(
-        PLANS_DIR.glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True
-    )
-    if plans:
-        return plans[0]
-    return None
+    valid = [p for p in PLANS_DIR.glob("*.md") if p.exists()]
+    if not valid:
+        return None
+    valid.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return valid[0]
 
 
 def run_hook():
