@@ -2,11 +2,13 @@
 name: breaking-down-stories
 description: Breaks down user stories into small, actionable tasks. Use when decomposing user stories, planning sprint work, creating task lists from tickets, or when the user mentions story breakdown, task decomposition, or sprint planning.
 argument-hint: [story or ticket reference]
+allowed-tools:
+  - AskUserQuestion
 ---
 
 # Breaking Down Stories
 
-Decompose a user story into small, actionable tasks using holistic brainstorming—consider all work categories at once rather than thinking sequentially through the story.
+Decompose a user story into small, actionable tasks using holistic brainstorming—consider all work categories at once rather than thinking sequentially through the story. Each task should be self-contained enough for a pair to pick up independently.
 
 ## Quick Start
 
@@ -15,14 +17,16 @@ Given a story, generate a flat task list where each task is small enough to comp
 ```markdown
 ## Tasks for: [Story Title]
 
-- [ ] Task description (action + context)
-- [ ] Task description (action + context)
+- [ ] Task description
+- [ ] Task description -- (context: why this matters)
 ...
 ```
 
 ## Instructions
 
-- Each task should be completable in a single focused work session
+- Each task should be completable in a single pairing session (1-4 hours)
+- Each task should be self-contained—a pair picking it up needs only the task description and context note
+- Add a brief context note when the "why" is not obvious from the task description
 - Include ALL work needed to complete the story (code, tests, builds, design, docs)
 - Keep task descriptions brief—leave room for implementers to work out details
 - Do NOT sequence tasks or assign owners—just brainstorm the work
@@ -43,7 +47,21 @@ Before breaking down a story, verify it's ready:
 - **Missing acceptance criteria**: Ask for clarification or create a "Define acceptance criteria for [feature]" task
 - **Too vague**: If you can't identify concrete work, the story needs refinement—flag this to the user
 - **Too large** (spans multiple epics): Suggest splitting into smaller stories first
+- **Feature-sized input** (spans multiple layers, multiple user roles, or lacks acceptance criteria): Suggest invoking `slicing-elephant-carpaccio` to produce thin vertical slices first, then `writing-agile-stories` for each slice, then return here for task decomposition
 - **Missing user/value**: If "who" or "why" is unclear, ask before proceeding
+
+### Input Classification
+
+Before decomposing, classify the input:
+
+| Signal | Classification | Action |
+|--------|---------------|--------|
+| Has acceptance criteria, single user role, bounded scope | **Story** | Proceed with task decomposition |
+| Spans multiple layers, multiple roles, no acceptance criteria | **Feature** | Suggest `slicing-elephant-carpaccio` first |
+| References an epic or multiple stories | **Epic** | Suggest splitting into stories with `writing-agile-stories` first |
+| Single technical concern, already small | **Task** | No decomposition needed—inform the user |
+
+If uncertain, ask the user whether to slice first or proceed directly.
 
 ### For Complex Stories
 
@@ -77,6 +95,8 @@ Before breaking down a story, verify it's ready:
    - Split tasks that span multiple concerns or would take multiple sessions
    - Combine trivial tasks that are always done together
    - Each task should be independently completable
+   - Target 1-4 hours per task (one pairing session)
+   - Add a context note when the task's purpose is not self-evident
 
 4. **Verify Completeness**
    - Walk through the story end-to-end
@@ -87,7 +107,9 @@ Before breaking down a story, verify it's ready:
    - Scan for any test-related tasks → remove them (tests are implicit)
    - Scan for "and" in task names → likely compound tasks, split them
    - Scan for vague tasks like "Implement feature" → add specificity
+   - Scan for tasks missing context → add brief context notes where the "why" is not obvious
    - Confirm task count is reasonable (5-15 typical; fewer suggests tasks too large, more suggests story too large)
+   - If task count exceeds 15, the input may be feature-sized → revisit Input Classification
 
 ## Anti-Patterns
 
@@ -101,6 +123,7 @@ Avoid these common mistakes:
 | "Update code and fix bug" | Compound task | Split into two tasks |
 | "Use bcrypt for passwords" | Implementation detail | "Add secure password hashing" |
 | "Research options" | Not actionable | "Resolve: which auth library to use" |
+| "Add password reset endpoint" | Missing context for non-obvious purpose | "Add password reset endpoint -- (entry point for the reset flow)" |
 
 ## Example
 
@@ -154,12 +177,12 @@ Available from the login page when a user cannot authenticate.
 - [ ] Add email template for password reset link
 - [ ] Integrate email sending for reset requests
 - [ ] Add password reset confirmation endpoint with token validation
-- [ ] Invalidate token after successful password change
-- [ ] Add rate limiting: max 3 requests per 10 minutes per email
-- [ ] Return consistent response regardless of email existence
+- [ ] Invalidate token after successful password change -- (prevents token reuse)
+- [ ] Add rate limiting: max 3 requests per 10 minutes per email -- (prevents brute force)
+- [ ] Return consistent response regardless of email existence -- (prevents account enumeration)
 - [ ] Add error handling for expired tokens with re-request guidance
 - [ ] Update login page with "Forgot password?" link
-- [ ] Add password validation on reset (same rules as registration)
+- [ ] Add password validation on reset -- (same rules as registration)
 ```
 
 ## Output Format
@@ -170,15 +193,31 @@ Output tasks as a simple list:
 ## Tasks for: [Story Title]
 
 - [ ] Task description
-- [ ] Task description
+- [ ] Task description -- (context: why this matters)
 - [ ] Task description
 ...
 ```
 
-Keep descriptions to one line. No estimates, no assignments, no implementation details.
+Keep descriptions to one line. No estimates, no assignments, no implementation details. Add context notes sparingly—only when the "why" is not obvious from the task description.
+
+## Success Criteria
+
+A well-decomposed story produces tasks where:
+- Every task is independently completable in a single pairing session (1-4 hours)
+- No task is a standalone test task (TDD is implicit)
+- The task list covers ALL work needed to ship the story
+- A pair can pick up any task using only its description and context note
+- Task count is 5-15 (fewer = tasks too large, more = story too large or feature-sized)
+- Walking through all completed tasks would make the story shippable
 
 ## Related Skills
 
-- `slicing-elephant-carpaccio` - For feature-level vertical slicing before story decomposition
-- `writing-agile-stories` - Create well-formed stories before breaking them down
-- `implementation-planning` - Create detailed plans for individual tasks
+### Upstream (use before this skill)
+- `slicing-elephant-carpaccio` — Slice a feature into thin vertical increments. Use when input is feature-sized (see Input Classification). Each slice becomes a story candidate.
+- `writing-agile-stories` — Write BDD stories with acceptance criteria. Use when input lacks acceptance criteria or clear scope.
+
+### Downstream (use after this skill)
+- `implementation-planning` — Create detailed implementation plans for individual tasks from the task list.
+
+### Typical workflow
+`Feature` → `slicing-elephant-carpaccio` → `writing-agile-stories` → `breaking-down-stories` → `implementation-planning`
