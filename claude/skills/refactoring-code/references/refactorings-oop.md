@@ -1,4 +1,4 @@
-# Refactoring Catalog
+# Refactoring Catalog (OOP)
 
 The top 15 most common refactorings from Martin Fowler's *Refactoring* (2nd Edition). Each entry includes motivation, mechanics, and a sketch.
 

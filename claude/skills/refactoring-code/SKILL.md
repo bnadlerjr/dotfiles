@@ -1,21 +1,38 @@
 ---
 name: refactoring-code
 description: |
-  Identifies code smells and applies Martin Fowler's refactoring patterns.
+  Identifies code smells and applies refactoring patterns for OOP and FP codebases.
   Use when improving code structure, reducing technical debt, cleaning up messy code,
   or when the user mentions refactoring, code smells, or "make this cleaner".
 ---
 
 # Refactoring Code
 
-A skill for systematic code improvement using Martin Fowler's refactoring discipline.
+A skill for systematic code improvement using Martin Fowler's refactoring discipline and functional programming refactoring patterns.
 
 ## Quick Start
 
 ```
-/refactoring              # Analyze current file or selection
-/refactoring path/to/file # Analyze specific file(s)
+"Analyze this file for code smells"
+"Refactor lib/my_app/orders.ex"
+"This code is messy, help me clean it up"
 ```
+
+## Paradigm Detection
+
+Detect the paradigm from file extensions and project context to load only the relevant references:
+
+| Signal | Paradigm | Smell Reference | Refactoring Reference |
+|--------|----------|-----------------|----------------------|
+| `.ex`, `.exs`, `mix.exs` | FP | `code-smells-fp.md` | `refactorings-fp.md` |
+| `.erl`, `.hrl` | FP | `code-smells-fp.md` | `refactorings-fp.md` |
+| `.ts`, `.tsx`, `.js`, `.jsx` | OOP* | `code-smells-oop.md` | `refactorings-oop.md` |
+| `.py`, `.java`, `.rb` | OOP | `code-smells-oop.md` | `refactorings-oop.md` |
+| User specifies | As specified | Matching file | Matching file |
+
+*TS/JS codebases using a functional style (e.g., pure functions, immutable data, pipelines) may benefit from FP smell and refactoring patterns instead.
+
+If the paradigm is ambiguous (e.g., mixed codebase), ask the user.
 
 ## Core Principles
 
@@ -34,6 +51,12 @@ Each refactoring is a small behavior-preserving transformation. After each step:
 - Run tests
 - Commit if green
 - If tests fail, revert and try smaller steps
+
+### Functional Programming Principles
+When refactoring functional codebases (Elixir, Erlang, etc.):
+- **Functions are the unit of composition** — extract, compose, and name functions as the primary refactoring unit
+- **Push side effects to boundaries** — keep core logic pure; IO, database, and process interactions belong at the edges
+- **Make illegal states unrepresentable** — use structs, tagged tuples, and pattern matching to enforce invariants at the type level
 
 ### Preparatory Refactoring
 > "Make the change easy, then make the easy change." — Kent Beck
@@ -55,17 +78,19 @@ Read `references/workflows.md` and select the appropriate workflow:
 
 ## Phase 1: Analysis (Sub-Agent)
 
-Spawn a sub-agent to detect code smells without cluttering main context.
+Spawn a sub-agent to detect code smells without cluttering main context. Load **only the paradigm-appropriate reference file**.
+
+### For OOP codebases
 
 ```
 Use the Task tool with:
   subagent_type: general-purpose
-  description: "Detect code smells"
+  description: "Detect OOP code smells"
   prompt: |
     You are analyzing code for refactoring opportunities using Martin Fowler's taxonomy.
 
     First, read the code smell reference:
-    Read: ~/.claude/skills/refactoring-code/references/code-smells.md
+    Read: ~/.claude/skills/refactoring-code/references/code-smells-oop.md
 
     Then analyze these files:
     - [list files to analyze]
@@ -75,6 +100,39 @@ Use the Task tool with:
     2. **Severity**: critical | high | medium | low
     3. **Evidence**: Brief quote or description
     4. **Suggested Refactoring**: From the catalog
+
+    Group findings by file. Prioritize by severity.
+    Be specific—cite line numbers and code snippets.
+```
+
+### For FP codebases (Elixir)
+
+```
+Use the Task tool with:
+  subagent_type: general-purpose
+  description: "Detect FP code smells"
+  prompt: |
+    You are analyzing Elixir code for functional programming code smells.
+
+    First, read the code smell reference:
+    Read: ~/.claude/skills/refactoring-code/references/code-smells-fp.md
+
+    Then analyze these files:
+    - [list files to analyze]
+
+    For each smell found, report:
+    1. **Smell Name** with `file:line` reference
+    2. **Severity**: critical | high | medium | low
+    3. **Evidence**: Brief quote or description
+    4. **Suggested Refactoring**: From the catalog
+
+    Pay special attention to:
+    - Side effect smells (impure functions, hidden side effects)
+    - Data/type smells (boolean blindness, naked maps, primitive obsession)
+    - Control flow smells (missing pattern match, nested cases, exceptions for control flow)
+    - Pipeline smells (broken pipeline, pipeline too long)
+    - Process smells (fat GenServer, missing supervision)
+    - Module organization (god module, chatty context, leaky abstraction)
 
     Group findings by file. Prioritize by severity.
     Be specific—cite line numbers and code snippets.
@@ -99,7 +157,7 @@ Present analysis results and get user decisions:
 
 ## Phase 3: Execution (Main Context)
 
-Apply refactorings using the mechanics from `references/refactorings.md`.
+Apply refactorings using the mechanics from the paradigm-appropriate refactoring reference (`references/refactorings-oop.md` or `references/refactorings-fp.md`).
 
 ### Execution Pattern
 
@@ -124,7 +182,7 @@ For each refactoring:
 
 4. **Confirm completion**
    ```
-   ✓ Extracted `calculateTotal` from `processOrder`
+   Extracted `calculateTotal` from `processOrder`
    Tests: 47 passed
    ```
 
@@ -178,8 +236,85 @@ Use this skill during the REFACTOR phase to identify what needs cleaning.
 2. Refactor to clarify (rename, extract, inline)
 3. Your understanding improves as you refactor
 
+## Example
+
+An Elixir function with a couple of smells:
+
+```elixir
+def process_order(order_id) do
+  order = Repo.get!(Order, order_id)
+  user = Repo.get!(User, order.user_id)
+  if order.status == "pending" do
+    tax = order.subtotal * 0.08
+    total = order.subtotal + tax + order.shipping
+    if user.email != nil do
+      Mailer.send_receipt(user.email, %{order_id: order.id, total: total})
+    end
+    order
+    |> Ecto.Changeset.change(%{status: "completed", total: total})
+    |> Repo.update!()
+  else
+    {:error, "Order is not pending"}
+  end
+end
+```
+
+### Analysis output
+
+1. **Long Function** at `orders.ex:1` — Severity: **high**
+   - Evidence: `process_order/1` handles fetching, calculation, notification, and persistence in one body.
+   - Suggested Refactoring: Extract Function — pull calculation and notification into named helpers.
+
+2. **Primitive Obsession (magic string)** at `orders.ex:4,14` — Severity: **medium**
+   - Evidence: Status compared as raw string `"pending"` / `"completed"` instead of a structured type.
+   - Suggested Refactoring: Replace with module attribute or a dedicated status type.
+
+### After refactoring
+
+```elixir
+@pending "pending"
+@completed "completed"
+
+def process_order(order_id) do
+  order = Repo.get!(Order, order_id)
+  user = Repo.get!(User, order.user_id)
+
+  with :ok <- validate_status(order, @pending) do
+    total = calculate_total(order)
+    maybe_send_receipt(user, order, total)
+    complete_order(order, total)
+  end
+end
+
+defp validate_status(%{status: expected}, expected), do: :ok
+defp validate_status(_, _), do: {:error, "Order is not pending"}
+
+defp calculate_total(order) do
+  tax = order.subtotal * 0.08
+  order.subtotal + tax + order.shipping
+end
+
+defp maybe_send_receipt(%{email: nil}, _order, _total), do: :ok
+defp maybe_send_receipt(user, order, total) do
+  Mailer.send_receipt(user.email, %{order_id: order.id, total: total})
+end
+
+defp complete_order(order, total) do
+  order
+  |> Ecto.Changeset.change(%{status: @completed, total: total})
+  |> Repo.update!()
+end
+```
+
 ## References
 
-- `references/code-smells.md` — 24 code smells with detection criteria
-- `references/refactorings.md` — Top 15 refactoring techniques with mechanics
+### OOP (Martin Fowler)
+- `references/code-smells-oop.md` — 24 code smells with detection criteria
+- `references/refactorings-oop.md` — 15 refactoring techniques with mechanics
+
+### FP (Elixir-focused)
+- `references/code-smells-fp.md` — 19 code smells with detection criteria and Elixir examples
+- `references/refactorings-fp.md` — 15 refactoring techniques with Elixir mechanics and sketches
+
+### Shared
 - `references/workflows.md` — 6 workflow types and when to use each

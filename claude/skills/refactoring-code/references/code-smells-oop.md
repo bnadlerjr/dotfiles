@@ -1,4 +1,4 @@
-# Code Smells
+# Code Smells (OOP)
 
 Martin Fowler's taxonomy from *Refactoring* (2nd Edition). Each smell includes detection criteria and recommended refactorings.
 
