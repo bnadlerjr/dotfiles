@@ -250,6 +250,7 @@ Use **AskUserQuestion**:
 Actions:
 - **Create Jira ticket**: Use `managing-jira` skill
 - **Write related story**: Start new story with shared context
+- **Break down into tasks**: Use `breaking-down-stories` skill to decompose the story into implementation tasks
 
 ---
 
@@ -285,6 +286,10 @@ A story is ready when:
 ---
 
 ## Integration with Other Skills
+
+### Upstream — Feature Slicing
+`slicing-elephant-carpaccio` → `writing-agile-stories`
+- Slice a large feature into thin vertical increments before writing stories for each slice
 
 **Before Implementation**: Stories feed into `/plan` or `implementation-planning`
 - Story defines WHAT to build

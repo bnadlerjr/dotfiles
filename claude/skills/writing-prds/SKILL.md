@@ -395,6 +395,10 @@ PRD prioritization is consequential—wrong decisions waste engineering effort. 
 - Personas carry over directly
 - Scenarios become use case sources
 
+### To Feature Slicing
+`writing-prds` → `slicing-elephant-carpaccio`
+- Slice features from the use case compendium into thin vertical increments before writing stories
+
 ### To User Stories
 `writing-prds` → `writing-agile-stories`
 - Each use case becomes a story candidate

@@ -179,5 +179,6 @@ Keep descriptions to one line. No estimates, no assignments, no implementation d
 
 ## Related Skills
 
+- `slicing-elephant-carpaccio` - For feature-level vertical slicing before story decomposition
 - `writing-agile-stories` - Create well-formed stories before breaking them down
 - `implementation-planning` - Create detailed plans for individual tasks
