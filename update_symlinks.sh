@@ -70,6 +70,11 @@ rm -r ~/.claude/skills
 ln -s ${DIR}/claude/skills ~/.claude/skills
 echo " ...~/.claude/skills re-linked"
 
+echo " ...removing ~/.claude/guidelines"
+rm -r ~/.claude/guidelines
+ln -s ${DIR}/claude/guidelines ~/.claude/guidelines
+echo " ...~/.claude/guidelines re-linked"
+
 echo " ...removing ~/.config/karabiner/karabiner.json"
 rm -r ~/.config/karabiner/karabiner.json
 ln -s ${DIR}/karabiner/karabiner.json ~/.config/karabiner/karabiner.json
