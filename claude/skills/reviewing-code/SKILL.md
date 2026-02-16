@@ -1,6 +1,6 @@
 ---
 name: reviewing-code
-description: Pragmatic code review that balances quality with real-world constraints. Use when code has been written or modified and needs review - after implementing features, completing refactors, or before merging PRs. Focuses on catching actual problems rather than enforcing theoretical purity.
+description: Pragmatic code review for source code changes. Use when code has been written or modified and needs review - after implementing features, completing refactors, or before merging PRs. Focuses on catching actual problems rather than enforcing theoretical purity. Does not review documentation or non-code files.
 ---
 
 # Reviewing Code
@@ -67,6 +67,15 @@ Then synthesize findings using graph-of-thoughts pattern.
 ## Review Methodology
 
 The following sections define HOW to conduct reviews. Reviewer agents should read and follow this methodology.
+
+### Scope
+
+Review only source code files. Skip non-code files such as:
+- Documentation and prose (`.md`, `.txt`, `.rst`, `.adoc`)
+- Generated files (lock files, compiled output)
+- Binary assets (images, fonts)
+
+If the changeset includes only non-code files, state that no code review is applicable and stop.
 
 ### Core Principles
 
