@@ -16,21 +16,6 @@ Conduct comprehensive research across the codebase to answer user questions by s
 - Gathering historical context from docs directory
 - User asks to "research", "document", or "understand" something
 
-## Invocation
-
-**Command**: `/researching-codebase` or `/researching-codebase [topic]`
-
-### Initial Response
-
-When invoked:
-
-1. **If a topic was provided**: Begin decomposing the research question
-
-2. **If no topic provided**, respond with:
-```
-I'm ready to research the codebase. Please provide your research question or area of interest, and I'll analyze it thoroughly by exploring relevant components and connections.
-```
-
 ## Critical Principle
 
 **Focus on documentation.** Your primary job is to explain the codebase as it exists today.
@@ -255,7 +240,7 @@ Use **AskUserQuestion** for next action:
 
 ## Example Session
 
-**User**: `/researching-codebase How does user authentication work in this app?`
+**User**: `How does user authentication work in this app?`
 
 **Decomposition Phase output:**
 ```
