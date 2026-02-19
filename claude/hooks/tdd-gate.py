@@ -5,12 +5,22 @@
 # ///
 """PreToolUse hook that enforces TDD by detecting production code writes."""
 
+import glob
 import json
+import os
 import re
 import sys
 
 CODE_FILE_PATTERN = r"\.(ex|exs|ts|tsx)$"
 TEST_FILE_PATTERN = r"(_test\.exs|\.test\.tsx?|\.spec\.tsx?)$"
+TEAMS_DIR = os.path.join(os.path.expanduser("~"), ".claude", "teams")
+
+
+def has_active_team() -> bool:
+    """Check if any agent team is currently active."""
+    if not os.path.isdir(TEAMS_DIR):
+        return False
+    return bool(glob.glob(os.path.join(TEAMS_DIR, "*", "config.json")))
 
 
 def main() -> None:
@@ -25,6 +35,11 @@ def main() -> None:
     file_path = tool_input.get("file_path") or tool_input.get("path") or ""
 
     if not file_path:
+        sys.exit(0)
+
+    # Skip reminder when running inside an agent team — TDD is enforced
+    # by the team structure (tester writes tests before engineer writes code).
+    if has_active_team():
         sys.exit(0)
 
     is_code = bool(re.search(CODE_FILE_PATTERN, file_path, re.IGNORECASE))
