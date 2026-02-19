@@ -31,22 +31,21 @@ def main() -> None:
     is_test = bool(re.search(TEST_FILE_PATTERN, file_path, re.IGNORECASE))
 
     if is_code and not is_test:
-        print(f"TDD gate triggered for: {file_path}", file=sys.stderr)
-
         print(
-            """\
-INSTRUCTION: MANDATORY TDD SKILL ACTIVATION
-
-You are about to write production code. Before proceeding:
-
-1. ACTIVATE Skill(practicing-tdd) NOW
-2. Write or update the corresponding test file FIRST
-3. Only then write the production code
-
-If tests already exist for this change, confirm they cover the new behavior.
-If no tests exist, create them before this file.
-
-CRITICAL: Do not skip this. Activate Skill(practicing-tdd) before continuing."""
+            json.dumps(
+                {
+                    "hookSpecificOutput": {
+                        "additionalContext": (
+                            "TDD REMINDER: You are about to write production code. "
+                            "Activate the practicing-tdd skill and ensure the "
+                            "corresponding test file has been written or updated "
+                            "FIRST. If tests already exist for this change, confirm "
+                            "they cover the new behavior. If no tests exist, create "
+                            "them before this file."
+                        )
+                    }
+                }
+            )
         )
 
     sys.exit(0)

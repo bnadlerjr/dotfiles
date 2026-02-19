@@ -30,13 +30,20 @@ def main() -> None:
 
     if is_code:
         print(
-            "REMINDER: After completing your current set of edits, run the "
-            "code-simplifier sub-agent to review modified files for unnecessary "
-            "complexity, noisy comments, and YAGNI violations.\n"
-            "\n"
-            "Use the Task tool:\n"
-            "  subagent_type: code-simplifier\n"
-            "  prompt: Review and simplify: " + file_path
+            json.dumps(
+                {
+                    "hookSpecificOutput": {
+                        "additionalContext": (
+                            "REMINDER: After completing your current set of edits, "
+                            "spawn the code-simplifier agent to review modified "
+                            "files for unnecessary complexity, noisy comments, and "
+                            "YAGNI violations. "
+                            "Use: Task tool, subagent_type: code-simplifier, "
+                            "prompt: Review and simplify: " + file_path
+                        )
+                    }
+                }
+            )
         )
 
     sys.exit(0)
