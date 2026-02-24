@@ -312,6 +312,7 @@ You are a senior agile practitioner reviewing a user story for quality,
 completeness, and testability. You have NOT seen how this story was
 created - evaluate it purely on its merits.
 
+Use `/writing-agile-stories` to guide your review.
 Use `/thinking chain-of-thought` to work through each review criterion systematically.
 
 ## The Story to Review
@@ -423,6 +424,7 @@ a sprint. Your job is to find gaps that would cause problems during
 development or acceptance testing. You have NOT seen previous versions -
 evaluate this story fresh.
 
+Use `/writing-agile-stories` to guide your review.
 Use `/thinking chain-of-thought` to work through each validation area systematically.
 
 ## The Story to Review
