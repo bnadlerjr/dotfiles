@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# Clean up a Git worktree selected via FZF.
+#
+# Lists all worktrees (excluding main and the bare root), lets you pick
+# one with FZF, removes it, and deletes the branch.
+#
+# When inside tmux, also closes the window named after the branch.
+#
+# USAGE:
+#   git wt-done
+#
+# EXAMPLES:
+#   git wt-done
+#
+
+# -e: Exit immediately on error
+# -u: Treat unset variables as errors
+set -eu
+
+# List worktrees, excluding main and bare root
+candidates=$(git worktree list | grep -v '(bare)' | grep -v '\[main\]')
+
+if [ -z "$candidates" ]; then
+    echo "No worktrees to remove." >&2
+    exit 0
+fi
+
+selected=$(echo "$candidates" | fzf --no-multi --select-1 --exit-0)
+
+if [ -z "$selected" ]; then
+    echo "No worktree selected." >&2
+    exit 1
+fi
+
+# Extract the path (first field) and branch (inside brackets)
+path=$(echo "$selected" | awk '{print $1}')
+branch=$(echo "$selected" | sed 's/.*\[\(.*\)\]/\1/')
+
+echo "Removing worktree at $path..." >&2
+git worktree remove "$path" >&2
+
+echo "Deleting branch $branch..." >&2
+git branch -d "$branch" >&2
+
+# Close the tmux window for this branch if it exists
+if [ -n "${TMUX:-}" ]; then
+    if tmux list-windows -F '#{window_name}' | grep -qx "$branch"; then
+        tmux kill-window -t "$branch"
+    fi
+fi
+
+echo "Done." >&2

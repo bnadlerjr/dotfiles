@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# Pick and jump to a Git worktree using FZF.
+#
+# When inside tmux, creates a new window (or switches to an existing one)
+# named after the branch, starting in the worktree directory.
+#
+# When outside tmux, prints the selected worktree path to stdout
+# (for use with cd wrappers).
+#
+# If a query argument is given, it is used as the initial FZF query for
+# quick filtering without the interactive prompt.
+#
+# USAGE:
+#   git wt-go
+#   git wt-go <query>
+#
+# EXAMPLES:
+#   git wt-go
+#   git wt-go main
+#   git wt-go widgets
+#
+
+# -e: Exit immediately on error
+# -u: Treat unset variables as errors
+set -eu
+
+query="${1:-}"
+
+selected=$(git worktree list | fzf --no-multi --query "$query" --select-1 --exit-0)
+
+if [ -z "$selected" ]; then
+    echo "No worktree selected." >&2
+    exit 1
+fi
+
+# Extract the path (first field) and branch (inside brackets)
+path=$(echo "$selected" | awk '{print $1}')
+branch=$(echo "$selected" | sed 's/.*\[\(.*\)\]/\1/')
+
+if [ -n "${TMUX:-}" ]; then
+    # Check if a window with this name already exists
+    if tmux list-windows -F '#{window_name}' | grep -qx "$branch"; then
+        tmux select-window -t "$branch"
+    else
+        tmux new-window -n "$branch" -c "$path"
+    fi
+else
+    echo "$path"
+fi
