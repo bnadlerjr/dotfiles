@@ -25,9 +25,11 @@ Read this before spawning any agents. Four rules:
 | `team-lead` | Orchestration | Any (read-only) | `tester` |
 | `tester` | RED | `test/` only | `engineer` |
 | `engineer` | GREEN | `lib/` only | `refactorer` |
-| `refactorer` | REFACTOR | `lib/` only | `tester` |
+| `refactorer` | REFACTOR + DOCUMENT | `lib/` only | `tester` |
+| `documenter` (optional) | DOCUMENT | Any | — |
 
 One cycle: tester → engineer → refactorer → tester (next task).
+The `documenter` is a one-shot agent spawned post-completion, not part of the cycle.
 
 ## Spawning Agents
 
@@ -89,7 +91,8 @@ the agent to read the domain-appropriate skill for its role:
 |------|--------------|---------|
 | `tester` | Testing skill (e.g., `testing-elixir`) | Test philosophy, assertions, patterns |
 | `engineer` | Language skill (e.g., `developing-elixir`) | Idioms, conventions, GREEN phase |
-| `refactorer` | Refactoring skill (`refactoring-code`) | Smell catalog, safe refactoring mechanics |
+| `refactorer` | Refactoring skill (`refactoring-code`) + `writing-documentation` (code-level-docs workflow) | Smell catalog, safe refactoring, code documentation |
+| `documenter` (optional) | `writing-documentation` (architecture-docs workflow) | ADRs, design docs (post-completion only) |
 
 Example for the tester prompt:
 
@@ -185,12 +188,55 @@ Each task goes through one full cycle:
 
 1. `tester` writes a failing test, confirms it fails, messages `engineer`
 2. `engineer` writes minimal code to pass, confirms green, messages `refactorer`
-3. `refactorer` improves code quality, keeps tests green, messages `tester`
+3. `refactorer` improves code quality, writes/updates code-level docs
+   (module headers, function docs, inline comments), keeps tests green,
+   messages `tester`
 4. `tester` applies any test-side suggestions from `refactorer`
 5. Task marked completed via TaskUpdate; next task begins at step 1
 
 The team-lead assigns work to `tester` to start each cycle and monitors
 phase transitions through automatic message delivery.
+
+## Documentation in the TDD Cycle
+
+### Code-Level Docs (Every Cycle)
+
+The refactorer writes/updates module headers, function docs, and inline
+comments as part of the REFACTOR phase. Uses the `writing-documentation`
+skill's code-level-docs workflow:
+`~/.claude/skills/writing-documentation/workflows/code-level-docs.md`
+
+### Engineer's Lightweight Responsibility
+
+The engineer adds `@doc`/JSDoc stubs on new public functions during GREEN —
+interface description only, one line. The refactorer polishes these during
+REFACTOR.
+
+### Architecture Docs (Optional, Post-Completion)
+
+After all tasks complete, the team-lead evaluates whether the feature
+warrants architecture docs (ADR, design doc). If yes, the team-lead spawns
+a one-shot `documenter` agent with the `writing-documentation` skill to
+produce the doc. This does NOT happen per-cycle.
+
+Spawn parameters for the documenter:
+
+```
+name: "documenter"
+subagent_type: "general-purpose"
+mode: "acceptEdits"
+team_name: "<your-team-name>"
+```
+
+The documenter prompt should direct the agent to read
+`~/.claude/skills/writing-documentation/workflows/architecture-docs.md`
+and produce one specific doc type (ADR, design doc, or system overview).
+
+### When to Skip Architecture Docs
+
+Single-function changes, bug fixes, internal refactors. Architecture docs
+are for new modules, non-obvious design decisions, or significant behavioral
+changes.
 
 ## Guidelines
 
@@ -202,6 +248,9 @@ phase transitions through automatic message delivery.
 - Use TaskUpdate to track task status through phases
 - Keep agent prompts focused: identity + team directory + role instructions
 - Acknowledge agent completion messages before assigning new work
+- Include `writing-documentation` skill reference in refactorer prompt
+- Have engineer add minimal `@doc`/JSDoc on new public functions
+- Evaluate need for architecture docs after all tasks complete
 
 ### Don't
 
@@ -212,3 +261,6 @@ phase transitions through automatic message delivery.
 - Restart the entire team when one agent fails
 - Assign work outside an agent's file scope (see Team Roles table)
 - Use agent UUIDs — always use names (`tester`, `engineer`, `refactorer`)
+- Spawn a dedicated documenter for every cycle (overkill)
+- Skip doc updates when refactoring changes signatures or behavior
+- Write architecture docs mid-cycle (wait for full picture)
