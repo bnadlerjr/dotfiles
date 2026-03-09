@@ -29,7 +29,7 @@ Use the matching skill for domain-specific work:
 
 All research, plans, and handoffs go to `$CLAUDE_DOCS_ROOT`.
 ADRs live in the repository, not the vault.
-See [Artifact Management](guidelines/artifact-management.md).
+**IMPORTANT**: Read [Artifact Management](guidelines/artifact-management.md).
 
 ## Guidelines
 
