@@ -4,7 +4,7 @@
 .ackrc
 .aider*
 .bundle
-.claude
+.claude/settings.local.json
 .clj-kondo
 .env
 .idea
@@ -14,8 +14,7 @@
 .sass-cache
 .serena
 .starscope.db
-CLAUDE.md
-CONVENTIONS.md
+CLAUDE.local.md
 coverage
 cscope.out
 tags
