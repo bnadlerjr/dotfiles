@@ -48,9 +48,6 @@ shopt -s checkwinsize
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
 
-# Start ssh-agent
-eval "$(ssh-agent -s)"
-
 # prompt
 PS1="\[$BLDGRN\]\n\u:\w \[$TXTBLU\](\$(srb_git_prompt)\[$TXTBLU\])\[$TXTRST\] \n→ "
 
