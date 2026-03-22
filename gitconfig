@@ -1,6 +1,7 @@
 [user]
     name = Bob Nadler
     email = bnadlerjr@gmail.com
+    signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICTC61tH7kZ5EhFRjFtlAoxjorcbneb83yI0kwE0H3DT
 [github]
     user = bnadlerjr
 [core]
@@ -51,3 +52,9 @@
     tool = neovim
 [difftool "neovim"]
     cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
+[gpg]
+    format = ssh
+[gpg "ssh"]
+    program = /opt/1Password/op-ssh-sign
+[commit]
+    gpgsign = true
