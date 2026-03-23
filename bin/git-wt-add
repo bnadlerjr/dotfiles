@@ -6,7 +6,7 @@
 # If the branch exists locally or on the remote, it is checked out. Otherwise,
 # a new branch is created from the given starting point (default: HEAD).
 #
-# If a scripts/setup-worktree file exists in the new worktree, it is
+# If a scripts/setup-worktree.sh file exists in the new worktree, it is
 # executed automatically.
 #
 # When inside tmux, opens the new worktree in a new window named after
@@ -43,6 +43,12 @@ if [ -z "$root" ] || [ "$root" = ".git" ]; then
     exit 1
 fi
 
+# If using the .bare subdirectory layout, place worktrees next to .bare,
+# not inside it.
+case "$(basename "$root")" in
+    .bare) root="$(dirname "$root")" ;;
+esac
+
 worktree_path="$root/$dir_name"
 
 if git show-ref --verify --quiet "refs/heads/$branch" 2>/dev/null; then
@@ -56,18 +62,14 @@ else
     git worktree add -b "$branch" "$worktree_path" "$base" >&2
 fi
 
+# Run setup script if it exists
+if [ -x "$worktree_path/scripts/setup-worktree.sh" ]; then
+    echo "Running setup-worktree.sh..." >&2
+    (cd "$worktree_path" && ./scripts/setup-worktree.sh) >&2
+fi
+
 if [ -n "${TMUX:-}" ]; then
-    if [ -x "$worktree_path/scripts/setup-worktree" ]; then
-        tmux new-window -n "$branch" -c "$worktree_path" \
-            "./scripts/setup-worktree; exec ${SHELL:-sh}"
-    else
-        tmux new-window -n "$branch" -c "$worktree_path"
-    fi
+    tmux new-window -n "$branch" -c "$worktree_path"
 else
-    # No separate window; run setup inline before printing the path
-    if [ -x "$worktree_path/scripts/setup-worktree" ]; then
-        echo "Running setup-worktree..." >&2
-        (cd "$worktree_path" && ./scripts/setup-worktree) >&2
-    fi
     echo "$worktree_path"
 fi
