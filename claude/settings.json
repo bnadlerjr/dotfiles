@@ -3,6 +3,15 @@
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
+  "permissions": {
+    "allow": [
+      "Read(~/.claude/**)",
+      "Read(~/dotfiles/claude/**)",
+      "Read(~/Dropbox/vimwiki/claude-artifacts/**)",
+      "Edit(~/Dropbox/vimwiki/claude-artifacts/**)",
+      "Write(~/Dropbox/vimwiki/claude-artifacts/**)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -229,17 +238,9 @@
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true
   },
-  "permissions": {
-    "allow": [
-      "Read(~/.claude/**)",
-      "Read(~/dotfiles/claude/**)",
-      "Read(~/Dropbox/vimwiki/claude-artifacts/**)",
-      "Edit(~/Dropbox/vimwiki/claude-artifacts/**)",
-      "Write(~/Dropbox/vimwiki/claude-artifacts/**)"
-    ]
-  },
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754088826871
-  }
+  },
+  "effortLevel": "high"
 }
