@@ -239,8 +239,10 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
+  "voiceEnabled": false,
   "feedbackSurveyState": {
     "lastShownTime": 1754088826871
   },
-  "effortLevel": "high"
+  "effortLevel": "high",
+  "model": "opus[1m]"
 }
