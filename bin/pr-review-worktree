@@ -1,0 +1,98 @@
+#!/bin/sh
+
+# Manage temporary Git worktrees for PR code review.
+#
+# Creates an ephemeral worktree containing a PR's HEAD commit,
+# isolated from the reviewer's working tree. If a worktree for the
+# same PR already exists (stale from a crashed session), it is
+# replaced automatically.
+#
+# USAGE:
+#   pr-review-worktree setup <PR-ID>      # prints worktree path to stdout
+#   pr-review-worktree cleanup <path>      # removes worktree
+#
+# EXAMPLES:
+#   path=$(pr-review-worktree setup 42)
+#   cat "$path/src/main.rs"
+#   pr-review-worktree cleanup "$path"
+#
+
+set -eu
+
+REVIEW_PREFIX="/tmp/pr-review-"
+
+die() {
+    echo "error: $1" >&2
+    exit 1
+}
+
+cmd_setup() {
+    pr_id="$1"
+
+    # Validate PR ID is a positive integer
+    case "$pr_id" in
+        ''|*[!0-9]*) die "PR ID must be a positive integer, got: $pr_id" ;;
+    esac
+
+    command -v gh >/dev/null 2>&1 || die "gh CLI is required but not found"
+    git rev-parse --git-dir >/dev/null 2>&1 || die "not inside a Git repository"
+
+    worktree_path="${REVIEW_PREFIX}${pr_id}"
+
+    # Remove existing worktree for this PR if present (stale from a crashed session)
+    if [ -d "$worktree_path" ]; then
+        echo "Removing stale worktree for PR #${pr_id}..." >&2
+        git worktree remove --force "$worktree_path" 2>/dev/null || true
+        git worktree prune
+    fi
+
+    echo "Fetching PR #${pr_id}..." >&2
+    git fetch origin "pull/${pr_id}/head" >&2 || die "failed to fetch PR #${pr_id}"
+
+    git worktree add --detach "$worktree_path" FETCH_HEAD >&2 \
+        || die "failed to create worktree at $worktree_path"
+
+    echo "$worktree_path"
+}
+
+cmd_cleanup() {
+    path="$1"
+
+    # Safety guard: only remove paths under our known prefix
+    case "$path" in
+        "${REVIEW_PREFIX}"*) ;;
+        *) die "refusing to remove path outside ${REVIEW_PREFIX}: $path" ;;
+    esac
+
+    if [ ! -d "$path" ]; then
+        echo "Worktree already removed: $path" >&2
+        git worktree prune 2>/dev/null || true
+        return 0
+    fi
+
+    echo "Removing review worktree: $path" >&2
+    git worktree remove --force "$path" >&2 || die "failed to remove worktree at $path"
+    git worktree prune 2>/dev/null || true
+}
+
+if [ $# -lt 1 ]; then
+    echo "Usage: pr-review-worktree <setup|cleanup> <arg>" >&2
+    exit 1
+fi
+
+command="$1"
+shift
+
+case "$command" in
+    setup)
+        [ $# -ge 1 ] || die "usage: pr-review-worktree setup <PR-ID>"
+        cmd_setup "$1"
+        ;;
+    cleanup)
+        [ $# -ge 1 ] || die "usage: pr-review-worktree cleanup <path>"
+        cmd_cleanup "$1"
+        ;;
+    *)
+        die "unknown command: $command (expected setup or cleanup)"
+        ;;
+esac

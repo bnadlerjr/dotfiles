@@ -28,6 +28,9 @@ reviewing-code-perfectly <PR-ID or PR-URL>
 ### Step 1: Gather PR Data
 
 ```bash
+# Check out PR code into an isolated worktree
+REVIEW_DIR=$(pr-review-worktree setup <PR-ID>)
+
 # Get PR description, title, and metadata
 gh pr view <PR-ID> --json title,body,files,additions,deletions,baseRefName,headRefName,url,state,reviewDecision
 
@@ -40,9 +43,22 @@ gh pr view <PR-ID> --json files --jq '.files[].path'
 
 ### Step 2: Read Changed Files
 
-For each changed file, read the full file (not just the diff) to understand context. Use Glob and Grep to find related code when needed.
+For each changed file, read the full file from `$REVIEW_DIR` (not just the diff) to understand context. Use `$REVIEW_DIR/<file-path>` for all Read calls. Use Grep and Glob within `$REVIEW_DIR` to find related code when needed.
 
-### Step 3: Apply PERFECT Principles
+### Step 3: Load Language Skills
+
+Examine the file extensions of all changed files and load relevant language/framework skills for domain-specific review guidance. Use the [language-skill-mapping](references/language-skill-mapping.md) to determine which skills apply.
+
+For each matched skill, invoke it using the Skill tool so its domain expertise is available when applying the PERFECT principles. If multiple languages are present, load all matching skills.
+
+The loaded skills inform your review in several ways:
+- **Form**: Language idioms, conventions, and anti-patterns
+- **Edge Cases**: Language-specific gotchas (e.g., nil handling in Elixir, async pitfalls in TypeScript)
+- **Reliability**: Language-specific performance and security patterns
+- **Clarity**: Naming conventions and code organization standards for the language
+- **Evidence**: Language-specific testing patterns and coverage expectations
+
+### Step 4: Apply PERFECT Principles
 
 Evaluate the PR against each principle in strict priority order. Stop and report blocking issues at the earliest principle that fails critically. Later principles still get reviewed but are lower priority.
 
@@ -58,7 +74,7 @@ For detailed guidance on each principle, see [perfect-principles.md](references/
 6. **Clarity** — Code communicates intent clearly?
 7. **Taste** — Personal preferences (non-blocking only)
 
-### Step 4: Check CI/Test Status
+### Step 5: Check CI/Test Status
 
 ```bash
 # Check CI status
@@ -68,7 +84,13 @@ gh pr checks <PR-ID>
 # Identify test command from project config and run relevant tests
 ```
 
-### Step 5: Produce Review Output
+### Step 6: Produce Review Output
+
+### Step 7: Clean Up Worktree
+
+```bash
+pr-review-worktree cleanup "$REVIEW_DIR"
+```
 
 ## Output Format
 
