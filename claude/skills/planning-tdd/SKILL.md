@@ -7,7 +7,7 @@ allowed-tools: Read, Glob, Grep, Agent
 # TDD Planning
 
 Create test-driven implementation plans where every phase is organized
-around Red-Green-Refactor cycles with both automated and manual testing.
+around TDD cycles with both automated and manual testing.
 
 ## Dependencies (soft)
 
@@ -26,7 +26,7 @@ Given a task, design artifact, or ticket:
 2. **Research** by spawning `codebase-navigator` + `codebase-analyzer` + `codebase-pattern-finder` in parallel
 3. **Discover** the testing stack (framework, helpers, patterns)
 4. **Present** understanding with `file:line` references, ask only unanswerable questions
-5. **Decompose** into testable behavioral increments (Red-Green-Refactor cycles)
+5. **Decompose** into testable behavioral increments (TDD cycles)
 6. **Outline** the phase structure, get approval
 7. **Detail** each phase with TDD cycles, automated tests, and manual verification
 
@@ -128,7 +128,7 @@ This is the key differentiator from standard implementation planning.
 1. Apply `/thinking skeleton-of-thought` to break the work into testable
    behavioral increments.
 
-2. **Identify testable behaviors**: Each behavior becomes one Red-Green-Refactor cycle. A behavior is testable when:
+2. **Identify testable behaviors**: Each behavior becomes one TDD cycle. A behavior is testable when:
    - It has a clear input and observable output
    - It can fail independently
    - It can be verified with a single assertion focus
@@ -157,6 +157,21 @@ This is the key differentiator from standard implementation planning.
    ```
 
 5. **Get approval** before detailing.
+
+### Cycle Output Format
+
+Each TDD cycle in the plan contains exactly 3 parts:
+
+1. **RED test spec** — A code block with the exact test to write first
+2. **Expected failure** — What the failure message looks like when run
+3. **Structural context** — `file:line` references for modules/files in play
+
+Each cycle MUST NOT contain:
+- **GREEN** sections or implementation code
+- **REFACTOR** sections or "None needed" commentary
+- Code that is not a test
+
+GREEN and REFACTOR emerge during execution via `practicing-tdd` and `refactoring-code` skills. They do not belong in a plan.
 
 ### Step 4: Detailed Plan
 
@@ -190,6 +205,9 @@ After writing the plan, apply `/thinking self-consistency` to validate:
 - Are both automated and manual testing covered in every phase?
 - Are dependencies between phases correct?
 - Is scope properly bounded?
+- Does any cycle contain a GREEN or implementation section? -> Remove it
+- Does any cycle contain a REFACTOR section or "None needed" commentary? -> Remove it
+- Does any cycle contain code that is NOT a test? -> Replace with structural context
 
 ## Guidelines
 
@@ -312,5 +330,5 @@ See [references/examples.md](references/examples.md) for concrete, multi-phase e
 | Skipping manual verification | Automated tests miss UX issues | Every phase gets manual checks |
 | Tests that mock everything | Tests verify mocks, not behavior | Use real dependencies; mock only at boundaries |
 | Vague test descriptions | Can't write tests from descriptions | Include expected inputs, outputs, and failure modes |
-| One giant phase | Too much to hold in a Red-Green cycle | Decompose into small behavioral increments |
+| One giant phase | Too much to hold in a single TDD cycle | Decompose into small behavioral increments |
 | Missing run commands | Developer can't verify independently | Include exact test commands per phase |

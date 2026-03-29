@@ -298,3 +298,58 @@ end
 
 - [ ] Create an order via API with items, discount, and tax -- verify total matches expected calculation
 - [ ] Compare API response before and after refactor (should be identical)
+
+---
+
+## Anti-Example: Implementation Leakage
+
+This shows a common mistake -- including GREEN implementation code and REFACTOR commentary in a plan cycle. The plan should contain ONLY the RED test spec.
+
+### Wrong -- includes implementation code
+
+#### Cycle 1: HTML Response Returns Error
+
+**RED -- Write Failing Test**
+
+```elixir
+test "returns error tuple for HTML response body" do
+  html_body = "<html><body>Service Unavailable</body></html>"
+  assert {:error, %ParseError{reason: :invalid_json}} = ResponseParser.parse(html_body)
+end
+```
+
+**Expected failure**: `ResponseParser.parse/1 is undefined`
+
+**Structural context**: `lib/client/response_parser.ex:18` (existing module), test at `test/client/response_parser_test.exs`
+
+**GREEN -- Make It Pass**
+
+```elixir
+def parse(body) when is_binary(body) do
+  case Jason.decode(body) do
+    {:ok, decoded} -> {:ok, decoded}
+    {:error, _} -> {:error, %ParseError{reason: :invalid_json}}
+  end
+end
+```
+
+**REFACTOR:** None needed -- single clause, no duplication.
+
+### Correct -- test spec only
+
+#### Cycle 1: HTML Response Returns Error
+
+**RED -- Write Failing Test**
+
+```elixir
+test "returns error tuple for HTML response body" do
+  html_body = "<html><body>Service Unavailable</body></html>"
+  assert {:error, %ParseError{reason: :invalid_json}} = ResponseParser.parse(html_body)
+end
+```
+
+**Expected failure**: `ResponseParser.parse/1 is undefined`
+
+**Structural context**: `lib/client/response_parser.ex:18` (existing module, needs new clause handling non-JSON input), test at `test/client/response_parser_test.exs`
+
+The GREEN and REFACTOR steps emerge during execution when the `practicing-tdd` and `refactoring-code` skills are applied. The plan specifies only the RED test and enough structural context to know where to work.

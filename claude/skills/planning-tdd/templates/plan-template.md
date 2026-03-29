@@ -63,6 +63,7 @@ Do NOT describe implementation — that emerges from the tests.]
 ### TDD Cycles
 
 #### Cycle 1: [Behavior Name]
+- [ ] Complete
 
 **RED — Write Failing Test**
 
@@ -74,7 +75,10 @@ Do NOT describe implementation — that emerges from the tests.]
 
 **Structural context**: [Which modules/files are in play, where the test file lives, relevant contracts or interfaces with `file:line` refs. Do NOT include implementation or refactoring guidance.]
 
+<!-- Cycle ends here. Do NOT add GREEN, REFACTOR, or implementation sections. -->
+
 #### Cycle 2: [Behavior Name]
+- [ ] Complete
 
 **RED — Write Failing Test**
 
@@ -85,6 +89,8 @@ Do NOT describe implementation — that emerges from the tests.]
 **Expected failure**: [Failure description]
 
 **Structural context**: [Modules/files in play with `file:line` refs]
+
+<!-- Cycle ends here. Do NOT add GREEN, REFACTOR, or implementation sections. -->
 
 ### Automated Testing
 
@@ -121,6 +127,7 @@ Before proceeding to next phase:
 ### TDD Cycles
 
 #### Cycle 1: [Behavior Name]
+- [ ] Complete
 
 **RED — Write Failing Test**
 
@@ -131,6 +138,8 @@ Before proceeding to next phase:
 **Expected failure**: [Failure description]
 
 **Structural context**: [Modules/files in play with `file:line` refs]
+
+<!-- Cycle ends here. Do NOT add GREEN, REFACTOR, or implementation sections. -->
 
 ### Automated Testing
 
