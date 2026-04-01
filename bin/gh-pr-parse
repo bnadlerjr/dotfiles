@@ -1,0 +1,73 @@
+#!/bin/sh
+
+# Parse a GitHub PR reference into structured components.
+#
+# Accepts a numeric PR ID or a full GitHub PR URL and outputs
+# eval-friendly KEY=VALUE pairs on a single line.
+#
+# USAGE:
+#   gh-pr-parse 42
+#     => PR_NUMBER=42
+#
+#   gh-pr-parse https://github.com/org/repo/pull/42
+#     => OWNER=org REPO=repo PR_NUMBER=42
+#
+# Designed for consumption via eval:
+#   eval $(gh-pr-parse "$input")
+
+set -eu
+
+die() {
+    echo "error: $1" >&2
+    exit 1
+}
+
+[ $# -ge 1 ] || die "usage: gh-pr-parse <PR-number-or-URL>"
+[ -n "$1" ] || die "usage: gh-pr-parse <PR-number-or-URL>"
+
+input="$1"
+
+case "$input" in
+    https://github.com/*/pull/*)
+        # Strip query params and fragment
+        clean="${input%%[?#]*}"
+        # Strip trailing slash
+        clean="${clean%/}"
+
+        # Extract path: OWNER/REPO/pull/NUMBER
+        remainder="${clean#https://github.com/}"
+        OWNER="${remainder%%/*}"
+        remainder="${remainder#*/}"
+        REPO="${remainder%%/*}"
+        remainder="${remainder#*/pull/}"
+        PR_NUMBER="${remainder%%/*}"
+
+        # Validate PR number is a positive integer
+        case "$PR_NUMBER" in
+            ''|0|*[!0-9]*) die "PR number must be a positive integer, got: $PR_NUMBER" ;;
+        esac
+
+        # Validate owner: alphanumeric and hyphens
+        case "$OWNER" in
+            *[!a-zA-Z0-9-]*) die "invalid owner: $OWNER" ;;
+            '') die "owner is empty" ;;
+        esac
+
+        # Validate repo: alphanumeric, hyphens, dots, underscores
+        case "$REPO" in
+            *[!a-zA-Z0-9._-]*) die "invalid repo: $REPO" ;;
+            '') die "repo is empty" ;;
+        esac
+
+        echo "OWNER=$OWNER REPO=$REPO PR_NUMBER=$PR_NUMBER"
+        ;;
+    *[!0-9]*)
+        die "expected a PR number or GitHub PR URL, got: $input"
+        ;;
+    0)
+        die "PR number must be a positive integer, got: 0"
+        ;;
+    *)
+        echo "PR_NUMBER=$input"
+        ;;
+esac

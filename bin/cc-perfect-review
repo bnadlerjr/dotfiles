@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# Start a Claude Code conversation that reviews a PR using the
+# PERFECT code review methodology.
+#
+# USAGE:
+#   cc-perfect-review <PR-URL>
+#   cc-perfect-review <PR-ID>          # must be in the target repo
+#   cc-perfect-review --dry-run <arg>  # print the command without running it
+#
+# EXAMPLES:
+#   cc-perfect-review https://github.com/org/repo/pull/42
+#   cc-perfect-review 42
+
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+die() {
+    echo "error: $1" >&2
+    exit 1
+}
+
+dry_run=false
+if [ "${1:-}" = "--dry-run" ]; then
+    dry_run=true
+    shift
+fi
+
+[ $# -ge 1 ] || die "usage: cc-perfect-review [--dry-run] <PR-URL-or-ID>"
+
+pr_ref="$1"
+
+# Validate the PR reference before launching Claude
+"${SCRIPT_DIR}/gh-pr-parse" "$pr_ref" >/dev/null || exit 1
+
+prompt="reviewing-code-perfectly ${pr_ref}"
+
+if "$dry_run"; then
+    echo "claude ${prompt}"
+    exit 0
+fi
+
+exec claude "$prompt"

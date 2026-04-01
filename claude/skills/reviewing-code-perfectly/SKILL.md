@@ -20,25 +20,35 @@ reviewing-code-perfectly <PR-ID or PR-URL>
 
 ## Inputs
 
-- **PR ID** (number): e.g., `42`
-- **PR URL**: e.g., `https://github.com/org/repo/pull/42`
+- **PR ID** (number): e.g., `42` (must be in the target repo's directory)
+- **PR URL**: e.g., `https://github.com/org/repo/pull/42` (works from any directory)
+
+URL parsing is deterministic — handled by `gh-pr-parse`, not the LLM.
 
 ## Workflow
 
 ### Step 1: Gather PR Data
 
 ```bash
-# Check out PR code into an isolated worktree
-REVIEW_DIR=$(pr-review-worktree setup <PR-ID>)
+# Parse PR reference and check out code into an isolated worktree.
+# Outputs: REVIEW_DIR, OWNER, REPO, PR_NUMBER
+# For URLs: creates a bare clone if not in the target repo.
+eval "$(pr-review-worktree setup <PR-ID-or-URL>)"
+
+# Build --repo flag for cross-repo gh commands
+REPO_FLAG=""
+if [ -n "$OWNER" ] && [ -n "$REPO" ]; then
+    REPO_FLAG="--repo ${OWNER}/${REPO}"
+fi
 
 # Get PR description, title, and metadata
-gh pr view <PR-ID> --json title,body,files,additions,deletions,baseRefName,headRefName,url,state,reviewDecision
+gh pr view $PR_NUMBER $REPO_FLAG --json title,body,files,additions,deletions,baseRefName,headRefName,url,state,reviewDecision
 
 # Get the full diff
-gh pr diff <PR-ID>
+gh pr diff $PR_NUMBER $REPO_FLAG
 
 # List changed files
-gh pr view <PR-ID> --json files --jq '.files[].path'
+gh pr view $PR_NUMBER $REPO_FLAG --json files --jq '.files[].path'
 ```
 
 ### Step 2: Read Changed Files
@@ -78,9 +88,9 @@ For detailed guidance on each principle, see [perfect-principles.md](references/
 
 ```bash
 # Check CI status
-gh pr checks <PR-ID>
+gh pr checks $PR_NUMBER $REPO_FLAG
 
-# If tests can be run locally
+# If tests can be run locally from $REVIEW_DIR
 # Identify test command from project config and run relevant tests
 ```
 
