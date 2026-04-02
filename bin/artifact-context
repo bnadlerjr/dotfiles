@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# Gather all artifacts for a given issue ID into LLM-ready output.
+#
+# Searches filenames and file content (including frontmatter) across
+# active artifact directories, case-insensitively.
+#
+# Usage:
+#   artifact-context POPS-1321           # concatenated output
+#   artifact-context -l POPS-1321        # list matching file paths only
+#   artifact-context -a POPS-1321        # include archived artifacts
+#   artifact-context POPS-1321 | pbcopy  # copy to clipboard
+
+set -eu
+
+CLAUDE_DOCS_ROOT="${CLAUDE_DOCS_ROOT:-$HOME/Dropbox/vimwiki/claude-artifacts}"
+
+die() { echo "error: $1" >&2; exit 1; }
+
+list_only=false
+include_archived=false
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -l|--list) list_only=true; shift ;;
+    -a|--archived) include_archived=true; shift ;;
+    -*) die "unknown option: $1" ;;
+    *) break ;;
+  esac
+done
+
+[ $# -ge 1 ] || die "usage: artifact-context [-l] [-a] <issue-id>"
+
+issue_id="$1"
+
+exclude_archived=""
+if [ "$include_archived" = false ]; then
+  exclude_archived="--exclude-dir=archived"
+fi
+
+# Search file content (catches frontmatter JiraEpic, body references)
+content_matches=$(grep -rli "$issue_id" "$CLAUDE_DOCS_ROOT" \
+  --include="*.md" \
+  $exclude_archived \
+  2>/dev/null || true)
+
+# Search filenames (catches issue IDs embedded in the filename)
+find_exclude=""
+if [ "$include_archived" = false ]; then
+  find_exclude="-not -path */archived/*"
+fi
+
+name_matches=$(find "$CLAUDE_DOCS_ROOT" -name "*.md" \
+  $find_exclude \
+  -iname "*${issue_id}*" \
+  2>/dev/null || true)
+
+# Combine, deduplicate, remove blanks, skip non-artifact files
+files=$(printf '%s\n%s' "$content_matches" "$name_matches" \
+  | grep -v '^$' \
+  | grep -v 'Index\.md$' \
+  | grep -v 'projects\.yaml$' \
+  | sort -u || true)
+
+if [ -z "$files" ]; then
+  echo "No artifacts found for $issue_id" >&2
+  exit 0
+fi
+
+if [ "$list_only" = true ]; then
+  echo "$files"
+  exit 0
+fi
+
+# Output concatenated with headers for LLM context
+while IFS= read -r f; do
+  relative="${f#"$CLAUDE_DOCS_ROOT"/}"
+  echo "=== $relative ==="
+  echo ""
+  cat "$f"
+  echo ""
+  echo ""
+done <<< "$files"
