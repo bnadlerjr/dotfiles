@@ -94,6 +94,10 @@ relationships.
 - IMPORTANT: Challenge unnecessary abstractions. Only introduce components that
   earn their existence. Flag anything that wraps an existing library without
   adding value.
+- Before proposing a custom solution for a capability, check whether an
+  already-imported library provides it natively. Prefer library-native APIs
+  over custom reimplementations — they're maintained, documented, and
+  integrate with the library's other features.
 - Use `/thinking tree-of-thoughts` to evaluate component alternatives
 
 **OOP guidance:** Components are classes, services, repositories, factories,

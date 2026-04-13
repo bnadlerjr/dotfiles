@@ -40,6 +40,11 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
    - **docs-locator**: Find existing research or decisions about this area
    - Tell every agent: "Document what exists. Do not suggest improvements."
    - Tell every agent: "Include `file:line` references for all findings."
+   - When a research target involves a library already imported in the codebase
+     (e.g., TanStack Table, Apollo Client, Ecto, Phoenix), include in one agent's
+     prompt: "Check the library's documentation or API for built-in support for
+     [the feature]. Report what the library provides natively before we design a
+     custom solution."
    - If web research is needed, instruct agents to return URLs with their findings
 
 3. **Wait for ALL agents to complete** — do not proceed until every agent returns
