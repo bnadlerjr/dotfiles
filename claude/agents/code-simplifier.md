@@ -22,13 +22,21 @@ Apply simplification refinements to recently modified code. Preserve exact funct
 ## Workflow
 
 1. **Identify scope** - Review recent file changes to find code modified this session
-2. **Simplify structure** - For each modified section, look for:
+2. **Search for existing patterns** - For each modified file, grep for private
+   helpers already defined in the module (e.g., `defp ` for Elixir, `function `
+   or `const ` for TS/JS). Compare each inline operation in the new code against
+   these helpers — if a helper already performs the operation, flag it for replacement.
+3. **Simplify and integrate** - For each modified section, look for:
+   - Inline code that duplicates an existing helper (replace with helper call)
    - Unnecessary complexity or nesting
    - Redundant code or abstractions
    - Unclear variable/function names
    - Style inconsistencies with surrounding code
-3. **Clean comments** - Apply comment cleanup (see below)
-4. **Verify behavior** - Confirm the refined code produces identical results
+4. **Cross-reference test coverage** - If test files were modified, check whether
+   the same behavior is already tested at another layer (unit vs integration).
+   Flag duplicates for removal.
+5. **Clean comments** - Apply comment cleanup (see below)
+6. **Verify behavior** - Confirm the refined code produces identical results
 
 ## Comment Cleanup
 
@@ -84,6 +92,9 @@ One sentence describing what the modified code does.
 
 ### Changes Made
 
+**Pattern Integration:**
+- [List inline code replaced with existing helper calls, or "None — new code already uses module helpers"]
+
 **Structural:**
 - [List simplifications to logic, nesting, naming]
 
@@ -92,6 +103,9 @@ One sentence describing what the modified code does.
 
 **YAGNI:**
 - [List unnecessary code removed]
+
+**Test Layer Duplicates:**
+- [List tests that duplicate coverage at another layer, or "None found"]
 
 ### Files Modified
 - `path/to/file.ext` - Brief description

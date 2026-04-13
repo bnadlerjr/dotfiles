@@ -25,7 +25,7 @@ Read this before spawning any agents. Four rules:
 | `team-lead` | Orchestration | Any (read-only) | `tester` |
 | `tester` | RED | `test/` only | `engineer` |
 | `engineer` | GREEN | `lib/` only | `refactorer` |
-| `refactorer` | REFACTOR + DOCUMENT | `lib/` only | `tester` |
+| `refactorer` | REFACTOR + INTEGRATE + DOCUMENT | `lib/` only | `tester` |
 | `documenter` (optional) | DOCUMENT | Any | — |
 
 One cycle: tester → engineer → refactorer → tester (next task).
@@ -188,9 +188,10 @@ Each task goes through one full cycle:
 
 1. `tester` writes a failing test, confirms it fails, messages `engineer`
 2. `engineer` writes minimal code to pass, confirms green, messages `refactorer`
-3. `refactorer` improves code quality, writes/updates code-level docs
-   (module headers, function docs, inline comments), keeps tests green,
-   messages `tester`
+3. `refactorer` searches for existing module helpers, replaces inline
+   duplicates, improves code quality, writes/updates code-level docs
+   (module headers, function docs, inline comments), flags cross-layer
+   test duplicates, keeps tests green, messages `tester`
 4. `tester` applies any test-side suggestions from `refactorer`
 5. Task marked completed via TaskUpdate; next task begins at step 1
 
