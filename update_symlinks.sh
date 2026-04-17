@@ -79,3 +79,9 @@ echo " ...removing ~/.config/karabiner/karabiner.json"
 rm -r ~/.config/karabiner/karabiner.json
 ln -s ${DIR}/karabiner/karabiner.json ~/.config/karabiner/karabiner.json
 echo " ...~/.config/karabiner/karabiner.json re-linked"
+
+ALFRED_SNIPPETS="${HOME}/Library/Application Support/Alfred/Alfred.alfredpreferences/snippets"
+echo " ...removing ${ALFRED_SNIPPETS}"
+rm -rf "${ALFRED_SNIPPETS}"
+ln -s "${DIR}/alfred/snippets" "${ALFRED_SNIPPETS}"
+echo " ...${ALFRED_SNIPPETS} re-linked"

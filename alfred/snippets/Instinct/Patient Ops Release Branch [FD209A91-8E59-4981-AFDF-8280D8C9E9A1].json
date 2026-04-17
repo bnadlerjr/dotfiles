@@ -1,0 +1,8 @@
+{
+  "alfredsnippet" : {
+    "snippet" : "pops\/{isodate}-0{cursor}",
+    "uid" : "FD209A91-8E59-4981-AFDF-8280D8C9E9A1",
+    "name" : "Patient Ops Release Branch",
+    "keyword" : "_relpops"
+  }
+}

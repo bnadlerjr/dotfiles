@@ -1,0 +1,8 @@
+{
+  "alfredsnippet" : {
+    "snippet" : "Use \/managing-jira to read {cursor}, its parents, its comments, and any related issues.",
+    "uid" : "395265DB-BB52-4B21-B896-CBBC1BCEDA1B",
+    "name" : "Read Jira Ticket",
+    "keyword" : ""
+  }
+}

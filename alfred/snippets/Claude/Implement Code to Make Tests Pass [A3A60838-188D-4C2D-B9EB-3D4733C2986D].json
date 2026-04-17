@@ -1,0 +1,8 @@
+{
+  "alfredsnippet" : {
+    "snippet" : "Read @{clipboard}. Run the tests. Implement the minimal amount of code to make the test(s) pass. Remember to use appropriate sub-agents. Don't forget to run quality checks.",
+    "uid" : "A3A60838-188D-4C2D-B9EB-3D4733C2986D",
+    "name" : "Implement Code to Make Tests Pass",
+    "keyword" : "_passtest"
+  }
+}
