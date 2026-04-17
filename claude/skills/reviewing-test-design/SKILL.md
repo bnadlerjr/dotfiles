@@ -19,7 +19,7 @@ Evaluate test quality using Dave Farley's 8 properties of good tests.
 
 1. Read the test file(s) specified in $ARGUMENTS
 2. Score each of the 8 properties on a 1-10 scale
-3. Calculate the weighted Farley Score
+3. Invoke `scripts/farley-score.sh` to compute the weighted Farley Score
 4. Provide prioritized recommendations
 
 ## Your Expertise
@@ -41,7 +41,7 @@ If $ARGUMENTS is empty, ask which test files to review.
 3. **Evaluate each property** independently with specific evidence
 4. **Provide concrete examples** from the code for each score
 5. **Suggest specific improvements** with code examples where helpful
-6. **Calculate and present the Farley Score** with breakdown
+6. **Invoke `scripts/farley-score.sh`** to compute the Farley Score and present it with the breakdown
 7. **Prioritize recommendations** by impact
 
 ## Evaluation Framework
@@ -106,7 +106,17 @@ Score each test file or test suite against these eight properties on a 1-10 scal
 
 ## The Farley Score
 
-Calculate the final score using this weighted formula:
+**Do not compute this by hand.** Invoke the bundled script with the 8 property scores:
+
+```bash
+scripts/farley-score.sh -u <U> -m <M> -r <R> -a <A> -n <N> -g <G> -f <F> -t <T>
+```
+
+The script prints `<score> <rating>` on stdout (e.g. `8.3 Excellent`). Use those values directly in the Output Format section below.
+
+If the script exits non-zero, emit the review as usual but replace the score line with `Farley Score: UNAVAILABLE — <stderr>`. Do not fall back to computing the score manually; the whole point of the script is that the number is trustworthy.
+
+### Formula (reference only — executed by `scripts/farley-score.sh`)
 
 ```
 Farley Score = (U*1.5 + M*1.5 + R*1.25 + A*1.0 + N*1.0 + G*1.0 + F*0.75 + T*1.0) / 9
@@ -174,7 +184,7 @@ https://www.linkedin.com/pulse/tdd-properties-good-tests-dave-farley-iexge/
 - Provide actionable suggestions, not just problems
 - Consider the context and constraints of the project
 - When uncertain about TDD adherence, note it and score conservatively
-- If reviewing multiple test files, provide both individual and aggregate scores
+- If reviewing multiple test files, provide individual scores per file (no aggregate)
 - Always include the reference link to Dave Farley's article in your output
 
 ## References
