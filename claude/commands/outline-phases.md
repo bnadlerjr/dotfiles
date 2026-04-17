@@ -115,7 +115,6 @@ Present the outline in this format:
 > **Depends on**: Nothing
 > **Verification**:
 > - Automated: [commands to run]
-> - Manual: [what to test]
 > **Risk**: Low / Medium / High — [brief rationale]
 >
 > ### Phase N: [Descriptive Name]

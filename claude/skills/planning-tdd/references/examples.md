@@ -47,11 +47,6 @@ end
 **Run**: `mix test test/accounts/user_test.exs`
 **Expected**: 2 tests, 0 failures
 
-### Manual Verification
-
-- [ ] POST to `/api/register` with `email: "bad"` -- confirm 422 with validation error
-- [ ] POST to `/api/register` with `email: "test@example.com"` twice -- confirm second returns 422
-
 ---
 
 ### Phase 2: Verification Token (3 TDD cycles)
@@ -118,12 +113,6 @@ end
 **Run**: `mix test test/accounts/`
 **Expected**: 6 tests (cumulative), 0 failures
 
-### Manual Verification
-
-- [ ] Register via API, inspect DB row for `verification_token` and `verified_at: nil`
-- [ ] Hit verification endpoint with the token, confirm `verified_at` is set
-- [ ] Hit verification endpoint with a garbage token, confirm 404
-
 ---
 
 ## Example 2: Bug Fix -- Duplicate Webhook Deliveries
@@ -165,10 +154,6 @@ end
 ### Done When
 
 - [ ] Test fails, confirming the bug is reproducible
-
-### Manual Verification
-
-- [ ] Not applicable for this phase -- bug reproduction only
 
 ---
 
@@ -216,11 +201,6 @@ end
 - [ ] All tests pass: `mix test test/webhooks/`
 - [ ] Original bug test (concurrent updates) passes
 - [ ] Regression test (sequential distinct updates) passes
-
-### Manual Verification
-
-- [ ] Update an order twice in rapid succession via API, check webhook logs for exactly one delivery per distinct change
-- [ ] Confirm no duplicate entries in `webhook_deliveries` table
 
 ---
 
@@ -293,11 +273,6 @@ end
 - [ ] All characterization tests pass against the NEW `Pricing` module
 - [ ] `OrderController` delegates to `Pricing` (no pricing logic remains inline)
 - [ ] Existing controller tests still pass: `mix test test/web/controllers/order_controller_test.exs`
-
-### Manual Verification
-
-- [ ] Create an order via API with items, discount, and tax -- verify total matches expected calculation
-- [ ] Compare API response before and after refactor (should be identical)
 
 ---
 

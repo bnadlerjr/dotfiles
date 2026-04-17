@@ -110,13 +110,6 @@ All automated tests for this phase:
 - [ ] [Another observable outcome]
 - [ ] Type checking and linting pass
 
-### Manual Verification
-
-Before proceeding to next phase:
-- [ ] [Specific thing to verify in UI/API/CLI]
-- [ ] [Step-by-step scenario to walk through]
-- [ ] [What to observe at each step]
-
 ---
 
 ## Phase 2: [Descriptive Name]
@@ -154,12 +147,6 @@ Before proceeding to next phase:
 - [ ] All tests pass: `[run command]`
 - [ ] [Behavior-based criterion]
 - [ ] Type checking and linting pass
-
-### Manual Verification
-
-Before proceeding to next phase:
-- [ ] [Specific thing to verify]
-- [ ] [Another manual check]
 
 ---
 

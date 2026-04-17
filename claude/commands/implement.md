@@ -57,15 +57,23 @@ Store these as working variables for use in agent prompts and verification steps
 
 ### Phase 0: Parse and Resume
 
-1. Read the plan file at PLAN_PATH.
-2. Extract all phases. Each phase has:
+1. **Verify clean working tree**: Run `git status --porcelain`. If output is
+   non-empty, abort with:
+   ```
+   Working tree not clean. Stash, commit, or discard uncommitted changes
+   before running /implement.
+   ```
+   Do NOT auto-stash or auto-discard — the user may have in-progress work to
+   preserve. This check also applies on resume: a dirty tree after interruption
+   means the previous phase didn't commit cleanly and needs manual resolution.
+2. Read the plan file at PLAN_PATH.
+3. Extract all phases. Each phase has:
    - A name and description
    - "Changes Required" items (these become tasks)
    - "Done When" criteria (success gates)
-   - "Manual Verification" items (user checkpoints), if any
-3. Check for existing checkmarks (`- [x]`). If found, skip completed phases
+4. Check for existing checkmarks (`- [x]`). If found, skip completed phases
    and resume from the first incomplete one.
-4. Present a summary to the user:
+5. Present a summary to the user:
    ```
    Plan: [plan title]
    Phases: [total] ([completed] done, [remaining] remaining)
@@ -75,7 +83,7 @@ Store these as working variables for use in agent prompts and verification steps
 
    Ready to begin?
    ```
-5. Wait for user confirmation before proceeding.
+6. Wait for user confirmation before proceeding.
 
 ### Phase Loop
 
@@ -167,7 +175,7 @@ all tests still pass. Include the suggestions verbatim and the test file paths.
 
 Record the task as done. Proceed to the next task in the phase.
 
-#### Step 3: Phase Verification and Transition
+#### Step 3: Phase Verification, Commit, and Transition
 
 When all tasks in the phase are done:
 
@@ -180,25 +188,18 @@ When all tasks in the phase are done:
 2. If any fail, spawn an engineer agent to fix the issues. Then re-verify.
 3. Check the phase's "Done When" criteria. Confirm each is met.
 4. **Code review (REQUIRED)**: Invoke the `reviewing-code` skill on all changed files.
-   Address any findings before continuing.
+   Auto-apply findings the orchestrator can safely resolve. If a finding requires
+   human judgment (ambiguous intent, design tradeoff, unclear scope), pause for the
+   user with the finding — do not guess.
 5. **Simplification (REQUIRED)**: Spawn the `code-simplifier` agent on all changed files.
    Apply its suggestions.
 6. Update the plan file: check off completed items using Edit (`- [ ]` -> `- [x]`).
-7. If the phase has "Manual Verification" items, pause for the user:
-   ```
-   Phase [N] Complete - Ready for Manual Verification
-
-   Automated verification passed:
-   - Tests: [pass/fail]
-   - Lint: [pass/fail]
-   - Types: [pass/fail]
-   - [Done When criteria status]
-
-   Please verify manually:
-   - [manual verification items from plan]
-
-   Let me know when manual testing is complete so I can proceed to Phase [N+1].
-   ```
+7. **Commit (REQUIRED)**: Stage all changes with `git add -A`. Synthesize a commit
+   message by invoking the `writing-git-commits` skill with the phase name and
+   goal from the plan plus the staged diff as context. Subject-only is fine;
+   include a body when the phase goal carries non-obvious rationale worth
+   preserving. Commit. Never pass `--no-verify`. If the pre-commit hook fails,
+   pause for the user with the full hook output — do not retry automatically.
 8. Proceed to next phase.
 
 ### Final: Completion
@@ -370,12 +371,15 @@ When done, report:
 
 | Situation | Action |
 |-----------|--------|
+| Working tree not clean at start (or on resume) | Abort with instructions; user resolves manually (stash/commit/discard) |
 | Tester can't write meaningful test | Present to user for decision |
 | Engineer can't make test pass | Present to user with test expectation + what was tried |
 | Refactoring breaks tests | Refactorer reverts internally (no escalation) |
 | Verification fails at phase end | Spawn engineer agent to fix, then re-verify |
 | Lint fails at phase end | Spawn engineer agent to fix lint errors |
 | Typecheck fails at phase end | Spawn engineer agent to fix type errors |
+| `reviewing-code` finding requires human judgment | Pause with finding; do not auto-apply |
+| Pre-commit hook fails | Pause with full hook output; never use `--no-verify` |
 | Plan/code mismatch discovered | Stop and present issue to user |
 | Agent returns empty or garbled output | Re-spawn the same agent with the same prompt |
 
@@ -396,7 +400,9 @@ After all phases are complete, present:
 - Tests (changed files): [pass/fail]
 - Lint: [pass/fail]
 - Typecheck: [pass/fail]
-- Manual verification: [status per phase]
+
+### Commits
+[git log --oneline output for this run's phase commits]
 
 ### Notes
 [Any issues encountered, deviations from plan, or observations]

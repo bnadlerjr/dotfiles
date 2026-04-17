@@ -1,6 +1,6 @@
 ---
 name: planning-tdd
-description: Creates TDD implementation plans where tests ARE the plan. Specifies test specs and structural context per phase — implementation emerges during execution, not planning. Includes automated and manual verification. Use when planning features test-first, creating TDD plans from design artifacts, or when the user asks for a test-driven implementation plan.
+description: Creates TDD implementation plans where tests ARE the plan. Specifies test specs and structural context per phase — implementation emerges during execution, not planning. Verification is fully automated; no manual verification step. Use when planning features test-first, creating TDD plans from design artifacts, or when the user asks for a test-driven implementation plan.
 allowed-tools: Read, Glob, Grep, Agent
 ---
 
@@ -27,7 +27,7 @@ Given a task, design artifact, or ticket:
 4. **Present** understanding with `file:line` references, ask only unanswerable questions
 5. **Decompose** into testable behavioral increments (TDD cycles)
 6. **Outline** the phase structure, get approval
-7. **Detail** each phase with TDD cycles, automated tests, and manual verification
+7. **Detail** each phase with TDD cycles and automated tests
 
 ## When This Skill Applies
 
@@ -43,7 +43,7 @@ Given a task, design artifact, or ticket:
 3. **Interactive**: Never dump a complete plan. Gather context -> verify understanding -> align on approach -> detail phases.
 4. **Grounded**: Every claim verified against actual code. Include `file:line` references.
 5. **Bounded**: Every plan MUST include "What We're NOT Doing" section.
-6. **Dual Verification**: Every phase includes BOTH automated testing specs AND manual verification. No exceptions.
+6. **Automated Verification**: Every phase is verified by automated tests. No manual-verification step exists in the plan or the implementation flow. Behavior that cannot be asserted by an automated test must be called out explicitly in the plan and escalated — not deferred to a manual check.
 7. **Incremental Confidence**: Each TDD cycle builds on the confidence established by previous passing tests.
 
 ## Process
@@ -193,15 +193,10 @@ For each phase, detail:
    - The exact command to run them
    - Expected pass/fail count
 
-3. **Manual Verification** (end-to-end checks):
-   - Specific UI/API/CLI scenarios to walk through
-   - What to observe at each step
-   - How to verify the behavior matches expectations
-
 After writing the plan, apply `/thinking self-consistency` to validate:
 - Does every phase start with failing tests?
 - Does every phase have clear "done when" criteria?
-- Are both automated and manual testing covered in every phase?
+- Is automated testing covered in every phase with an exact run command?
 - Are dependencies between phases correct?
 - Is scope properly bounded?
 - Does any cycle contain a GREEN or implementation section? -> Remove it
@@ -225,7 +220,6 @@ After writing the plan, apply `/thinking self-consistency` to validate:
 - Accept corrections without verification
 - Leave open questions in final plan
 - Write tests that test mock behavior (see `practicing-tdd` anti-patterns)
-- Skip manual verification for any phase
 - Include implementation code in the plan — it presupposes design and defeats TDD
 - Propose test patterns that conflict with existing codebase conventions
 
@@ -278,33 +272,29 @@ When a `/whiteboard` design artifact is available, use this mapping:
 2. Data layer tests -> implementation
 3. Business logic tests -> implementation
 4. Integration tests -> wiring
-5. Manual verification of end-to-end flow
 
 ### New Feature (without design artifact)
 1. Identify behaviors from requirements
 2. Core behavior tests -> implementation
 3. Edge case tests -> implementation
 4. Integration tests -> wiring
-5. Manual verification of end-to-end flow
 
 ### Bug Fix
 1. Write failing test that reproduces the bug
 2. Fix minimally to pass
 3. Add regression tests for related edge cases
-4. Manual verification that bug is fixed
 
 ### Refactoring
 1. Characterization tests for current behavior
 2. Incremental structural changes (tests stay green)
 3. New tests for improved design
-4. Manual verification of unchanged behavior
 
 ## Success Criteria
 
 A TDD plan is well-formed when:
 - [ ] Every phase starts with RED test specifications (no implementation code)
 - [ ] Every test spec includes expected inputs, outputs, and failure modes
-- [ ] Every phase has both automated testing summary and manual verification
+- [ ] Every phase has an automated testing summary with an exact run command
 - [ ] Structural context uses `file:line` references to real code
 - [ ] Phases are ordered by dependency (foundational behaviors first)
 - [ ] "What We're NOT Doing" section is present and specific
@@ -315,7 +305,7 @@ A TDD plan is well-formed when:
 
 See [references/examples.md](references/examples.md) for concrete, multi-phase examples covering:
 
-1. **New Feature** (email verification) -- 2 phases, 5 TDD cycles, full automated + manual verification
+1. **New Feature** (email verification) -- 2 phases, 5 TDD cycles, full automated verification
 2. **Bug Fix** (duplicate webhooks) -- 2 phases, reproducing the bug then fixing with regression tests
 3. **Refactoring** (extract module) -- Characterization tests before structural changes
 
@@ -325,7 +315,6 @@ See [references/examples.md](references/examples.md) for concrete, multi-phase e
 |---------|----------------|-----------------|
 | Implementation code in plan | Presupposes design, defeats TDD | Specify tests + structural context only |
 | Implementation before tests | Violates TDD Iron Law | Always specify RED step first |
-| Skipping manual verification | Automated tests miss UX issues | Every phase gets manual checks |
 | Tests that mock everything | Tests verify mocks, not behavior | Use real dependencies; mock only at boundaries |
 | Vague test descriptions | Can't write tests from descriptions | Include expected inputs, outputs, and failure modes |
 | One giant phase | Too much to hold in a single TDD cycle | Decompose into small behavioral increments |

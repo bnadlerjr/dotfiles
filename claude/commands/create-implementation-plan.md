@@ -77,18 +77,13 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
      - All tests pass (reference the run command)
      - Behavior-based criteria (e.g., "User can create a new account")
      - Type checking and linting pass
-   - **Manual Verification**: Before proceeding to next phase:
-     - Checkboxed list of things the human should test
-     - UI behavior, edge cases, performance observations
-     - **PAUSE**: After automated checks pass, wait for human confirmation
-       before proceeding to the next phase
    </phase-detail>
 
 4. **Validate completeness** — apply `/thinking self-consistency`:
    - Does every cycle start with a RED test spec (exact test code, concrete inputs, expected outputs)?
    - Does any cycle contain GREEN/implementation code or REFACTOR commentary? → Remove it
    - Does any cycle contain code that is not a test? → Replace with structural context
-   - Does every phase have both automated testing summary and manual verification?
+   - Does every phase have an automated testing summary with an exact run command?
    - Are all `file:line` references verified against current source?
    - Are dependencies from the structure outline respected?
    - Is scope bounded by the "What We're NOT Doing" from the design doc?
@@ -144,7 +139,6 @@ The artifact follows PLAN_TEMPLATE with these sections:
 ### TDD Cycles
 ### Automated Testing
 ### Done When
-### Manual Verification
 
 ---
 
