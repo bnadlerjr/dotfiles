@@ -46,26 +46,30 @@ IMPORTANT: For each suggestion, execute the following:
    If the evaluation is borderline, apply `/thinking self-consistency` with three independent paths (correctness, maintainability, codebase consistency). Accept only on consensus.
 
 4. **Decide**:
-   - If evaluation fails: Push back with technical reasoning. Record the rejection rationale. Do NOT implement.
-   - If evaluation passes: Proceed to implementation.
+   - If evaluation fails: Push back with technical reasoning. Record the rejection rationale. Do NOT implement. Skip to the next suggestion.
+   - If evaluation passes: Proceed to the approval gate.
 
-5. **Implement** the accepted suggestion.
+5. **Request approval** — Present to the user: the suggestion, the evaluation verdict, the planned change, and any risks. Use `AskUserQuestion` (or a direct prompt) to ask whether to implement.
+   - If the user declines: Record the user's rationale (if given) as "Skipped by user". Do NOT implement. Move to the next suggestion.
+   - If the user approves: Proceed to implementation.
 
-6. **Test** — Run relevant tests to confirm the change works and causes no regressions.
+6. **Implement** the approved suggestion.
+
+7. **Test** — Run relevant tests to confirm the change works and causes no regressions.
 
 </suggestion-loop>
 
 ### Phase 3: Review and Simplify
 
-7. **Review** — Use the `reviewing-code` skill to review all implemented changes.
+8. **Review** — Use the `reviewing-code` skill to review all implemented changes.
 
-8. **Simplify** — Use the `code-simplifier` agent to remove unnecessary complexity and noisy comments from modified files.
+9. **Simplify** — Use the `code-simplifier` agent to remove unnecessary complexity and noisy comments from modified files.
 
 ## Report
 
 | # | Suggestion | Verdict | Reasoning |
 |---|------------|---------|-----------|
-| 1 | [Brief description] | Accepted / Rejected | [1-sentence rationale] |
+| 1 | [Brief description] | Applied / Rejected / Skipped by user | [1-sentence rationale] |
 
 - **Changes implemented**: List files and what changed
 - **Test results**: Suite name, pass/fail
