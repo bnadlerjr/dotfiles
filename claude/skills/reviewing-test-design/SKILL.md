@@ -35,11 +35,14 @@ If $ARGUMENTS is empty, ask which test files to review.
 ## Review Process
 
 1. **Read the tests thoroughly** before examining implementation code
-2. **Evaluate each property** independently with specific evidence
-3. **Provide concrete examples** from the code for each score
-4. **Suggest specific improvements** with code examples where helpful
-5. **Calculate and present the Farley Score** with breakdown
-6. **Prioritize recommendations** by impact
+2. **Load references conditionally**:
+   - If the tests use Elixir/Ruby/JS/TS/Python, load [language-patterns.md](references/language-patterns.md) for concrete stack-specific red flags
+   - If the review is likely to recommend removals or refactoring, load [preservation.md](references/preservation.md) for guardrails and action-summary format
+3. **Evaluate each property** independently with specific evidence
+4. **Provide concrete examples** from the code for each score
+5. **Suggest specific improvements** with code examples where helpful
+6. **Calculate and present the Farley Score** with breakdown
+7. **Prioritize recommendations** by impact
 
 ## Evaluation Framework
 
@@ -173,3 +176,8 @@ https://www.linkedin.com/pulse/tdd-properties-good-tests-dave-farley-iexge/
 - When uncertain about TDD adherence, note it and score conservatively
 - If reviewing multiple test files, provide both individual and aggregate scores
 - Always include the reference link to Dave Farley's article in your output
+
+## References
+
+- [language-patterns.md](references/language-patterns.md) — concrete red flags in Elixir/Ruby/JS/Python tests that map to Farley property scores. Load when reviewing tests in these stacks.
+- [preservation.md](references/preservation.md) — guardrails against over-culling valuable tests; mocking hygiene; action-summary output format. Load when the review is likely to recommend removals or refactoring.

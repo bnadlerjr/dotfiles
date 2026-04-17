@@ -187,10 +187,10 @@ When all tasks in the phase are done:
    ```
 2. If any fail, spawn an engineer agent to fix the issues. Then re-verify.
 3. Check the phase's "Done When" criteria. Confirm each is met.
-4. **Code review (REQUIRED)**: Invoke the `reviewing-code` skill on all changed files.
-   Auto-apply findings the orchestrator can safely resolve. If a finding requires
-   human judgment (ambiguous intent, design tradeoff, unclear scope), pause for the
-   user with the finding — do not guess.
+4. **Review (REQUIRED)**: Launch two review agents in parallel:
+   - `reviewing-code` skill on all changed files — general code-quality review (readability, naming, dead code, Kent Beck / Kent C. Dodds principles). It no longer owns test-design concerns.
+   - `reviewing-test-design` skill on changed test files only — Dave Farley 8-property scoring plus prioritized recommendations. This is the canonical test-design gate.
+   Merge findings after both return. Auto-apply findings the orchestrator can safely resolve (e.g., "split this test for Granularity", "rename for clarity"). If a finding requires human judgment (ambiguous intent, design tradeoff, unclear scope), pause for the user with the finding — do not guess. The Farley numerical score is informational, not a blocking gate — the prioritized recommendations are what drive action.
 5. **Simplification (REQUIRED)**: Spawn the `code-simplifier` agent on all changed files.
    Apply its suggestions.
 6. Update the plan file: check off completed items using Edit (`- [ ]` -> `- [x]`).
@@ -230,6 +230,7 @@ write failing tests that define the desired behavior.
 Read these files before your first edit:
 - `CLAUDE.md` — project conventions, patterns, test commands, and skill references
 - Any testing skill referenced in CLAUDE.md's skill delegation table
+- `~/.claude/skills/reviewing-test-design/SKILL.md` — Dave Farley's 8 properties of good tests. Internalize this rubric: tests you write will be graded against it at phase end. Write to the rubric, not around it.
 
 Follow the project's existing test patterns, file organization, and testing
 framework conventions exactly as described in CLAUDE.md.

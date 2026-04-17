@@ -56,8 +56,9 @@ prompt: "Review src/auth/middleware.ts and src/auth/types.ts. Focus on security 
 ```
 Launch in parallel:
 - Task: general-purpose, prompt: "Review using Kent Beck style (see ~/.claude/skills/reviewing-code/references/kent-beck.md)"
-- Task: general-purpose, prompt: "Review test quality (see ~/.claude/skills/reviewing-code/references/test-quality.md)"
 - Task: general-purpose, prompt: "Review for [stack-specific concerns]"
+
+For test quality review, invoke the `reviewing-test-design` skill separately — it evaluates tests against Dave Farley's 8 properties and is the canonical test-design review tool.
 
 Then synthesize findings using graph-of-thoughts pattern.
 ```
@@ -192,25 +193,9 @@ Skip feedback on:
 
 ### Test Quality Review
 
-When reviewing test code, evaluate whether each test provides genuine value. Low-value tests slow down suites and create maintenance burden without preventing regressions.
+This skill does not review test design. Use the `reviewing-test-design` skill to evaluate tests against Dave Farley's 8 properties (Understandable, Maintainable, Repeatable, Atomic, Necessary, Granular, Fast, First).
 
-**Quick Assessment:**
-- Does this test prevent a real regression?
-- Could this test ever catch a real bug?
-- Is this testing behavior or implementation?
-
-**Common Low-Value Patterns:**
-- Tests that break on refactor without behavior change (implementation testing)
-- Multiple tests covering the same behavior (duplicate coverage)
-- Tests where everything is mocked except trivial logic (over-mocking)
-- Tests of getters/setters, direct delegation, or framework behavior (trivial tests)
-
-**Recommendations:**
-- Flag for removal with specific reasoning
-- Suggest combining into parameterized tests
-- Convert implementation tests to behavior tests
-
-For detailed patterns by language, see [test-quality.md](references/test-quality.md).
+When reviewing test files with this skill, focus only on general code-quality concerns applicable to test code as code: naming clarity, dead code, DRY, readability. For test-specific concerns (duplicate coverage, over-mocking, implementation testing, tautological assertions, language-specific anti-patterns), defer to `reviewing-test-design`.
 
 ### Example Review
 
@@ -259,14 +244,6 @@ prompt: |
   Read: ~/.claude/skills/reviewing-code/references/kent-beck.md
   Focus: Simplicity, TDD, incremental progress.
   Return: Issues with file:line references.
-
-# Test quality review
-Task: general-purpose
-prompt: |
-  Review test changes using test quality methodology.
-  Read: ~/.claude/skills/reviewing-code/references/test-quality.md
-  Focus: Duplicate coverage, over-mocking, implementation tests.
-  Return: Low-value tests to remove or refactor.
 
 # Stack-specific review (select one)
 Task: general-purpose

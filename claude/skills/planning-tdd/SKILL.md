@@ -16,6 +16,7 @@ functions without them using standard reasoning and TDD principles.
 
 - **practicing-tdd** skill: Provides TDD methodology (Iron Law, cycle rules)
 - **thinking-patterns** skill: Structured reasoning at each planning gate
+- **reviewing-test-design** skill: Dave Farley's 8 properties of good tests. When shaping RED test specs, keep these properties in mind (especially Atomic, Necessary, Granular) so specs don't force the Tester to diverge from the plan to satisfy them during implementation.
 
 ## Quick Start
 
@@ -260,6 +261,7 @@ When a `/whiteboard` design artifact is available, use this mapping:
 
 - **practicing-tdd**: Enforces Red-Green-Refactor cycle during execution (handles GREEN + REFACTOR)
 - **refactoring-code**: Provides refactoring patterns during execution (not during planning)
+- **reviewing-test-design**: Dave Farley's 8 test properties — guidance for shaping RED test specs so they're Farley-compatible from the start
 - **code-simplifier** agent: Post-implementation review for unnecessary complexity
 - **thinking-patterns**: Structured reasoning at planning gates
 - **breaking-down-stories**: Decomposing stories before planning
