@@ -105,14 +105,22 @@ description: Helps with documents
 
 ## Skill Structure
 
-### Required Frontmatter
+### Frontmatter
 
-| Field | Required | Max Length | Description |
-|-------|----------|------------|-------------|
-| `name` | Yes | 64 chars | Lowercase letters, numbers, hyphens only |
-| `description` | Yes | 1024 chars | What it does AND when to use it |
-| `allowed-tools` | No | - | Tools Claude can use without asking |
-| `model` | No | - | Specific model to use |
+All fields are optional. Only `description` is recommended so Claude knows when to use the skill. Teaching minimum:
+
+| Field | Purpose |
+|-------|---------|
+| `name` | Display name. Defaults to directory name. Lowercase letters, numbers, hyphens only (max 64 chars). |
+| `description` | What it does and when to use it. Combined with `when_to_use`, capped at 1,536 chars. |
+| `allowed-tools` | Tools Claude can use without per-use approval while this skill is active. |
+
+Beyond these, Claude Code supports `when_to_use`, `argument-hint`, `disable-model-invocation`, `user-invocable`, `model`, `effort`, `context`, `agent`, `hooks`, `paths`, and `shell`. For the authoritative field list and semantics, see:
+
+- [references/official-spec.md](references/official-spec.md) — full frontmatter table, string substitutions, lifecycle
+- [references/invocation-control.md](references/invocation-control.md) — `disable-model-invocation`, `user-invocable`, `context: fork`, `paths`
+- [references/dynamic-context.md](references/dynamic-context.md) — `` !`cmd` `` shell injection and `$ARGUMENTS` substitutions
+- [code.claude.com/docs/en/skills](https://code.claude.com/docs/en/skills) — live source of truth
 
 ### Naming Conventions
 
@@ -336,8 +344,10 @@ Guide through decision points:
 
 For detailed guidance, see:
 
-- [official-spec.md](references/official-spec.md) - Anthropic's official skill specification
-- [best-practices.md](references/best-practices.md) - Skill authoring best practices
+- [official-spec.md](references/official-spec.md) — Anthropic's official skill specification (frontmatter, lifecycle, substitutions)
+- [invocation-control.md](references/invocation-control.md) — `disable-model-invocation`, `user-invocable`, `context: fork`, `paths`
+- [dynamic-context.md](references/dynamic-context.md) — `` !`cmd` `` shell injection and `$ARGUMENTS`
+- [best-practices.md](references/best-practices.md) — Skill authoring best practices
 
 ## Success Criteria
 

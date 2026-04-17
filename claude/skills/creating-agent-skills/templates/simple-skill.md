@@ -1,6 +1,15 @@
 ---
 name: {{SKILL_NAME}}
 description: {{What it does}} Use when {{trigger conditions}}.
+# Optional fields — uncomment if relevant:
+# when_to_use: {{extra trigger phrases; combined with description, capped at 1,536 chars}}
+# argument-hint: "[arg1] [arg2]"
+# disable-model-invocation: true   # user-only skills like /deploy or /commit
+# user-invocable: false            # background-knowledge skills Claude loads but users don't call
+# allowed-tools: Read Grep Glob    # or a YAML list
+# paths: ["**/*.graphql"]          # auto-load only when matching files are active
+# context: fork                    # run in isolated subagent context
+# agent: Explore                   # subagent type when context: fork
 ---
 
 <objective>
