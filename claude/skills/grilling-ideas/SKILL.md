@@ -1,12 +1,12 @@
 ---
-name: grill-me
-description: Interview the user relentlessly about a plan or design until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test a plan, get grilled on their design, or mentions "grill me".
-allowed-tools: Read, Grep, Glob, WebFetch, AskUserQuestion, Write, Skill
+name: grilling-ideas
+description: Interview the user relentlessly about an idea — a plan, design, or half-formed direction — until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test their thinking, get grilled on a design, explore a vague direction, or mentions "grill me".
+allowed-tools: Read, Grep, Glob, WebFetch, AskUserQuestion, Write
 ---
 
-# Grill Me
+# Grilling Ideas
 
-Interview the user relentlessly about every aspect of a plan or design until shared understanding is reached. Walk the decision tree one branch at a time, resolving dependencies before dependents. Every question comes with a recommended answer — the user is stress-testing your reasoning as much as their own.
+Interview the user relentlessly about every aspect of an idea — plan, design, or direction they want to explore — until shared understanding is reached. Walk the decision tree one branch at a time, resolving dependencies before dependents. Every question comes with a recommended answer — the user is stress-testing your reasoning as much as their own.
 
 This skill is a Socratic adversary, not a facilitator. The goal is rigor, not comfort.
 
@@ -17,11 +17,11 @@ This skill is a Socratic adversary, not a facilitator. The goal is rigor, not co
 
 ## Starting State
 
-Before asking anything, determine whether a plan is already available:
+Before asking anything, determine what the user has brought:
 
-1. **Plan in conversation context** — prior turns, a linked doc, a pasted design. Restate the plan in 2-4 sentences to confirm scope, then begin grilling.
-2. **Plan referenced but not loaded** — a file path, a URL, an ADR. Read it first using Read/Grep/Glob/WebFetch. Then restate and begin.
-3. **No plan in context** — ask the user to describe or link the plan. Do not start grilling a phantom plan.
+1. **Explicit idea in context** — a plan, design, or pasted doc in prior turns. Restate it in 2-4 sentences to confirm scope, then begin grilling.
+2. **Idea referenced but not loaded** — a file path, a URL, an ADR. Read it first using Read/Grep/Glob/WebFetch, then restate and begin.
+3. **Vague direction or no idea yet** — the user wants to explore but hasn't articulated much. Start by grilling the *goal* or *problem* — what outcome are they chasing, what constraints apply? Your first few turns shape the idea into something more grillable. Do not invent a position the user didn't describe; extract one from them, one question at a time.
 
 ## The Core Loop
 
@@ -48,15 +48,43 @@ Each question turn has four parts, in this order:
 **Your call** — agree, disagree, or propose an alternative?
 ```
 
+### Examples
+
+A single filled-in turn from a grilling session on a plan to add caching to an API endpoint:
+
+> **Context.** The cache backend choice constrains invalidation, TTL handling, and deployment topology. Downstream of "do we need caching at all," upstream of "how do we invalidate on writes."
+>
+> **Question.** Which cache backend — Redis, or in-process LRU?
+>
+> **Recommendation.** Redis.
+>
+> **Rationale.** The endpoint runs on three ECS instances behind an ALB (`deploy/terraform/ecs.tf`). In-process cache gives each instance its own view, so a write via instance A wouldn't invalidate reads on B and C. Redis is already running for session state (`infra/redis.tf`), so no new operational surface. Trade-off accepted: ~1ms p50 added per lookup vs. in-process, acceptable for cross-instance consistency.
+>
+> **Your call** — agree, disagree, or propose an alternative?
+
+Same turn continued after user push-back — showing the disagree/probe branch:
+
+> **User:** "Redis feels like overkill. Just cache for 60s in-process and let staleness wash out."
+>
+> **Probe.** That's a staleness-tolerance argument, not a complexity argument — makes it a product question, not an ops one. Before updating: what staleness does the product tolerate?
+>
+> **Question.** Is up to 60 seconds of stale plan data acceptable on the billing overview screen, or does it need to be sub-second?
+>
+> **Recommendation.** Hold Redis; push for sub-second.
+>
+> **Rationale.** This endpoint renders immediately after a plan change — the exact moment the user is checking whether their upgrade took effect. 60s of staleness there means they see the old plan right when trust matters most. If product confirms 60s is fine for this surface, in-process wins and Redis is overkill. Otherwise Redis stands.
+>
+> **Your call** — what staleness tolerance have we committed to?
+
 ## The Recommendation Requirement
 
 **Never ask a naked question.** A naked question — "What should we do about X?" — punts the work onto the user. This skill exists to pressure-test your reasoning, so you must commit to a position on every turn.
 
 If you genuinely cannot form a recommendation, that is itself a signal: either the question is premature (a dependency is unresolved — resolve that first) or you need to explore the codebase before asking.
 
-When a recommendation involves weighing alternatives, apply the `tree-of-thoughts` pattern silently to evaluate options, then present the winner as your recommendation with a one-line summary of why it beat the runner-up.
+When a recommendation involves weighing alternatives, reason in the style of the `tree-of-thoughts` pattern to evaluate options internally, then present only the winner as your recommendation with a one-line summary of why it beat the runner-up.
 
-When a recommendation would cascade — locking in multiple downstream decisions or committing to an irreversible choice — apply the `self-consistency` pattern silently to validate it from the maintainer and operator perspectives before presenting.
+When a recommendation would cascade — locking in multiple downstream decisions or committing to an irreversible choice — reason in the style of the `self-consistency` pattern to validate the recommendation from the maintainer and operator perspectives before presenting it.
 
 Do not dump pattern scaffolding into the user's face; they want your judgment, not your showing-your-work.
 
@@ -90,11 +118,11 @@ Track the decision tree internally — in your working memory across turns, not 
 
 When the user's answer to a question opens new sub-branches, add them to Open. When you pick the next question, scan Open and choose the node with the most children still depending on it.
 
-If you discover a branch mid-conversation that turns out to contain sub-branches, apply the `atomic-thought` pattern silently to decompose it into independent dimensions, then pick the dependency-root from the decomposed set.
+If you discover a branch mid-conversation that turns out to contain sub-branches, reason in the style of the `atomic-thought` pattern to decompose it into independent dimensions, then pick the dependency-root from the decomposed set.
 
 ## Thinking Patterns — When to Use Each
 
-Invoke these patterns silently (do not dump the scaffolding into the user's turn) to sharpen your reasoning before speaking:
+Reason in the style of these patterns internally — do not invoke the `thinking-patterns` skill, do not dump the scaffolding into the user's turn. The user sees only the recommendation and rationale.
 
 | Pattern | When |
 |---|---|
@@ -126,19 +154,14 @@ Keep going until the user explicitly stops. Stop words include: "done", "enough"
 When the user stops:
 
 1. **Summarize briefly** — list resolved decisions as bullets, then list any open branches the user chose to skip. Keep it to one short block; the conversation already contains the details.
-2. **Offer the artifact** — use `AskUserQuestion` (this is the one place it's permitted) to ask whether they want a written summary saved to `$CLAUDE_DOCS_ROOT`.
-3. **If yes**: write a markdown doc to `$CLAUDE_DOCS_ROOT/grill-me-<slug>-<YYYY-MM-DD>.md` containing the plan restatement, resolved decisions (with recommendation + final outcome), open branches, and any notable dissents. If `$CLAUDE_DOCS_ROOT` is unset, fall back to `~/claude-docs/` and mention the fallback to the user.
+2. **Offer the artifact** — this is the only turn in the skill that uses `AskUserQuestion`; grilling turns themselves stay plain prose. Call it with:
+   - Header: "Summary"
+   - Question: "Want me to write the resolved decisions to a summary doc in $CLAUDE_DOCS_ROOT?"
+   - Options:
+     - "Yes, write it" — Save markdown summary.
+     - "No, we're good" — End without writing.
+3. **If yes**: write a markdown doc to `$CLAUDE_DOCS_ROOT/grilling-ideas-<slug>-<YYYY-MM-DD>.md` containing the idea restatement, resolved decisions (with recommendation + final outcome), open branches, and any notable dissents. If `$CLAUDE_DOCS_ROOT` is unset, fall back to `~/claude-docs/` and mention the fallback to the user.
 4. **If no**: acknowledge and end. No file written.
-
-### AskUserQuestion For The Artifact Offer
-
-This is the only approved use of AskUserQuestion in this skill. The grilling itself must be plain prose.
-
-- Header: "Summary"
-- Question: "Want me to write the resolved decisions to a summary doc in $CLAUDE_DOCS_ROOT?"
-- Options:
-  - "Yes, write it" — Save markdown summary.
-  - "No, we're good" — End without writing.
 
 ## Anti-Patterns
 
