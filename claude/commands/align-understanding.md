@@ -77,7 +77,11 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
 
    d. **Key Interactions** — use `chain-of-thought` to trace scenarios through
       components. Map to Level 3 Interactions from the design skill. Include
-      mermaid sequence diagrams for non-trivial flows. Checkpoint: confirm.
+      mermaid sequence diagrams for non-trivial flows. Identify a **candidate
+      tracer path** — the thinnest scenario that exercises every layer touched
+      by the desired end state, end-to-end. Name it explicitly so
+      `/outline-phases` can evaluate whether Phase 1 should be a walking
+      skeleton. Checkpoint: confirm.
       SKIP if complexity is below "multi-component feature".
 
    e. **Design Decisions** — use `graph-of-thoughts` to synthesize decisions
@@ -130,6 +134,8 @@ Specific exemplar files to mirror:
 
 How components communicate for key scenarios.
 [Sequence diagram for non-trivial flows]
+
+**Candidate tracer path**: [scenario name] — [layers/components touched end-to-end]. Feeds `/outline-phases` tracer-bullet applicability assessment.
 
 ### Design Decisions
 
