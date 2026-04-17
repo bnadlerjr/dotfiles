@@ -177,4 +177,4 @@ Use **AskUserQuestion**:
 ### Downstream — Detailing each slice
 - `writing-agile-stories` — Flesh out each slice into a BDD story with acceptance criteria
 - `breaking-down-stories` — Decompose slices or stories into implementation tasks
-- `implementation-planning` — Create a detailed implementation plan for a slice
+- `planning-tdd` — Create a detailed TDD implementation plan for a slice

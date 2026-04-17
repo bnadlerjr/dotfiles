@@ -15,7 +15,7 @@ Use the `thinking-patterns` skill for structured reasoning.
 ## Variables
 
 ARTIFACT_PATHS: $ARGUMENTS
-PLAN_TEMPLATE: ~/dotfiles/claude/skills/implementation-planning/templates/plan-template.md
+PLAN_TEMPLATE: ~/dotfiles/claude/skills/planning-tdd/templates/plan-template.md
 ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
 
 ## Instructions
@@ -30,7 +30,8 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
   should be added, split, or reordered, flag it with rationale and wait.
 - Do NOT spawn research agents — research is complete. Use Read/Glob/Grep
   directly if you need to verify references or gather surrounding context.
-- TDD is implicit — do not add "write tests" steps. Describe what to build.
+- Tests ARE the plan. Specify RED test specs + structural context per cycle. Do NOT include GREEN/implementation code or REFACTOR commentary — those emerge during execution via the `practicing-tdd` and `refactoring-code` skills.
+- Read `~/dotfiles/claude/skills/planning-tdd/SKILL.md` for the full methodology before detailing phases.
 - No open questions in the final plan. If anything is unclear, ask NOW.
 
 ## Workflow
@@ -57,29 +58,37 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
 
    <phase-detail>
    - **Overview**: What this phase accomplishes (from the structure outline)
-   - **Changes Required**: Per component/file group:
-     - File path with line reference
-     - Description of what changes
-     - Code snippet showing what to add/modify (include enough surrounding
-       context to locate the change site — skip for trivial changes)
+   - **TDD Cycles**: Per testable behavior (one cycle per behavior):
+     - **RED — Write Failing Test**: The exact test to write first, as a code
+       block with concrete inputs and expected outputs. Use the project's
+       existing test patterns and framework.
+     - **Expected failure**: What the failure message will look like when run
+       (e.g., "function X is undefined", assertion message, etc.)
+     - **Structural context**: `file:line` references for modules/files in
+       play, where the test file lives, relevant contracts or interfaces.
+       Do NOT include GREEN/implementation code or REFACTOR commentary —
+       those emerge during execution.
+   - **Automated Testing** (phase summary):
+     - Checkboxed list of all tests in the phase with brief descriptions
+     - Exact command to run them (prefer `make` targets or project-standard
+       test command scoped to the phase's test files)
+     - Expected pass/fail count
    - **Done When**: Checkboxed list of:
+     - All tests pass (reference the run command)
      - Behavior-based criteria (e.g., "User can create a new account")
-     - Commands to run (type checking, linting, test commands — prefer `make` targets)
-     - Specific files that should exist
+     - Type checking and linting pass
    - **Manual Verification**: Before proceeding to next phase:
      - Checkboxed list of things the human should test
      - UI behavior, edge cases, performance observations
      - **PAUSE**: After automated checks pass, wait for human confirmation
        before proceeding to the next phase
-   - **Implementation Notes** (only if non-obvious):
-     - Edge cases to handle
-     - Ordering constraints within the phase
-     - Gotchas discovered during reference verification
    </phase-detail>
 
 4. **Validate completeness** — apply `/thinking self-consistency`:
-   - Does every phase have concrete file changes (not just descriptions)?
-   - Does every phase have both automated and manual verification?
+   - Does every cycle start with a RED test spec (exact test code, concrete inputs, expected outputs)?
+   - Does any cycle contain GREEN/implementation code or REFACTOR commentary? → Remove it
+   - Does any cycle contain code that is not a test? → Replace with structural context
+   - Does every phase have both automated testing summary and manual verification?
    - Are all `file:line` references verified against current source?
    - Are dependencies from the structure outline respected?
    - Is scope bounded by the "What We're NOT Doing" from the design doc?
@@ -132,10 +141,10 @@ The artifact follows PLAN_TEMPLATE with these sections:
 ## Phase 1: [Name from structure outline]
 
 ### Overview
-### Changes Required
+### TDD Cycles
+### Automated Testing
 ### Done When
 ### Manual Verification
-### Implementation Notes
 
 ---
 

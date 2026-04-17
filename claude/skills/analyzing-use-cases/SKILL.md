@@ -236,7 +236,7 @@ Default to **casual** unless the story has 3+ actors, non-obvious stakeholder in
 
 ### → Implementation Planning
 
-The use case document feeds directly into `implementation-planning`:
+The use case document feeds directly into `planning-tdd`:
 - **Main scenario steps** → phase boundaries and implementation order
 - **Extensions** → error handling within phases
 - **Preconditions** → Phase 1 guard clauses and validation
@@ -323,7 +323,7 @@ Main Success Scenario:
 - `writing-agile-stories` — Writes the stories this skill analyzes
 
 ### Downstream (consumers of this skill's output)
-- `implementation-planning` — Uses the use case as behavioral contract for phased plans
+- `planning-tdd` — Uses the use case as behavioral contract for TDD-phased plans
 - `breaking-down-stories` — Uses the use case to identify tasks
 - `practicing-tdd` — Uses steps and extensions as test discovery source
 

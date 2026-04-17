@@ -292,5 +292,5 @@ Use **AskUserQuestion** for next action:
 - Question: "PRD is complete. What would you like to do?"
 - Options:
   - "Generate user stories" → Use `writing-agile-stories` for M1 requirements
-  - "Create implementation plan" → Use `implementation-planning`
+  - "Create implementation plan" → Use `planning-tdd`
   - "Done" → End workflow

@@ -16,7 +16,6 @@ functions without them using standard reasoning and TDD principles.
 
 - **practicing-tdd** skill: Provides TDD methodology (Iron Law, cycle rules)
 - **thinking-patterns** skill: Structured reasoning at each planning gate
-- **implementation-planning** skill: Phase structure and research patterns
 
 ## Quick Start
 
@@ -268,7 +267,6 @@ When a `/whiteboard` design artifact is available, use this mapping:
 - **practicing-tdd**: Enforces Red-Green-Refactor cycle during execution (handles GREEN + REFACTOR)
 - **refactoring-code**: Provides refactoring patterns during execution (not during planning)
 - **code-simplifier** agent: Post-implementation review for unnecessary complexity
-- **implementation-planning**: Phase structure and research patterns
 - **thinking-patterns**: Structured reasoning at planning gates
 - **breaking-down-stories**: Decomposing stories before planning
 - **collaborating-on-design**: Producing design artifacts that feed into this skill

@@ -405,7 +405,7 @@ PRD prioritization is consequential—wrong decisions waste engineering effort. 
 - Milestone assignment guides sprint planning
 
 ### To Implementation
-`writing-prds` → `implementation-planning`
+`writing-prds` → `planning-tdd`
 - Use cases define what to build
 - Milestones define scope boundaries
 

@@ -217,7 +217,7 @@ A well-decomposed story produces tasks where:
 - `writing-agile-stories` — Write BDD stories with acceptance criteria. Use when input lacks acceptance criteria or clear scope.
 
 ### Downstream (use after this skill)
-- `implementation-planning` — Create detailed implementation plans for individual tasks from the task list.
+- `planning-tdd` — Create detailed TDD implementation plans for individual tasks from the task list.
 
 ### Typical workflow
-`Feature` → `slicing-elephant-carpaccio` → `writing-agile-stories` → `breaking-down-stories` → `implementation-planning`
+`Feature` → `slicing-elephant-carpaccio` → `writing-agile-stories` → `breaking-down-stories` → `planning-tdd`

@@ -7,8 +7,9 @@
 """
 UserPromptSubmit hook that injects planning skill reference when in plan mode.
 
-Detects permission_mode == "plan" and outputs a lightweight pointer to the
-implementation-planning skill. The skill contains the full methodology.
+Detects permission_mode == "plan" and outputs a conditional pointer: if the
+plan is software-related, load the planning-tdd skill; otherwise plan freely.
+Keeps plan mode general-purpose (usable for non-software planning).
 """
 
 import json
@@ -45,18 +46,21 @@ def main():
     # Output context that Claude will see
     # Keep it minimal - the skill has the full instructions
     context = """<plan_mode_context>
-For implementation planning, read and follow the skill at:
-~/dotfiles/claude/skills/implementation-planning/SKILL.md
+If this is a software implementation plan, read and follow the skill at:
+~/dotfiles/claude/skills/planning-tdd/SKILL.md
 
-Key principles:
-• Interactive: Align before detailing (don't dump full plans)
+Otherwise (non-software planning, exploration, general questions), plan freely without loading a skill. Plan mode is general-purpose.
+
+Key principles for software implementation plans:
+• Tests Are The Plan: Specify RED test specs + structural context, not implementation code
+• Structural Context Not Solutions: Name modules/files in play, not how to build them
 • Grounded: Verify with code, cite file:line references
 • Bounded: Include "What We're NOT Doing" section
-• Testable: Separate automated vs manual success criteria
+• Dual Verification: Every phase has automated test specs AND manual verification
 
 Available research agents: codebase-navigator, codebase-analyzer, codebase-pattern-finder, docs-locator, docs-analyzer; use `managing-jira` skill for Jira operations
 
-Template at: ~/dotfiles/claude/skills/implementation-planning/templates/plan-template.md
+Template at: ~/dotfiles/claude/skills/planning-tdd/templates/plan-template.md
 </plan_mode_context>"""
 
     print(context)

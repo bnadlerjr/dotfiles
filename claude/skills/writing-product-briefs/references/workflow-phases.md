@@ -336,5 +336,5 @@ Use **AskUserQuestion** for next action:
 - Question: "Brief is complete. What would you like to do?"
 - Options:
   - "Generate user stories" → Use `writing-agile-stories` for each scenario
-  - "Create implementation plan" → Use `implementation-planning`
+  - "Create implementation plan" → Use `planning-tdd`
   - "Done" → End workflow

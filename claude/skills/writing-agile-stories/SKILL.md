@@ -291,7 +291,7 @@ A story is ready when:
 `slicing-elephant-carpaccio` → `writing-agile-stories`
 - Slice a large feature into thin vertical increments before writing stories for each slice
 
-**Before Implementation**: Stories feed into `/plan` or `implementation-planning`
+**Before Implementation**: Stories feed into `/plan` or `planning-tdd`
 - Story defines WHAT to build
 - Plan defines HOW to build it
 
