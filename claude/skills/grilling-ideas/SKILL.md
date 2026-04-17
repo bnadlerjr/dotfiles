@@ -1,18 +1,18 @@
 ---
 name: grilling-ideas
-description: Interview the user relentlessly about an idea — a plan, design, or half-formed direction — until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test their thinking, get grilled on a design, explore a vague direction, or mentions "grill me".
+description: Interview the user rigorously about an idea — a plan, design, or half-formed direction — until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test their thinking, get grilled on a design, explore a vague direction, or mentions "grill me".
 allowed-tools: Read, Grep, Glob, WebFetch, AskUserQuestion, Write
 ---
 
 # Grilling Ideas
 
-Interview the user relentlessly about every aspect of an idea — plan, design, or direction they want to explore — until shared understanding is reached. Walk the decision tree one branch at a time, resolving dependencies before dependents. Every question comes with a recommended answer — the user is stress-testing your reasoning as much as their own.
+Interview the user rigorously about every aspect of an idea — plan, design, or direction — until shared understanding is reached.
 
 This skill is a Socratic adversary, not a facilitator. The goal is rigor, not comfort.
 
 ## What This Skill Is (And Is Not)
 
-- **Is**: Relentless one-question-at-a-time interrogation. Every question includes your recommendation. You commit to positions. The user pushes back, and you either update based on new evidence or defend the position with stronger reasoning.
+- **Is**: Rigorous one-question-at-a-time interrogation. Every question includes your recommendation. You commit to positions. The user pushes back, and you either update based on new evidence or defend the position with stronger reasoning.
 - **Is not**: A neutral "what do you think?" facilitator. Not a checklist. Not a form. Not a batch of questions sent all at once.
 
 ## Starting State
@@ -50,7 +50,7 @@ Each question turn has four parts, in this order:
 **Your call** — agree, disagree, or propose an alternative?
 ```
 
-See [Decision Tiers](#decision-tiers) for tier rules. The Tier line is declared so the user can challenge the tiering itself, not just the recommendation.
+The Tier line is declared so the user can challenge the tiering itself, not just the recommendation.
 
 ### Examples
 
@@ -106,11 +106,7 @@ Assign tiers internally as decisions surface. Declare them on the turn (Tier lin
 
 If you genuinely cannot form a recommendation, that is itself a signal: either the question is premature (a dependency is unresolved — resolve that first) or you need to explore the codebase before asking.
 
-When a recommendation involves weighing alternatives, reason in the style of the `tree-of-thoughts` pattern to evaluate options internally, then present only the winner as your recommendation with a one-line summary of why it beat the runner-up.
-
-When a recommendation would cascade — locking in multiple downstream decisions or committing to an irreversible choice — reason in the style of the `self-consistency` pattern to validate the recommendation from the maintainer and operator perspectives before presenting it.
-
-Do not dump pattern scaffolding into the user's face; they want your judgment, not your showing-your-work.
+For internal reasoning patterns to use when forming a recommendation, see [Thinking Patterns](#thinking-patterns--when-to-use-each).
 
 ## Codebase Before Questions
 
@@ -262,13 +258,13 @@ When the user stops:
 
 A good grilling session:
 
-- [ ] One question per turn, every turn.
-- [ ] Every question includes a committed recommendation with rationale.
-- [ ] Critical and Refinement turns include a Tier line with one-clause rationale; Standard turns omit it.
-- [ ] Tier inflation is avoided — Critical is reserved for load-bearing decisions only.
-- [ ] Codebase questions are answered by reading code, not asking the user.
-- [ ] Decisions are surfaced dynamically, not enumerated up front.
-- [ ] Dependency-root decisions are grilled before their dependents.
-- [ ] A Checkpoint fires when (and only when) at least one Critical is Resolved and no Criticals remain Open.
-- [ ] The session ends when the user calls stop or accepts a Checkpoint stop.
-- [ ] The summary doc is offered, not forced.
+- One question per turn, every turn.
+- Every question includes a committed recommendation with rationale.
+- Critical and Refinement turns include a Tier line with one-clause rationale; Standard turns omit it.
+- Tier inflation is avoided — Critical is reserved for load-bearing decisions only.
+- Codebase questions are answered by reading code, not asking the user.
+- Decisions are surfaced dynamically, not enumerated up front.
+- Dependency-root decisions are grilled before their dependents.
+- A Checkpoint fires when (and only when) at least one Critical is Resolved and no Criticals remain Open.
+- The session ends when the user calls stop or accepts a Checkpoint stop.
+- The summary doc is offered, not forced.
