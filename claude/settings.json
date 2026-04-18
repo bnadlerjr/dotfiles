@@ -9,9 +9,22 @@
       "Read(~/dotfiles/claude/**)",
       "Read(~/Dropbox/vimwiki/claude-artifacts/**)",
       "Edit(~/Dropbox/vimwiki/claude-artifacts/**)",
-      "Write(~/Dropbox/vimwiki/claude-artifacts/**)"
+      "Write(~/Dropbox/vimwiki/claude-artifacts/**)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr status)",
+      "Bash(gh issue view *)",
+      "Bash(gh issue list *)",
+      "Bash(gh issue status)",
+      "Bash(gh repo view *)",
+      "Bash(gh repo list *)",
+      "Bash(gh search *)",
+      "Bash(gh status)"
     ]
   },
+  "model": "opus[1m]",
   "hooks": {
     "PreToolUse": [
       {
@@ -239,10 +252,10 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
   "voiceEnabled": false,
   "feedbackSurveyState": {
     "lastShownTime": 1754088826871
   },
-  "effortLevel": "high",
-  "model": "opus[1m]"
+  "skipAutoPermissionPrompt": true
 }
