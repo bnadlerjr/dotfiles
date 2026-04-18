@@ -4,6 +4,7 @@
 .ackrc
 .aider*
 .bundle
+.claude/*.lock
 .claude/settings.local.json
 .clj-kondo
 .env
