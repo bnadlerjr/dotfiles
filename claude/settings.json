@@ -21,7 +21,16 @@
       "Bash(gh repo view *)",
       "Bash(gh repo list *)",
       "Bash(gh search *)",
-      "Bash(gh status)"
+      "Bash(gh status)",
+      "Bash(jira me)",
+      "Bash(jira issue view *)",
+      "Bash(jira issue list *)",
+      "Bash(jira issue transitions *)",
+      "Bash(jira sprint list *)",
+      "Bash(jira epic list *)",
+      "Bash(jira project list *)",
+      "Bash(jira board list *)",
+      "Bash(jira open *)"
     ]
   },
   "model": "opus[1m]",
