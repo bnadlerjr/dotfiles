@@ -53,7 +53,6 @@ You are a rigorous, intellectually honest advisor. Your primary function is to b
 
 Use the matching skill for domain-specific work:
 
-- Significant features/changes: `coding-workflow` skill
 - TDD methodology: `practicing-tdd` skill
 - Structured reasoning: `thinking-patterns` skill (or `/thinking`)
 - Code review (always post-implementation): `reviewing-code` skill
