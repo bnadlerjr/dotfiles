@@ -18,9 +18,10 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
 
 - Do NOT spawn codebase research agents or search the codebase
 - Do NOT suggest implementations or solutions
-- Do NOT give opinions on which option is better — present tradeoffs neutrally
+- Do NOT give opinions on which option is better — present tradeoffs neutrally. This command is a deliberate exception to the default adversarial posture: its job is to surface the decision space, not to collapse it. The user must be free to pick an option without first refuting a committed recommendation. If you find yourself wanting to commit to a position, the right tool is `grilling-ideas`, not this command.
 - Keep questions focused on decisions that affect WHERE research should look
 - Limit to 3–7 questions — more means you don't understand the task yet
+- If the idea itself is too vague to yield 3+ concrete decisions, do NOT pad with shallow questions — escalate (see Workflow step 3b)
 
 ## Workflow
 
@@ -36,9 +37,12 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
    - **Scope boundaries**: What is explicitly NOT part of this work?
    - **Unknowns**: What must research answer that can't be decided now?
 
-3. **Present and wait** — deliver questions in the report format below, then STOP and wait for answers
+3. **Branch on task shape** before presenting anything:
+   - **3a. Simple** — no real design decisions exist. Say so and tell the user to proceed directly to research. Skip to End (no questions, no artifact).
+   - **3b. Vague** — the idea itself is under-specified (you cannot identify 3+ concrete decisions with distinct options, or the "options" you generate feel invented rather than extracted from the input). Do NOT pad with shallow questions. Tell the user the idea needs stress-testing first and recommend invoking the `grilling-ideas` skill. Skip to End (no questions, no artifact).
+   - **3c. Well-shaped** — 3–7 real design decisions surface cleanly. Continue to step 4.
 
-4. **If the task is simple enough that no design decisions exist**, say so — skip the questions and tell the user to proceed to research
+4. **Present and wait** — deliver questions in the Report format below, then STOP and wait for answers
 
 5. **After the user answers**, save the resolved decisions as an artifact:
    - Check for existing artifacts: `ls $CLAUDE_DOCS_ROOT/research/`
