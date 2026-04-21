@@ -1,7 +1,7 @@
 ---
 description: TDD-based bug diagnosis and fix with structured thinking patterns
 argument-hint: <bug description, error message, or reproduction steps>
-model: sonnet
+model: opus
 ---
 
 # TDD Bugfix
