@@ -1,3 +1,8 @@
+---
+name: writing-git-commits
+description: Write Tim Pope-style Git commit messages. Honors repo-specific commit templates when present. Forbids AI attribution. Use when committing staged changes, amending commit messages, or when someone mentions commit message, git commit, or commit format.
+---
+
 # Writing Git Commits
 
 Write clear, professional Git commit messages following Tim Pope's style guide.
@@ -88,25 +93,23 @@ Body content should answer:
 
 ## Workflow
 
+One commit, one logical change. If the staged diff covers multiple unrelated changes, split it (`git add -p`, `git reset`) before drafting a message — vague subjects almost always come from tangled diffs, not bad wording.
+
 ### Step 1: Gather Context
 
-Use `atomic-thought` to decompose the changes:
+Decompose the staged changes:
 
-```
-What files changed?
-What was the purpose of each change?
-What's the unifying theme?
-```
+- What files changed?
+- What was the purpose of each change?
+- What's the unifying theme?
 
 ### Step 2: Draft Subject Line
-
-Use `chain-of-thought` to craft the subject:
 
 1. Identify the primary action (verb)
 2. Identify the primary object (what was affected)
 3. Combine into imperative statement
 4. Check length (~50 chars)
-5. Apply completion test
+5. Apply the completion test
 
 ### Step 3: Draft Body (if needed)
 
@@ -119,16 +122,7 @@ For non-trivial changes:
 
 ### Step 4: Validate
 
-Use `self-consistency` to verify:
-
-- [ ] Subject passes completion test
-- [ ] Subject is imperative mood
-- [ ] Subject is capitalized, no period
-- [ ] Subject ~50 chars (never >72)
-- [ ] Blank line before body (if body exists)
-- [ ] Body wraps at 72 chars
-- [ ] Body explains what/why not how
-- [ ] Zero AI attribution
+Run the [Success Checklist](#success-checklist) below before committing.
 
 ### Step 5: Commit
 
