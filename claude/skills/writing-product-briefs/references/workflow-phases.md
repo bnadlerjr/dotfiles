@@ -327,14 +327,3 @@ Present scenarios, then use **AskUserQuestion**:
 3. Do the scenarios reveal requirements we haven't documented?
 4. Is any persona or claim missing a scenario?
 5. Can we actually measure the metrics we defined?
-
-### Next Action
-
-Use **AskUserQuestion** for next action:
-
-- Header: "Next step"
-- Question: "Brief is complete. What would you like to do?"
-- Options:
-  - "Generate user stories" → Use `writing-agile-stories` for each scenario
-  - "Create implementation plan" → Use `planning-tdd`
-  - "Done" → End workflow
