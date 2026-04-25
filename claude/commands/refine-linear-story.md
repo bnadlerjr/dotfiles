@@ -41,9 +41,46 @@ I'll guide you through:
 2. Selecting a project for codebase research
 3. Parallel codebase analysis across repositories
 4. Story drafting with domain vocabulary
-5. Two independent review cycles
+5. Two charter-aware review cycles
 6. Final story with optional Linear update
 ```
+
+---
+
+## Decision Log
+
+Maintain a structured `${DECISIONS}` block throughout the workflow. Reviewers receive this block alongside the story so they can distinguish real gaps from closed decisions. Append a decision when:
+
+- The user answers an `AskUserQuestion` (project selection, draft adjustments, feedback acceptance/rejection).
+- The user gives a free-form clarification or edit instruction.
+- Codebase research surfaces a constraint that bounds the story.
+- A reviewer suggestion is accepted (record what changed) or rejected (record why).
+
+Format:
+
+```
+## DECISIONS
+
+### Scope
+- IN: [behavior covered by this story]
+- OUT: [explicitly deferred] — Reason: [why]
+
+### Domain Glossary
+- [Canonical term] = [meaning]; rejected synonyms: [alternates NOT used]
+
+### Constraints (from codebase research)
+- [Fact]: [where it was found and what it implies for the story]
+
+### User Clarifications
+- [Decision]: [what was being chosen between, what the user picked, why if stated]
+
+### Review Outcomes
+- Review 1 — Accepted: [suggestion → resulting story change]
+- Review 1 — Rejected: [suggestion] — Reason: [why]
+- Review 2 — Accepted / Rejected: [same format, populated after Phase 7]
+```
+
+Only record decisions actually made — by user choice, research finding, or review outcome. Do NOT infer decisions. A missing entry means "not yet decided," which lets reviewers raise it. Pass the current `${DECISIONS}` block verbatim to every review sub-agent.
 
 ---
 
@@ -113,6 +150,10 @@ Compile into a structured context block:
 
 Present the context summary to the user before proceeding.
 
+### Initialize DECISIONS
+
+Create the `${DECISIONS}` block per the Decision Log format. Populate Scope IN/OUT only if the issue, parent, or sub-issues explicitly state what is or isn't included. Leave the rest empty until later phases produce real decisions.
+
 ---
 
 ## Phase 2: Repository Discovery
@@ -139,6 +180,10 @@ If user picks "None of these" (Other), ask:
 ```
 Which repository paths should I research? Provide absolute paths or org/repo identifiers, separated by commas.
 ```
+
+### Record Project Selection
+
+Append to `${DECISIONS}` → User Clarifications: which project was selected and which repositories will be researched. This locks the research scope so reviewers don't propose pulling in patterns from unrelated repos.
 
 ---
 
@@ -220,6 +265,13 @@ Collect research results from all repositories before proceeding.
 
 Combine findings from all repositories into a consolidated summary. Present to user before drafting.
 
+### Capture Constraints and Glossary
+
+From the consolidated research:
+
+- Append concrete bounding facts to `${DECISIONS}` → Constraints. Only capture facts that *constrain the story* (e.g., "Payments routed through `PaymentGateway`", "Field is `accountId`, not legacy `userId`"). Skip generic observations.
+- Append canonical domain terms to `${DECISIONS}` → Domain Glossary, including any rejected synonyms found in the codebase that should NOT be used.
+
 ---
 
 ## Phase 4: Story Drafting
@@ -295,25 +347,37 @@ Show the complete story draft to the user.
   - "Yes, proceed to review" - Continue to Phase 5
   - "Make adjustments first" - Ask what to change, apply edits, re-present
 
+When the user provides edit instructions, append each substantive change to `${DECISIONS}` → User Clarifications (the change made + the reason if stated). Trivial wording fixes can be skipped; anything that resolves ambiguity, adjusts scope, or picks one term over another must be recorded.
+
 ---
 
-## Phase 5: First Review (Clean Context)
+## Phase 5: First Review (Charter-Aware)
 
-**CRITICAL**: Launch a sub-agent with NO access to the generation context. The reviewer evaluates the story purely on its merits.
+**CRITICAL**: Launch a sub-agent that does NOT see the orchestrator's reasoning (so it can't rubber-stamp), but DOES see the user's closed decisions (so it can't accidentally reverse them).
 
 ### Reviewer Agent Prompt
 
-Use the Task tool to spawn a `general-purpose` agent (model: `sonnet`). Substitute `${STORY_CONTENT}` with the complete story text:
+Use the Task tool to spawn a `general-purpose` agent (model: `sonnet`). Substitute `${DECISIONS}` with the current decision log block and `${STORY_CONTENT}` with the complete story text:
 
 ```markdown
 # User Story Expert Review
 
 You are a senior agile practitioner reviewing a user story for quality,
-completeness, and testability. You have NOT seen how this story was
-created - evaluate it purely on its merits.
+completeness, and testability.
+
+You have NOT seen the orchestrator's reasoning that produced this draft —
+that prevents you from echoing it back. You DO see the DECISIONS block
+below: these are closed questions the user has already resolved. Do not
+propose suggestions that reverse a decision. If you believe a decision
+is unsafe, surface it as a CHARTER CHALLENGE in the dedicated section
+with concrete justification — never as an ordinary suggestion.
 
 Use `/writing-agile-stories` to guide your review.
 Use `/thinking chain-of-thought` to work through each review criterion systematically.
+
+## DECISIONS (already settled — treat as fixed unless you can justify a Charter Challenge)
+
+${DECISIONS}
 
 ## The Story to Review
 
@@ -326,22 +390,22 @@ Evaluate against each criterion:
 | Check | What to Look For | Anti-Pattern |
 |-------|------------------|--------------|
 | Behavior-focused | Describes user experience, not implementation | "API returns", "database stores", "button triggers" |
-| Domain language | Uses business terms consistently | Technical jargon, generic terms |
+| Domain language | Uses business terms consistently with the Domain Glossary | Technical jargon, generic terms, rejected synonyms |
 | Narrative form | Prose description, not template | "As a [user], I want [X], so that [Y]" |
-| Small & testable | One iteration of work, clear scope | Epic-sized, vague boundaries |
-| Failure modes | Error scenarios with graceful handling | Only happy path |
+| Small & testable | One iteration of work *as scoped* in DECISIONS | Epic-sized, vague boundaries |
+| Failure modes | Error scenarios for IN-scope behaviors | Only happy path; OR failures for OUT-of-scope behaviors |
 | Scenarios independent | Each stands alone | Scenarios requiring sequence |
 
 ## Review Questions
 
-Answer each explicitly:
+Answer each explicitly. Evaluate *within* the DECISIONS scope:
 
 1. **Testability**: Can a developer write automated tests directly from these scenarios without asking clarifying questions?
 2. **Stakeholder clarity**: Can a non-technical business stakeholder understand every term and scenario?
 3. **Independence**: Is each scenario independently verifiable without running others first?
-4. **Failure coverage**: Are all realistic failure modes covered? What's missing?
-5. **Scope**: Is this story small enough for one iteration? If not, where would you split it?
-6. **Conversation readiness**: What questions would a developer ask in a story refinement session? (Fewer = better)
+4. **Failure coverage (within scope)**: Are realistic failure modes for the IN-scope behaviors covered? Failures of OUT-of-scope behavior are not gaps.
+5. **Sized as scoped**: Given the DECISIONS scope, is this story small enough for one iteration?
+6. **Conversation readiness**: What questions would a developer ask in refinement that aren't already answered by the story or DECISIONS?
 
 ## Output Format
 
@@ -352,33 +416,55 @@ Answer each explicitly:
 [Detailed answer for each of the 6 questions]
 
 ### Strengths
-[What's done well - be specific]
+[What's done well — be specific]
 
-### Issues Found
-For each issue:
+### Issues Within Scope
+Gaps inside the DECISIONS scope that need fixing. For each:
 - **Location**: [Which part of the story]
 - **Severity**: [Critical/Major/Minor]
 - **Issue**: [What's wrong]
-- **Suggestion**: [Specific fix]
+- **Suggestion**: [Specific fix that does NOT contradict any DECISION]
+
+### Charter Challenges
+Disagreements with closed DECISIONS. Surface only with concrete justification — these reopen settled questions and must not be raised speculatively. If you have none, write "None." For each:
+- **Decision being challenged**: [Quote the relevant entry from DECISIONS verbatim]
+- **Why it may be unsafe**: [Evidence-based argument citing the story content or a known constraint]
+- **Alternative**: [What you'd propose if the decision were reopened]
+
+### Out of Scope (FYI)
+Items that look like gaps but are already excluded by DECISIONS. List for awareness only; not actionable. If none, write "None."
 
 ### Overall Assessment
-- **Quality Score**: [1-10]
-- **Ready for development?**: [Yes / Yes with minor fixes / No - needs revision]
-- **Top 3 Improvements**: [Prioritized list]
+- **Quality Score (within charter)**: [1-10]
+- **Ready for development?**: [Yes / Yes with minor fixes / No — needs revision]
+- **Top 3 Improvements (within charter)**: [Prioritized list — exclude charter challenges]
 ```
+
+### Pre-filter Reviewer Output
+
+Before presenting findings to the user, audit the reviewer's categorization:
+
+1. For each item in **Issues Within Scope**, check whether applying the suggestion would contradict any DECISIONS entry. If yes, move it to **Charter Challenges** (the reviewer mis-categorized it).
+2. For each **Charter Challenge**, pair it with the original DECISIONS entry verbatim so the user sees exactly what would be reopened.
+3. Do not modify the reviewer's text — only re-categorize.
 
 ### Present Review Findings
 
-When the review agent completes, present findings to the user.
+Present in three labeled groups, in this order:
+
+- **Issues Within Scope** — each with severity and suggested fix; default action is to address.
+- **Charter Challenges (default: keep decision)** — each shown with the DECISIONS entry it would override and the reviewer's justification side-by-side. Default action is to ignore.
+- **Out of Scope (FYI)** — one-line list, no action implied.
 
 **AskUserQuestion**:
 - Header: "Review 1"
 - Question: "How would you like to incorporate this feedback?"
 - Options:
-  - "Accept all suggestions" - Incorporate all feedback
-  - "Accept some suggestions" - Ask which to accept
-  - "Discuss specific feedback" - Explore particular issues
-  - "Skip to second review" - Keep draft as-is
+  - "Accept all in-scope suggestions" — Apply all Issues Within Scope; ignore charter challenges
+  - "Accept some" — Ask which Issues Within Scope to accept
+  - "Reopen a decision" — Identify which Charter Challenge to consider; user must explicitly confirm reopening
+  - "Discuss specific feedback" — Explore particular issues
+  - "Skip to second review" — Keep draft as-is
 
 ---
 
@@ -386,8 +472,9 @@ When the review agent completes, present findings to the user.
 
 Based on accepted feedback:
 
-1. **Update the story** with changes
-2. **Invoke `/thinking self-consistency`** to verify coherence:
+1. **Update the story** with accepted changes
+2. **Append to `${DECISIONS}` → Review Outcomes**: list each accepted Issue (briefly: what changed in the story) and each rejected suggestion (with the reason). If a Charter Challenge was reopened and a DECISION was changed, update that DECISION entry in place AND note the change in Review Outcomes (so Review 2 sees it).
+3. **Invoke `/thinking self-consistency`** to verify coherence:
 
 ```
 Verify the refined story for internal consistency:
@@ -404,28 +491,38 @@ Do failure scenarios correspond to real constraints found in codebase research?
 Synthesize: Any inconsistencies introduced by refinements?
 ```
 
-3. **Present refined story** to user
+4. **Present refined story** to user
 
 ---
 
-## Phase 7: Second Review (Clean Context)
+## Phase 7: Second Review (Charter-Aware)
 
-**CRITICAL**: Fresh sub-agent with NO access to previous context. Different perspective from first review.
+**CRITICAL**: Fresh sub-agent that has NOT seen the orchestrator's reasoning or the first reviewer's report — but DOES see the current `${DECISIONS}` block (now including Review 1 outcomes), so it cannot accidentally reverse what was just settled.
 
 ### Reviewer Agent Prompt (Skeptical Product Owner)
 
-Use the Task tool to spawn a `general-purpose` agent (model: `sonnet`). Substitute `${STORY_CONTENT}` with the complete refined story text:
+Use the Task tool to spawn a `general-purpose` agent (model: `sonnet`). Substitute `${DECISIONS}` with the updated decision log (post-Phase 6) and `${STORY_CONTENT}` with the complete refined story text:
 
 ```markdown
-# User Story Validation - Product Owner Perspective
+# User Story Validation — Product Owner Perspective
 
 You are a skeptical product owner reviewing a user story before it enters
 a sprint. Your job is to find gaps that would cause problems during
-development or acceptance testing. You have NOT seen previous versions -
-evaluate this story fresh.
+development or acceptance testing.
+
+You have NOT seen previous review reports or the orchestrator's reasoning,
+so you cannot rubber-stamp them. You DO see the DECISIONS block below —
+including which Review 1 suggestions were accepted or rejected. Do not
+re-litigate decisions. If you believe a closed decision is unsafe, raise
+it as a CHARTER CHALLENGE in the dedicated section, with concrete
+justification — never as an ordinary suggestion.
 
 Use `/writing-agile-stories` to guide your review.
 Use `/thinking chain-of-thought` to work through each validation area systematically.
+
+## DECISIONS (already settled — treat as fixed unless you can justify a Charter Challenge)
+
+${DECISIONS}
 
 ## The Story to Review
 
@@ -433,29 +530,30 @@ ${STORY_CONTENT}
 
 ## Validation Focus
 
+Evaluate within the DECISIONS scope.
+
 ### 1. Testability
 - Can QA write acceptance tests from these scenarios alone?
 - Are Given-When-Then steps specific enough to automate?
 - Would two testers interpret these scenarios the same way?
 
-### 2. Completeness
-- Are there user actions or system events not covered by any scenario?
+### 2. Completeness (within scope)
+- Are there IN-scope user actions or system events not covered by any scenario?
 - What happens at the boundaries of each Given condition?
-- Are there time-based, permission-based, or state-based gaps?
+- Are there time-based, permission-based, or state-based gaps inside scope?
 
-### 3. Scope
-- Is this one story or several bundled together?
-- Could any scenario be deferred without breaking the core value?
-- Would a developer estimate this confidently, or ask "how big is this really?"
+### 3. Scope (as decided)
+- Given the DECISIONS scope, is this one story or several bundled together?
+- Could any IN-scope scenario be deferred without breaking the core value?
+- Would a developer estimate this confidently?
 
 ### 4. Clarity
-- Are there ambiguous terms that different team members might interpret differently?
+- Are there ambiguous terms? (Cross-check against the Domain Glossary in DECISIONS.)
 - Is the "why" clear enough to survive scope negotiation?
 - Could someone unfamiliar with the codebase understand the intent?
 
 ### 5. Conversation Readiness
-- What questions would come up in a refinement session?
-- What assumptions need to be validated with stakeholders?
+- What questions would come up in refinement that aren't answered by the story or DECISIONS?
 - Is there enough context to start development without a follow-up meeting?
 
 ## Output Format
@@ -465,39 +563,52 @@ For each focus area:
 - **Status**: [Pass/Concern/Fail]
 - **Finding**: [What you observed]
 - **Risk**: [If concern/fail, what could go wrong]
-- **Recommendation**: [How to address]
+- **Recommendation**: [How to address — must not contradict DECISIONS]
 
-### Missing Scenarios
-[Any scenarios that should exist but don't]
+### Issues Within Scope
+Real gaps that need fixing without changing any DECISION. For each:
+- **Location**, **Severity**, **Issue**, **Suggestion**
 
-### Ambiguities
-[Terms or conditions that could be interpreted multiple ways]
+### Charter Challenges
+Disagreements with closed DECISIONS. Surface only with concrete justification. If none, write "None." For each:
+- **Decision being challenged**: [Quote verbatim from DECISIONS]
+- **Why it may be unsafe**: [Evidence-based]
+- **Alternative**: [What you'd propose if reopened]
+
+### Out of Scope (FYI)
+Items that look like gaps but are excluded by DECISIONS. List for awareness; not actionable. If none, write "None."
 
 ### Final Verdict
-- **Story Quality**: [Strong/Adequate/Weak]
-- **Sprint Ready?**: [Yes/Yes with minor edits/No - needs revision]
-- **Confidence Level**: [High/Medium/Low that development could start]
-- **Top 3 Risks**: [If story ships as-is, what could go wrong]
+- **Story Quality (within charter)**: [Strong/Adequate/Weak]
+- **Sprint Ready?**: [Yes / Yes with minor edits / No — needs revision]
+- **Confidence Level**: [High/Medium/Low]
+- **Top 3 Risks (within charter)**: [If story ships as-is and DECISIONS hold, what could go wrong]
 ```
+
+### Pre-filter Reviewer Output
+
+Audit the reviewer's categorization the same way as Phase 6: anything in **Issues Within Scope** that contradicts a DECISIONS entry must be moved to **Charter Challenges** before presenting.
 
 ### Present Validation Findings
 
-When the validation agent completes, present findings to the user.
+Present in three labeled groups: Issues Within Scope, Charter Challenges (default: keep decision, paired with the original DECISIONS entry), Out of Scope (FYI).
 
 **AskUserQuestion**:
 - Header: "Review 2"
 - Question: "Final feedback received. How would you like to proceed?"
 - Options:
-  - "Accept and finalize" - Incorporate feedback, proceed to output
-  - "Selective incorporation" - Ask which feedback to use
-  - "Story is ready as-is" - Skip refinement, proceed to output
+  - "Accept all in-scope suggestions" — Apply all Issues Within Scope; ignore charter challenges
+  - "Accept some" — Ask which Issues Within Scope to accept
+  - "Reopen a decision" — Pick a Charter Challenge to consider; user must explicitly confirm reopening
+  - "Story is ready as-is" — Skip refinement, proceed to output
 
 ---
 
 ## Phase 8: Final Refinement
 
 1. **Incorporate any final feedback**
-2. **Invoke `/thinking self-consistency`** for final coherence check:
+2. **Append to `${DECISIONS}` → Review Outcomes**: log Review 2 acceptances and rejections (with reasons). Update any DECISION whose challenge was reopened.
+3. **Invoke `/thinking self-consistency`** for final coherence check:
 
 ```
 Final verification of the complete story:
@@ -509,7 +620,7 @@ Path 3 - Read as product owner: Does this deliver the value described in the nar
 Synthesize: Is the story ready for sprint planning?
 ```
 
-3. **Prepare final story**
+4. **Prepare final story**
 
 ---
 
