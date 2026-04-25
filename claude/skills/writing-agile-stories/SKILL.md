@@ -1,17 +1,17 @@
 ---
 name: writing-agile-stories
 description: "Write behavior-focused Agile user stories with BDD-style acceptance criteria. Use when defining features, clarifying requirements, creating development tickets, writing acceptance criteria, converting requirements to testable specs, or discussing user needs. Produces narrative-form stories with Given-When-Then scenarios."
-allowed-tools:
-  - AskUserQuestion
 ---
 
 # Writing Agile Stories
 
-Create behavior-focused user stories using BDD principles. Stories describe desired behavior from the user's perspective, focusing on "what" rather than "how."
+Reference for behavior-focused user stories using BDD principles. Stories describe desired behavior from the user's perspective, focusing on "what" rather than "how."
+
+This is a **non-interactive reference skill**. Callers — direct users, orchestrator commands, and sub-agents — supply context and apply this guidance directly. Do not use `AskUserQuestion`. If context is thin, ask the user in plain prose for what's missing (see [discovery-dimensions.md](references/discovery-dimensions.md)).
 
 ## Quick Start
 
-Describe the user need in 2-4 sentences, then add Given-When-Then scenarios:
+A complete story:
 
 ```markdown
 ## Story: Customer Cancels Order Before Shipment
@@ -48,47 +48,37 @@ Available for orders in "confirmed" or "processing" status.
 
 ## Core Principles
 
-1. **Behavior over Implementation**: Describe what users experience, not how it's built
-2. **Narrative over Template**: Use prose, NOT "As a [user], I want [feature], so that [benefit]"
-3. **Concrete over Abstract**: Use specific examples (Specification by Example)
-4. **Conversation Starter**: Stories facilitate discussion, not replace it
-5. **Ubiquitous Language**: Use terms from the problem domain, not technical jargon
+1. **Behavior over Implementation** — describe what users experience, not how it's built
+2. **Narrative over Template** — use prose, NOT "As a [user], I want [feature], so that [benefit]"
+3. **Concrete over Abstract** — use specific examples (Specification by Example)
+4. **Conversation Starter** — stories facilitate discussion, not replace it
+5. **Ubiquitous Language** — use terms from the problem domain, not technical jargon
 
-## Process Overview
+## The Primary Anti-Pattern: Implementation Leak
 
-```
-Discovery  ──▶  Drafting  ──▶  Criteria  ──▶  Review
-Understand      Narrative      Given-When-   Quality
-the need        form story     Then          check
-```
+The single most common defect. A scenario leaks if it references:
+
+- HTTP/API behavior ("the API returns 200", "POST /orders endpoint")
+- Database or storage ("the row is inserted", "the cache is invalidated", named tables)
+- UI elements ("the button is clicked", "the modal appears", "the page loads")
+- Code paths or services ("OrderService is called", "the handler fires")
+- Technical mechanisms ("retries 3 times", "publishes a Kafka event", "Redis is updated")
+
+**Farley's test**: imagine the entire system replaced with a different implementation that fulfills the same behavior. The acceptance criteria should still make sense. If they would break, they describe implementation, not behavior.
+
+See [anti-patterns.md](references/anti-patterns.md) for concrete leak examples and rewrites.
 
 ---
 
 ## Phase 1: Discovery
 
-**Goal**: Understand the user need before writing anything.
+**Goal**: Gather the dimensions needed to draft.
 
-When invoked without context, ask what user need or feature to define. Accept descriptions, ticket references, or vague ideas to explore together.
+The six dimensions: **Actor, Trigger, Outcome, Constraints, Failure Modes, Domain Terms**. See [discovery-dimensions.md](references/discovery-dimensions.md) for definitions, examples, and what each missing dimension does to the story.
 
-### Discovery Questions (ask 2-3 at a time)
+If the caller has supplied context (Jira/Linear ticket, codebase research, prior conversation), extract the dimensions from that context. If the dimensions are thin, ask the user in plain prose for the missing ones — open-ended discovery questions don't fit `AskUserQuestion` option chips.
 
-**Round 1 - Actor & Context**
-- Who experiences this need? (their situation/role in the domain)
-- What situation or event triggers this need?
-
-**Round 2 - Outcome & Value**
-- What outcome do they want to achieve?
-- How will they know they succeeded?
-
-**Round 3 - Boundaries & Failures**
-- What constraints or business rules apply?
-- What could go wrong? How should failures be handled?
-
-**Round 4 - Domain Language**
-- What terms does the business use for these concepts?
-- Are there terms that might be ambiguous?
-
-### Discovery Output
+### Discovery Output (internal scratchpad)
 
 ```
 **Understanding**: [1-2 sentence summary]
@@ -97,13 +87,6 @@ When invoked without context, ask what user need or feature to define. Accept de
 **Failure Modes**: [What could go wrong]
 **Domain Terms**: [Key vocabulary]
 ```
-
-### Confirm Understanding
-
-Use **AskUserQuestion**:
-- Header: "Understanding"
-- Question: "Does this capture the user need correctly?"
-- Options: "Yes, proceed" | "Minor adjustments" | "Significant gaps"
 
 ---
 
@@ -123,7 +106,7 @@ Use **AskUserQuestion**:
 Written in domain language, present tense]
 
 ### Context
-[When this behavior is relevant - the business preconditions]
+[When this behavior is relevant — the business preconditions]
 ```
 
 ### Narrative Guidelines
@@ -140,13 +123,6 @@ Written in domain language, present tense]
 - Write epic-sized stories
 - Use technical jargon outside the domain
 
-### Get Feedback
-
-Use **AskUserQuestion**:
-- Header: "Story draft"
-- Question: "How does this story draft look?"
-- Options: "Good, write criteria" | "Adjust narrative" | "Too large, split it" | "Start over"
-
 ---
 
 ## Phase 3: Acceptance Criteria
@@ -155,9 +131,9 @@ Use **AskUserQuestion**:
 
 ### Scenario Types Required
 
-1. **Happy Path**: The primary success scenario
-2. **Alternative Paths**: Valid variations with different outcomes
-3. **Failure Modes**: How errors are handled gracefully
+1. **Happy Path** — the primary success scenario
+2. **Alternative Paths** — valid variations with different outcomes
+3. **Failure Modes** — how errors are handled gracefully
 
 ### Criteria Format
 
@@ -176,11 +152,11 @@ Use **AskUserQuestion**:
 **DO**:
 - Use business language in Given-When-Then
 - Focus on observable outcomes
-- Include concrete examples
+- Include concrete examples (specific values, not placeholders)
 - Make each scenario independently testable
 
 **DON'T**:
-- Reference implementation details
+- Reference implementation details (see Implementation Leak above)
 - Write scenarios that depend on each other
 - Only include happy path
 - Use vague outcomes ("handles appropriately")
@@ -194,14 +170,7 @@ List scenario types before detailing:
 3. Failure: [description]
 ```
 
-Use **AskUserQuestion** to confirm coverage before writing details.
-
-### Confirm Criteria
-
-Use **AskUserQuestion**:
-- Header: "Criteria"
-- Question: "Are these acceptance criteria complete?"
-- Options: "Yes, finalize" | "Adjust scenarios" | "Add edge cases"
+How many criteria are right? See [criteria-quantity.md](references/criteria-quantity.md).
 
 ---
 
@@ -220,7 +189,7 @@ Use **AskUserQuestion**:
 | Failure modes included | Only happy path scenarios |
 | Scenarios independent | Scenarios requiring sequence |
 
-### Review Questions
+### Verification Questions
 
 1. Can a developer write tests directly from these scenarios?
 2. Can a business stakeholder understand every term?
@@ -230,33 +199,13 @@ Use **AskUserQuestion**:
 
 ### Final Presentation
 
-Present the complete story with quality checks:
-```
-✅ Behavior-focused (no implementation details)
-✅ Domain language throughout
-✅ Narrative form (no template)
-✅ Small and testable
-✅ Failure modes included
-✅ Scenarios are independent
-```
-
-### Next Action
-
-Use **AskUserQuestion**:
-- Header: "Next step"
-- Question: "Story is complete. What would you like to do?"
-- Options: "Create Jira ticket" | "Write related story" | "Done"
-
-Actions:
-- **Create Jira ticket**: Use `managing-jira` skill
-- **Write related story**: Start new story with shared context
-- **Break down into tasks**: Use `breaking-down-stories` skill to decompose the story into implementation tasks
+When presenting the finished story, accompany it with the quality checklist showing which items pass.
 
 ---
 
 ## Handling Edge Cases
 
-### User Provides Implementation-Focused Requirements
+### Caller Provides Implementation-Focused Requirements
 
 Reframe toward behavior:
 - "What outcome does the user want from this button/API/feature?"
@@ -267,53 +216,28 @@ Reframe toward behavior:
 When a "story" is too large:
 1. Acknowledge it's epic-sized
 2. Use `skeleton-of-thought` to propose 3-5 smaller stories
-3. Ask which to write first
-4. Note dependencies between stories
+3. Note dependencies between stories
 
-### User Insists on Template Format
+### Caller Insists on Template Format
 
-Explain the narrative approach briefly, then offer:
-- "Would you like to try narrative form for this story?"
-- If they prefer template, accommodate but encourage behavior focus
+Briefly explain the narrative approach. If the caller still prefers template, accommodate but encourage behavior focus.
 
 ### Unclear When Story is "Done"
 
 A story is ready when:
 - All quality checks pass
-- User confirms criteria are complete
 - Scenarios are testable without implementation knowledge
-
----
-
-## Integration with Other Skills
-
-### Upstream — Feature Slicing
-`slicing-elephant-carpaccio` → `writing-agile-stories`
-- Slice a large feature into thin vertical increments before writing stories for each slice
-
-**Before Implementation**: Stories feed into `/plan` or `planning-tdd`
-- Story defines WHAT to build
-- Plan defines HOW to build it
-
-**With Jira**: Create tickets via `managing-jira` skill
-- Title = Story title
-- Description = Narrative + context
-- Acceptance Criteria = Checklist
-
-**With Testing**: Criteria map to test cases
-- Each scenario = one or more tests
-- Given = test setup
-- When = action under test
-- Then = assertions
 
 ---
 
 ## Reference Files
 
-- [examples.md](references/examples.md) - Complete story examples with discovery and criteria
-- [anti-patterns.md](references/anti-patterns.md) - Common mistakes with examples
-- [templates.md](references/templates.md) - Output templates and canonical example
-- [thinking-patterns.md](references/thinking-patterns.md) - Structured reasoning by phase
+- [discovery-dimensions.md](references/discovery-dimensions.md) — six dimensions to gather before drafting
+- [anti-patterns.md](references/anti-patterns.md) — common mistakes with examples
+- [examples.md](references/examples.md) — complete story examples with discovery and criteria
+- [templates.md](references/templates.md) — output templates and canonical example
+- [criteria-quantity.md](references/criteria-quantity.md) — when to add criteria vs. split the story
+- [thinking-patterns.md](references/thinking-patterns.md) — structured reasoning by phase
 
 ---
 
@@ -321,7 +245,7 @@ A story is ready when:
 
 | Phase | Goal | Key Output |
 |-------|------|------------|
-| Discovery | Understand need | Actor, trigger, outcome, constraints |
+| Discovery | Gather dimensions | Actor, trigger, outcome, constraints, failure modes, domain terms |
 | Drafting | Narrative story | 2-4 sentence description + context |
 | Criteria | Testable scenarios | Given-When-Then for happy/alt/failure |
 | Review | Quality check | Validated story ready for use |

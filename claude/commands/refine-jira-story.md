@@ -228,24 +228,26 @@ Investigate the codebase for information relevant to this issue. Focus on:
 
 ## Output Format
 
+Classify each finding by intended use. The downstream story drafter uses **Story input** sections directly; **Implementation reference only** sections inform downstream planning but MUST NOT appear in story scenarios.
+
 Provide a structured research report:
 
-### Domain Vocabulary
+### Domain Vocabulary [Story input]
 [Terms and their meanings as used in the codebase]
 
-### Current Behavior
-[How the system works today in the relevant area]
+### Current Behavior [Story input]
+[How the system works today in the relevant area, described in observable user-facing terms]
 
-### Business Rules
+### Business Rules [Story input]
 [Rules and constraints found in the code]
 
-### Failure Modes
-[Error handling and edge cases]
+### Failure Modes [Story input]
+[Error handling and edge cases — what the user observes when things go wrong]
 
-### Integration Points
+### Integration Points [Implementation reference only — NOT for story scenarios]
 [External dependencies and contracts]
 
-### Key Code Locations
+### Key Code Locations [Implementation reference only — NOT for story scenarios]
 [File paths and brief descriptions of the most relevant code]
 ```
 
@@ -287,46 +289,20 @@ Answer each independently, then synthesize.
 
 ### Draft Story
 
-Read the `writing-agile-stories` skill (SKILL.md) for format and principles, but do NOT invoke its interactive AskUserQuestion flow — this command controls all user interaction. Apply the skill's story structure and drafting guidelines directly:
+Load the `writing-agile-stories` skill for the story format, drafting principles, and the implementation-leak prohibition. Apply the skill's guidance directly. Then add the flow-specific classification step below before drafting any scenario.
 
-**Story structure** (from the skill):
-```markdown
-## Story: [Descriptive Title]
+#### Pre-write classification (specific to this flow)
 
-[2-4 sentence narrative describing:
- - The user's situation
- - The behavior they need
- - The value they get
-Written in domain language, present tense]
+Classify every gathered fact from this flow:
 
-### Context
-[When this behavior is relevant - the business preconditions]
+| Bucket | Source | Use in story? |
+|--------|--------|---------------|
+| Domain language | Domain Vocabulary (research) + Jira terms | YES — as the story's vocabulary |
+| Observable business rule | Business Rules (research) + Jira description | YES — as Given/Then conditions |
+| Observable failure mode | Failure Modes (research) | YES — as failure scenarios |
+| Technical constraint | Integration Points / Key Code Locations | NO — implementation context only |
 
-### Acceptance Criteria
-
-#### Scenario: [Happy path description]
-- Given [business context/state]
-- When [user action or system event]
-- Then [observable outcome]
-- And [additional outcomes if needed]
-
-#### Scenario: [Alternative path description]
-- Given [different context/state]
-- When [user action or system event]
-- Then [different outcome]
-
-#### Scenario: [Failure mode description]
-- Given [context leading to failure]
-- When [action that triggers failure]
-- Then [graceful handling]
-```
-
-**Drafting principles** (from the skill):
-- Behavior over implementation: describe what users experience, not how it's built
-- Narrative over template: use prose, NOT "As a [user], I want..."
-- Concrete over abstract: use specific examples (Specification by Example)
-- Domain language throughout: use terms from the codebase and business
-- Include happy path, alternative paths, AND failure modes
+If a fact lives in the last bucket, it does NOT belong in the story even when it bounds the implementation. It belongs in the downstream implementation plan, not here.
 
 ### Present Draft
 
@@ -374,7 +350,23 @@ ${DECISIONS}
 
 ${STORY_CONTENT}
 
-## Quality Checklist
+## Step 1 — Leak Hunt (do this BEFORE the general checklist)
+
+Scan each Given / When / Then in every scenario for any of these implementation leaks:
+
+- HTTP/API references ("the API returns", "endpoint", status codes)
+- Database or storage references ("row inserted", "cache cleared", named tables)
+- UI element references ("button clicked", "modal appears", "page loads")
+- Code paths or named services/classes ("OrderService", "handler", "controller")
+- Technical mechanisms ("retries", "queue", "Kafka", "Redis", "polling")
+
+Any leak found is a **Critical** issue. The required fix is a *rewrite* of the scenario in observable-behavior terms — not a wording tweak. Propose the rewritten Given/When/Then explicitly in your suggestion.
+
+Apply the Farley test to anything ambiguous: would this scenario still make sense if the system were replaced with a different implementation that fulfills the same behavior? If no, it leaks.
+
+Record leak findings in **Issues Within Scope** with severity Critical, location pointing to the specific Given/When/Then line, and a concrete rewritten scenario as the suggestion.
+
+## Step 2 — Quality Checklist
 
 Evaluate against each criterion:
 
