@@ -49,13 +49,17 @@
     defaultBranch = main
 [mergetool "neovim"]
     cmd = nvim -c \"Gdiffsplit!\" \"$MERGED\"
-[mergetool]
     keepBackup = false
+    prompt = false
 [merge]
     conflictstyle = zdiff3
-    tool = neovim
 [diff]
     colorMoved = true
-    tool = neovim
 [difftool "neovim"]
     cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
+[gpg]
+    format = ssh
+[commit]
+    gpgsign = true
+[include]
+    path = ~/.gitconfig.local
