@@ -1,12 +1,12 @@
 # Research Document Template
 
-Structure for research documents. See SKILL.md for metadata gathering and filename conventions.
+Structure for research documents. The skill renders this template inline; a
+calling command may add frontmatter and persist the file under its own
+conventions.
 
 ## Template
 
 ```markdown
-[YAML frontmatter per CLAUDE-PERSONAL.md "Artifact Management" schema]
-
 # Research: [User's Question/Topic]
 
 ## Research Question
@@ -45,10 +45,6 @@ Structure for research documents. See SKILL.md for metadata gathering and filena
 ---
 
 ## Section Guidelines
-
-### Frontmatter
-- All fields required
-- Populate from `projects.yaml` per CLAUDE-PERSONAL.md artifact management schema
 
 ### Detailed Findings
 - Group by component or logical area

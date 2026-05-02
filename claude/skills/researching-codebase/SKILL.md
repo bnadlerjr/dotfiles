@@ -44,16 +44,9 @@ If the user mentions specific files (tickets, docs, JSON):
 - Consider which directories, files, or architectural patterns are relevant
 - Create a research plan using TodoWrite to track all subtasks
 
-### User Confirmation
-
-Present your understanding of the research question and decomposition, then use **AskUserQuestion** to confirm:
-
-- Header: "Research plan"
-- Question: "Does this capture your research question correctly?"
-- Options:
-  - "Yes, proceed with research" → Continue to Research Phase
-  - "Adjust the scope" → Ask what to adjust, then re-confirm
-  - "Let me clarify" → Wait for clarification
+Flow control (whether to confirm the decomposition with the user before
+proceeding) is the caller's responsibility. For direct skill invocations,
+present the decomposition and proceed unless the user objects.
 
 ---
 
@@ -106,46 +99,29 @@ Present your understanding of the research question and decomposition, then use 
 - Highlight patterns, connections, and architectural decisions
 - Answer the user's specific questions with concrete evidence
 
-### Step 2: Gather Metadata
+### Step 2: Render Research Document
 
-Look up project context from `$CLAUDE_DOCS_ROOT/projects.yaml` following the
-rules in the "Artifact Management" section of CLAUDE-PERSONAL.md. This
-determines `Area`, `Project`, `ProjectSlug`, `JiraEpic`, and `Repositories`
-for the frontmatter.
-
-### Step 3: Generate Research Document
-
-Write the document to `$CLAUDE_DOCS_ROOT/research/` using the naming convention
-`research--<slug>.md` where slug describes what this research covers (not the
-project name). If the project is ambiguous, ask the user.
-
-Generate the document using the template at `templates/research-document.md`.
+Render the full research document inline in the conversation using the
+structure in `templates/research-document.md`. The skill's deliverable is the
+rendered document; persistence is the caller's responsibility (e.g., a wrapper
+command may save it to disk under environment-specific conventions).
 
 **Required sections**:
-- YAML frontmatter per CLAUDE-PERSONAL.md artifact management schema
 - Research Question, Summary, Detailed Findings
 - Code References with file:line format
 - Architecture Documentation, Historical Context, Related Research
 - Open Questions for areas needing follow-up
 
-### Step 4: Add GitHub Permalinks (if applicable)
+If a calling command specifies a save path or frontmatter schema, follow that
+guidance after rendering.
+
+### Step 3: Add GitHub Permalinks (if applicable)
 
 - Check if on main branch or if commit is pushed: `git branch --show-current` and `git status`
 - If on main/master or pushed, generate GitHub permalinks:
   - Get repo info: `gh repo view --json owner,name`
   - Create permalinks: `https://github.com/{owner}/{repo}/blob/{commit}/{file}#L{line}`
-- Replace local file references with permalinks in the document
-
-### User Review
-
-Present a summary of the document, then use **AskUserQuestion**:
-
-- Header: "Document review"
-- Question: "Here's the research document. Does it address your question?"
-- Options:
-  - "Yes, looks good" → Continue to Follow-up Phase
-  - "Add more detail on [area]" → Expand that section
-  - "I have follow-up questions" → Address them and update document
+- Replace local file references with permalinks in the rendered document
 
 ---
 
@@ -161,23 +137,13 @@ Present a summary of the document, then use **AskUserQuestion**:
 
 ### Handle Follow-up Questions
 
-If the user has follow-up questions:
-- Append to the same research document
-- Update `Modified` in the frontmatter to today's date
-- Add a new section: `## Follow-up Research [timestamp]`
+If the user asks follow-up questions:
 - Spawn new agents as needed for additional investigation
-- Continue updating the document
+- Re-render the document with the additions
+- Add a new section: `## Follow-up Research [timestamp]`
 
-### Next Action
-
-Use **AskUserQuestion** for next action:
-
-- Header: "Next step"
-- Question: "Research is complete. What would you like to do?"
-- Options:
-  - "Follow-up question" → Handle follow-up and update document
-  - "Start related research" → Begin new research with shared context
-  - "Done" → End workflow
+If a calling command persisted the document, defer file updates and frontmatter
+changes to the caller — do not modify the persisted file directly.
 
 ---
 
@@ -217,9 +183,9 @@ Use **AskUserQuestion** for next action:
 
 ### Placeholder Values
 ```
-❌ Writing document with "[TBD]" or placeholder metadata
+❌ Leaving "[TBD]" or guesses in findings to fill in later
 
-✅ ALWAYS gather metadata before writing the document
+✅ Investigate further with another agent, or note as an Open Question
 ```
 
 ---
@@ -288,8 +254,7 @@ checks the Authorization header and validates the JWT signature.
 **Critical rules:**
 1. Read mentioned files before spawning agents
 2. Wait for ALL agents to complete before synthesizing
-3. Look up project context from projects.yaml before writing the document
-4. Never use placeholder values
+3. Never use placeholder values — investigate or note as an Open Question
 
 ---
 
