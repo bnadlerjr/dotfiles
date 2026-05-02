@@ -33,7 +33,7 @@ Given a task, design artifact, or ticket:
 ## When This Skill Applies
 
 - User asks to plan a feature using TDD
-- User references a design artifact from `/whiteboard` for implementation planning
+- User references a design artifact (e.g., from `collaborating-on-design`) for implementation planning
 - User wants explicit test specifications in their implementation plan
 - User mentions "test-first plan", "TDD plan", or "plan with tests"
 
@@ -58,7 +58,7 @@ Given a task, design artifact, or ticket:
 2. **Read all mentioned files FULLY** (stories, designs, tickets, specs)
    - **NEVER** read files partially
 
-3. **Extract design contracts** if a `/whiteboard` artifact exists:
+3. **Extract design contracts** if a design artifact exists (e.g., from `collaborating-on-design`):
    - Level 1 (Capabilities): Scope boundaries -> what NOT to test
    - Level 3 (Interactions): Sequence diagrams -> integration test scenarios
    - Level 4 (Contracts): Function signatures, typespecs -> unit test targets
@@ -178,6 +178,10 @@ GREEN and REFACTOR emerge during execution via `practicing-tdd` and `refactoring
 When user approves structure, write the complete plan using the template
 at [templates/plan-template.md](templates/plan-template.md).
 
+The skill's deliverable is the rendered plan; persistence is the caller's
+responsibility. If a calling command specifies a save path or frontmatter
+schema, follow that guidance after rendering.
+
 For each phase, detail:
 
 1. **TDD Cycles** (the heart of the plan):
@@ -243,7 +247,7 @@ If you encounter open questions during planning:
 
 ## Deriving Tests from Design Artifacts
 
-When a `/whiteboard` design artifact is available, use this mapping:
+When a design artifact is available (e.g., from `collaborating-on-design`), use this mapping:
 
 | Design Level | Test Type | What to Extract |
 |---|---|---|

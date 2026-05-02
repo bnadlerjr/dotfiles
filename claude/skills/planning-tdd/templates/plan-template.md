@@ -1,5 +1,3 @@
-[YAML frontmatter per CLAUDE-PERSONAL.md "Artifact Management" schema]
-
 # [Feature/Task Name] TDD Implementation Plan
 
 ## Overview
@@ -23,7 +21,7 @@
 
 ## Design Inputs
 
-[If design artifacts from /whiteboard exist, otherwise omit this section]
+[If a design artifact exists, otherwise omit this section]
 
 - **Source**: [path to design artifact]
 - **Contracts extracted**: [summary of Level 4 contracts driving tests]
