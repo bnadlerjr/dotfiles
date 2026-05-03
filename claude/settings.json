@@ -325,7 +325,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "npx -y ccstatusline@latest",
+    "command": "~/dotfiles/claude/statusline.sh",
     "padding": 0
   },
   "enabledPlugins": {
