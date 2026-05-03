@@ -268,7 +268,6 @@ When a design artifact is available (e.g., from `collaborating-on-design`), use 
 - **reviewing-test-design**: Dave Farley's 8 test properties — guidance for shaping RED test specs so they're Farley-compatible from the start
 - **code-simplifier** agent: Post-implementation review for unnecessary complexity
 - **thinking-patterns**: Structured reasoning at planning gates
-- **breaking-down-stories**: Decomposing stories before planning
 - **collaborating-on-design**: Producing design artifacts that feed into this skill
 
 ## Common Patterns
