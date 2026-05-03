@@ -48,7 +48,10 @@ if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook bash)"
 fi
 
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+if command -v fzf &>/dev/null; then
+  eval "$(fzf --bash)"
+  [ -f ~/.fzf-git.sh ] && . ~/.fzf-git.sh
+fi
 
 if command -v mise &>/dev/null; then
   eval "$(mise activate bash)"
@@ -56,14 +59,6 @@ fi
 
 if command -v zoxide &>/dev/null; then
   eval "$(zoxide init bash)"
-fi
-
-if [ -f /usr/share/bash-completion/completions/fzf ]; then
-  source /usr/share/bash-completion/completions/fzf
-fi
-
-if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
-  source /usr/share/doc/fzf/examples/key-bindings.bash
 fi
 
 if [ -f ~/.local/bashrc ]; then
