@@ -18,6 +18,12 @@ Slash command skills (`/plan`, `/research`, `/handoff`) define body layout.
 These rules define **where the file goes** and **what metadata it carries**.
 Both layers always apply together.
 
+## Skills vs Commands
+
+Skills must stay portable — they render output, they do not persist. Only
+commands reference `$CLAUDE_DOCS_ROOT` or this guideline. A skill that hardcodes
+a save path breaks anyone invoking it from a different environment.
+
 ## File Naming
 
 `<type>--<slug>.md` where type is `research`, `plan`, or `handoff` and slug is a
