@@ -163,6 +163,10 @@
         "hooks": [
           {
             "type": "command",
+            "command": "~/dotfiles/claude/hooks/skill-forced-eval-hook.sh"
+          },
+          {
+            "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/capture-event.py"
           },
           {
