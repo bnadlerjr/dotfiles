@@ -1,7 +1,7 @@
 ---
 name: grilling-ideas
 description: Interview the user rigorously about an idea — a plan, design, or half-formed direction — until reaching shared understanding, resolving each branch of the decision tree. Use when user wants to stress-test their thinking, get grilled on a design, explore a vague direction, or mentions "grill me".
-allowed-tools: Read, Grep, Glob, WebFetch, AskUserQuestion, Write
+allowed-tools: Read, Grep, Glob, WebFetch
 ---
 
 # Grilling Ideas
@@ -231,14 +231,9 @@ Between Checkpoints, stop signals, and snapshot requests, keep going. **Do not p
 When the user stops:
 
 1. **Summarize briefly** — list Resolved Criticals (the contract) first, then Resolved Standards and Refinements, then any Open branches the user chose to skip. Tier groupings make the load-bearing set visible at a glance. Keep it to one short block; the conversation already contains the details.
-2. **Offer the artifact** — this is the only turn in the skill that uses `AskUserQuestion`; grilling turns themselves stay plain prose. Call it with:
-   - Header: "Summary"
-   - Question: "Want me to write the resolved decisions to a summary doc in $CLAUDE_DOCS_ROOT?"
-   - Options:
-     - "Yes, write it" — Save markdown summary.
-     - "No, we're good" — End without writing.
-3. **If yes**: write a markdown doc to `$CLAUDE_DOCS_ROOT/grilling-ideas-<slug>-<YYYY-MM-DD>.md` containing the idea restatement, the contract (Resolved Criticals with recommendation + final outcome), other Resolved decisions grouped by tier, Open branches, and any notable dissents. If `$CLAUDE_DOCS_ROOT` is unset, fall back to `~/claude-docs/` and mention the fallback to the user.
-4. **If no**: acknowledge and end. No file written.
+2. **Render the full summary inline** — directly after the brief summary, render a structured markdown summary in the conversation containing: the idea restatement, the contract (Resolved Criticals with recommendation + final outcome), other Resolved decisions grouped by tier, Open branches, and any notable dissents.
+
+The skill's deliverable is the rendered summary; persistence is the caller's responsibility. If a calling command specifies a save path or frontmatter schema, follow that guidance after rendering.
 
 ## Anti-Patterns
 
@@ -251,7 +246,7 @@ When the user stops:
 - **Treating the Checkpoint as "you should stop" rather than "you can stop informed."** Keep it neutral — the Checkpoint surfaces options, not a recommendation.
 - **Caving on a position because the user pushed back with force rather than evidence.** Update on evidence, not pressure.
 - **Dumping thinking-pattern scaffolding into the user-facing turn.** Use patterns silently; present the recommendation.
-- **Writing the summary doc without being asked.** The artifact is opt-in.
+- **Persisting the summary unprompted when invoked directly.** Render only; defer writes to the caller.
 - **Starting the grill without confirming the plan scope.** Restate first; grill after.
 
 ## Success Criteria
@@ -267,4 +262,4 @@ A good grilling session:
 - Dependency-root decisions are grilled before their dependents.
 - A Checkpoint fires when (and only when) at least one Critical is Resolved and no Criticals remain Open.
 - The session ends when the user calls stop or accepts a Checkpoint stop.
-- The summary doc is offered, not forced.
+- A structured summary is rendered inline at end of session; persistence is left to the caller.
