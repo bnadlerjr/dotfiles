@@ -7,7 +7,7 @@ allowed-tools: Read, Bash, Task, AskUserQuestion
 
 # Refine Jira Story
 
-**Level 4 (Delegation)** - Orchestrates sub-agents for codebase research and independent review cycles.
+**Level 4 (Delegation)** - Orchestrates sub-agents for capability research and independent review cycles.
 
 Take a Jira issue, gather context from Jira and relevant codebases, then produce a behavior-focused user story with BDD acceptance criteria. Two independent review cycles ensure quality from different perspectives.
 
@@ -20,7 +20,8 @@ Take a Jira issue, gather context from Jira and relevant codebases, then produce
 - **managing-jira skill**: Jira CLI operations via `jira` command (ankitpokhrel/jira-cli)
 - **writing-agile-stories skill**: Story format, narrative principles, Given-When-Then criteria
 - **thinking-patterns skill**: atomic-thought, chain-of-thought, self-consistency
-- **codebase-analyzer agent**: Read + Serena + Grep + Glob + LS for deep code research
+- **capability-locator agent**: Inventories user-facing entry points (routes, pages, CLI commands, public APIs) at the capability level — primary research agent for Phase 3
+- **codebase-analyzer agent**: Reserved for narrow fallback only (user-visible strings — error messages, status names, label text). NEVER for code paths, integration points, services, schemas, or file locations.
 - **general-purpose agent** (model: sonnet): Review sub-agents — sonnet suits structured checklist evaluation; opus orchestrates synthesis and drafting
 - **Project registry**: `$CLAUDE_DOCS_ROOT/projects.yaml`
 
@@ -38,8 +39,8 @@ Please provide a Jira issue ID (e.g., POPS-123).
 
 I'll guide you through:
 1. Fetching Jira context (issue, comments, linked issues)
-2. Selecting a project for codebase research
-3. Parallel codebase analysis across repositories
+2. Selecting a project for capability research
+3. Parallel capability research across repositories
 4. Story drafting with domain vocabulary
 5. Two charter-aware review cycles
 6. Final story with optional Jira update
@@ -68,7 +69,7 @@ Format:
 ### Domain Glossary
 - [Canonical term] = [meaning]; rejected synonyms: [alternates NOT used]
 
-### Constraints (from codebase research)
+### Constraints (from capability research)
 - [Fact]: [where it was found and what it implies for the story]
 
 ### User Clarifications
@@ -178,18 +179,29 @@ Append to `${DECISIONS}` → User Clarifications: which project was selected and
 
 ---
 
-## Phase 3: Parallel Codebase Research
+## Phase 3: Parallel Capability Research
 
-For each repository in the selected project, spawn a `codebase-analyzer` agent in parallel. Each agent gets a self-contained prompt with all context embedded (no references to parent conversation).
+### Research Depth Contract
 
-### Agent Prompt Template
+Story refinement operates on user-observable behavior, not implementation. This phase mirrors the research-depth guardrail in `writing-agile-stories` (see SKILL.md "Research Depth"). Code-level research — call graphs, internal services, schemas, file paths, integration points — biases the synthesis in Phase 4 even when individual scenarios pass the leak hunt. Stay at the capability level by default.
 
-For each `${REPO}`, use the Task tool to spawn a `codebase-analyzer` agent:
+Allowed research, in order of preference:
+
+1. **Capability inventory** via `capability-locator` (default) — reads entry points only (routes, pages, CLI commands, public APIs).
+2. **User-visible string scan** via narrowly-scoped `codebase-analyzer` (fallback only) — reserved for surfacing error messages, status names, validation messages, and label/help text when capability inventory alone yields insufficient domain vocabulary or failure-mode signal. NEVER ask this fallback for code paths, services, schemas, integration points, or file locations.
+
+If both layers return thin results, push back to the user for behavior-level input rather than reverse-engineering behavior from implementation.
+
+### Layer 1: Capability Inventory (default)
+
+For each repository in the selected project, spawn a `capability-locator` agent in parallel. Each agent gets a self-contained prompt with all context embedded (no references to parent conversation).
+
+For each `${REPO}`, use the Task tool to spawn a `capability-locator` agent:
 
 ```markdown
-# Codebase Analysis for Story Refinement
+# Capability Inventory for Story Refinement
 
-You are analyzing the repository `${REPO}` to gather context for refining a Jira issue into a user story.
+You are inventorying the user-facing capability surface of `${REPO}` to ground a Jira issue refinement in what users can currently see and do.
 
 ## Jira Issue Context
 
@@ -199,61 +211,72 @@ You are analyzing the repository `${REPO}` to gather context for refining a Jira
 
 ## Research Focus
 
-Investigate the codebase for information relevant to this issue. Focus on:
+Read entry points ONLY (routes, page/screen components, CLI command definitions, public API methods). Do not read internals, trace call graphs, or describe how things are built.
 
-### 1. Existing Behavior
-- How does the system currently handle the functionality described in the issue?
-- What code paths are involved?
-- What is the current user-facing behavior?
+### 1. Relevant Capabilities
+- What user-facing entry points relate to the concepts in this issue?
+- What can a user currently see or do in this area?
 
 ### 2. Domain Vocabulary
-- What terms does the codebase use for the concepts in this issue?
-- Are there domain models, value objects, or named patterns related to this feature?
-- Note any ubiquitous language from module names, function names, or comments.
+- What terms appear in route paths, page titles, CLI command names, or public API method names that relate to this issue?
+- Note the language the user actually encounters — not internal class names.
 
-### 3. Business Rules & Constraints
-- What validations, guards, or business rules exist in related code?
-- What invariants does the system enforce?
-- Are there configuration-driven constraints?
-
-### 4. Failure Modes
-- What errors or edge cases does the existing code handle?
-- What happens when things go wrong in related flows?
-- Are there retry mechanisms, fallbacks, or error states?
-
-### 5. Integration Points
-- What other systems or services does this code interact with?
-- Are there API contracts, message formats, or event schemas?
-- What dependencies exist?
+### 3. Observable Boundaries
+- What entry points are gated, hidden, or absent that suggest current scope limits?
+- What status values, modes, or states are visible at the entry-point level?
 
 ## Output Format
 
-Classify each finding by intended use. The downstream story drafter uses **Story input** sections directly; **Implementation reference only** sections inform downstream planning but MUST NOT appear in story scenarios.
-
-Provide a structured research report:
+### Capability Inventory [Story input]
+[List of relevant user-facing entry points with one-line capability statements — what a user can see or do. Never describe internal mechanisms.]
 
 ### Domain Vocabulary [Story input]
-[Terms and their meanings as used in the codebase]
+[Terms visible in user-facing surface — routes, labels, command names. Note rejected synonyms if you spot legacy terms that have been replaced.]
 
-### Current Behavior [Story input]
-[How the system works today in the relevant area, described in observable user-facing terms]
+### Observable Boundaries [Story input]
+[Visible status values, modes, gating signals at the entry-point level.]
+```
 
-### Business Rules [Story input]
-[Rules and constraints found in the code]
+### Layer 2: User-Visible String Scan (fallback only)
 
-### Failure Modes [Story input]
-[Error handling and edge cases — what the user observes when things go wrong]
+Invoke this layer only if Layer 1 returned insufficient signal for drafting (no relevant entry points found, or domain vocabulary too thin to support scenario writing). Skip otherwise.
 
-### Integration Points [Implementation reference only — NOT for story scenarios]
-[External dependencies and contracts]
+For each `${REPO}` that needs the fallback, use the Task tool to spawn a `codebase-analyzer` agent with this **narrowly-scoped** prompt:
 
-### Key Code Locations [Implementation reference only — NOT for story scenarios]
-[File paths and brief descriptions of the most relevant code]
+```markdown
+# User-Visible String Scan
+
+You are scanning `${REPO}` for user-facing strings to surface domain vocabulary and observable failure modes for story refinement. This is NOT a full code analysis.
+
+## Jira Issue Context
+
+- **Issue**: ${ISSUE_KEY} - ${SUMMARY}
+- **Description**: ${DESCRIPTION}
+
+## Strict Scope
+
+Return ONLY user-visible strings. Do NOT report:
+- File paths, line numbers, function names, class names, service names
+- Code paths, call graphs, integration points, schemas, dependencies
+- How any of this is implemented or structured
+
+Return ONLY:
+
+### Error and Validation Messages [Story input]
+[Strings shown to users when something goes wrong — error text, validation copy, rejection reasons]
+
+### Status and State Names [Story input]
+[Status values, modes, or state names as they appear to users — labels, badges, displayed states]
+
+### Label, Help, and Confirmation Text [Story input]
+[Button text, field labels, help text, confirmation prompts visible to users]
+
+If you cannot answer without referencing internal code structures, say "Insufficient user-visible signal" and stop.
 ```
 
 ### Wait for All Agents
 
-Collect research results from all repositories before proceeding.
+Collect research results from all repositories (and any fallback scans) before proceeding.
 
 ### Present Research Summary
 
@@ -263,8 +286,8 @@ Combine findings from all repositories into a consolidated summary. Present to u
 
 From the consolidated research:
 
-- Append concrete bounding facts to `${DECISIONS}` → Constraints. Only capture facts that *constrain the story* (e.g., "Payments routed through `PaymentGateway`", "Field is `accountId`, not legacy `userId`"). Skip generic observations.
-- Append canonical domain terms to `${DECISIONS}` → Domain Glossary, including any rejected synonyms found in the codebase that should NOT be used.
+- Append concrete bounding facts to `${DECISIONS}` → Constraints. Only capture facts that *constrain the story* in observable terms (e.g., "Cancellation only available while order is in 'confirmed' or 'processing' status", "Refund button hidden once shipment leaves warehouse"). Skip generic observations and any internal-architecture notes.
+- Append canonical domain terms to `${DECISIONS}` → Domain Glossary, including any rejected synonyms surfaced in the research that should NOT be used.
 
 ---
 
@@ -272,17 +295,17 @@ From the consolidated research:
 
 ### Synthesis
 
-Invoke the `thinking-patterns` skill with atomic-thought (`/thinking atomic-thought`) to decompose Jira context + codebase research into story components:
+Invoke the `thinking-patterns` skill with atomic-thought (`/thinking atomic-thought`) to decompose Jira context + capability research into story components:
 
 ```
 Independent questions to answer from gathered context:
 
-1. **Actor**: Who experiences this need? (from Jira description + domain models)
-2. **Trigger**: What situation or event creates this need? (from Jira + current behavior)
+1. **Actor**: Who experiences this need? (from Jira description + capability surface)
+2. **Trigger**: What situation or event creates this need? (from Jira + capability inventory)
 3. **Outcome**: What observable result do they want? (from Jira description + comments)
-4. **Constraints**: What business rules apply? (from codebase research)
-5. **Failure Modes**: What could go wrong? (from codebase research)
-6. **Domain Terms**: What vocabulary should the story use? (from codebase + Jira)
+4. **Constraints**: What user-observable rules apply? (from observable boundaries + Jira)
+5. **Failure Modes**: What could go wrong? (from error/validation messages + Jira)
+6. **Domain Terms**: What vocabulary should the story use? (from capability vocabulary + Jira)
 
 Answer each independently, then synthesize.
 ```
@@ -298,9 +321,9 @@ Classify every gathered fact from this flow:
 | Bucket | Source | Use in story? |
 |--------|--------|---------------|
 | Domain language | Domain Vocabulary (research) + Jira terms | YES — as the story's vocabulary |
-| Observable business rule | Business Rules (research) + Jira description | YES — as Given/Then conditions |
-| Observable failure mode | Failure Modes (research) | YES — as failure scenarios |
-| Technical constraint | Integration Points / Key Code Locations | NO — implementation context only |
+| Observable business rule | Observable Boundaries + Jira description | YES — as Given/Then conditions |
+| Observable failure mode | Error/Validation Messages (fallback scan) + Jira | YES — as failure scenarios |
+| Technical constraint | Anything referencing services, schemas, code paths, or file locations | NO — defense-in-depth: research is no longer asked for these, but reject any leakage |
 
 If a fact lives in the last bucket, it does NOT belong in the story even when it bounds the implementation. It belongs in the downstream implementation plan, not here.
 
@@ -469,7 +492,7 @@ Path 2 - Domain Language Consistency:
 Are terms used identically in narrative, context, and all scenarios?
 
 Path 3 - Failure Coverage:
-Do failure scenarios correspond to real constraints found in codebase research?
+Do failure scenarios correspond to real constraints found in capability research?
 
 Synthesize: Any inconsistencies introduced by refinements?
 ```
@@ -705,17 +728,17 @@ When user selects "None of these" and doesn't provide repository paths:
 
 ```
 I need at least one repository path to research for domain context.
-Without codebase research, the story will rely solely on Jira context.
+Without capability research, the story will rely solely on Jira context.
 
 Would you like to:
 1. Provide repository paths
-2. Continue without codebase research
+2. Continue without capability research
 ```
 
 ### Research Agent Timeout
 
 ```
-Codebase research for ${REPO} is taking longer than expected. Options:
+Capability research for ${REPO} is taking longer than expected. Options:
 1. Wait for completion (recommended)
 2. Skip this repository and proceed with available research
 3. Cancel research and draft from Jira context only
@@ -731,9 +754,9 @@ Codebase research for ${REPO} is taking longer than expected. Options:
 
 1. Verifies Jira auth, fetches POPS-456 with comments and linked issues
 2. Presents Jira context summary
-3. Shows project list from projects.yaml, user selects "EMR Automations"
-4. Spawns codebase-analyzer agents for kong-fu and chunky-kong in parallel
-5. Synthesizes Jira + codebase context using atomic-thought
+3. Shows project list from projects.yaml, user selects the relevant project
+4. Spawns capability-locator agents for the project's repositories in parallel (Layer 1); falls back to a narrowly-scoped user-visible string scan only if capability inventory is thin
+5. Synthesizes Jira + capability context using atomic-thought
 6. Drafts story with narrative + Given-When-Then scenarios
 7. User approves draft for review
 8. Review 1: Agile practitioner evaluates quality and testability
