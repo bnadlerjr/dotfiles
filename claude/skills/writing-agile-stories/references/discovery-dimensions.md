@@ -1,6 +1,8 @@
 # Discovery Dimensions
 
-Before drafting, gather these six dimensions. If the caller has supplied context (Jira/Linear ticket, codebase research, prior conversation), extract from that. If context is thin, ask the user in plain prose for what's missing — do NOT use `AskUserQuestion`. Discovery is open-ended; option chips force contrived choices.
+Before drafting, gather these six dimensions. If the caller has supplied context (Jira/Linear ticket, product documentation, user-facing capability research, prior conversation), extract from that. If context is thin, ask the user in plain prose for what's missing — do NOT use `AskUserQuestion`. Discovery is open-ended; option chips force contrived choices.
+
+Implementation-level codebase research (call graphs, internal services, schemas) is a smell. If all you have is code-level context, push back to the caller for behavior-level input rather than reverse-engineering behavior from implementation. See "Implementation-Deep Discovery" in [anti-patterns.md](anti-patterns.md).
 
 ## The Six Dimensions
 

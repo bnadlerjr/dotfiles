@@ -65,27 +65,29 @@ Quality checks:
 
 ## Canonical Example
 
-### Story: Customer Cancels Order Before Shipment
+```markdown
+## Story: Customer Cancels Order Before Shipment
 
 When customers change their mind about a purchase, they need to cancel it
 and receive confirmation that their refund is being processed. This must
 happen before the order ships, since the returns process applies afterward.
 
-#### Context
+### Context
 Available for orders in "confirmed" or "processing" status that haven't
 been handed off to shipping.
 
-#### Acceptance Criteria
+### Acceptance Criteria
 
-##### Scenario: Successful cancellation of unshipped order
+#### Scenario: Successful cancellation of unshipped order
 - Given a customer has an order in "confirmed" status
 - When they request to cancel the order
 - Then the order status changes to "cancelled"
 - And a refund is initiated for the full order amount
 - And they receive a cancellation confirmation
 
-##### Scenario: Attempting to cancel an already-shipped order
+#### Scenario: Attempting to cancel an already-shipped order
 - Given an order has already left the warehouse
 - When the customer attempts to cancel
 - Then they are informed the order cannot be cancelled
 - And they are directed to the returns process
+```

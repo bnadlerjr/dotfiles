@@ -1,6 +1,11 @@
 ---
 name: writing-agile-stories
 description: "Write behavior-focused Agile user stories with BDD-style acceptance criteria. Use when defining features, clarifying requirements, creating development tickets, writing acceptance criteria, converting requirements to testable specs, or discussing user needs. Produces narrative-form stories with Given-When-Then scenarios."
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Task
 ---
 
 # Writing Agile Stories
@@ -76,7 +81,19 @@ See [anti-patterns.md](references/anti-patterns.md) for concrete leak examples a
 
 The six dimensions: **Actor, Trigger, Outcome, Constraints, Failure Modes, Domain Terms**. See [discovery-dimensions.md](references/discovery-dimensions.md) for definitions, examples, and what each missing dimension does to the story.
 
-If the caller has supplied context (Jira/Linear ticket, codebase research, prior conversation), extract the dimensions from that context. If the dimensions are thin, ask the user in plain prose for the missing ones — open-ended discovery questions don't fit `AskUserQuestion` option chips.
+If the caller has supplied context (Jira/Linear ticket, product documentation, user-facing capability research, prior conversation), extract the dimensions from that context. If the dimensions are thin, ask the user in plain prose for the missing ones — open-ended discovery questions don't fit `AskUserQuestion` option chips.
+
+### Research Depth
+
+Research stays at the behavior level. Do NOT read implementation code, trace call graphs, identify components/layers/integration points, or invoke deep-code agents (e.g., `codebase-analyzer`) to gather discovery dimensions. Stories operate on user-observable behavior; implementation knowledge belongs in planning, not story writing.
+
+When supplied context is thin and you need more domain grounding, prefer in this order:
+
+1. Ask the user in plain prose.
+2. Read product documentation (PRDs, READMEs, user-facing docs).
+3. Use the `capability-locator` agent to inventory user-facing entry points (routes, pages, CLI commands, public APIs) at the **capability level — never at the implementation level**.
+
+If all you have is code-level context, push back to the caller for behavior-level input rather than reverse-engineering behavior from implementation. See the "Implementation-Deep Discovery" entry in [anti-patterns.md](references/anti-patterns.md).
 
 ### Discovery Output (internal scratchpad)
 

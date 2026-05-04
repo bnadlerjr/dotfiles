@@ -29,6 +29,22 @@ the same function—the tests you are writing should still make sense."
    Then the order is cancelled and refund initiated
 ```
 
+## Implementation-Deep Discovery
+
+The input-side counterpart to Implementation Leak. Researching internal code, services, schemas, or call graphs to "gather" discovery dimensions before drafting a story. Even if the *output* avoids leak, the *input* taints the story by shaping it around how the system happens to be built today.
+
+Apply Farley's substitution test at the input side: if your discovery context could be replaced with behavior-equivalent context (a PRD, a screenshot, a stakeholder description) and the resulting story would be the same, you researched at the right level. If the story would change, you over-researched.
+
+```
+❌ "Let me read the OrderService class and the orders schema, then I'll
+   understand the cancellation behavior."
+
+✅ "What does the user see and do when they cancel? What states can their
+   order be in? What happens if cancellation isn't allowed?"
+```
+
+When supplied context is thin, prefer in this order: ask the user, read product documentation (PRDs, READMEs, user-facing docs), or use a capability-level inventory tool like `capability-locator` to enumerate user-facing entry points. Do not invoke `codebase-analyzer` or trace internal code paths.
+
 ## UI-Focused Criteria
 
 Describing button clicks and screen flows instead of business rules. Farley warns
