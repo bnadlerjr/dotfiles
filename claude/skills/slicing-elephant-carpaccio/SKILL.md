@@ -81,7 +81,7 @@ When a slice feels too large, split it further using these patterns:
 | **By business rule** | Simplest rule first, add complexity in later slices |
 | **By interface** | One platform, device, or UI variant first |
 | **Simple before complex** | Happy path across all paths before edge cases on any single path |
-| **Hardcode then generalize** | Hardcode a value in slice N, replace with dynamic logic in slice N+1 |
+| **Hardcode then generalize** | Hardcode a value in an early slice; replace with dynamic logic in a later slice. When the later slice references the earlier one, name it by title in quotes (see Cross-Slice References). |
 
 ## Anti-Patterns
 
@@ -94,6 +94,7 @@ If you catch yourself producing any of these, re-slice:
 | **Gold-plating early slices** | Adding validation/error handling/polish to slice 2 when core paths in slices 8-12 don't exist yet |
 | **Speculative infrastructure** | Abstractions or frameworks beyond what the current slice requires |
 | **Task decomposition as slices** | "Set up the database" and "write the migration" are tasks within a slice, not slices themselves — each slice must have user-visible value |
+| **Cross-referencing by number or "slice N"** | Number references break when slices reorder, split, or combine, and lose all meaning when an individual slice propagates downstream as a standalone Jira/Linear story (where sibling numbering and the term "slice" are absent). Reference other slices by their title in quotes — see Cross-Slice References. |
 
 ## Examples
 
@@ -120,6 +121,16 @@ Present the backlog as a numbered list:
 
 3. ...
 ```
+
+### Cross-Slice References
+
+When a slice description or Value line must point to another slice in the backlog, refer to it by its title in quotes — never by number, and never with the word "slice". Slices propagate downstream as standalone Jira/Linear stories where sibling numbering and the term "slice" are absent; a description that depends on either becomes incomprehensible the moment it is lifted out of the backlog.
+
+- Good: *"Generalizes the hard-coded columns from 'User exports CSV with name and email' so all visible columns are included."*
+- Bad: *"Generalizes the hard-coded columns from slice 3."*
+- Bad: *"Builds on the previous slice."*
+
+The numbered list ordering remains in the artifact for human readers; the rule applies only to *prose references* inside descriptions and Value lines, which travel with the story when it becomes a ticket.
 
 ## Success Criteria
 

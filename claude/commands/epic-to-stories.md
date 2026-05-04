@@ -181,6 +181,7 @@ Invoke `/thinking chain-of-thought` to check each slice against:
 
 1. **INVEST + Vertical + Behavior-described** — every slice must pass all eight validity tests from the slicing skill
 2. **Research grounding** — does each slice description reflect what research actually found? A slice claimed as "extending capability X" must cite the specific capability statement from research, not implementation detail
+3. **Cross-slice references** — if a description or Value line points to another slice, it must use that slice's title in quotes, not its number and not the word "slice" (per the slicing skill's Cross-Slice References rule). Slices propagate downstream as standalone Jira/Linear stories where numbering and slice-jargon lose meaning. Reword any violation before showing the user.
 
 If any slice fails, re-slice before showing the user.
 
