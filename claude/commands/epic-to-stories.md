@@ -1,15 +1,17 @@
 ---
-description: Slice an epic into an ordered backlog of thin vertical stories, grounded in existing code
+description: Slice an epic into an ordered backlog of thin vertical stories, grounded in existing user-facing capabilities
 argument-hint: "<Jira ID | Linear ID | file path | inline epic text>"
 model: opus
-allowed-tools: Read, Write, Bash, Task, AskUserQuestion, Glob, Grep
+allowed-tools: Read, Write, Bash, Task, AskUserQuestion
 ---
 
 # Epic to Stories
 
-**Level 4 (Delegation)** — Orchestrates parallel codebase research, then applies the carpaccio slicing skill to produce an ordered backlog of 10-20 thin slices.
+**Level 4 (Delegation)** — Orchestrates parallel behavior-surface research, then applies the carpaccio slicing skill to produce an ordered backlog of 10-20 thin slices.
 
-Take an epic, research relevant existing code, and produce an ordered backlog of thin vertical slices using the elephant-carpaccio methodology. Each slice is a candidate story that can later be refined into a full BDD story via `/refine-jira-story` or `/refine-linear-story`.
+Take an epic, research existing user-facing capabilities related to it, and produce an ordered backlog of thin vertical slices using the elephant-carpaccio methodology. Each slice is a candidate story that can later be refined into a full BDD story via `/refine-jira-story` or `/refine-linear-story`.
+
+Slicing decisions are anchored in behavior, never implementation. Research surfaces capabilities (what users can see or do); deep code research belongs in `/create-implementation-plan` and `/implement`, not here.
 
 ## Variables
 
@@ -19,31 +21,15 @@ Take an epic, research relevant existing code, and produce an ordered backlog of
 
 ## Dependencies
 
-- **slicing-elephant-carpaccio skill**: Slicing methodology, INVEST + Vertical validity rules, ordering principles
+- **slicing-elephant-carpaccio skill**: Slicing methodology, INVEST + Vertical + Behavior-described validity rules, ordering principles
 - **thinking-patterns skill**: `atomic-thought` for research-target decomposition, `chain-of-thought` for slice validation
 - **managing-jira skill** (conditional): `jira issue view` for Jira-sourced epics
 - **managing-linear skill** (conditional): Linear CLI for Linear-sourced epics
-- **codebase-analyzer agent**: Deep code research per research target
+- **docs-locator agent**: Locate product docs (PRDs, READMEs, ADRs) describing existing user-facing capabilities
+- **docs-analyzer agent**: Extract behavioral context from located product docs
+- **capability-locator agent**: Inventory existing user-facing entry points when product docs are sparse — never invokes deep-code agents
 - **Project registry**: `$CLAUDE_DOCS_ROOT/projects.yaml` (for multi-repo epics)
 - **Artifact management**: `~/.claude/guidelines/artifact-management.md` — frontmatter and naming conventions
-
-## Initial Response
-
-When invoked without arguments:
-
-```
-I'll slice an epic into an ordered backlog of thin vertical stories, grounded in existing code.
-
-Provide the epic source — one of:
-- Jira issue ID (e.g., POPS-123)
-- Linear issue ID (e.g., ENG-45)
-- File path containing the epic
-- Inline epic text
-
-Usage: /epic-to-stories <source>
-```
-
----
 
 ## Phase 1: Intake
 
@@ -83,7 +69,6 @@ Compile a normalized block:
 **Description**: ${DESCRIPTION}
 **Children / Sub-issues**: ${CHILDREN}            # if from tracker
 **Comments / Notes**: ${COMMENT_SUMMARIES}        # if available
-**Initial Domain Terms**: [extracted from text]
 ```
 
 Present the summary to the user before proceeding.
@@ -105,26 +90,34 @@ Record the selected `${REPOS}` list.
 
 ### Decompose into Research Targets
 
-Invoke `/thinking atomic-thought` to derive 3-7 independent research questions from the epic. Each must name a concrete behavior or domain concept that existing code might already address. Examples:
+Invoke `/thinking atomic-thought` to derive 3-7 independent research questions from the epic. Each must name a concrete user-facing behavior or domain concept that the existing system might already support. Frame questions in user-visible terms — "what can users see or do", not "how is it built". Examples:
 
-- "Does the codebase already model `${concept_X}`?"
-- "How does the system currently handle `${flow_Y}`?"
-- "Where are `${data_type_Z}` validated, persisted, displayed?"
+- "What can users currently see or do related to `${concept_X}`?"
+- "What user-facing capabilities exist today for `${flow_Y}`?"
+- "What user-facing vocabulary does the product use for `${data_type_Z}`?"
 
-Present the research targets to the user. Allow editing before continuing — bad targets produce shallow research.
+Present the research targets to the user. Allow editing before continuing — bad targets produce shallow research. Reject any target framed in implementation language — apply the same Implementation Leak rule the `slicing-elephant-carpaccio` skill uses for slice descriptions.
 
 ---
 
-## Phase 3: Parallel Codebase Research
+## Phase 3: Parallel Behavior-Surface Research
 
-For each `(repo, research_target)` pair, spawn a `codebase-analyzer` agent in parallel via the Task tool. Each prompt is self-contained.
+For each `(repo, research_target)` pair, spawn behavior-surface research agents in parallel via the Task tool.
+
+### Agent Selection
+
+- **Primary**: `docs-locator` followed by `docs-analyzer` for product documentation (PRDs, READMEs, ADRs about user-facing capabilities). Docs are written in user language; the translation distance to behavior is zero.
+- **Secondary**: `capability-locator` for entry-point inventory — used when the area has sparse product documentation. The agent reads only entry points (routes, pages, CLI commands, public APIs) and reports capability statements with no implementation detail.
+- **Forbidden**: `codebase-analyzer` and any other agent that returns deep implementation context. Slicing operates on behavior; implementation knowledge belongs in `/create-implementation-plan` and `/implement`. Mixing substrates contaminates slice descriptions.
 
 ### Agent Prompt Template
 
-```markdown
-# Codebase Research for Epic Slicing
+Each agent prompt is self-contained.
 
-You are researching `${REPO}` to ground the slicing of an epic into stories.
+```markdown
+# Behavior-Surface Research for Epic Slicing
+
+You are researching `${REPO}` to surface existing user-facing capabilities related to an epic. Your job is to describe what users can currently *see* or *do* — never how it is built.
 
 ## Epic Context
 
@@ -136,30 +129,26 @@ ${RESEARCH_TARGET}
 
 ## Focus
 
-Document only what *exists today*. Do NOT propose changes or improvements.
+Document only what *exists today* at the behavioral surface. Do NOT propose changes or improvements. Do NOT include file paths, line numbers, function names, internal classes, patterns, schemas, middleware, services, or any other implementation detail in your output. If you find yourself describing how something is built, stop and re-frame to what users observe.
 
-1. **Existing implementations** — code addressing this target, with `file:line` references
-2. **Domain vocabulary** — terms the codebase uses for this concept
-3. **Patterns and conventions** — naming, structure, test patterns in the relevant area
-4. **Gaps** — aspects of this research target NOT covered by existing code (these become candidate slices)
-5. **Integration points** — external systems, APIs, schemas relevant to this target
+1. **Existing capabilities** — what users can currently see or do in this domain, expressed as "A user can [verb] [noun] [conditions]"
+2. **Domain vocabulary** — user-facing terms the product uses canonically for these concepts
+3. **Capability gaps** — what users CANNOT yet do that the epic would enable
+4. **Adjacent capabilities** — related user-facing capabilities outside the epic's scope but inside its vocabulary (useful for slice ordering and vocabulary alignment)
 
 ## Output Format
 
-### Existing Implementations
-[List with `file:line` and a one-line description per item]
+### Existing Capabilities
+[Capability statements only — no file:line, no internals]
 
 ### Domain Vocabulary
-[Canonical terms found in the code, with rejected synonyms if any]
+[Canonical user-facing terms]
 
-### Patterns
-[How similar features are structured]
+### Capability Gaps
+[Behavioral gaps the epic should close]
 
-### Gaps
-[What's missing in the research target]
-
-### Integration Points
-[External contracts, schemas, services]
+### Adjacent Capabilities
+[Related user-facing capabilities outside this epic's scope]
 ```
 
 ### Wait for All Agents
@@ -170,9 +159,9 @@ Do not proceed until every spawned agent returns.
 
 Merge per-target findings into a single research summary. Bucket explicitly:
 
-- **Reuse opportunities** — existing code that shortens a slice
-- **Greenfield areas** — no prior art; slices here will be heavier
-- **Domain glossary** — canonical terms to use in slice descriptions
+- **Capability adjacencies** — existing user-visible capabilities a slice can extend or compose
+- **Net-new capabilities** — capabilities the epic introduces with no behavioral precedent (slices here will be heavier; slice 1 must be a real walking skeleton rather than an extension)
+- **Domain glossary** — canonical user-facing terms to use in slice descriptions
 
 Present the consolidated summary to the user.
 
@@ -180,19 +169,18 @@ Present the consolidated summary to the user.
 
 ## Phase 4: Carpaccio Slicing
 
-Load the `slicing-elephant-carpaccio` skill and apply it directly. Pass BOTH the epic context AND the consolidated research as input. Use the research to inform:
+Load the `slicing-elephant-carpaccio` skill and apply it directly. Behavior context has already been established by Phases 1-3, so the skill's Step 1 is satisfied — pass BOTH the epic context AND the consolidated research as the supplied scope; the skill confirms rather than re-researches. The skill produces and validates the backlog; this command owns the user-confirmation gate (Phase 5).
 
-- **Slice 1 (walking skeleton)**: prefer a path that reuses existing infrastructure
-- **Slice ordering**: greenfield slices that unblock downstream work come earlier; polish and edge cases last
-- **Slice descriptions**: use canonical domain vocabulary surfaced by research
+Use the research to inform:
+
+- **Slice 1 (walking skeleton)**: Slice 1 should extend an existing user-visible capability when research surfaces one — otherwise build a real walking skeleton.
 
 ### Validate the Backlog
 
 Invoke `/thinking chain-of-thought` to check each slice against:
 
-1. **INVEST + Vertical** — every slice must pass all seven validity tests from the skill
-2. **Research grounding** — does each slice description reflect what research actually found? A slice claimed as "trivial because X exists" must cite the specific `file:line` finding
-3. **Strict value increase** — each slice strictly increases user-visible value or reduces risk over the prior one
+1. **INVEST + Vertical + Behavior-described** — every slice must pass all eight validity tests from the slicing skill
+2. **Research grounding** — does each slice description reflect what research actually found? A slice claimed as "extending capability X" must cite the specific capability statement from research, not implementation detail
 
 If any slice fails, re-slice before showing the user.
 
@@ -258,8 +246,8 @@ After saving, show the user:
 
 - Path to the saved artifact
 - Slice count and slice 1 (the walking skeleton)
-- Top 3 reuse opportunities
-- Top 3 greenfield risks
+- Top 3 capability adjacencies (existing capabilities slices extend)
+- Top 3 net-new capabilities (introduced by the epic)
 - Suggested follow-up:
   ```
   To turn an individual slice into a full BDD story:
@@ -287,7 +275,7 @@ Ask the user whether to retry, paste the epic content directly, or abort.
 
 ### Research returns nothing actionable
 
-If every research target comes back empty, the codebase has no relevant prior art. Note this explicitly in the artifact's Research Summary and proceed — slices will be heavier and slice 1 will require a real walking-skeleton build, not a thin reuse path.
+If every research target comes back empty, the system has no relevant existing capabilities (no docs and no entry points found). Note this explicitly in the artifact's Research Summary and proceed — slices will be heavier and slice 1 will require a real walking-skeleton build, not a thin extension of an existing capability.
 
 ### Slice backlog never converges
 
