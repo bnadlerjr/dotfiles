@@ -187,10 +187,11 @@ When all tasks in the phase are done:
    ```
 2. If any fail, spawn an engineer agent to fix the issues. Then re-verify.
 3. Check the phase's "Done When" criteria. Confirm each is met.
-4. **Review (REQUIRED)**: Launch two review agents in parallel:
+4. **Review (REQUIRED)**: Launch three review agents in parallel:
    - `reviewing-code` skill on all changed files — general code-quality review (readability, naming, dead code, Kent Beck / Kent C. Dodds principles). It no longer owns test-design concerns.
    - `reviewing-test-design` skill on changed test files only — Dave Farley 8-property scoring plus prioritized recommendations. This is the canonical test-design gate.
-   Merge findings after both return. Auto-apply findings the orchestrator can safely resolve (e.g., "split this test for Granularity", "rename for clarity"). If a finding requires human judgment (ambiguous intent, design tradeoff, unclear scope), pause for the user with the finding — do not guess. The Farley numerical score is informational, not a blocking gate — the prioritized recommendations are what drive action.
+   - `writing-documentation` skill on all changed files — **surgical scope only**, governed by the user's "default to no comments; only add when WHY is non-obvious" rule. Evaluate exactly three things: (a) whether new modules / new top-level files warrant a module-level header doc (WHY-level, not WHAT-level); (b) whether added/changed public APIs warrant function-level docs for non-obvious behavior, hidden constraints, or invariants; (c) whether project docs (README, CLAUDE.md, guides) need updates because the phase changed something user-visible (new commands, new flags, changed setup, changed conventions). The reviewer MUST NOT suggest inline comments that restate WHAT code does, MUST NOT suggest docs for code whose name already conveys intent, and MUST NOT suggest docs for internal/private helpers unless WHY is non-obvious.
+   Merge findings after all three return. Auto-apply findings the orchestrator can safely resolve (e.g., "split this test for Granularity", "rename for clarity", "add a one-line module header to new file X with this content", "update README section Y to mention new flag Z"). If a finding requires human judgment (ambiguous intent, design tradeoff, unclear scope, or a doc section that may need a substantial rewrite because content is unclear), pause for the user with the finding — do not guess. The Farley numerical score is informational, not a blocking gate — the prioritized recommendations are what drive action.
 5. **Simplification (REQUIRED)**: Spawn the `code-simplifier` agent on all changed files.
    Apply its suggestions.
 6. Update the plan file: check off completed items using Edit (`- [ ]` -> `- [x]`).
@@ -379,7 +380,7 @@ When done, report:
 | Verification fails at phase end | Spawn engineer agent to fix, then re-verify |
 | Lint fails at phase end | Spawn engineer agent to fix lint errors |
 | Typecheck fails at phase end | Spawn engineer agent to fix type errors |
-| `reviewing-code` finding requires human judgment | Pause with finding; do not auto-apply |
+| Reviewer finding requires human judgment | Pause with finding; do not auto-apply |
 | Pre-commit hook fails | Pause with full hook output; never use `--no-verify` |
 | Plan/code mismatch discovered | Stop and present issue to user |
 | Agent returns empty or garbled output | Re-spawn the same agent with the same prompt |
