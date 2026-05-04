@@ -41,16 +41,17 @@ I'll help you refine a Jira or Linear issue into a behavior-focused user story w
 Please provide an issue ID (e.g., POPS-123 for Jira, ENG-123 for Linear).
 
 Optionally specify --tool jira|linear; otherwise I'll ask.
-
-I'll guide you through:
-1. Tracker selection (skipped if --tool provided)
-2. Fetching tracker context (issue, parent, related work)
-3. Selecting a project for capability research
-4. Parallel capability research across repositories
-5. Story drafting with domain vocabulary
-6. Two charter-aware review cycles
-7. Final story with optional tracker update
 ```
+
+## Parallel Execution Contract
+
+Stories under the same epic CAN be run in parallel when they're truly independent: file paths are isolated per run (Phase 9 uses a per-PID temp file), tracker writes are issue-scoped, and DECISIONS logs do not cross-contaminate.
+
+Practical guidance:
+
+- Expect ~6 `AskUserQuestion` gates per story. Running 2-3 in parallel is comfortable; more becomes hard to attend to.
+- A common pattern: batch-launch through the draft phase, then walk review phases one story at a time.
+- If stories share invented vocabulary, refine one first to seed the Domain Glossary, then run the rest in parallel — DECISIONS logs are isolated, so independent runs may otherwise pick different canonical terms.
 
 ---
 
@@ -80,8 +81,8 @@ This table binds tool-specific commands and field names referenced throughout th
 | `${FETCH_CMD}` | `jira issue view ${ISSUE_KEY} --comments 10` and `jira issue view ${ISSUE_KEY} --raw` | `npx -y linearis issues read ${ISSUE_KEY}` |
 | `${FETCH_RELATED}` | linked issues + comments | sub-issues + up-to-5 sibling issues under same parent |
 | `${COMMENTS_AVAILABLE}` | yes | no — compensate with siblings + parent context |
-| `${UPDATE_DESC_CMD}` | `jira issue edit ${ISSUE_KEY} --no-input --body "$(cat /tmp/story.md)"` | `npx -y linearis issues update ${ISSUE_KEY} --description "$(cat /tmp/story.md)"` |
-| `${ADD_COMMENT_CMD}` | `jira issue comment add ${ISSUE_KEY} --no-input -b"$(cat /tmp/story.md)"` | `npx -y linearis comments create ${ISSUE_KEY} --body "$(cat /tmp/story.md)"` |
+| `${UPDATE_DESC_CMD}` | `jira issue edit ${ISSUE_KEY} --no-input --body "$(cat "$STORY_FILE")"` | `npx -y linearis issues update ${ISSUE_KEY} --description "$(cat "$STORY_FILE")"` |
+| `${ADD_COMMENT_CMD}` | `jira issue comment add ${ISSUE_KEY} --no-input -b"$(cat "$STORY_FILE")"` | `npx -y linearis comments create ${ISSUE_KEY} --body "$(cat "$STORY_FILE")"` |
 
 If a future tracker is added (e.g., GitHub Issues, Asana), extend this table and the Phase 0 question — phases 2–8 are tool-agnostic and require no changes.
 
@@ -91,7 +92,7 @@ If a future tracker is added (e.g., GitHub Issues, Asana), extend this table and
 
 ### Authentication Check
 
-Run `${AUTH_CHECK}`. If it fails, tell the user to consult `${TOOL_SKILL}` for setup steps and stop.
+Run `${AUTH_CHECK}`. If it fails, tell the user: "${TOOL} authentication failed. Run `/skill ${TOOL_SKILL}` or read `~/.claude/skills/${TOOL_SKILL}/SKILL.md` for setup steps." Then stop.
 
 ### Fetch Issue Details
 
@@ -115,7 +116,7 @@ Re-run `${FETCH_CMD}` against the parent identifier to capture the parent's titl
 The dispatch table covers single-command fetches; sibling discovery requires structural traversal of parent data, so this step branches by TOOL:
 
 - TOOL=jira: For each linked issue, fetch with `${FETCH_CMD}`.
-- TOOL=linear: From the parent's `.subIssues` array, fetch up to 5 siblings (excluding the current issue). Siblings under the same parent provide "related work" context that compensates for Linear's missing comments.
+- TOOL=linear: From the parent's `.subIssues` array, fetch up to 5 siblings (excluding the current issue). 5 keeps context tractable without overwhelming Phase 3 synthesis; tune if signal is thin. Siblings under the same parent provide "related work" context that compensates for Linear's missing comments.
 
 ### Build Context Summary
 
@@ -709,10 +710,11 @@ Display the complete refined story with quality check results:
 
 ### Tracker Update Execution
 
-For multi-line story content, write to `/tmp` first (CLIs choke on inline multi-line strings):
+For multi-line story content, write to a per-run temp file first (CLIs choke on inline multi-line strings). The path includes both `${ISSUE_KEY}` and `$$` (PID) so parallel runs cannot collide:
 
 ```bash
-cat > /tmp/story.md <<'EOF'
+STORY_FILE="/tmp/story-${ISSUE_KEY}-$$.md"
+cat > "$STORY_FILE" <<'EOF'
 ${FINAL_STORY_CONTENT}
 EOF
 ```
@@ -722,6 +724,12 @@ Then run the appropriate tool dispatch command:
 - **Update description**: Run `${UPDATE_DESC_CMD}`
 - **Add as comment**: Run `${ADD_COMMENT_CMD}`
 - **Both**: Run both, in that order
+
+After the tracker write succeeds, clean up:
+
+```bash
+rm -f "$STORY_FILE"
+```
 
 ---
 
@@ -744,7 +752,7 @@ Unknown tool "${VALUE}". Supported values: jira, linear.
 
 ### Authentication Failure
 
-Tell the user `${TOOL} authentication failed — consult \`${TOOL_SKILL}\` for setup steps` and stop.
+Tell the user: "${TOOL} authentication failed. Run `/skill ${TOOL_SKILL}` or read `~/.claude/skills/${TOOL_SKILL}/SKILL.md` for setup steps." Then stop.
 
 ### Issue Not Found
 
@@ -782,33 +790,11 @@ Capability research for ${REPO} is taking longer than expected. Options:
 
 ## Example Sessions
 
-### Jira
-
 ```bash
+# Jira — explicit tracker
 /refine-story POPS-456 --tool jira
-```
 
-1. Verifies Jira auth, fetches POPS-456 with comments and linked issues
-2. Presents context summary
-3. Shows project list from projects.yaml; user selects the relevant project
-4. Spawns capability-locator agents for the project's repositories in parallel; falls back to a narrowly-scoped user-visible string scan only if capability inventory is thin
-5. Synthesizes tracker + capability context using atomic-thought
-6. Drafts story with narrative + Given-When-Then scenarios
-7. User approves draft for review
-8. Review 1: Agile practitioner evaluates quality and testability
-9. User incorporates feedback, self-consistency check
-10. Review 2: Skeptical product owner validates completeness and scope
-11. User finalizes, self-consistency check
-12. Presents final story; user chooses to update Jira description
-
-### Linear (no --tool flag)
-
-```bash
+# Linear — no --tool flag, the command will prompt for tracker
+# Linear flow compensates for missing comments via siblings under the same parent
 /refine-story ENG-456
 ```
-
-1. Asks "Which tracker is `ENG-456` from?" — user picks Linear
-2. Verifies Linear auth, fetches ENG-456 with parent + sub-issues + up to 5 siblings (compensates for missing comments)
-3. Notes "Comments: not available via CLI" in the context summary
-4. Subsequent phases identical to the Jira flow
-5. Final phase uses `linearis` to update the issue
