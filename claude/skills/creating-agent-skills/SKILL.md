@@ -119,7 +119,7 @@ Beyond these, Claude Code supports `when_to_use`, `argument-hint`, `disable-mode
 
 - [references/official-spec.md](references/official-spec.md) — full frontmatter table, string substitutions, lifecycle
 - [references/invocation-control.md](references/invocation-control.md) — `disable-model-invocation`, `user-invocable`, `context: fork`, `paths`
-- [references/dynamic-context.md](references/dynamic-context.md) — `` !`cmd` `` shell injection and `$ARGUMENTS` substitutions
+- [references/dynamic-context.md](references/dynamic-context.md) — bang-backtick shell injection and `$ARGUMENTS` substitutions
 - [code.claude.com/docs/en/skills](https://code.claude.com/docs/en/skills) — live source of truth
 
 ### Naming Conventions
@@ -346,7 +346,7 @@ For detailed guidance, see:
 
 - [official-spec.md](references/official-spec.md) — Anthropic's official skill specification (frontmatter, lifecycle, substitutions)
 - [invocation-control.md](references/invocation-control.md) — `disable-model-invocation`, `user-invocable`, `context: fork`, `paths`
-- [dynamic-context.md](references/dynamic-context.md) — `` !`cmd` `` shell injection and `$ARGUMENTS`
+- [dynamic-context.md](references/dynamic-context.md) — bang-backtick shell injection and `$ARGUMENTS`
 - [best-practices.md](references/best-practices.md) — Skill authoring best practices
 
 ## Success Criteria
