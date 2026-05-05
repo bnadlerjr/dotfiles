@@ -50,6 +50,7 @@ def main() -> None:
             json.dumps(
                 {
                     "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
                         "additionalContext": (
                             "TDD REMINDER: You are about to write production code. "
                             "Activate the practicing-tdd skill and ensure the "
@@ -57,7 +58,7 @@ def main() -> None:
                             "FIRST. If tests already exist for this change, confirm "
                             "they cover the new behavior. If no tests exist, create "
                             "them before this file."
-                        )
+                        ),
                     }
                 }
             )

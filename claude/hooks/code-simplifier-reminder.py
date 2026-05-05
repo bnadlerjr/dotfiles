@@ -33,6 +33,7 @@ def main() -> None:
             json.dumps(
                 {
                     "hookSpecificOutput": {
+                        "hookEventName": "PostToolUse",
                         "additionalContext": (
                             "REMINDER: After completing your current set of edits, "
                             "spawn the code-simplifier agent to review modified "
@@ -40,7 +41,7 @@ def main() -> None:
                             "YAGNI violations. "
                             "Use: Task tool, subagent_type: code-simplifier, "
                             "prompt: Review and simplify: " + file_path
-                        )
+                        ),
                     }
                 }
             )
