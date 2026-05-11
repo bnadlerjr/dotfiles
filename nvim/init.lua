@@ -382,15 +382,17 @@ local servers = {
   bashls = {},
   clojure_lsp = {},
   elixirls = {
-    cmd = { "~/.local/share/nvim/mason/packages/elixir-ls/language_server.sh" }
+    cmd = { 'elixir-ls' }
   },
   eslint = {},
 
   lua_ls = {
-    Lua = {
-      workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
-      diagnostics = { disable = { 'missing-fields' }, globals = { "vim" } }
+    settings = {
+      Lua = {
+        workspace = { checkThirdParty = false },
+        telemetry = { enable = false },
+        diagnostics = { disable = { 'missing-fields' }, globals = { "vim" } }
+      }
     }
   },
 
@@ -398,18 +400,20 @@ local servers = {
   stimulus_ls = {},
   tailwindcss = {},
   ts_ls = {
-    typescript = {
-      preferences = {
-        includeCompletionsForModuleExports = true,
-        includeCompletionsForImportStatements = true,
-        includeCompletionsWithInsertText = true,
-      }
-    },
-    javascript = {
-      preferences = {
-        includeCompletionsForModuleExports = true,
-        includeCompletionsForImportStatements = true,
-        includeCompletionsWithInsertText = true,
+    settings = {
+      typescript = {
+        preferences = {
+          includeCompletionsForModuleExports = true,
+          includeCompletionsForImportStatements = true,
+          includeCompletionsWithInsertText = true,
+        }
+      },
+      javascript = {
+        preferences = {
+          includeCompletionsForModuleExports = true,
+          includeCompletionsForImportStatements = true,
+          includeCompletionsWithInsertText = true,
+        }
       }
     }
   }
@@ -434,11 +438,12 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup_handlers {
   function(server_name)
-    vim.lsp.config(server_name, {
-      capabilities = capabilities,
-      settings = servers[server_name],
-      filetypes = (servers[server_name] or {}).filetypes,
-    })
+    local cfg = vim.tbl_deep_extend(
+      'force',
+      { capabilities = capabilities },
+      servers[server_name] or {}
+    )
+    vim.lsp.config(server_name, cfg)
     vim.lsp.enable(server_name)
   end,
 }
