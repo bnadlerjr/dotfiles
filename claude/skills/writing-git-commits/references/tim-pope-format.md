@@ -153,14 +153,13 @@ Fix memory leak in image processing
 The resize operation wasn't releasing buffers after completion.
 
 Fixes #456
-Refs #400
 ```
 
 Common keywords:
 - `Fixes #123` - Closes the issue
 - `Closes #123` - Same as Fixes
-- `Refs #123` - References without closing
-- `See #123` - Informal reference
+- `Refs #123` - Use only when the issue carries load-bearing context not duplicated in the body
+- `See #123` - Informal reference (rarely worth the noise)
 
 ### Call Out Breaking Changes
 
@@ -227,18 +226,7 @@ Adds JWT-based authentication system including:
 
 ### Work in Progress
 
-Avoid WIP commits in shared history. If you must:
-
-```
-WIP: Add user authentication (do not merge)
-
-Checkpoint before vacation. Missing:
-- Password reset flow
-- Email verification
-- Tests
-```
-
-Better: Use `git commit --fixup` and squash before pushing.
+Don't commit WIP to shared branches. Use `git commit --fixup` and squash before pushing, or keep WIP local.
 
 ## Common Mistakes
 

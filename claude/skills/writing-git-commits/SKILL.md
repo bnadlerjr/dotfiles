@@ -1,6 +1,7 @@
 ---
 name: writing-git-commits
 description: Write Tim Pope-style Git commit messages. Honors repo-specific commit templates when present. Forbids AI attribution. Use when committing staged changes, amending commit messages, or when someone mentions commit message, git commit, or commit format.
+allowed-tools: Bash(git commit:*), Bash(git config --get:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git rev-parse:*), Bash(cat:*), Read
 ---
 
 # Writing Git Commits
@@ -9,10 +10,11 @@ Write clear, professional Git commit messages following Tim Pope's style guide.
 
 ## Quick Start
 
-```
-/commit              # Invoke when ready to commit staged changes
-/commit --amend      # Amend the previous commit message
-```
+This skill activates when committing staged changes, amending a commit message, or when the user mentions "commit message", "git commit", or "commit format". On activation:
+
+1. Run the [Template Lookup](#template-lookup-dynamic) to detect a project template.
+2. Follow that template, or fall back to [Tim Pope Format](#tim-pope-format) when none is configured.
+3. Validate against the [Success Checklist](#success-checklist) before invoking `git commit`.
 
 ## The Iron Law
 
@@ -25,16 +27,72 @@ Write clear, professional Git commit messages following Tim Pope's style guide.
 
 This is non-negotiable. Violating this rule fails the entire commit.
 
+## Bodies Are Prose for Humans
+
+The commit body is user-facing prose: BLUF, active voice, no banned words, no hedging, concrete over abstract. The quick rules and banned-word list are inlined below — most commit bodies are 1-3 paragraphs, so applying them inline is faster than delegating.
+
+The **subject line is mechanical** (imperative mood, ~50 chars, completion test) and its rules override prose rules where they conflict.
+
+Use bullets for genuinely parallel items; use prose for narrative explanation. Don't bullet-list a single thought.
+
+For long-form prose guidance beyond what's inlined here, see [writing-for-humans](../writing-for-humans/SKILL.md) as further reading.
+
+## What Belongs in the Body
+
+The diff already shows WHAT and HOW. The body's monopoly is on WHY. Everything you write must clear two tests.
+
+### Test 1: The Diff-Redundancy Test
+
+> "Could a future engineer derive this from `git log --stat -p` alone?"
+
+If yes, delete it. If the entire body fails the test, rewrite it to capture WHY. Only drop to subject-only if the change is truly trivial.
+
+The body exists to capture what the diff CANNOT show:
+
+- WHY this change was made (motivation, constraint, external trigger)
+- Alternatives considered and rejected, and why
+- Invariants or constraints not visible in the code
+- Subtle behavior changes a casual reader might miss
+- Historical or external context (e.g., "Stripe changed their API on 2025-04-01")
+
+A body that paraphrases the diff ("Modified X to add Y, updated Z") adds zero information. Cut it.
+
+### Test 2: The Cross-Reference Test
+
+Every reference to another commit, PR, or ticket must either (a) trigger automation, or (b) carry context the reader needs and cannot get from the diff or from this body. Otherwise it is noise.
+
+**Operational (keep):**
+
+- `Fixes #N` / `Closes #N` / `Resolves #N` — auto-closes the issue
+- `Reverts <sha>` — explains that this commit undoes another (include WHY)
+- `Refs #N` — only if the referenced issue contains essential context the reader needs and is not duplicated here
+
+**Decorative (cut):**
+
+- "Part of epic ENG-789" — irrelevant to understanding this commit
+- "Follow-up to PR #456" — if PR #456 matters, explain WHY in the body itself
+- "Related to #N" — if it is related, say how; otherwise drop
+- "As discussed in #234" — useless without summarizing what was discussed
+- "See also #N" — almost never load-bearing
+
 ## Template Lookup (Dynamic)
 
-Before writing a commit message, check for project-specific templates:
+Before writing a commit message, check for a project-specific template:
 
-1. **Git config template**: `git config commit.template`
-2. **Repo root**: `.gitmessage` file in repository root
-3. **Existing template comments**: `.git/COMMIT_EDITMSG`
-4. **Fallback**: Tim Pope format (documented below)
+```bash
+template=$(git config --get commit.template)
+if [ -z "$template" ]; then
+  for candidate in .gitmessage .gitmessage.txt; do
+    if [ -f "$(git rev-parse --show-toplevel)/$candidate" ]; then
+      template="$(git rev-parse --show-toplevel)/$candidate"
+      break
+    fi
+  done
+fi
+[ -n "$template" ] && cat "$template"
+```
 
-If a project template exists, follow its conventions. Otherwise, use Tim Pope format.
+If `$template` resolves to a file, read it and follow its conventions. Otherwise, use [Tim Pope format](#tim-pope-format).
 
 ## Tim Pope Format
 
@@ -61,35 +119,31 @@ Examples:
 
 ### Subject Line Verbs
 
+Most action verbs are self-evident (Add, Remove, Update). These are the ones that need disambiguation:
+
 | Verb | Use For |
 |------|---------|
-| Add | New feature, file, or capability |
-| Remove | Deleting code, files, or features |
-| Fix | Bug fixes |
-| Update | Changes to existing functionality |
-| Refactor | Code restructuring without behavior change |
-| Rename | Renaming files, variables, functions |
-| Move | Relocating code or files |
-| Extract | Breaking out code into new function/module |
-| Simplify | Reducing complexity |
-| Improve | Performance, readability, or UX enhancements |
-| Replace | Swapping one implementation for another |
-| Support | Adding capability for something |
-| Handle | Adding case handling or error handling |
-| Implement | Completing a feature or specification |
-| Configure | Setting up config or environment |
-| Document | Adding or updating documentation |
+| Fix | Bug fixes only — not "improvements" or refactors |
+| Refactor | Code restructuring with **no behavior change**. If behavior changes, use Update |
+| Extract | Breaking code out into a new function/module (no behavior change). Distinct from Move |
+| Move | Relocating existing code without restructuring it |
+| Rename | Renaming files, variables, or functions (no other change) |
+| Replace | Swapping one implementation for another. Distinct from Update (which modifies in place) |
+| Revert | Undoing a prior commit. Include the SHA and WHY in the body |
 
 ### When to Include a Body
 
-- **Subject only**: Single-purpose changes where the diff is self-explanatory
-- **Subject + body**: Multi-file changes, non-obvious decisions, breaking changes
+**Trivial changes (subject only):** typo fixes, version bumps, dependency upgrades with no API change, formatting-only commits. If the change is obvious from the diff and would surprise no one, the subject is enough.
 
-Body content should answer:
-- What changed and why?
-- What alternatives were considered?
-- What are the consequences or side effects?
-- Are there any caveats or known issues?
+**Non-trivial changes (write a body):** anything that involved a decision. Code review of your future self should be able to ask "why did you do it this way?" and get an answer from the commit message, not from the diff.
+
+The body's job is WHY, not WHAT — the [Diff-Redundancy Test](#test-1-the-diff-redundancy-test) still applies. If your draft body paraphrases the diff, rewrite it to explain motivation, rejected alternatives, or constraints. Don't delete it; fix it.
+
+**When in doubt, write the body.** A paragraph the next reader skips costs them three seconds. A missing paragraph during a bisection costs them an hour.
+
+**If the subject feels cryptic at 50 chars:** that's a signal the change needs a body, not a sharper subject. Keep the subject as the headline; let the body carry the context the 50-char limit pushed out.
+
+Do not use the body to *complete* the subject grammatically — the body is WHY, not WHAT. If your subject and first body sentence read as one continuous thought, rewrite both.
 
 ## Workflow
 
@@ -113,12 +167,39 @@ Decompose the staged changes:
 
 ### Step 3: Draft Body (if needed)
 
+**First, decide if the change is trivial.** Trivial → subject only. Non-trivial → write a body, then apply the [Diff-Redundancy Test](#test-1-the-diff-redundancy-test) to make sure it captures WHY, not WHAT. If a draft body only restates the diff, rewrite it; don't delete it.
+
 For non-trivial changes:
 
-1. Explain what changed at a high level
-2. Explain why the change was necessary
-3. Note any consequences or caveats
-4. Keep lines at 72 characters
+1. Lead with the what/why in the first sentence (BLUF) — no "This commit..." preamble
+2. Use active voice — name the actor: "JWTs let any server validate requests" not "requests can be validated"
+3. Cut banned words (see list below) and hedging ("might", "could potentially", "it seems")
+4. Prefer concrete details — numbers, file names, function names — over abstract claims
+5. Note consequences or caveats
+6. Apply the [Cross-Reference Test](#test-2-the-cross-reference-test) — operational refs only
+7. Keep lines at 72 characters
+
+#### Banned Words Quick List (for bodies)
+
+The top offenders likely to appear in commit bodies. Cut or replace every instance:
+
+| Replace | With |
+|---------|------|
+| land, lands, landing, landed | merge, ship, deploy, release |
+| leverage | use, apply |
+| utilize | use |
+| facilitate | help, enable |
+| robust | tested, validated, fault-tolerant (or cut) |
+| comprehensive | complete, full (or cut) |
+| streamline | simplify, speed up |
+| seamless | smooth (or describe the actual behavior) |
+| in order to | to |
+| due to the fact that | because |
+| prior to | before |
+| has the ability to | can |
+| It's important to note that | (delete — state the fact) |
+
+For the full list, see [writing-for-humans banned words](../writing-for-humans/SKILL.md#banned-words-and-phrases).
 
 ### Step 4: Validate
 
@@ -151,12 +232,36 @@ Add null check in user validation
 ```
 Refactor authentication to use JWT tokens
 
-Replace session-based auth with stateless JWT tokens to support
-horizontal scaling. Sessions required sticky load balancing which
-complicated our deployment. JWTs allow any server to validate
-requests independently.
+Swap session-based auth for stateless JWT tokens so any server
+can validate requests independently. Sessions forced sticky load
+balancing, which blocked horizontal scaling across our three
+production regions.
 
-Breaking change: existing sessions will be invalidated on deploy.
+Breaking change: existing sessions invalidate on deploy.
+```
+
+### Bad: Restates the Diff
+
+```
+Add email field to User model
+
+Modified UserService.ts to add a new field called `email` to the
+User interface. Updated the createUser method to accept the new
+field. Added validation in EmailValidator.ts. Updated the tests
+in user.test.ts.
+```
+
+Every line is visible in `git show --stat -p`. The body adds nothing. Rewrite it to explain WHY.
+
+**Better:**
+
+```
+Add email field to User model
+
+Required for the upcoming password-reset flow. Validate
+synchronously on create to fail fast — schema-level constraints
+will follow in a separate commit so the migration can be
+reviewed independently.
 ```
 
 ### Good: Bug Fix
@@ -185,7 +290,7 @@ Co-Authored-By: Claude <...>        # AI ATTRIBUTION - NEVER DO THIS
 
 ## Issue References
 
-Place issue references at the end of the body:
+Place issue references at the end of the body. Use operational forms (`Fixes`, `Closes`, `Resolves`) that trigger automation. Skip decorative references — see [Test 2](#test-2-the-cross-reference-test).
 
 ```
 Fix memory leak in image processing
@@ -195,7 +300,6 @@ after completion, causing memory to grow unbounded.
 
 Fixes #456
 Closes #457
-Refs #400
 ```
 
 ## Breaking Changes
@@ -228,18 +332,31 @@ Improve error handling across payment flow
 
 Before finalizing any commit message, verify:
 
-- [ ] Subject passes: "If applied, this commit will [subject]"
-- [ ] Subject uses imperative mood (Add/Fix/Update, not Added/Fixed/Updated)
-- [ ] Subject starts with capital letter
-- [ ] Subject has no trailing period
-- [ ] Subject is ~50 characters (hard max 72)
+**Subject (mechanics):**
+- [ ] Passes: "If applied, this commit will [subject]"
+- [ ] Imperative mood (Add/Fix/Update, not Added/Fixed/Updated)
+- [ ] Starts with capital letter
+- [ ] No trailing period
+- [ ] ~50 characters (hard max 72)
+
+**Body (prose):**
 - [ ] Blank line between subject and body
-- [ ] Body lines wrap at 72 characters
-- [ ] Body explains what/why, not how
+- [ ] Lines wrap at 72 characters
+- [ ] Explains what/why, not how
+- [ ] No diff-redundant content (passes "could the reader get this from `git show`?")
+- [ ] Passes the [Cross-Reference Test](#test-2-the-cross-reference-test)
+- [ ] BLUF — first sentence carries the point, no preamble
+- [ ] Active voice (80%+ of sentences)
+- [ ] No banned words (land/lands/landing/landed, leverage, robust, comprehensive, utilize, facilitate, seamless, streamline)
+- [ ] No hedging ("might", "could potentially", "it seems")
+- [ ] Concrete over abstract — numbers, names, specifics over adjectives
+
+**Hard rules:**
 - [ ] No AI attribution anywhere
 - [ ] Issue references at end of body (if applicable)
 
 ## References
 
 - [Tim Pope Format Details](references/tim-pope-format.md)
+- [writing-for-humans](../writing-for-humans/SKILL.md) — prose rules for the commit body (BLUF, active voice, banned words)
 - [Original blog post](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
