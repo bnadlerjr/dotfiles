@@ -70,13 +70,9 @@ The notes may already contain material for each — lift it. Do **not** invent r
 
 ## Step 5 — Grill (MANDATORY)
 
-Invoke the `grilling-ideas` skill via the Skill tool. Notes-derived pitches especially benefit from grilling because the shape is reconstructed from secondary material — assumptions about what was "decided" in the meeting are often wrong.
+Stress-test the reconstructed shape by invoking the `grilling-ideas` skill using the Skill tool (parameter `skill: grilling-ideas`, optionally pass an `args` string focusing the grill, e.g., `args: "Focus on: what the notes assume vs. what's actually decided"`). Wait for it to complete before proceeding. Notes-derived pitches especially benefit from grilling because the shape is reconstructed from secondary material — assumptions about what was "decided" in the meeting are often wrong.
 
-```
-Skill tool invocation:
-  skill: grilling-ideas
-  args: Focus the grill on: what the notes assume vs. what's actually decided.
-```
+If the Skill tool is unavailable in this context (e.g., running inside a sub-agent), inline the grilling questions yourself using the patterns in the `grilling-ideas` skill — ask the user the hardest 3-5 questions about the shape, appetite, and rabbit holes, then wait for answers before drafting.
 
 ---
 

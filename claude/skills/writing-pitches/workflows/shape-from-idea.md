@@ -85,15 +85,11 @@ A pitch with zero no-gos is suspicious. Adjacent features always want in.
 
 ## Step 6 — Grill The Shape (MANDATORY)
 
-**Before writing the pitch**, invoke the `grilling-ideas` skill via the Skill tool to stress-test the shaped concept.
+**Before writing the pitch**, stress-test the shaped concept by invoking the `grilling-ideas` skill using the Skill tool (parameter `skill: grilling-ideas`, optionally pass an `args` string focusing the grill, e.g., `args: "Focus on: <weaknesses>"`). Wait for it to complete before proceeding.
 
-```
-Skill tool invocation:
-  skill: grilling-ideas
-  args: (optional — name the concept and paste the shaping state)
-```
+If the Skill tool is unavailable in this context (e.g., running inside a sub-agent), inline the grilling questions yourself using the patterns in the `grilling-ideas` skill — ask the user the hardest 3-5 questions about the shape, appetite, and rabbit holes, then wait for answers before drafting.
 
-Let the grill run. The goal is to surface rabbit holes you missed, challenge the appetite against the elements, and catch implicit assumptions. When the grill resolves or the user calls stop, carry the resolved decisions into the pitch.
+The goal is to surface rabbit holes you missed, challenge the appetite against the elements, and catch implicit assumptions. When the grill resolves or the user calls stop, carry the resolved decisions into the pitch.
 
 If the grill surfaces a new Critical that invalidates the shape (e.g., the appetite doesn't fit the elements), go back to Step 2 or Step 3 — do not paper over it in the pitch.
 

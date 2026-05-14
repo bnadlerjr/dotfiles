@@ -38,13 +38,9 @@ Present the critique briefly — one or two lines per finding. Do not rewrite ye
 
 ## Step 3 — Grill The Gaps (MANDATORY)
 
-Invoke the `grilling-ideas` skill via the Skill tool, focused on the weaknesses you found. This is not optional — the grill is where the user's judgment resolves the gaps.
+Stress-test the weaknesses you found by invoking the `grilling-ideas` skill using the Skill tool (parameter `skill: grilling-ideas`, optionally pass an `args` string focusing the grill, e.g., `args: "Focus on: <weaknesses>"`). Wait for it to complete before proceeding. This is not optional — the grill is where the user's judgment resolves the gaps.
 
-```
-Skill tool invocation:
-  skill: grilling-ideas
-  args: Focus the grill on: <list the specific weaknesses>
-```
+If the Skill tool is unavailable in this context (e.g., running inside a sub-agent), inline the grilling questions yourself using the patterns in the `grilling-ideas` skill — ask the user the hardest 3-5 questions about the shape, appetite, and rabbit holes, then wait for answers before drafting.
 
 Typical grill targets for a draft refinement:
 

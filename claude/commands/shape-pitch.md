@@ -2,7 +2,7 @@
 description: Write a Shape Up pitch (idea / draft / notes) and save it to $CLAUDE_DOCS_ROOT
 argument-hint: "[rough idea | path to draft | path to notes | empty for interactive]"
 model: opus
-allowed-tools: Read, Write, Edit, Bash(date), Bash(test), Bash(mkdir), Bash(echo), Bash(git config:*), Bash(git remote:*), Bash(grep), AskUserQuestion, Skill
+allowed-tools: Read, Write, Edit, Grep, Bash(date), Bash(test), Bash(mkdir), Bash(git config:*), Bash(git remote:*), Bash(git rev-parse:*), AskUserQuestion, Skill
 ---
 
 # Write A Shape Up Pitch
@@ -23,8 +23,8 @@ Inspect `$ARGUMENTS`:
 
 - **Empty** → invoke the skill with no input; it will ask the user what they have
 - **Starts with `/`, `~`, or `./`** → path. Use `Read` to load it. Inspect contents to decide:
-  - Looks like a pitch (has Problem / Appetite / Solution sections or similar) → this is a *draft to refine*
-  - Looks like notes/transcript/research → this is *notes to distill*
+  - Has the standard pitch headers (Problem / Appetite / Solution / Rabbit Holes / No-gos) → this is a *draft to refine*
+  - Lacks the standard pitch headers (Problem / Appetite / Solution / Rabbit Holes / No-gos) → treat as *notes to distill*
   - Ambiguous → ask via `AskUserQuestion` which it is
 - **Otherwise** → treat as a rough idea (raw text)
 
@@ -38,13 +38,6 @@ Refine this draft pitch: <file path + contents>               (draft)
 Distill these notes into a pitch: <file path + contents>      (notes)
 ```
 
-The skill will:
-
-1. Route to the appropriate workflow (shape-from-idea / refine-draft / distill-notes)
-2. Shape the concept
-3. Actively invoke `grilling-ideas` to stress-test the shape (this is mandatory in the skill)
-4. Return the pitch as markdown in the conversation
-
 **Do not save anything yet.** Wait for the skill to return the full pitch.
 
 ## Phase 3 — Confirm With User Before Saving
@@ -55,83 +48,20 @@ Once the skill returns the pitch markdown, present it and confirm via `AskUserQu
 - Question: "Save this pitch to your docs vault?"
 - Options:
   - "Save it" → proceed to Phase 4
-  - "Make edits first" → ask what to change, apply, re-present, ask again
+  - "Make edits first" → for small wording changes, apply them directly via `Edit` on the pitch markdown in-conversation; for structural changes (missing rabbit holes, wrong appetite, wrong shape), re-invoke the `writing-pitches` skill with the user's feedback as `args`. Re-present, ask again.
   - "Don't save" → end without writing
 
 ## Phase 4 — Resolve Project Context
 
-Pitches require canonical project metadata. Determine which project this pitch belongs to following `~/.claude/guidelines/artifact-management.md`.
+Resolve project context per `~/.claude/guidelines/artifact-management.md` (sections "Project Context" and "File Naming"). Use the standard procedure: detect current repo via git, match against `$CLAUDE_DOCS_ROOT/projects.yaml`, confirm with the user, offer create-new or one-off if no match.
 
-### 4a. Detect current repository
+Implementation notes specific to this command:
 
-```bash
-# May or may not succeed — user might be running from a non-repo directory
-CURRENT_REMOTE=$(git config --get remote.origin.url 2>/dev/null || true)
-```
+- **Repo-detection guard**: before running `git config --get remote.origin.url`, verify the cwd is inside a git work tree via `git rev-parse --is-inside-work-tree` (nonzero exit → no repo, skip straight to the "no remote" branch of the guideline).
+- **Creating a new project**: when the guideline calls for collecting project name / area / jira_epic, gather all three in a single multi-question `AskUserQuestion` call rather than three sequential ones.
+- **One-off**: when no project applies, the output frontmatter sets `Area: One-off` and omits `Project`, `ProjectSlug`, and `JiraEpic`.
 
-Normalize the remote URL to `org/repo`:
-
-- `git@github.com:org/repo.git` → `org/repo`
-- `https://github.com/org/repo.git` → `org/repo`
-- `https://github.com/org/repo` → `org/repo`
-
-If no remote detected, skip to 4c with no current-repo match.
-
-### 4b. Match against registry
-
-Read `$CLAUDE_DOCS_ROOT/projects.yaml`. For each project entry, check whether its `repositories` list contains the detected `org/repo`.
-
-- **Exactly 1 match** → use that project. Present via `AskUserQuestion` for confirmation:
-  - Header: "Project"
-  - Question: "Save this pitch under `<Project Name>`?"
-  - Options:
-    - `<Project Name>` (Recommended) → use it
-    - "Pick a different project" → go to multi-choice picker (see below)
-    - "Create new project" → go to 4d
-    - "One-off (no project)" → go to 4e
-
-- **Multiple matches** → present all matches plus "Create new project" and "One-off" via `AskUserQuestion`. User picks.
-
-- **Zero matches** → present `AskUserQuestion`:
-  - Header: "Project"
-  - Question: "No registered project matches this repo. What should I do?"
-  - Options:
-    - "Create new project" (Recommended) → go to 4d
-    - "Pick an existing project" → list up to 4 most recently mentioned projects
-    - "One-off (no project)" → go to 4e
-
-### 4c. Fallback when no remote detected
-
-If no git remote was detected, ask the user which project via `AskUserQuestion`: list existing projects (top 4) plus "Create new project" and "One-off".
-
-### 4d. Create new project
-
-Collect the following via sequential `AskUserQuestion` calls (one question at a time — these aren't independent):
-
-1. **Project name** — free text (via "Other" on a question with placeholder options)
-2. **Area** — options: `Work` / `Side Projects` / `One-off`. If `Work`, also include `Instinct` as a second tag (match existing pattern: `Area: [Work, Instinct]`).
-3. **Jira epic** — only if Area includes Work. Options: "Enter epic ID" (free text via Other) / "Skip — no epic yet".
-
-Derive `ProjectSlug` from the project name: lowercase, non-alphanumeric → `-`, collapse repeats, strip leading/trailing `-`.
-
-Append the new entry to `$CLAUDE_DOCS_ROOT/projects.yaml` using the `Edit` tool. Append at the end of the `projects:` map, preserving 2-space indentation and a blank line before the new block:
-
-```yaml
-  <slug>:
-    name: "<Project Name>"
-    area: <Work | Side Projects | One-off>    # or list form: [Work, Instinct]
-    jira_epic: <EPIC-ID>                        # only if provided
-    repositories:
-      - "<org/repo>"                            # current repo, if detected
-```
-
-Omit `jira_epic` line entirely if none; omit the `repositories` block if no current repo detected.
-
-After appending, re-read to confirm the write succeeded.
-
-### 4e. One-off (no project)
-
-Skip project frontmatter fields. The output frontmatter will set `Area: One-off` and omit `Project`, `ProjectSlug`, and `JiraEpic`.
+Outputs needed for Phase 6 frontmatter: project name, slug, area, jira_epic (optional), repositories (optional).
 
 ## Phase 5 — Determine Output Path
 
@@ -155,77 +85,13 @@ Build the filename:
 
 ## Phase 6 — Write With Canonical Frontmatter
 
-Prepend the canonical artifact frontmatter block to the pitch markdown before writing.
+Emit canonical artifact frontmatter per `~/.claude/guidelines/artifact-management.md` (section "Required Frontmatter"). Use artifact type `pitch` (i.e., `tags: [claude-artifact, resource, pitch]`). Populate `Area`, `Project`, `ProjectSlug`, `JiraEpic` (when Work), `Repositories` (when known), and `Status: Active` from the project context resolved in Phase 4.
 
-### Frontmatter schema
+Pitch-specific notes:
 
-Use YAML list form for `tags`, `Area` (when multi-valued), and `Repositories`. Use `"[[...]]"` (quoted Obsidian links) for `Created` and `Project`. Always include `AutoNoteMover: disable`.
-
-**For a Work pitch with a registered project:**
-
-```yaml
----
-tags:
-  - claude-artifact
-  - resource
-  - pitch
-Area:
-  - Work
-  - Instinct
-Created: "[[YYYY-MM-DD]]"
-Modified: YYYY-MM-DD
-AutoNoteMover: disable
-Project: "[[<Project Name>]]"
-ProjectSlug: <slug>
-JiraEpic: <EPIC-ID>
-Repositories:
-  - <org/repo>
-Status: Active
----
-```
-
-**For a Side Projects pitch:**
-
-```yaml
----
-tags:
-  - claude-artifact
-  - resource
-  - pitch
-Area: Side Projects
-Created: "[[YYYY-MM-DD]]"
-Modified: YYYY-MM-DD
-AutoNoteMover: disable
-Project: "[[<Project Name>]]"
-ProjectSlug: <slug>
-Repositories:
-  - <org/repo>
-Status: Active
----
-```
-
-**For a One-off pitch:**
-
-```yaml
----
-tags:
-  - claude-artifact
-  - resource
-  - pitch
-Area: One-off
-Created: "[[YYYY-MM-DD]]"
-Modified: YYYY-MM-DD
-AutoNoteMover: disable
-Status: Active
----
-```
-
-### Rules
-
-- `Area` is a single string for `Side Projects` and `One-off`; a YAML list for `Work` pitches (match the existing convention: `- Work` and `- Instinct`).
-- `JiraEpic` is included only when the project has one registered or the user supplied one during Phase 4d. Omit the line entirely otherwise.
-- `Repositories` is included when at least one repo is known (from registry or current repo). Omit the block entirely otherwise.
-- `Modified` equals `Created` on first save.
+- Artifact type tag is `pitch` — the guideline's examples show `research | plan | handoff` but the schema accommodates `pitch` identically.
+- Initial status is `Status: Active`.
+- Preserve the frontmatter asymmetry the guideline already encodes: `Created` is a quoted Obsidian wikilink (e.g., `Created: "[[2026-04-24]]"`), `Modified` is a bare ISO date (e.g., `Modified: 2026-04-24`). On first save, both reflect today.
 
 ### Write
 
@@ -237,7 +103,7 @@ After writing, report the absolute path:
 Pitch saved to: /absolute/path/to/YYYY-MM-DD-<slug>.md
 ```
 
-If Phase 4d appended a new project to `projects.yaml`, also mention:
+If Phase 4 appended a new project to `projects.yaml`, also mention:
 
 ```
 Registered new project in projects.yaml: <slug>

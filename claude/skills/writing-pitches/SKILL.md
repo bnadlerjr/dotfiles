@@ -1,7 +1,7 @@
 ---
 name: writing-pitches
 description: "Write Shape Up style pitches (Basecamp / Ryan Singer). Use when shaping a raw idea, refining a draft pitch, distilling notes into a pitch, or when the user mentions Shape Up, pitch, shaping, appetite, rabbit holes, no-gos, or fixed time / variable scope. Produces a pitch document with Problem, Appetite, Solution, Rabbit holes, and No-gos."
-allowed-tools: Read, Grep, Glob, AskUserQuestion, Skill
+allowed-tools: Read, Grep, Glob, Skill
 ---
 
 # Writing Shape Up Pitches
@@ -14,19 +14,7 @@ A pitch is **shaped work ready to be bet on** — a concrete problem, a fixed ap
 
 If the concept has no appetite, no rabbit holes identified, or the solution is either (a) a vague wish or (b) pixel-perfect design, it is **not yet shaped** — do shaping work first, write the pitch after.
 
-## Routing — Pick The Workflow
-
-Route on what the user brought:
-
-| Input the user brought | Workflow | When to pick |
-|---|---|---|
-| Rough idea / problem statement (few sentences) | [workflows/shape-from-idea.md](workflows/shape-from-idea.md) | No draft exists yet. Need to shape first, then write. |
-| Existing draft pitch (any fidelity) | [workflows/refine-draft.md](workflows/refine-draft.md) | Draft exists but is weak — missing appetite, hiding unknowns, too-detailed UI, etc. |
-| Meeting notes, research docs, Slack threads | [workflows/distill-notes.md](workflows/distill-notes.md) | Raw material exists but not yet a pitch. Signal needs to be extracted before shaping. |
-
-If the input is ambiguous, ask one clarifying question via `AskUserQuestion` — do not guess.
-
-### Initial Response
+## Quick Start
 
 If no input was provided with the invocation, respond with:
 
@@ -40,6 +28,18 @@ I'll help you write a Shape Up pitch. What do you have?
 Also — what's your appetite? Small batch (~2 weeks) or big batch (~6 weeks)?
 Appetite is a constraint, not an estimate. Pick one before we shape.
 ```
+
+## Routing — Pick The Workflow
+
+Route on what the user brought:
+
+| Input the user brought | Workflow | When to pick |
+|---|---|---|
+| Rough idea / problem statement (few sentences) | [workflows/shape-from-idea.md](workflows/shape-from-idea.md) | No draft exists yet. Need to shape first, then write. |
+| Existing draft pitch (any fidelity) | [workflows/refine-draft.md](workflows/refine-draft.md) | Draft exists but is weak — missing appetite, hiding unknowns, too-detailed UI, etc. |
+| Meeting notes, research docs, Slack threads | [workflows/distill-notes.md](workflows/distill-notes.md) | Raw material exists but not yet a pitch. Signal needs to be extracted before shaping. |
+
+If the input is ambiguous, ask one clarifying question as plain conversation text in your response, then stop and wait for the user's reply — do not guess.
 
 ## Non-Negotiables
 
@@ -67,7 +67,7 @@ The shaping steps are the same in every workflow — only the starting material 
 
 ## Thinking Patterns — When To Use Each
 
-Reason in the style of these patterns internally. Do not dump the scaffolding into the user's turn.
+Reason in the style of these patterns internally. Do not dump the scaffolding into the user's turn. These are reasoning styles, not skills to invoke. Use them internally to structure thought; do not call the `thinking-patterns` skill from this skill.
 
 | Pattern | When in shaping |
 |---|---|
@@ -98,6 +98,46 @@ The skill's final output is **one markdown document** — the pitch — returned
 ```
 
 Do **not** write the pitch to disk. The caller handles persistence.
+
+## Example
+
+**Input:** "I want to let users archive old projects, ~2 weeks."
+
+**Output (skeleton — actual pitches go deeper per section):**
+
+```markdown
+# Archive Old Projects
+
+## Problem
+Active project lists are cluttered with finished work. Users scroll past
+dozens of dead projects to find the two they care about. Concrete case:
+@alice has 47 projects, 6 are live.
+
+## Appetite
+Small batch — 2 weeks. Fixed. If elements don't fit, we cut scope.
+
+## Solution
+Fat-marker sketch:
+
+  [Project list] --archive--> [Archived view]
+                  <--restore--
+
+Places: project list, archived view. Affordances: archive, restore.
+No bulk actions in v1.
+
+## Rabbit Holes
+- Permissions: who can archive? → Decide now: project owner only.
+- Search indexing of archived projects → Spike day 1, 4-hour timebox.
+
+## No-gos
+- No bulk archive (single-item only).
+- No auto-archive by age.
+- No separate "deleted" state — archive is reversible-only.
+```
+
+The example is illustrative — real sections carry more substance. See
+[references/pitch-template.md](references/pitch-template.md) for the full
+structure and per-section guidance.
 
 ## Anti-Patterns
 
