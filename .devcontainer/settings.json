@@ -21,5 +21,10 @@
     "defaultMode": "auto"
   },
   "theme": "dark",
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "/workspace/claude/statusline.sh",
+    "padding": 0
+  }
 }
