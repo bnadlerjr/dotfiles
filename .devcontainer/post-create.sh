@@ -2,10 +2,9 @@
 set -euo pipefail
 
 readonly CLAUDE_DIR="${HOME}/.claude"
-readonly WORKSPACE_CLAUDE="/workspace/claude"
-readonly DEVCONTAINER_DIR="/workspace/.devcontainer"
-
-git config --global --add safe.directory /workspace
+readonly WORKSPACE="/workspace"
+readonly WORKSPACE_CLAUDE="${WORKSPACE}/claude"
+readonly DEVCONTAINER_DIR="${WORKSPACE}/.devcontainer"
 
 mkdir -p "${CLAUDE_DIR}/plans"
 
@@ -15,6 +14,12 @@ link() {
     ln -sfn "${target}" "${link_path}"
     echo "linked ${link_path} -> ${target}"
 }
+
+# Inherit the host gitconfig (identity, aliases, delta). The tracked file
+# includes ~/.gitconfig.local, which the devcontainer mounts read-only from the
+# host for any machine-specific overrides. Commit signing is disabled inside
+# the container at the system level (see Dockerfile).
+link "${WORKSPACE}/gitconfig"                   "${HOME}/.gitconfig"
 
 link "${WORKSPACE_CLAUDE}/skills"               "${CLAUDE_DIR}/skills"
 link "${WORKSPACE_CLAUDE}/commands"             "${CLAUDE_DIR}/commands"

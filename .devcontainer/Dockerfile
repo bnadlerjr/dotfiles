@@ -55,6 +55,16 @@ RUN mkdir /commandhistory \
 RUN mkdir -p /workspace /home/node/.claude \
   && chown -R node:node /workspace /home/node/.claude
 
+# Configure git at the system level. ~/.gitconfig is a symlink to the tracked
+# dotfiles file, so any --global write would pollute version-controlled content.
+# - safe.directory: /workspace bind-mount UID may not match `node` on Linux hosts.
+# - commit/tag.gpgsign off: no SSH agent inside the container (1Password agent
+#   socket lives in macOS's sandboxed Group Containers and isn't reachable from
+#   Docker Desktop's VM). Sign on the host instead.
+RUN git config --system --add safe.directory /workspace \
+  && git config --system commit.gpgsign false \
+  && git config --system tag.gpgsign false
+
 ENV DEVCONTAINER=true \
     CLAUDE_CONFIG_DIR=/home/node/.claude \
     SHELL=/bin/bash \

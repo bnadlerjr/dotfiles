@@ -17,7 +17,8 @@
   "workspaceFolder": "/workspace",
   "mounts": [
     "source=dotfiles-claude,target=/home/node/.claude,type=volume",
-    "source=dotfiles-history,target=/commandhistory,type=volume"
+    "source=dotfiles-history,target=/commandhistory,type=volume",
+    "source=${localEnv:HOME}/.gitconfig.local,target=/home/node/.gitconfig.local,type=bind,readonly"
   ],
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/home/node/.claude",
