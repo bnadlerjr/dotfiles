@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
+      "Bash(rm -r -f*)",
+      "Bash(rm -f -r*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -fd*)",
+      "Bash(git clean -df*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push --force-with-lease*)",
+      "Bash(git checkout .*)",
+      "Bash(git restore .*)",
+      "Bash(git branch -D*)",
+      "Bash(sudo*)",
+      "Bash(chmod -R*)",
+      "Bash(chown -R*)"
+    ],
+    "defaultMode": "auto"
+  },
+  "theme": "dark",
+  "skipAutoPermissionPrompt": true
+}

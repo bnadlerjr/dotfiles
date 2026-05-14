@@ -1,0 +1,31 @@
+{
+  "name": "Dotfiles Agent Sandbox",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "TZ": "${localEnv:TZ:America/New_York}",
+      "CLAUDE_CODE_VERSION": "latest",
+      "GIT_DELTA_VERSION": "0.18.2"
+    }
+  },
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW"
+  ],
+  "remoteUser": "node",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
+  "workspaceFolder": "/workspace",
+  "mounts": [
+    "source=dotfiles-claude,target=/home/node/.claude,type=volume",
+    "source=dotfiles-history,target=/commandhistory,type=volume"
+  ],
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "DEVCONTAINER": "true",
+    "EDITOR": "nvim"
+  },
+  "postCreateCommand": "/usr/local/bin/post-create.sh",
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "postAttachCommand": "/usr/local/bin/print-welcome.sh",
+  "waitFor": "postStartCommand"
+}
