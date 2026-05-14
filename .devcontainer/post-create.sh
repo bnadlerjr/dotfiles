@@ -21,6 +21,12 @@ link() {
 # the container at the system level (see Dockerfile).
 link "${WORKSPACE}/gitconfig"                   "${HOME}/.gitconfig"
 
+# Inherit the host bash setup (aliases, env, prompt). The tracked bashrc sources
+# ~/dotfiles/bash/{env,config,aliases,git-prompt}, so ~/dotfiles is linked to the
+# workspace to keep those paths resolving without rewriting the host file.
+link "${WORKSPACE}"                             "${HOME}/dotfiles"
+link "${WORKSPACE}/bashrc"                      "${HOME}/.bashrc"
+
 link "${WORKSPACE_CLAUDE}/skills"               "${CLAUDE_DIR}/skills"
 link "${WORKSPACE_CLAUDE}/commands"             "${CLAUDE_DIR}/commands"
 link "${WORKSPACE_CLAUDE}/agents"               "${CLAUDE_DIR}/agents"
