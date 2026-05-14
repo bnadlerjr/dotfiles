@@ -411,7 +411,7 @@ source: "[Original source type and reference]"
 
 Based on this brief, consider:
 1. Create PRD using `/writing-prds` skill
-2. Generate user stories using `/generate-stories`
+2. Generate user stories using `/refine-story`
 3. Begin discovery with engineering/design stakeholders
 ```
 

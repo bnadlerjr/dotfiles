@@ -16,29 +16,29 @@ Create vision documents that get everyone aligned on goals. A Product Brief unbl
 - Need to align stakeholders before writing requirements
 - Converting vague product ideas into clear direction
 
-## Invocation
+## Quick Start
 
-**Command**: `/writing-product-briefs` or `/writing-product-briefs [topic]`
+Minimum viable path:
 
-### Initial Response
+1. Ask the user about the problem, current state, and stakes.
+2. Draft a thesis (specific, falsifiable claims) and an antithesis (honest risks).
+3. Name 1-3 personas and define adoption, value, and business metrics with baselines and targets.
+4. Write 3-5 north star scenarios in narrative form, including at least one failure or escalation case.
+5. Present, iterate, and stop when the brief enables action.
 
-When invoked:
+Fall through to the detailed phases below for prompts, anti-patterns, and review checks.
 
-1. **If a topic was provided**: Begin discovery by asking about the problem space
+## When Invoked
 
-2. **If no topic provided**, respond with:
-```
-I'll help you write a Product Brief to align your team on goals.
+This skill is auto-loaded when its description matches the user's request, can be invoked directly via the Skill tool, or is triggered indirectly when the user runs the companion `/product-brief` slash command.
 
-What product or initiative would you like to define?
+When the skill loads without an explicit topic, ask the user what product or initiative they want to define. Accept any of:
 
-You can provide:
-- A problem you're trying to solve
+- A problem they're trying to solve
 - A product idea to explore
 - An existing initiative needing clarity
 
-I'll guide you through thesis, audience, metrics, and north star scenarios.
-```
+Then guide them through thesis, audience, metrics, and north star scenarios using the phases below.
 
 ## Core Principles
 
@@ -59,29 +59,7 @@ I'll guide you through thesis, audience, metrics, and north star scenarios.
 └─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
 ```
 
-For detailed phase instructions, see [workflow-phases.md](references/workflow-phases.md).
-
----
-
-## Quick Reference
-
-**Phase 1 - Discovery**: Problem, context, stakes, constraints
-
-**Phase 2 - Thesis**: Claims (specific, falsifiable, value-focused) + honest risks
-
-**Phase 3 - Audience & Metrics**: Named personas + adoption/value/business metrics
-
-**Phase 4 - Scenarios**: Narrative stories covering personas, claims, metrics
-
-**Phase 5 - Review**: Check completeness, verify quality, save or proceed
-
-**Thinking Patterns**:
-- `atomic-thought` → Decompose multi-domain problems
-- `tree-of-thoughts` → Explore framings and scenarios
-- `skeleton-of-thought` → Outline before detailing
-- `chain-of-thought` → Walk through scenario steps
-- `graph-of-thoughts` → Synthesize stakeholder input
-- `self-consistency` → Validate thesis and completeness
+Phase 5 (Review) follows Scenarios and checks completeness before saving. For detailed phase instructions, see [workflow-phases.md](references/workflow-phases.md). Several phases recommend named thinking patterns (atomic-thought, tree-of-thoughts, skeleton-of-thought, chain-of-thought, graph-of-thoughts, self-consistency); see the `thinking-patterns` skill for pattern details.
 
 ---
 
@@ -164,47 +142,47 @@ Key elements demonstrated:
 
 ### Vague Thesis
 ```
-❌ "Our product will be better than competitors"
-❌ "Users will love it"
+Bad: "Our product will be better than competitors"
+Bad: "Users will love it"
 
-✅ "Users will resolve issues faster because the assistant
-    understands intent better, getting handoff decisions right
-    80% more often than the current system"
+Good: "Users will resolve issues faster because the assistant
+       understands intent better, getting handoff decisions right
+       80% more often than the current system"
 ```
 
 ### Missing Antithesis
 ```
-❌ [No risks section]
-❌ "Minor risks: timeline might slip"
+Bad: [No risks section]
+Bad: "Minor risks: timeline might slip"
 
-✅ "The assistant might take actions it shouldn't, causing users
-    to be unpleasantly surprised—which would increase frustration
-    instead of reducing it"
+Good: "The assistant might take actions it shouldn't, causing users
+       to be unpleasantly surprised—which would increase frustration
+       instead of reducing it"
 ```
 
 ### Feature-as-Goal
 ```
-❌ "Launch feature X by Q2"
-❌ "Ship mobile app"
+Bad: "Launch feature X by Q2"
+Bad: "Ship mobile app"
 
-✅ "Increase fully automated support interactions from 15% to 65%"
+Good: "Increase fully automated support interactions from 15% to 65%"
 ```
 
 ### Scenario Without Value Capture
 ```
-❌ "User does the thing and it works. The end."
+Bad: "User does the thing and it works. The end."
 
-✅ "Once the technician reports install complete, Helpy checks
-    back with her to do a survey."
+Good: "Once the technician reports install complete, Helpy checks
+       back with her to do a survey."
 ```
 
 ### Implementation in Scenario
 ```
-❌ "She clicks the blue 'Help' button which opens a modal with
-    a WebSocket connection to our support API..."
+Bad: "She clicks the blue 'Help' button which opens a modal with
+      a WebSocket connection to our support API..."
 
-✅ "She sees the Helpy button and asks what's going on. Helpy
-    checks her address against the outage map..."
+Good: "She sees the Helpy button and asks what's going on. Helpy
+       checks her address against the outage map..."
 ```
 
 ---

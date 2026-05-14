@@ -2,6 +2,8 @@
 
 Detailed instructions for each phase of the product brief workflow.
 
+Several phases below suggest applying named thinking patterns (e.g., `atomic-thought`, `tree-of-thoughts`). See the `thinking-patterns` skill for pattern details.
+
 ---
 
 ## Phase 1: Discovery
@@ -46,14 +48,7 @@ Detailed instructions for each phase of the product brief workflow.
 
 ### User Confirmation
 
-Present your understanding, then use **AskUserQuestion** to confirm:
-
-- Header: "Problem"
-- Question: "Does this capture the problem correctly?"
-- Options:
-  - "Yes, proceed to thesis" → Continue to Phase 2
-  - "Adjust the framing" → Ask what to change, re-confirm
-  - "Missing key context" → Return to discovery questions
+Present your understanding and confirm with the user before proceeding. Ask whether the framing captures the problem correctly, whether anything needs adjustment, and whether any key context is missing. Return to discovery questions if gaps emerge; otherwise advance to Phase 2.
 
 ---
 
@@ -121,15 +116,7 @@ What might cause this to not work as we expect?
 
 ### User Feedback
 
-Present thesis and antithesis, then use **AskUserQuestion**:
-
-- Header: "Thesis"
-- Question: "Do these claims capture your core beliefs about why this will work?"
-- Options:
-  - "Yes, proceed to audience & metrics" → Continue to Phase 3
-  - "Adjust claims" → Ask what to change
-  - "Add/remove claims" → Discuss and revise
-  - "Risks are incomplete" → Add more risks
+Present the thesis and antithesis and ask for feedback before moving on. Confirm that the claims capture the user's core beliefs about why this will work, ask whether any claims should be adjusted, added, or removed, and check whether the risks list is complete. Advance to Phase 3 only when the user is satisfied.
 
 ---
 
@@ -194,15 +181,7 @@ Structure goals around adoption, value, and business impact:
 
 ### User Confirmation
 
-Present audience and metrics, then use **AskUserQuestion**:
-
-- Header: "Metrics"
-- Question: "Do these personas and metrics capture what matters?"
-- Options:
-  - "Yes, proceed to scenarios" → Continue to Phase 4
-  - "Adjust personas" → Discuss changes
-  - "Refine metrics" → Discuss changes
-  - "Missing key segment" → Add persona
+Present the audience and metrics and confirm with the user before proceeding. Ask whether the personas and metrics capture what matters, whether any persona or metric needs adjustment, and whether a key user segment is missing. Advance to Phase 4 once the user is satisfied.
 
 ---
 
@@ -283,15 +262,7 @@ For each scenario, verify:
 
 ### User Feedback
 
-Present scenarios, then use **AskUserQuestion**:
-
-- Header: "Scenarios"
-- Question: "Do these scenarios make the vision concrete?"
-- Options:
-  - "Yes, finalize the brief" → Continue to Review
-  - "Add more scenarios" → Discuss what's missing
-  - "Adjust existing scenarios" → Ask what to change
-  - "Too detailed / not detailed enough" → Calibrate level
+Present the scenarios and ask for feedback before finalizing. Confirm whether the scenarios make the vision concrete, ask whether any are missing, whether existing ones should be adjusted, and whether the level of detail is calibrated correctly. Proceed to Review once the user is satisfied.
 
 ---
 
