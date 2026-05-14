@@ -52,6 +52,8 @@ Present extraction summary, then use **AskUserQuestion**:
   - "Missing important context" → Ask what's missing
   - "Incorrect interpretation" → Clarify and re-extract
 
+**Sub-agent fallback**: If `AskUserQuestion` is unavailable, proceed to Phase 2 using the extraction as-is and note any uncertainties under an "Assumptions" line in the output.
+
 ---
 
 ## Phase 2: High-Level Requirements
@@ -62,7 +64,7 @@ Present extraction summary, then use **AskUserQuestion**:
 
 1. **Primary goal**: What's the main thing we're optimizing for?
 2. **Persona priority**: Which persona do we serve first?
-3. **Scope priority**: Which scenarios are in-scope for M1?
+3. **Scope priority**: Which scenarios are in-scope for milestone 1?
 4. **Trade-offs**: Where do we break ties between competing goods?
 5. **Guardrails**: How conservative vs. aggressive is our approach?
 
@@ -101,6 +103,8 @@ Present high-level requirements, then use **AskUserQuestion**:
   - "Yes, proceed to use cases" → Continue to Phase 3
   - "Adjust priorities" → Discuss changes
   - "Missing key trade-off" → Add and re-confirm
+
+**Sub-agent fallback**: If `AskUserQuestion` is unavailable, proceed to Phase 3 and surface chosen trade-offs explicitly so the caller can challenge them on review.
 
 ---
 
@@ -161,15 +165,20 @@ And so on through the scenario...
 
 ### Milestone Assignment Criteria
 
-**Milestone 1 (M1)** - Include if:
-- Required for the prioritized persona
-- Part of the happy path for priority scenarios
+**Milestone 1.0** (MVP) — assign if:
+- Required for the prioritized persona's north star to work end-to-end
+- Part of the happy path for the chosen north star
 - Needed for measurement/feedback
 - Safety-critical guardrails
 
-**Milestone 2+ (M2+)** - Defer if:
-- Learning/improvement features (can ship with manual process first)
-- Edge cases that don't block main flow
+**Milestone 1.5** (MLP stretch) — assign if:
+- Polish that makes the north star shine
+- Compelling but slippable if the schedule tightens
+
+**Blank** (defer prioritization) — leave blank for:
+- Requirements from other scenarios (not the chosen north star)
+- Learning/improvement features that can ship with a manual process first
+- Edge cases that don't block the main flow
 - Advanced features for secondary personas
 - Nice-to-have optimizations
 
@@ -184,6 +193,8 @@ After processing all scenarios, present the complete use case compendium as a **
   - "Missing requirements" → Add missing items
   - "Adjust milestone assignments" → Discuss priority
 
+**Sub-agent fallback**: If `AskUserQuestion` is unavailable, proceed to Phase 4. Flag any scenarios where you suspect requirements may be missing in a short "Coverage Notes" callout above the table.
+
 **Note**: The North Star column provides traceability to source scenarios, eliminating the need for separate tables.
 
 ---
@@ -194,10 +205,10 @@ After processing all scenarios, present the complete use case compendium as a **
 
 ### Milestone 1 Definition Process
 
-1. **Filter M1 requirements** from the use case compendium
+1. **Filter `1.0` requirements** from the use case compendium
 2. **Group by theme**: What capability areas are covered?
 3. **Verify completeness**: Can users complete key flows?
-4. **Define exclusions**: What's explicitly deferred?
+4. **Define exclusions**: What's explicitly deferred (i.e., the `1.5` and blank rows)?
 
 ### Milestone Format
 
@@ -234,9 +245,11 @@ Present milestone definitions, then use **AskUserQuestion**:
 - Question: "Does this milestone scope look right?"
 - Options:
   - "Yes, proceed to review" → Continue to Phase 5
-  - "M1 scope too large" → Discuss what to defer
-  - "M1 scope too small" → Discuss what to include
+  - "Milestone 1 scope too large" → Discuss what to defer
+  - "Milestone 1 scope too small" → Discuss what to include
   - "Wrong items excluded" → Adjust assignments
+
+**Sub-agent fallback**: If `AskUserQuestion` is unavailable, proceed to Phase 5 with the current scope and call out any boundary calls (in/out) you made unilaterally.
 
 ---
 
@@ -269,11 +282,11 @@ Present milestone definitions, then use **AskUserQuestion**:
 Verify every scenario has requirements:
 
 ```
-| Scenario | Requirements Count | M1 | M2 |
-|----------|-------------------|-----|-----|
-| Scenario 1 | 7 | 5 | 2 |
-| Scenario 2 | 5 | 4 | 1 |
-| ... | ... | ... | ... |
+| Scenario   | Requirements | 1.0 | 1.5 | Blank |
+|------------|--------------|-----|-----|-------|
+| Scenario 1 | 7            | 4   | 1   | 2     |
+| Scenario 2 | 5            | 0   | 0   | 5     |
+| ...        | ...          | ... | ... | ...   |
 ```
 
 ### Review Questions
@@ -282,7 +295,7 @@ Verify every scenario has requirements:
 2. Can a designer create flows without being over-constrained?
 3. Is every trade-off decision explicit in high-level requirements?
 4. Does every requirement trace to a scenario?
-5. Is M1 scope coherent and achievable?
+5. Is milestone 1 scope coherent and achievable?
 
 ### Next Action
 
@@ -291,6 +304,8 @@ Use **AskUserQuestion** for next action:
 - Header: "Next step"
 - Question: "PRD is complete. What would you like to do?"
 - Options:
-  - "Generate user stories" → Use `writing-agile-stories` for M1 requirements
+  - "Generate user stories" → Use `writing-agile-stories` for the `1.0` requirements
   - "Create implementation plan" → Use `planning-tdd`
   - "Done" → End workflow
+
+**Sub-agent fallback**: If `AskUserQuestion` is unavailable, end the workflow by returning the completed PRD and noting the candidate next steps in the report. Let the caller pick.
