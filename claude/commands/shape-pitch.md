@@ -2,7 +2,7 @@
 description: Write a Shape Up pitch (idea / draft / notes) and save it to $CLAUDE_DOCS_ROOT
 argument-hint: "[rough idea | path to draft | path to notes | empty for interactive]"
 model: opus
-allowed-tools: Read, Write, Edit, Grep, Bash(date), Bash(test), Bash(mkdir), Bash(git config:*), Bash(git remote:*), Bash(git rev-parse:*), AskUserQuestion, Skill
+allowed-tools: Read, Write, Edit, Grep, Bash(date), Bash(test), Bash(mkdir), Bash(git config:*), Bash(git remote:*), Bash(git rev-parse:*), AskUserQuestion, Skill, Task
 ---
 
 # Write A Shape Up Pitch

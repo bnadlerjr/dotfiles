@@ -1,6 +1,6 @@
 # Thinking Patterns for Story Writing
 
-Apply structured thinking patterns at each phase for better outcomes.
+Apply structured thinking patterns at each phase for better outcomes. The patterns referenced below (`atomic-thought`, `tree-of-thoughts`, etc.) are provided by the `thinking-patterns` skill, surfaced as the `/thinking` slash command. Phase names below match the phases in `../SKILL.md`.
 
 ## Phase 1: Discovery
 

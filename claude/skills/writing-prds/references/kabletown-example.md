@@ -1,6 +1,6 @@
 # Kabletown PRD Example
 
-A complete Product Requirements Document derived from the Kabletown Support Assistant Product Brief.
+A complete Product Requirements Document derived from the Kabletown Support Assistant Product Brief. See [authoring-guide.md](authoring-guide.md) for per-section formats and [workflow-phases.md](workflow-phases.md) for the workflow that produces them.
 
 This example illustrates **sparse prioritization**: only requirements from the chosen north star scenarios (Sad Lisa's customer hardware problem and outage flows) carry `1.0` or `1.5` values. Everything else — including the entire Tinker Tia account-support arc and the cross-cutting escalation requirements — is captured but left blank, to be prioritized when planning a later milestone.
 

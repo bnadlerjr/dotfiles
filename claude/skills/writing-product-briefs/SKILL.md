@@ -1,6 +1,6 @@
 ---
 name: writing-product-briefs
-description: "Write Product Briefs that align teams on goals before discovery. Use when defining a new product vision, articulating problem statements, creating one-pagers, or crafting north star scenarios. Produces vision documents with thesis/antithesis, target audience, metrics, and narrative scenarios."
+description: Write Product Briefs that align teams on goals before discovery. Use when defining a new product vision, articulating problem statements, creating one-pagers, or crafting north star scenarios. Produces vision documents with thesis/antithesis, target audience, metrics, and narrative scenarios.
 ---
 
 # Product Brief Writing
@@ -24,7 +24,8 @@ Minimum viable path:
 2. Draft a thesis (specific, falsifiable claims) and an antithesis (honest risks).
 3. Name 1-3 personas and define adoption, value, and business metrics with baselines and targets.
 4. Write 3-5 north star scenarios in narrative form, including at least one failure or escalation case.
-5. Present, iterate, and stop when the brief enables action.
+5. Review the brief for completeness and run a readability polish with the `writing-for-humans` skill. See Phase 5 in [workflow-phases.md](references/workflow-phases.md).
+6. Present, iterate, and stop when the brief enables action.
 
 Fall through to the detailed phases below for prompts, anti-patterns, and review checks.
 
@@ -51,15 +52,16 @@ Then guide them through thesis, audience, metrics, and north star scenarios usin
 ## Process Overview
 
 ```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Discovery  │ ──▶ │   Thesis    │ ──▶ │   Metrics   │ ──▶ │  Scenarios  │
-│             │     │             │     │             │     │             │
-│ Problem &   │     │ Claims &    │     │ Goals &     │     │ North star  │
-│ context     │     │ risks       │     │ tracking    │     │ stories     │
-└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
+┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐
+│ Discovery │──▶│  Thesis   │──▶│  Metrics  │──▶│ Scenarios │──▶│  Review   │
+│           │   │           │   │           │   │           │   │           │
+│ Problem & │   │ Claims &  │   │ Goals &   │   │ North     │   │ Complete  │
+│ context   │   │ risks     │   │ tracking  │   │ star      │   │ & polish  │
+│           │   │           │   │           │   │ stories   │   │           │
+└───────────┘   └───────────┘   └───────────┘   └───────────┘   └───────────┘
 ```
 
-Phase 5 (Review) follows Scenarios and checks completeness before saving. For detailed phase instructions, see [workflow-phases.md](references/workflow-phases.md). Several phases recommend named thinking patterns (atomic-thought, tree-of-thoughts, skeleton-of-thought, chain-of-thought, graph-of-thoughts, self-consistency); see the `thinking-patterns` skill for pattern details.
+For detailed phase instructions, see [workflow-phases.md](references/workflow-phases.md). Phase 5 uses the `writing-for-humans` skill for the polish step. Several phases recommend named thinking patterns (atomic-thought, tree-of-thoughts, skeleton-of-thought, chain-of-thought, graph-of-thoughts, self-consistency); see the `thinking-patterns` skill for pattern details.
 
 ---
 

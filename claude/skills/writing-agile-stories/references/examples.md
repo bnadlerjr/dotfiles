@@ -1,6 +1,6 @@
 # Agile Story Examples
 
-Complete examples demonstrating the writing-agile-stories skill.
+Complete examples demonstrating the writing-agile-stories skill. See [templates.md](templates.md) for the empty templates these examples fill, and [anti-patterns.md](anti-patterns.md) for the failure modes the examples deliberately avoid.
 
 ---
 

@@ -1,10 +1,11 @@
 ---
 name: writing-prds
-description: "Build Product Requirements Documents from Product Briefs. Use when transforming product vision into actionable requirements for engineers and designers. Produces high-level design principles, use case compendiums, and milestone definitions. A PRD focuses on 'what' not 'how'."
+description: Build Product Requirements Documents from Product Briefs. Use when transforming product vision into actionable requirements for engineers and designers. Produces high-level design principles, use case compendiums, and milestone definitions. A PRD focuses on what, not how.
 allowed-tools:
   - AskUserQuestion
   - Read
   - Write
+  - Task
 ---
 
 # Writing Product Requirements Documents
@@ -67,9 +68,23 @@ A complete PRD has three sections:
 2. **Use Case Compendium** — fine-grained requirements by scenario, in one unified table
 3. **Milestone Definition** — which features ship in the first release
 
-## Five-Phase Quick Reference
+## Process Overview
 
-The workflow has five phases. For full details, see [workflow-phases.md](references/workflow-phases.md). For section-level authoring guidance (formats, examples, prioritization strategy), see [authoring-guide.md](references/authoring-guide.md).
+The workflow has five phases. The PRD document has three sections (above) — extraction and review are workflow phases, not document sections.
+
+```
+┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐
+│Extraction │──▶│High-Level │──▶│ Use Case  │──▶│ Milestone │──▶│  Review   │
+│           │   │   Reqs    │   │ Compendium│   │ Definition│   │           │
+│ Personas, │   │Principles │   │ Atomic    │   │ MVP / MLP │   │ Coverage  │
+│ scenarios │   │& trade-   │   │ reqs in   │   │ scope for │   │ + polish  │
+│ & metrics │   │offs       │   │ one table │   │ release   │   │           │
+└───────────┘   └───────────┘   └───────────┘   └───────────┘   └───────────┘
+```
+
+For full phase details, see [workflow-phases.md](references/workflow-phases.md). For section-level authoring guidance (formats, examples, prioritization strategy), see [authoring-guide.md](references/authoring-guide.md).
+
+## Five-Phase Quick Reference
 
 **Phase 1 — Extraction**: Read the Product Brief; identify personas, metrics, north star scenarios, and risks.
 
@@ -81,8 +96,9 @@ The workflow has five phases. For full details, see [workflow-phases.md](referen
 **Phase 4 — Milestone Definition**: Choose one north star to define milestone 1; mark requirements `1.0` / `1.5` / blank.
 - Use `/thinking tree-of-thoughts` for north star selection and prioritization.
 
-**Phase 5 — Review**: Verify coverage, check quality, save or hand off.
+**Phase 5 — Review**: Verify coverage, check quality, polish prose for human readers, save or hand off.
 - Use `/thinking self-consistency` to validate before finalizing.
+- Polish prose sections (High-Level Requirements, Milestone Definitions) with the `writing-for-humans` skill. The Use Case Compendium table is preserved verbatim.
 
 ## Milestone Values
 
@@ -133,6 +149,8 @@ PRD prioritization is consequential — wrong decisions waste engineering effort
 
 **From**: `writing-product-briefs` → `writing-prds`. Thesis informs high-level requirements; personas and scenarios carry over directly.
 
+**Uses**: `writing-prds` invokes `writing-for-humans` in Phase 5 as a post-processing pass over prose sections. PRDs are read by engineers, designers, and stakeholders — readability matters. The Use Case Compendium table is excluded from the rewrite (structured content, not prose).
+
 **To**: `writing-prds` → `slicing-elephant-carpaccio` (slice features into thin vertical increments), `writing-agile-stories` (each use case becomes a story candidate), or `planning-tdd` (use cases define what to build; milestones define scope).
 
 ## Reference Files
@@ -142,6 +160,8 @@ PRD prioritization is consequential — wrong decisions waste engineering effort
 - [kabletown-example.md](references/kabletown-example.md) — Complete PRD example
 
 ## Output Template
+
+Quick scaffold below. For per-section formatting rules and examples, see [authoring-guide.md](references/authoring-guide.md).
 
 ```markdown
 # Product Requirements Document: [Product Name]

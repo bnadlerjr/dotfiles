@@ -1,6 +1,6 @@
 # PRD Authoring Guide
 
-Detailed guidance for the three sections of a PRD: High-Level Requirements, Use Case Compendium, and Milestone Definition. Use this alongside [workflow-phases.md](workflow-phases.md), which sequences the work.
+Detailed guidance for the three sections of a PRD: High-Level Requirements, Use Case Compendium, and Milestone Definition. Use this alongside [workflow-phases.md](workflow-phases.md), which sequences the work. See [kabletown-example.md](kabletown-example.md) for a complete worked PRD.
 
 ---
 

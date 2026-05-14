@@ -38,11 +38,7 @@ Present the critique briefly — one or two lines per finding. Do not rewrite ye
 
 ## Step 3 — Grill The Gaps (MANDATORY)
 
-Stress-test the weaknesses you found by invoking the `grilling-ideas` skill using the Skill tool (parameter `skill: grilling-ideas`, optionally pass an `args` string focusing the grill, e.g., `args: "Focus on: <weaknesses>"`). Wait for it to complete before proceeding. This is not optional — the grill is where the user's judgment resolves the gaps.
-
-If the Skill tool is unavailable in this context (e.g., running inside a sub-agent), inline the grilling questions yourself using the patterns in the `grilling-ideas` skill — ask the user the hardest 3-5 questions about the shape, appetite, and rabbit holes, then wait for answers before drafting.
-
-Typical grill targets for a draft refinement:
+Run the grill on the weaknesses found in Step 2 — see [`../SKILL.md#grill-the-shape`](../SKILL.md#grill-the-shape) for the invocation pattern and fallback. For draft refinement, focus the grill on:
 
 - "Is the appetite really fixed? What gets cut if elements don't fit?"
 - "What's the concrete motivating case for the problem?"
@@ -63,4 +59,6 @@ Apply `self-consistency` internally:
 - Does the Appetite match the Elements implied by the Solution?
 - Do Rabbit Holes and No-gos reflect what the grill surfaced?
 
-Return the revised pitch as markdown in the conversation. **Do not save to disk.**
+Then run the **Polish For Human Readers** step from `../SKILL.md` — invoke the `writing-for-humans` skill via the `Task` tool on the rewritten draft. Replace the draft with the polished output.
+
+Return the polished pitch as markdown in the conversation. **Do not save to disk.**

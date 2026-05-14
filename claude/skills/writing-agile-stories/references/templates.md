@@ -1,5 +1,7 @@
 # Story Templates
 
+See [examples.md](examples.md) for these templates filled in as worked examples, and [anti-patterns.md](anti-patterns.md) for failure modes to avoid.
+
 ## Complete Story Template
 
 ```markdown
@@ -51,17 +53,7 @@ in domain language]
 
 ## Quality Check Template
 
-Present with final story:
-
-```markdown
-Quality checks:
-- ✅ Behavior-focused (no implementation details)
-- ✅ Domain language throughout
-- ✅ Narrative form (no template)
-- ✅ Small and testable
-- ✅ Failure modes included
-- ✅ Scenarios are independent
-```
+See the Quality Checklist in `../SKILL.md` (Phase 4: Review) for the canonical list of checks to present with the final story.
 
 ## Canonical Example
 

@@ -139,3 +139,9 @@ This skill covers shaping + pitch writing only. Adjacent Shape Up activities tha
 - **Hill charts** — the progress-tracking tool used during execution.
 
 Don't try to do these in the pitch. The pitch is the input to the betting table, not a substitute for it.
+
+---
+
+## See Also
+
+- [pitch-template.md](pitch-template.md) — the standard pitch structure and per-section guidance that operationalizes the canon above.

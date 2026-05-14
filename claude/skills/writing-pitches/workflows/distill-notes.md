@@ -57,7 +57,7 @@ Do not proceed without an answer.
 
 ## Step 4 — Shape
 
-Run Steps 2-5 of [shape-from-idea.md](shape-from-idea.md):
+Run the shaping steps from [shape-from-idea.md](shape-from-idea.md) Steps 2-5 — boundaries, elements, rabbit holes, no-gos — then return here for the grill:
 
 - Set boundaries (problem, appetite, constraints)
 - Rough out elements (fat-marker sketch)
@@ -70,14 +70,16 @@ The notes may already contain material for each — lift it. Do **not** invent r
 
 ## Step 5 — Grill (MANDATORY)
 
-Stress-test the reconstructed shape by invoking the `grilling-ideas` skill using the Skill tool (parameter `skill: grilling-ideas`, optionally pass an `args` string focusing the grill, e.g., `args: "Focus on: what the notes assume vs. what's actually decided"`). Wait for it to complete before proceeding. Notes-derived pitches especially benefit from grilling because the shape is reconstructed from secondary material — assumptions about what was "decided" in the meeting are often wrong.
-
-If the Skill tool is unavailable in this context (e.g., running inside a sub-agent), inline the grilling questions yourself using the patterns in the `grilling-ideas` skill — ask the user the hardest 3-5 questions about the shape, appetite, and rabbit holes, then wait for answers before drafting.
+Run the grill on the reconstructed shape — see [`../SKILL.md#grill-the-shape`](../SKILL.md#grill-the-shape) for the invocation pattern and fallback. For notes-derived pitches, focus the grill on what the notes *assume* versus what was actually decided. Reconstructed shapes hide stale or imagined consensus.
 
 ---
 
 ## Step 6 — Write The Pitch
 
-Use [../references/pitch-template.md](../references/pitch-template.md). Return the pitch as markdown in the conversation. **Do not save to disk.**
+Use [../references/pitch-template.md](../references/pitch-template.md) for the structure.
 
-Apply `self-consistency` internally before returning — especially check that the pitch reflects the grilled resolutions and not just the (potentially stale) notes.
+Apply `self-consistency` internally — especially check that the pitch reflects the grilled resolutions and not just the (potentially stale) notes.
+
+Then run the **Polish For Human Readers** step from `../SKILL.md` — invoke the `writing-for-humans` skill via the `Task` tool on the assembled draft. Replace the draft with the polished output.
+
+Return the polished pitch as markdown in the conversation. **Do not save to disk.**

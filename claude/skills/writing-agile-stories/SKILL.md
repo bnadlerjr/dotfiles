@@ -1,6 +1,6 @@
 ---
 name: writing-agile-stories
-description: "Write behavior-focused Agile user stories with BDD-style acceptance criteria. Use when defining features, clarifying requirements, creating development tickets, writing acceptance criteria, converting requirements to testable specs, or discussing user needs. Produces narrative-form stories with Given-When-Then scenarios."
+description: Write behavior-focused Agile user stories with BDD-style acceptance criteria. Use when defining features, clarifying requirements, creating development tickets, writing acceptance criteria, converting requirements to testable specs, or discussing user needs. Produces narrative-form stories with Given-When-Then scenarios.
 allowed-tools:
   - Read
   - Glob
@@ -43,6 +43,8 @@ Available for orders in "confirmed" or "processing" status.
 - And they are directed to the returns process
 ```
 
+This is an illustrative teaser. For the canonical version of this story with full scenarios, see [templates.md](references/templates.md). For additional worked examples with discovery summaries, see [examples.md](references/examples.md).
+
 ## When This Skill Applies
 
 - Defining new features or user needs
@@ -58,6 +60,19 @@ Available for orders in "confirmed" or "processing" status.
 3. **Concrete over Abstract** — use specific examples (Specification by Example)
 4. **Conversation Starter** — stories facilitate discussion, not replace it
 5. **Ubiquitous Language** — use terms from the problem domain, not technical jargon
+
+## Process Overview
+
+The workflow has four phases. The story document has a Title, Narrative, Context, and Acceptance Criteria — discovery and review are workflow phases, not document sections.
+
+```
+┌───────────┐   ┌───────────┐   ┌───────────┐   ┌───────────┐
+│ Discovery │──▶│ Drafting  │──▶│ Criteria  │──▶│  Review   │
+│           │   │           │   │           │   │           │
+│ Six       │   │ Narrative │   │ Given-    │   │ Quality   │
+│ dimens.   │   │ + Context │   │ When-Then │   │ + polish  │
+└───────────┘   └───────────┘   └───────────┘   └───────────┘
+```
 
 ## The Primary Anti-Pattern: Implementation Leak
 
@@ -125,6 +140,8 @@ Written in domain language, present tense]
 ### Context
 [When this behavior is relevant — the business preconditions]
 ```
+
+For the canonical complete template and the discovery scratchpad template, see [templates.md](references/templates.md). For full worked examples (including discovery summaries), see [examples.md](references/examples.md).
 
 ### Narrative Guidelines
 
@@ -214,6 +231,32 @@ How many criteria are right? See [criteria-quantity.md](references/criteria-quan
 4. Are all failure modes covered?
 5. Is the story small enough for one iteration?
 
+### Readability Polish
+
+Stories are read by developers, designers, QA, and product. After verification, polish the **prose portions only** through the `writing-for-humans` skill. The acceptance criteria are testability-critical structured specs — leave them alone.
+
+**Polish scope (narrow)**:
+- The 2-4 sentence narrative paragraph under the story title
+- The single `### Context` line
+
+**Do NOT polish**:
+- The story title
+- `### Acceptance Criteria` header
+- `#### Scenario:` headers
+- Any `Given / When / Then / And` clause
+- Anything below the Context line
+
+**Critical preservation rules**:
+- **Domain terms** ("ubiquitous language") must survive — do not substitute generic synonyms for domain vocabulary
+- Do not introduce UI/API/storage terms — the polish must not re-create the [Implementation Leak](#the-primary-anti-pattern-implementation-leak)
+- Do not insert "As a... I want... So that..." template phrasing
+
+Invoke the `writing-for-humans` skill on the assembled story, passing the polish scope, do-not-polish list, and preservation rules above as the preserve/transform contract.
+
+Replace the draft with the polished output. Spot-check that the acceptance criteria are byte-identical and that no UI/API terms snuck into the narrative.
+
+**Fallback**: If `writing-for-humans` is unavailable (e.g., running inside another sub-agent, or generating many stories in a batch where the cost isn't justified), skip the polish and note "Readability polish deferred" in the handoff.
+
 ### Final Presentation
 
 When presenting the finished story, accompany it with the quality checklist showing which items pass.
@@ -232,7 +275,7 @@ Reframe toward behavior:
 
 When a "story" is too large:
 1. Acknowledge it's epic-sized
-2. Use `skeleton-of-thought` to propose 3-5 smaller stories
+2. Use `skeleton-of-thought` (see [thinking-patterns.md](references/thinking-patterns.md)) to propose 3-5 smaller stories
 3. Note dependencies between stories
 
 ### Caller Insists on Template Format
@@ -265,6 +308,6 @@ A story is ready when:
 | Discovery | Gather dimensions | Actor, trigger, outcome, constraints, failure modes, domain terms |
 | Drafting | Narrative story | 2-4 sentence description + context |
 | Criteria | Testable scenarios | Given-When-Then for happy/alt/failure |
-| Review | Quality check | Validated story ready for use |
+| Review | Quality check + readability polish on prose | Validated, polished story ready for use |
 
 **Anti-patterns to avoid**: Template smell, implementation leak, vague outcomes, missing failures, giant stories. See [anti-patterns.md](references/anti-patterns.md).

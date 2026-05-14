@@ -2,7 +2,7 @@
 description: Write a PRD from a Product Brief (or refine a draft) and save it to $CLAUDE_DOCS_ROOT
 argument-hint: "[Product Brief path | PRD draft path | rough text | empty for interactive]"
 model: opus
-allowed-tools: Read, Write, Edit, Grep, Bash(date), Bash(test), Bash(mkdir), Bash(git config:*), Bash(git remote:*), Bash(git rev-parse:*), AskUserQuestion, Skill
+allowed-tools: Read, Write, Edit, Grep, Bash(date), Bash(test), Bash(mkdir), Bash(git config:*), Bash(git remote:*), Bash(git rev-parse:*), AskUserQuestion, Skill, Task
 ---
 
 # Write A Product Requirements Document

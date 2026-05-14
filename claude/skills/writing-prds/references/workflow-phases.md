@@ -297,6 +297,24 @@ Verify every scenario has requirements:
 4. Does every requirement trace to a scenario?
 5. Is milestone 1 scope coherent and achievable?
 
+### Readability Polish
+
+PRDs are consumed by humans — engineers, designers, product, and stakeholders. After the content passes the quality checks above, run the prose through the `writing-for-humans` skill to remove LLM tics, hedge phrases, and structural bloat.
+
+**What to polish**: the prose sections only — High-Level Requirements bullets and Milestone Definition bodies (Goal, Persona focus, Scope, Excluded).
+
+**What to preserve verbatim**:
+- The Use Case Compendium table (structured data, not prose)
+- Requirement wording inside the table (already constrained by the writing checklist in Phase 3)
+- Section headings (preserve the canonical PRD structure)
+- Code blocks, links, persona names, and metric values
+
+Invoke the `writing-for-humans` skill on the assembled PRD, passing the preserve/transform contract above so the Use Case Compendium table, persona names, requirement wording, and metric values survive the rewrite.
+
+Replace the draft with the polished output. Spot-check that the table and headings survived intact before saving.
+
+**Fallback**: If `writing-for-humans` is unavailable, skip the polish step and note "Readability polish deferred — recommend running `writing-for-humans` on the prose sections before circulation." in the handoff.
+
 ### Next Action
 
 Use **AskUserQuestion** for next action:

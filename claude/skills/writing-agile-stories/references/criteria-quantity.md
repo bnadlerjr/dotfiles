@@ -1,5 +1,7 @@
 # Deciding How Many Acceptance Criteria
 
+See [anti-patterns.md](anti-patterns.md) for failure modes that often indicate "split this story" rather than "add more criteria."
+
 None of the major voices prescribe a fixed number—the right count depends on the
 story. These heuristics help:
 

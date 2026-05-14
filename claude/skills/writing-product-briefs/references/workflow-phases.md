@@ -298,3 +298,28 @@ Present the scenarios and ask for feedback before finalizing. Confirm whether th
 3. Do the scenarios reveal requirements we haven't documented?
 4. Is any persona or claim missing a scenario?
 5. Can we actually measure the metrics we defined?
+
+### Readability Polish
+
+Product briefs are circulated to execs, designers, engineers, and stakeholders. After the brief passes the quality checks above, run the prose through the `writing-for-humans` skill to remove LLM tics, hedging, and structural bloat. North star scenarios especially benefit — narrative reads better when it isn't hedged.
+
+**What to polish**:
+- Vision statement at the top
+- Thesis claim explanations (the 2-3 sentences under each bolded claim)
+- Antithesis bullets
+- Persona descriptions
+- Product Goals summary and metric explanations
+- North Star Scenario narratives
+
+**What to preserve verbatim**:
+- Section headings
+- Bolded claim titles and persona names (e.g., `**Tinker Tia**`)
+- Metric values, baselines, and targets (e.g., `15% → 65%`)
+- Present-tense narrative voice in scenarios — do not retrospect or future-tense
+- Value-capture endings (the survey, metric event, or outcome that closes each scenario)
+
+Invoke the `writing-for-humans` skill on the assembled brief, passing the preserve/transform contract above so persona names, metric values, headings, and present-tense narrative voice survive the rewrite.
+
+Replace the draft with the polished output. Spot-check persona names, metric values, and present-tense voice in scenarios before saving.
+
+**Fallback**: If `writing-for-humans` is unavailable, skip the polish step and note "Readability polish deferred — recommend running `writing-for-humans` on the prose sections before circulation." in the handoff.

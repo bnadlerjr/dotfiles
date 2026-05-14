@@ -1,6 +1,6 @@
 # Pitch Template — Reference
 
-The standard Shape Up pitch structure with per-section guidance.
+The standard Shape Up pitch structure with per-section guidance. For the *why* behind these sections (appetite, elements, rabbit holes, circuit breaker), see [shape-up-canon.md](shape-up-canon.md).
 
 ---
 
