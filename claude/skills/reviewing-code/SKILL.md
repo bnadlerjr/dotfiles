@@ -193,9 +193,15 @@ Skip feedback on:
 
 ### Test Quality Review
 
-This skill does not review test design. Use the `reviewing-test-design` skill to evaluate tests against Dave Farley's 8 properties (Understandable, Maintainable, Repeatable, Atomic, Necessary, Granular, Fast, First).
+This skill does not score tests against Farley's 8 properties — that is `reviewing-test-design`'s job. But when test files are in the diff, this skill **must still flag obvious anti-patterns visible without specialist analysis**:
 
-When reviewing test files with this skill, focus only on general code-quality concerns applicable to test code as code: naming clarity, dead code, DRY, readability. For test-specific concerns (duplicate coverage, over-mocking, implementation testing, tautological assertions, language-specific anti-patterns), defer to `reviewing-test-design`.
+- **Mirror / tautological assertions:** any test whose assertion is a verbatim restatement of a literal in the source under test, with no transformation between the two. See the universal pattern in `~/.claude/skills/reviewing-test-design/references/language-patterns.md`.
+- **Multi-assertion tautologies:** multiple tests in the same describe block, each asserting one field of the same literal map.
+- **Mirrored module attributes:** a module attribute in the test file that mirrors a module attribute in the source file (often signals a tautology).
+
+Flag these as **Critical** when found — they create maintenance debt without providing safety. Recommend deletion, not refactoring.
+
+For all other test-quality concerns (Farley scoring, atomicity, granularity, sociability), defer to `reviewing-test-design`.
 
 ### Example Review
 
