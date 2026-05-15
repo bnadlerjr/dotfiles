@@ -116,6 +116,14 @@ Vague name, tests mock not code.
 - Clear name
 - Real code (no mocks unless unavoidable)
 
+**Catchable defect check (before writing).** State in one sentence: **what production defect would cause this test to fail?**
+
+If the answer is "a literal in the source was changed but the matching literal in the test was not," **stop**. The test is tautological — see `~/.claude/skills/reviewing-test-design/references/language-patterns.md`. Flag back to the orchestrator with the message:
+
+> Cycle N.M as specified would produce a tautological test (mirror of source literal). Suggested replacement: a cycle that exercises [consumer behavior X] which transforms the catalog. Awaiting plan revision.
+
+Do not proceed to GREEN. Do not write the test "to satisfy the plan." Tautological tests in the codebase are worse than missing tests — they pass through reviews and create permanent maintenance cost.
+
 ### Verify RED - Watch It Fail
 
 **MANDATORY. Never skip.**
