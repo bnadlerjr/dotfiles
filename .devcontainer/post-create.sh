@@ -30,6 +30,12 @@ link "${WORKSPACE}/bashrc"                      "${HOME}/.bashrc"
 link "${WORKSPACE_CLAUDE}/skills"               "${CLAUDE_DIR}/skills"
 link "${WORKSPACE_CLAUDE}/commands"             "${CLAUDE_DIR}/commands"
 link "${WORKSPACE_CLAUDE}/agents"               "${CLAUDE_DIR}/agents"
+link "${WORKSPACE_CLAUDE}/hooks"                "${CLAUDE_DIR}/hooks"
 link "${WORKSPACE_CLAUDE}/guidelines"           "${CLAUDE_DIR}/guidelines"
 link "${WORKSPACE_CLAUDE}/CLAUDE-PERSONAL.md"   "${CLAUDE_DIR}/CLAUDE.md"
-link "${DEVCONTAINER_DIR}/settings.json"        "${CLAUDE_DIR}/settings.json"
+
+# Use the host settings.json as the user-level config — this brings the hooks
+# block, model pin, and statusline along. Container-only overrides (deny list,
+# defaultMode=auto) live in settings.local.json and are merged on top.
+link "${WORKSPACE_CLAUDE}/settings.json"        "${CLAUDE_DIR}/settings.json"
+link "${DEVCONTAINER_DIR}/settings.json"        "${CLAUDE_DIR}/settings.local.json"

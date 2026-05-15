@@ -18,8 +18,10 @@
   "mounts": [
     "source=dotfiles-claude,target=/home/node/.claude,type=volume",
     "source=dotfiles-history,target=/commandhistory,type=volume",
-    "source=${localEnv:HOME}/.gitconfig.local,target=/home/node/.gitconfig.local,type=bind,readonly"
+    "source=${localEnv:HOME}/.gitconfig.local,target=/home/node/.gitconfig.local,type=bind,readonly",
+    "source=${localEnv:HOME}/.claude/events-log,target=/home/node/.claude/events-log,type=bind"
   ],
+  "initializeCommand": "mkdir -p ${localEnv:HOME}/.claude/events-log",
   "containerEnv": {
     "CLAUDE_CONFIG_DIR": "/home/node/.claude",
     "DEVCONTAINER": "true",
