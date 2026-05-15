@@ -196,10 +196,10 @@ Skip feedback on:
 This skill does not score tests against Farley's 8 properties — that is `reviewing-test-design`'s job. But when test files are in the diff, this skill **must still flag obvious anti-patterns visible without specialist analysis**:
 
 - **Mirror / tautological assertions:** any test whose assertion is a verbatim restatement of a literal in the source under test, with no transformation between the two. See `~/.claude/skills/reviewing-test-design/references/anti-patterns.md`.
-- **Multi-assertion tautologies:** multiple tests in the same describe block, each asserting one field of the same literal map.
-- **Mirrored module attributes:** a module attribute in the test file that mirrors a module attribute in the source file (often signals a tautology).
+- **Multi-assertion tautologies:** multiple tests covering the same literal map, each asserting one field.
+- **Mirrored constants / module attributes:** a constant in the test file whose value mirrors a constant in the source file (Elixir `@attr`, JS `const`, Python module-level assignment) — often signals a tautology.
 
-Flag these as **Critical** when found — they create maintenance debt without providing safety. Recommend deletion, not refactoring.
+Flag these as **Important**. Before recommending deletion, apply the discriminator question: *"Would deleting this test cause any real bug to go undetected?"* If the only answer is "a literal got out of sync with itself," recommend deletion. If the test names a real branching or transformation defect — or might be a regression for a reported bug — flag as Important and ask the author to justify the test's defect coverage rather than recommending deletion outright.
 
 For all other test-quality concerns (Farley scoring, atomicity, granularity, sociability), defer to `reviewing-test-design`.
 
