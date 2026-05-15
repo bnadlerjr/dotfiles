@@ -63,13 +63,10 @@ RUN mkdir -p /workspace /home/dotfiles/.claude \
 
 # Configure git at the system level. ~/.gitconfig is a symlink to the tracked
 # dotfiles file, so any --global write would pollute version-controlled content.
-# - safe.directory: /workspace bind-mount UID may not match `dotfiles` on Linux hosts.
-# - commit/tag.gpgsign off: no SSH agent inside the container (1Password agent
-#   socket lives in macOS's sandboxed Group Containers and isn't reachable from
-#   Docker Desktop's VM). Sign on the host instead.
-RUN git config --system --add safe.directory /workspace \
-  && git config --system commit.gpgsign false \
-  && git config --system tag.gpgsign false
+# Commit signing is disabled inside the container via ~/.gitconfig.devcontainer
+# (written by post-create.sh and included by the tracked gitconfig) — user-level
+# config takes precedence over --system, so a --system override won't stick.
+RUN git config --system --add safe.directory /workspace
 
 ENV DEVCONTAINER=true \
     CLAUDE_CONFIG_DIR=/home/dotfiles/.claude \

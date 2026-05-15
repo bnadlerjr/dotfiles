@@ -63,3 +63,5 @@
     gpgsign = true
 [include]
     path = ~/.gitconfig.local
+[include]
+    path = ~/.gitconfig.devcontainer

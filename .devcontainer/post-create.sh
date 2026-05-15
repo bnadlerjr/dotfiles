@@ -17,9 +17,17 @@ link() {
 
 # Inherit the host gitconfig (identity, aliases, delta). The tracked file
 # includes ~/.gitconfig.local, which the devcontainer mounts read-only from the
-# host for any machine-specific overrides. Commit signing is disabled inside
-# the container at the system level (see Dockerfile).
+# host for any machine-specific overrides. Commit signing is then disabled by
+# the container-only include below, since the host's signer (1Password
+# op-ssh-sign) lives in macOS's Group Containers and isn't reachable here.
 link "${WORKSPACE}/gitconfig"                   "${HOME}/.gitconfig"
+
+cat > "${HOME}/.gitconfig.devcontainer" <<'EOF'
+[commit]
+    gpgsign = false
+[tag]
+    gpgsign = false
+EOF
 
 # Inherit the host bash setup (aliases, env, prompt). The tracked bashrc sources
 # ~/dotfiles/bash/{env,config,aliases,git-prompt}, so ~/dotfiles is linked to the
