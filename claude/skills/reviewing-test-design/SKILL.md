@@ -78,10 +78,18 @@ Score each test file or test suite against these eight properties on a 1-10 scal
 
 ### 5. Necessary (N)
 
-- **10**: Every test adds value; no redundancy; guides development decisions
-- **7-9**: Most tests are valuable; minor redundancy
-- **4-6**: Some tests feel like checkbox exercises; moderate redundancy
-- **1-3**: Many tests add little value; significant redundancy
+Before scoring, ask each test: **what production defect class does this catch?** Name the smallest possible bug that would cause this test to fail but not any other test.
+
+- **10**: Every test catches a distinct, real defect class; no test could be deleted without losing safety.
+- **7-9**: Most tests catch real defects; minor redundancy with higher-level tests.
+- **4-6**: Some tests' only catchable defect is "a literal changed in one place but not the matching place." Tautological — adds maintenance cost without safety.
+- **1-3**: Multiple tests are mirrors of source literals, or assert facts already guaranteed by the type system / compiler.
+
+A "pins a contract" justification is valid only when both conditions hold:
+- The contract is consumed by a system **outside this codebase** (an external API client, a serialized schema, a published artifact), AND
+- No higher-level test (integration, end-to-end, snapshot) already pins it.
+
+Tests that assert `result.field == "literal that appears verbatim in the source under test"` with no transformation between source and assertion are tautological. Score ≤4 regardless of how the test names itself.
 
 ### 6. Granular (G)
 
