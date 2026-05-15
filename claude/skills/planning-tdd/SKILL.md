@@ -222,6 +222,7 @@ After writing the plan, apply `/thinking self-consistency` to validate:
 - Does any cycle contain a GREEN or implementation section? -> Remove it
 - Does any cycle contain a REFACTOR section or "None needed" commentary? -> Remove it
 - Does any cycle contain code that is NOT a test? -> Replace with structural context
+- Does any cycle's RED test pass purely by writing a literal into source, with no transformation between the literal and the assertion? -> Remove or replace per the Test Cycle Validity rule above
 
 ## Guidelines
 
