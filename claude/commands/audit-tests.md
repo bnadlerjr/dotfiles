@@ -50,12 +50,14 @@ TEST_GLOBS: `'*_test.*' '*test_*.*' '*.test.*' '*.spec.*' 'test/**' 'tests/**' '
 
 7. **Identify production code under test** — for each path in `CHANGED_TESTS`, strip test markers (`_test`, `.spec`, `__tests__/`, `test_` prefix) and resolve to the project's source tree using Glob/Grep when the mapping is not 1:1. Capture as `PROD_CODE`.
 
-8. **Invoke `reviewing-test-design`** via the Skill tool. Pass:
-   - The diff range (`$BASE...$END`)
-   - `CHANGED_TESTS` (full paths)
-   - `PROD_CODE` (full paths)
+8. **Invoke `reviewing-test-design` in an isolated subagent.** Use the Agent tool with `subagent_type: general-purpose`. Do NOT call the Skill tool from the current context. The subagent must receive only:
+   - The path to the skill: `~/.claude/skills/reviewing-test-design/SKILL.md` (read it; apply it)
+   - The diff range (`$BASE...$END`), `CHANGED_TESTS`, `PROD_CODE`
    - Instruction to evaluate the entire set as a single body of work against Farley's 8 properties — not file-by-file
    - Instruction to **omit any property with no observations** rather than emit empty headers
+   - **Red-team directive (verbatim in the prompt):** "For each test in scope, attempt to argue *against* its retention. State the smallest production defect class it catches. If the only defect class is 'a literal was changed in one file and not the other', recommend deletion. Do not accept 'pins a contract' as sufficient justification — verify the contract is not already pinned by a higher-level test, a type spec, or the compiler."
+
+   The subagent must not see the implementation rationale, the plan, or any prior conversation about why the tests exist. Confirmation bias on self-review is the failure mode this isolation prevents.
 
 9. **Render the Report below** using only the properties the skill returned findings for.
 
