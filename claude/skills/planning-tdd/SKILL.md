@@ -182,7 +182,9 @@ A test cycle must define **a transformation under test**: an input that goes thr
 If the only answer is "the static catalog has the wrong shape," replace the cycle with:
 
 - A higher-level cycle that tests the consumer's behavior over the catalog (the runtime evaluator, the renderer, the GraphQL resolver — whatever actually transforms the data).
-- No cycle at all. The static data is documented by the source itself; the compiler / type checker pins the shape; the integration test catches the wiring.
+- No cycle at all, **only when** a higher-level test already pins the relevant behavior. Record that test's `file:line` in the plan as the source of coverage. The static data is documented by the source itself and the type checker pins its shape, but the wiring is not free coverage — it needs a named test.
+
+This is the one carve-out from Core Principle 6: tautological cycles may be removed silently. Every other coverage gap — including "no downstream test pins this yet" — must be escalated, not dropped.
 
 **"Pinning the registered shape of a static catalog" is not a TDD cycle. It is a tautology with `test` as a keyword.**
 
