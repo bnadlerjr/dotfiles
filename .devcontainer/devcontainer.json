@@ -10,20 +10,22 @@
   },
   "runArgs": [
     "--cap-add=NET_ADMIN",
-    "--cap-add=NET_RAW"
+    "--cap-add=NET_RAW",
+    "--name=dotfiles",
+    "--hostname=dotfiles"
   ],
-  "remoteUser": "node",
+  "remoteUser": "dotfiles",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
   "workspaceFolder": "/workspace",
   "mounts": [
-    "source=dotfiles-claude,target=/home/node/.claude,type=volume",
+    "source=dotfiles-claude,target=/home/dotfiles/.claude,type=volume",
     "source=dotfiles-history,target=/commandhistory,type=volume",
-    "source=${localEnv:HOME}/.gitconfig.local,target=/home/node/.gitconfig.local,type=bind,readonly",
-    "source=${localEnv:HOME}/.claude/events-log,target=/home/node/.claude/events-log,type=bind"
+    "source=${localEnv:HOME}/.gitconfig.local,target=/home/dotfiles/.gitconfig.local,type=bind,readonly",
+    "source=${localEnv:HOME}/.claude/events-log,target=/home/dotfiles/.claude/events-log,type=bind"
   ],
   "initializeCommand": "mkdir -p ${localEnv:HOME}/.claude/events-log",
   "containerEnv": {
-    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "CLAUDE_CONFIG_DIR": "/home/dotfiles/.claude",
     "DEVCONTAINER": "true",
     "EDITOR": "nvim"
   },

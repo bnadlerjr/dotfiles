@@ -47,17 +47,23 @@ RUN ARCH=$(dpkg --print-architecture) \
 RUN ln -s /usr/bin/fdfind /usr/local/bin/fd \
   && ln -s /usr/bin/batcat /usr/local/bin/bat
 
+# Rename the base image's `node` user/group to `dotfiles` so the in-container
+# identity matches the repo. UID/GID stay 1000, so any existing volume contents
+# and bind-mount ownership continue to line up.
+RUN usermod -l dotfiles -d /home/dotfiles -m node \
+  && groupmod -n dotfiles node
+
 RUN mkdir /commandhistory \
   && touch /commandhistory/.bash_history \
-  && chown -R node:node /commandhistory \
+  && chown -R dotfiles:dotfiles /commandhistory \
   && echo 'export PROMPT_COMMAND="history -a" HISTFILE=/commandhistory/.bash_history' >> /etc/bash.bashrc
 
-RUN mkdir -p /workspace /home/node/.claude \
-  && chown -R node:node /workspace /home/node/.claude
+RUN mkdir -p /workspace /home/dotfiles/.claude \
+  && chown -R dotfiles:dotfiles /workspace /home/dotfiles/.claude
 
 # Configure git at the system level. ~/.gitconfig is a symlink to the tracked
 # dotfiles file, so any --global write would pollute version-controlled content.
-# - safe.directory: /workspace bind-mount UID may not match `node` on Linux hosts.
+# - safe.directory: /workspace bind-mount UID may not match `dotfiles` on Linux hosts.
 # - commit/tag.gpgsign off: no SSH agent inside the container (1Password agent
 #   socket lives in macOS's sandboxed Group Containers and isn't reachable from
 #   Docker Desktop's VM). Sign on the host instead.
@@ -66,14 +72,14 @@ RUN git config --system --add safe.directory /workspace \
   && git config --system tag.gpgsign false
 
 ENV DEVCONTAINER=true \
-    CLAUDE_CONFIG_DIR=/home/node/.claude \
+    CLAUDE_CONFIG_DIR=/home/dotfiles/.claude \
     SHELL=/bin/bash \
     EDITOR=nvim
 
-USER node
-ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
-ENV PATH=$PATH:/home/node/.npm-global/bin:/home/node/.local/bin
-RUN mkdir -p /home/node/.npm-global \
+USER dotfiles
+ENV NPM_CONFIG_PREFIX=/home/dotfiles/.npm-global
+ENV PATH=$PATH:/home/dotfiles/.npm-global/bin:/home/dotfiles/.local/bin
+RUN mkdir -p /home/dotfiles/.npm-global \
   && npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -83,8 +89,8 @@ COPY init-firewall.sh /usr/local/bin/init-firewall.sh
 COPY post-create.sh /usr/local/bin/post-create.sh
 COPY print-welcome.sh /usr/local/bin/print-welcome.sh
 RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/post-create.sh /usr/local/bin/print-welcome.sh \
-  && echo "node ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/node-firewall \
-  && chmod 0440 /etc/sudoers.d/node-firewall
+  && echo "dotfiles ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" > /etc/sudoers.d/dotfiles-firewall \
+  && chmod 0440 /etc/sudoers.d/dotfiles-firewall
 
-USER node
+USER dotfiles
 WORKDIR /workspace

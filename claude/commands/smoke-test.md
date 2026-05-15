@@ -22,10 +22,10 @@ Run a comprehensive smoke test of the Claude Code dev container. Verifies identi
 ### 1. Identity & environment
 
 ```bash
-whoami                          # expect: node
-id                              # expect: uid=node, group=node
+whoami                          # expect: dotfiles
+id                              # expect: uid=dotfiles, group=dotfiles
 echo "$DEVCONTAINER | $CLAUDE_CONFIG_DIR | $EDITOR"
-                                # expect: true | /home/node/.claude | nvim
+                                # expect: true | /home/dotfiles/.claude | nvim
 pwd && ls /workspace            # /workspace exists, contains .devcontainer/ and claude/
 ```
 
@@ -85,12 +85,12 @@ Same curl pattern. Hosts: `example.com`, `www.google.com`, `www.cloudflare.com`,
 touch /workspace/.smoketest && stat -c '%U:%G %a' /workspace/.smoketest && rm /workspace/.smoketest
 ```
 
-PASS = touch succeeds, owner is `node:node`, file removed cleanly.
+PASS = touch succeeds, owner is `dotfiles:dotfiles`, file removed cleanly.
 
 ### 8. Persistent volumes
 
 ```bash
-mount | grep -E "/home/node/.claude|/commandhistory"
+mount | grep -E "/home/dotfiles/.claude|/commandhistory"
 ```
 
 Both mounts must appear. Then confirm both are writable:
@@ -106,13 +106,13 @@ After all 8 checks, emit a single summary table:
 
 | # | Check                          | Result | Notes                                  |
 |---|--------------------------------|--------|----------------------------------------|
-| 1 | Identity & environment         | PASS   | node@..., /workspace mounted           |
+| 1 | Identity & environment         | PASS   | dotfiles@..., /workspace mounted       |
 | 2 | `~/.claude` symlinks           | PASS   | all 6 resolve under /workspace         |
 | 3 | Tooling availability           | PASS   | 12/12 tools present                    |
 | 4 | Sudo least-privilege           | PASS   | only init-firewall.sh NOPASSWD         |
 | 5 | Firewall — allowed egress      | PASS   | 7/7 hosts reachable                    |
 | 6 | Firewall — denied egress       | PASS   | 4/4 hosts blocked (times vary)         |
-| 7 | Workspace bind mount           | PASS   | writable as node:node                  |
+| 7 | Workspace bind mount           | PASS   | writable as dotfiles:dotfiles          |
 | 8 | Persistent volumes             | PASS   | both mounted and writable              |
 
 Close with a single line: `Overall: PASS` or `Overall: FAIL (N checks failed)`.
