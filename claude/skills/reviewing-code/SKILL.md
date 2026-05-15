@@ -195,7 +195,7 @@ Skip feedback on:
 
 This skill does not score tests against Farley's 8 properties — that is `reviewing-test-design`'s job. But when test files are in the diff, this skill **must still flag obvious anti-patterns visible without specialist analysis**:
 
-- **Mirror / tautological assertions:** any test whose assertion is a verbatim restatement of a literal in the source under test, with no transformation between the two. See the universal pattern in `~/.claude/skills/reviewing-test-design/references/language-patterns.md`.
+- **Mirror / tautological assertions:** any test whose assertion is a verbatim restatement of a literal in the source under test, with no transformation between the two. See `~/.claude/skills/reviewing-test-design/references/anti-patterns.md`.
 - **Multi-assertion tautologies:** multiple tests in the same describe block, each asserting one field of the same literal map.
 - **Mirrored module attributes:** a module attribute in the test file that mirrors a module attribute in the source file (often signals a tautology).
 

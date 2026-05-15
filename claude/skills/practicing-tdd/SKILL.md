@@ -118,7 +118,7 @@ Vague name, tests mock not code.
 
 **Catchable defect check (before writing).** State in one sentence: **what production defect would cause this test to fail?**
 
-If the answer is "a literal in the source was changed but the matching literal in the test was not," **stop**. The test is tautological — see `~/.claude/skills/reviewing-test-design/references/language-patterns.md`. Flag back to the orchestrator with the message:
+If the answer is "a literal in the source was changed but the matching literal in the test was not," **stop**. The test is tautological — see `~/.claude/skills/reviewing-test-design/references/anti-patterns.md`. Flag back to the orchestrator with the message:
 
 > Cycle N.M as specified would produce a tautological test (mirror of source literal). Suggested replacement: a cycle that exercises [consumer behavior X] which transforms the catalog. Awaiting plan revision.
 

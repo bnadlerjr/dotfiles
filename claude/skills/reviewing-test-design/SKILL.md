@@ -35,8 +35,9 @@ If $ARGUMENTS is empty, ask which test files to review.
 ## Review Process
 
 1. **Read the tests thoroughly** before examining implementation code
-2. **Load references conditionally**:
-   - If the tests use Elixir/Ruby/JS/TS/Python, load [language-patterns.md](references/language-patterns.md) for concrete stack-specific red flags
+2. **Load references**:
+   - **Always** load [anti-patterns.md](references/anti-patterns.md) — universal patterns (mirror tests, tautological assertions) applicable in every stack
+   - If the tests use Elixir/Ruby/JS/TS/Python, additionally load [language-patterns.md](references/language-patterns.md) for stack-specific red flags
    - If the review is likely to recommend removals or refactoring, load [preservation.md](references/preservation.md) for guardrails and action-summary format
 3. **Evaluate each property** independently with specific evidence
 4. **Provide concrete examples** from the code for each score
@@ -197,5 +198,6 @@ https://www.linkedin.com/pulse/tdd-properties-good-tests-dave-farley-iexge/
 
 ## References
 
+- [anti-patterns.md](references/anti-patterns.md) — universal test anti-patterns (mirror/tautological tests) that apply in every stack. Always load.
 - [language-patterns.md](references/language-patterns.md) — concrete red flags in Elixir/Ruby/JS/Python tests that map to Farley property scores. Load when reviewing tests in these stacks.
 - [preservation.md](references/preservation.md) — guardrails against over-culling valuable tests; mocking hygiene; action-summary output format. Load when the review is likely to recommend removals or refactoring.
