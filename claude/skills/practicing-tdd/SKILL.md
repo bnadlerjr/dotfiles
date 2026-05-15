@@ -116,13 +116,7 @@ Vague name, tests mock not code.
 - Clear name
 - Real code (no mocks unless unavoidable)
 
-**Catchable defect check (before writing).** State in one sentence: **what production defect would cause this test to fail?**
-
-If the answer is "a literal in the source was changed but the matching literal in the test was not," **stop**. The test is tautological — see `~/.claude/skills/reviewing-test-design/references/anti-patterns.md`. Flag back to the orchestrator with the message:
-
-> Cycle N.M as specified would produce a tautological test (mirror of source literal). Suggested replacement: a cycle that exercises [consumer behavior X] which transforms the catalog. Awaiting plan revision.
-
-Do not proceed to GREEN. Do not write the test "to satisfy the plan." Tautological tests in the codebase are worse than missing tests — they pass through reviews and create permanent maintenance cost.
+**Catchable defect check.** Before writing, ask: *what production defect would cause this test to fail?* If the only answer is "a literal got out of sync with itself," the test is tautological — re-scope the cycle to a consumer transformation. See [anti-patterns.md](../reviewing-test-design/references/anti-patterns.md). Do not write a test you can satisfy with a literal.
 
 ### Verify RED - Watch It Fail
 
@@ -282,6 +276,7 @@ Tests-first force edge case discovery before implementing. Tests-after verify yo
 | "TDD will slow me down" | TDD faster than debugging. Pragmatic = test-first. |
 | "Manual test faster" | Manual doesn't prove edge cases. You'll re-test every change. |
 | "Existing code has no tests" | You're improving it. Add tests for existing code. |
+| "The plan says assert this literal" | Mirror-of-source isn't a test. Re-scope the cycle to a consumer transformation. See [anti-patterns.md](../reviewing-test-design/references/anti-patterns.md). |
 
 ## Red Flags - STOP and Start Over
 
