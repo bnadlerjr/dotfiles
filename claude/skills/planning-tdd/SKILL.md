@@ -173,6 +173,19 @@ Each cycle MUST NOT contain:
 
 GREEN and REFACTOR emerge during execution via `practicing-tdd` and `refactoring-code` skills. They do not belong in a plan.
 
+### Test Cycle Validity
+
+A test cycle must define **a transformation under test**: an input that goes through a function which branches, computes, queries, or transforms before producing the asserted output. If the RED-phase test would pass by writing a literal into the source — with no transformation between the literal and the assertion — the cycle is mis-specified.
+
+**Before adding a cycle to the plan, answer:** *What production defect would this test catch that would not also be caught by an integration test of the consumer?*
+
+If the only answer is "the static catalog has the wrong shape," replace the cycle with:
+
+- A higher-level cycle that tests the consumer's behavior over the catalog (the runtime evaluator, the renderer, the GraphQL resolver — whatever actually transforms the data).
+- No cycle at all. The static data is documented by the source itself; the compiler / type checker pins the shape; the integration test catches the wiring.
+
+**"Pinning the registered shape of a static catalog" is not a TDD cycle. It is a tautology with `test` as a keyword.**
+
 ### Step 4: Detailed Plan
 
 When user approves structure, write the complete plan using the template
