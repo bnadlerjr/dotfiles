@@ -16,13 +16,25 @@ Conduct comprehensive research across the codebase to answer user questions by s
 - Gathering historical context from docs directory
 - User asks to "research", "document", or "understand" something
 
-## Critical Principle
+## Critical Principles
 
-**Focus on documentation.** Your primary job is to explain the codebase as it exists today.
+### Focus on Documentation
+
+Your primary job is to explain the codebase as it exists today.
 
 - Describe what exists, where it exists, how it works, and how components interact
 - You are creating a technical map/documentation of the existing system
 - Only suggest improvements or identify problems if explicitly asked
+
+### Completeness
+
+Research must be complete. Partial reads, skimming, or leaving gaps unmarked is a failure mode of this skill.
+
+- Read files in full. Do not use `limit`/`offset` to skim the top of a file unless the file exceeds a stated size threshold — in that case, read it in chunks and report having done so.
+- When enumerating a **finite set** (struct fields, enum variants, function parameters, config keys, schema columns, route handlers, exported module symbols, etc.), the enumeration must be either:
+  1. **Complete** — every member listed, with type and `file:line` reference, OR
+  2. **Explicitly truncated with a reason** — name the members you covered, state the count of members you skipped, and point to the source for the full definition.
+- `...`, "etc.", "and so on", "and others", "among others" are NOT acceptable substitutes for either of the above. In enumeration contexts they are an admission of incomplete research and are forbidden.
 
 ---
 
@@ -78,9 +90,18 @@ present the decomposition and proceed unless the user objects.
 - Don't write detailed prompts about HOW to search—the agents already know
 - **Remind agents they are documenting, not evaluating or improving**
 
+### Completeness Expectations for Agent Prompts
+
+The "agents know their job" guidance covers search strategy, not completeness. Completeness must be stated explicitly in the prompt:
+
+- **For finite structures** (struct, enum, config, route table, exported symbols, schema columns, etc.) — explicitly require complete enumeration in the agent's prompt. Example: "Enumerate every field of the `User` struct with type and `file:line`. Do not abbreviate with `...` or `etc.` — if you skip any, state which and why."
+- **For file summaries** — require the agent to read the entire file. No `limit`/`offset` truncation unless the file exceeds a stated size threshold (e.g. >1000 lines), in which case the agent must read it in chunks and report having done so.
+- **Treat completion as "complete findings", not "agent returned"** — see Important below.
+
 ### Important
 
 - WAIT for ALL agent tasks to complete before proceeding to Synthesis Phase
+- "Complete" means the agent returned **complete findings**, not just that it returned. If an agent's result contains `...`, "etc.", "and others", or otherwise signals incompleteness in an enumeration, **re-spawn the agent with a corrective prompt** rather than passing the gap through to the user.
 - All agents are documentarians, not critics—they describe what exists without suggesting improvements
 
 ---
@@ -99,7 +120,17 @@ present the decomposition and proceed unless the user objects.
 - Highlight patterns, connections, and architectural decisions
 - Answer the user's specific questions with concrete evidence
 
-### Step 2: Render Research Document
+### Step 2: Completeness Check
+
+Before rendering, scan all agent findings for incompleteness:
+
+- Search the combined findings for `...`, "etc.", "and so on", "and others", "among others", or any other ellipsis-shaped admission of incomplete research.
+- Check every enumeration (struct fields, enum variants, config keys, route handlers, exported symbols, etc.) — does it either list every member, or explicitly mark which members were skipped, the count skipped, and why?
+- Check for partial file reads — if an agent summarized a file but only read part of it without stating why, treat the summary as incomplete.
+
+If any gap is found, **re-spawn the relevant agent with a corrective prompt to fill the gap** before rendering. Do not render a document with unmarked gaps.
+
+### Step 3: Render Research Document
 
 Render the full research document inline in the conversation using the
 structure in `templates/research-document.md`. The skill's deliverable is the
@@ -115,7 +146,7 @@ command may save it to disk under environment-specific conventions).
 If a calling command specifies a save path or frontmatter schema, follow that
 guidance after rendering.
 
-### Step 3: Add GitHub Permalinks (if applicable)
+### Step 4: Add GitHub Permalinks (if applicable)
 
 - Check if on main branch or if commit is pushed: `git branch --show-current` and `git status`
 - If on main/master or pushed, generate GitHub permalinks:
@@ -172,6 +203,66 @@ changes to the caller — do not modify the persisted file directly.
 ❌ "The system handles authentication somewhere in the codebase"
 
 ✅ "Authentication is handled in `src/auth/handler.ts:45-89`"
+```
+
+### Ellipsis in Enumeration
+
+Using `...`, "etc.", or "and several others" inside a finite enumeration is an admission of incomplete research. Either enumerate fully, or state explicitly what was skipped and why.
+
+**Struct fields:**
+```
+❌ "The `User` struct has fields `name`, `email`, `id`, ..."
+❌ "The `User` struct has `name`, `email`, `id` and several other fields"
+
+✅ Full enumeration:
+   "The `User` struct (`src/models/user.rs:12-28`) has fields:
+    - `id: Uuid` (`src/models/user.rs:13`)
+    - `name: String` (`src/models/user.rs:14`)
+    - `email: String` (`src/models/user.rs:15`)
+    - `created_at: DateTime<Utc>` (`src/models/user.rs:16`)
+    - `updated_at: DateTime<Utc>` (`src/models/user.rs:17`)"
+
+✅ Explicit truncation:
+   "Fields `name`, `email`, `id` documented here; remaining 12 fields
+    (`created_at`, `updated_at`, `last_login`, `role`, `tenant_id`,
+    `is_active`, `mfa_secret`, `password_hash`, `avatar_url`,
+    `locale`, `timezone`, `deleted_at`) deferred — see
+    `src/models/user.rs:1-200` for the full struct definition."
+```
+
+**Enum variants:**
+```
+❌ "`Status` has variants `Pending`, `Active`, `Suspended`, etc."
+
+✅ "`Status` (`src/types.ts:5-11`) has 5 variants: `Pending`,
+   `Active`, `Suspended`, `Cancelled`, `Archived`."
+```
+
+**Function signatures / parameters:**
+```
+❌ "`createOrder(userId, items, ...)` builds an order"
+
+✅ "`createOrder(userId: string, items: LineItem[],
+   shippingAddress: Address, paymentMethodId: string,
+   couponCode?: string)` (`src/orders/create.ts:34`) builds an order"
+```
+
+**Exported module symbols:**
+```
+❌ "`src/lib/auth.ts` exports `login`, `logout`, `verifyToken`, and more"
+
+✅ "`src/lib/auth.ts` exports 7 symbols: `login`, `logout`,
+   `verifyToken`, `refreshToken`, `requireAuth`, `AuthError`,
+   `SessionStore`. (verified by reading the full file)"
+```
+
+**Config keys:**
+```
+❌ "`config/app.yml` has keys for database, redis, ..."
+
+✅ "`config/app.yml` has 4 top-level keys: `database`, `redis`,
+   `mailer`, `feature_flags`. Nested keys under each are
+   enumerated in the Detailed Findings section."
 ```
 
 ### Skipping Agent Completion
@@ -255,6 +346,7 @@ checks the Authorization header and validates the JWT signature.
 1. Read mentioned files before spawning agents
 2. Wait for ALL agents to complete before synthesizing
 3. Never use placeholder values — investigate or note as an Open Question
+4. Enumerations must be complete or explicitly truncated with a reason — no `...`, `etc.`, or unmarked gaps
 
 ---
 
