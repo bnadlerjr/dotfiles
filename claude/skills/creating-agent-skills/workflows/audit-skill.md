@@ -1,138 +1,121 @@
 # Workflow: Audit a Skill
 
-<required_reading>
-**Read these reference files NOW:**
-1. references/recommended-structure.md
-2. references/skill-structure.md
-3. references/use-xml-tags.md
-</required_reading>
+**Read these first** — they are the authority this audit enforces:
 
-<process>
+1. `../SKILL.md` — Core Principles (markdown format, no XML tags; gerund naming)
+2. `../references/best-practices.md` — concise-is-key, descriptions, progressive disclosure, checklist
+3. `../references/official-spec.md` — frontmatter fields, lifecycle, the 1,536-char description cap
+
 ## Step 1: List Available Skills
 
-**DO NOT use AskUserQuestion** - there may be many skills.
+**Do NOT use AskUserQuestion** — there may be many skills.
 
-Enumerate skills in chat as numbered list:
 ```bash
 ls ~/.claude/skills/
 ```
 
-Present as:
-```
-Available skills:
-1. create-agent-skills
-2. build-macos-apps
-3. manage-stripe
-...
-```
-
-Ask: "Which skill would you like to audit? (enter number or name)"
+Present them as a numbered list, then ask: "Which skill would you like to audit? (enter number or name)"
 
 ## Step 2: Read the Skill
 
-After user selects, read the full skill structure:
 ```bash
-# Read main file
 cat ~/.claude/skills/{skill-name}/SKILL.md
-
-# Check for workflows and references
 ls ~/.claude/skills/{skill-name}/
-ls ~/.claude/skills/{skill-name}/workflows/ 2>/dev/null
 ls ~/.claude/skills/{skill-name}/references/ 2>/dev/null
+ls ~/.claude/skills/{skill-name}/workflows/ 2>/dev/null
 ```
 
-## Step 3: Run Audit Checklist
+Read the reference and workflow files too — the audit covers the whole skill, not just SKILL.md.
 
-Evaluate against each criterion:
+## Step 3: Run the Audit Checklist
+
+Evaluate against each criterion.
 
 ### YAML Frontmatter
-- [ ] Has `name:` field (lowercase-with-hyphens)
-- [ ] Name matches directory name
-- [ ] Has `description:` field
-- [ ] Description says what it does AND when to use it
-- [ ] Description is third person ("Use when...")
 
-### Structure
-- [ ] SKILL.md under 500 lines
-- [ ] Pure XML structure (no markdown headings # in body)
-- [ ] All XML tags properly closed
-- [ ] Has required tags: objective OR essential_principles
-- [ ] Has success_criteria
+- [ ] `description` present, third person ("Use when…"), states what it does AND when to use it
+- [ ] Description front-loads trigger keywords; combined `description` + `when_to_use` within the 1,536-char cap
+- [ ] If `name` is set: lowercase letters, numbers, hyphens only, ≤64 chars, matches the directory
+- [ ] Name uses gerund form (`processing-pdfs`, `reviewing-code`) — not `helper`/`utils`/`tools`/`anthropic-*`/`claude-*`
 
-### Router Pattern (if complex skill)
-- [ ] Essential principles inline in SKILL.md (not in separate file)
-- [ ] Has intake question
-- [ ] Has routing table
-- [ ] All referenced workflow files exist
-- [ ] All referenced reference files exist
+### Body Structure
 
-### Workflows (if present)
-- [ ] Each has required_reading section
-- [ ] Each has process section
-- [ ] Each has success_criteria section
-- [ ] Required reading references exist
+- [ ] SKILL.md body under 500 lines
+- [ ] **Standard markdown headings in the body — no XML tags** (`#`/`##`, not `<objective>`/`<process>`)
+- [ ] Examples are concrete (input/output pairs), not abstract
+- [ ] Consistent terminology throughout
+- [ ] No time-sensitive information (use an "old patterns" section instead)
+- [ ] Forward-slash paths only (`scripts/helper.py`, never backslashes)
+
+### Progressive Disclosure (multi-file skills)
+
+- [ ] SKILL.md is an overview that navigates to detail; heavy content lives in references
+- [ ] References are one level deep from SKILL.md (no SKILL.md → a.md → b.md chains)
+- [ ] Reference files over 100 lines have a table of contents
+- [ ] No redundant content duplicated across files (intentional repetition of a hard safety constraint is acceptable)
+- [ ] Reference files also use markdown headings, not XML tags
+
+### Scripts (if present)
+
+- [ ] Handle errors explicitly
+- [ ] No unexplained "voodoo constants"
+- [ ] Required packages listed
+- [ ] Clear documentation
 
 ### Content Quality
-- [ ] Principles are actionable (not vague platitudes)
+
+- [ ] Instructions are actionable (not vague platitudes like "handle it appropriately")
 - [ ] Steps are specific (not "do the thing")
-- [ ] Success criteria are verifiable
-- [ ] No redundant content across files
+- [ ] Any success criteria are verifiable (not "user is satisfied")
 
-## Step 4: Generate Report
+### Invocation Surface
 
-Present findings as:
+- [ ] No single-skill `/{skill-name}` command wrapper in `~/.claude/commands/` — skills are auto-discovered via their `description`; a wrapper that only invokes one skill is duplicate surface to keep in sync
+
+## Step 4: Generate the Report
 
 ```
 ## Audit Report: {skill-name}
 
-### ✅ Passing
+### Passing
 - [list passing items]
 
-### ⚠️ Issues Found
-1. **[Issue name]**: [Description]
-   → Fix: [Specific action]
+### Issues Found
+1. **[Issue]** (severity: critical | major | minor): [description]
+   → Fix: [specific action]
 
-2. **[Issue name]**: [Description]
-   → Fix: [Specific action]
-
-### 📊 Score: X/Y criteria passing
+### Score: X/Y criteria passing
 ```
 
 ## Step 5: Offer Fixes
 
-If issues found, ask:
-"Would you like me to fix these issues?"
+If issues found, ask: "Would you like me to fix these issues?"
 
-Options:
-1. **Fix all** - Apply all recommended fixes
-2. **Fix one by one** - Review each fix before applying
-3. **Just the report** - No changes needed
+1. **Fix all** — apply all recommended fixes
+2. **Fix critical/major only** — apply the highest-severity fixes
+3. **Just the report** — no changes
 
-If fixing:
-- Make each change
-- Verify file validity after each change
-- Report what was fixed
-</process>
+If fixing: make each change, confirm the file is still valid, and report what was fixed.
 
-<audit_anti_patterns>
-## Common Anti-Patterns to Flag
+## Anti-Patterns to Flag
 
-**Skippable principles**: Essential principles in separate file instead of inline
-**Monolithic skill**: Single file over 500 lines
-**Mixed concerns**: Procedures and knowledge in same file
-**Vague steps**: "Handle the error appropriately"
-**Untestable criteria**: "User is satisfied"
-**Markdown headings in body**: Using # instead of XML tags
-**Missing routing**: Complex skill without intake/routing
-**Broken references**: Files mentioned but don't exist
-**Redundant content**: Same information in multiple places
-</audit_anti_patterns>
+- **XML tags in the body** — use markdown headings instead (the most common stale-skill defect)
+- **Monolithic skill** — single SKILL.md over 500 lines that should be split
+- **Mixed concerns** — step-by-step procedures and reference knowledge crammed into one file
+- **Vague steps** — "Handle the error appropriately"
+- **Untestable criteria** — "User is satisfied"
+- **Deep nesting** — references more than one level from SKILL.md
+- **Broken references** — files linked but absent
+- **Redundant content** — the same information repeated across files
+- **Single-skill command wrapper** — a `/foo` shim that only forwards to one skill
+- **Windows paths** — backslashes instead of forward slashes
+- **Time-sensitive info** — "before August 2025, use…" instead of an "old patterns" section
 
-<success_criteria>
-Audit is complete when:
-- [ ] Skill fully read and analyzed
-- [ ] All checklist items evaluated
-- [ ] Report presented to user
-- [ ] Fixes applied (if requested)
-- [ ] User has clear picture of skill health
-</success_criteria>
+## Success Criteria
+
+The audit is complete when:
+
+- [ ] The whole skill (SKILL.md + references + workflows) has been read
+- [ ] Every checklist item has been evaluated
+- [ ] The report, with a score and severity-tagged issues, has been presented
+- [ ] Fixes have been applied if requested

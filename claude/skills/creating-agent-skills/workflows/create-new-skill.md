@@ -151,19 +151,11 @@ Check:
 - [ ] SKILL.md under 500 lines
 - [ ] XML tags properly closed
 
-## Step 9: Create Slash Command
+## Step 9: Skill Discovery (no slash command)
 
-```bash
-cat > ~/.claude/commands/{skill-name}.md << 'EOF'
----
-description: {Brief description}
-argument-hint: [{argument hint}]
-allowed-tools: Skill({skill-name})
----
+Do not create a per-skill slash command. Skills are auto-discovered via their `description` frontmatter — the harness routes a user's natural-language request to the skill whose description matches. A `/<skill-name>` wrapper that only invokes one skill is duplicate surface: two files to keep in sync, no composition value, and it ties the skill's identity to one invocation path.
 
-Invoke the {skill-name} skill for: $ARGUMENTS
-EOF
-```
+If users want a manual entry point for one skill, they type the request as natural language — the description routes them to the skill. No `/foo` shim required.
 
 ## Step 10: Test
 
@@ -186,6 +178,5 @@ Skill is complete when:
 - [ ] Intake question routes to correct workflow
 - [ ] All workflows have required_reading + process + success_criteria
 - [ ] References contain reusable domain knowledge
-- [ ] Slash command exists and works
-- [ ] Tested with real invocation
+- [ ] Tested with real invocation (natural-language request matches the description)
 </success_criteria>

@@ -195,7 +195,8 @@ ${REQUIREMENTS_SUMMARY}
    - Write SKILL.md with valid frontmatter
    - Write workflow files (if router structure)
    - Write reference files (if needed)
-   - Create the slash command at `~/.claude/commands/${SKILL_NAME}.md`
+
+6. **Do NOT create a slash command for this skill.** Skills are auto-discovered through their `description` frontmatter — the harness routes natural-language requests to them without a `/<skill-name>` wrapper. Per-skill commands are an anti-pattern: duplicate discovery surface, no composition value. Commands earn their place only when they compose 2+ skills or add orchestration the skill itself can't carry (e.g., AskUserQuestion flows). If `creating-agent-skills` produces a `Step 9: Create Slash Command` step, ignore it — that step has been removed from the current workflow, and any residual instruction is stale.
 
 ## Thinking Patterns
 
@@ -214,9 +215,6 @@ When complete, provide a summary:
 
 ### Skill Structure
 - [Describe the structure chosen and why]
-
-### Slash Command
-- [Show the command that was created]
 
 ### Validation Results
 - [Results from self-consistency check]
@@ -403,7 +401,7 @@ Options:
 2. Decomposes requirements, asks about scope (HCL only? Terragrunt?), output format, etc.
 3. Recommends simple skill structure
 4. Delegates to sub-agent which invokes creating-agent-skills
-5. Presents created files and slash command
+5. Presents created files
 6. Offers audit or testing
 
 ### Improve an existing skill
