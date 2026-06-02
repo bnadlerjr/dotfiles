@@ -38,7 +38,7 @@ Plug 'L3MON4D3/LuaSnip'                                           " Snippet Engi
 Plug 'Olical/conjure'                                             " Interactive evaluation for Neovim.
 Plug 'OliverChao/telescope-picker-list.nvim'                      " A plugin that helps you use any pickers in telescope
 Plug 'PaterJason/cmp-conjure'                                     " nvim-cmp source for conjure.
-Plug 'RRethy/nvim-treesitter-endwise'                             " Tree-sitter aware alternative to tpope's vim-endwise
+Plug 'tpope/vim-endwise'                                          " Wisely add 'end' in Ruby, Lua, Vimscript, etc. (nvim-treesitter-endwise needs the archived master branch)
 Plug 'YounesElhjouji/nvim-copy'                                   " Copy the content of files—from visible buffers, Git-modified files, etc. to clipboard
 Plug 'elixir-editors/vim-elixir'                                  " Vim configuration files for Elixir
 Plug 'folke/neodev.nvim'                                          " Neovim setup for init.lua and plugin development with full signature help, docs and completion for the nvim lua API
@@ -68,8 +68,8 @@ Plug 'nvim-telescope/telescope-ui-select.nvim'                    " Neovim core 
 Plug 'nvim-telescope/telescope.nvim'                              " Find, Filter, Preview, Pick. All lua, all the time
 Plug 'nvim-tree/nvim-tree.lua'                                    " A file explorer tree for neovim written in lua
 Plug 'nvim-tree/nvim-web-devicons'                                " Provides Nerd Font icons (glyphs) for use by neovim plugins
-Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }     " Nvim Treesitter configurations and abstraction layer
-Plug 'nvim-treesitter/nvim-treesitter-textobjects'                " Syntax aware text-objects, select, move, swap, and peek support
+Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' } " Nvim Treesitter (main/rewrite): installs parsers + queries
+Plug 'nvim-treesitter/nvim-treesitter-textobjects', { 'branch': 'main' }        " Syntax aware text-objects (main branch)
 Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
 Plug 'olimorris/codecompanion.nvim'                               " ✨ AI-powered coding, seamlessly in Neovim
 Plug 'petertriho/cmp-git'                                         " Git source for nvim-cmp
@@ -312,65 +312,139 @@ pcall(require('telescope').load_extension, 'fzf')
 pcall(require('telescope').load_extension, 'ui-select')
 pcall(require("telescope").load_extension, "picker_list")
 
--- Treesitter
--- Defer Treesitter setup after first render to improve startup time of 'nvim {filename}'
-vim.defer_fn(function()
-  require('nvim-treesitter.configs').setup {
-    endwise = { enable = true },
-    highlight = { enable = true },
-    indent = { enable = true },
-    ensure_installed = { 'bash', 'clojure', 'elixir', 'go', 'graphql', 'heex', 'html', 'javascript', 'lua', 'markdown', 'python', 'ruby', 'toml', 'typescript', 'yaml', 'vimdoc', 'vim' },
-    auto_install = false,
-    incremental_selection = {
-      enable = true,
-      keymaps = {
-        init_selection = '<c-space>',
-        node_incremental = '<c-space>',
-        scope_incremental = '<c-s>',
-        node_decremental = '<M-space>',
-      },
-    },
-    textobjects = {
-      select = {
-        enable = true,
-        include_surrounding_whitespace = true,
-        lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-        keymaps = {
-          ['aa'] = '@parameter.outer',
-          ['ia'] = '@parameter.inner',
-          ['af'] = '@function.outer',
-          ['if'] = '@function.inner',
-          ['am'] = '@function.outer',
-          ['im'] = '@function.inner',
-          ['ac'] = '@class.outer',
-          ['ic'] = '@class.inner',
-          ['ab'] = '@block.outer',
-          ['ib'] = '@block.inner'
-        },
-      },
-      move = {
-        enable = true,
-        set_jumps = true,
-        goto_next_start = {
-          [']m'] = '@function.outer',
-          [']]'] = '@class.outer',
-        },
-        goto_next_end = {
-          [']M'] = '@function.outer',
-          [']['] = '@class.outer',
-        },
-        goto_previous_start = {
-          ['[m'] = '@function.outer',
-          ['[['] = '@class.outer',
-        },
-        goto_previous_end = {
-          ['[M'] = '@function.outer',
-          ['[]'] = '@class.outer',
-        }
-      }
-    }
-  }
-end, 0)
+-- Treesitter (nvim-treesitter `main` branch)
+-- The `main` rewrite only installs parsers/queries; Neovim core APIs enable
+-- highlight, indentation, and text-objects. It does not support lazy-loading,
+-- so this runs at startup (no vim.defer_fn). Parsers compile locally via the
+-- tree-sitter CLI; run :TSUpdate after a fresh install completes.
+require('nvim-treesitter').install({
+  'bash', 'clojure', 'elixir', 'go', 'graphql', 'heex', 'html',
+  'javascript', 'lua', 'markdown', 'python', 'ruby', 'toml',
+  'typescript', 'vim', 'vimdoc', 'yaml',
+})
+
+-- Enable highlighting + treesitter indentation per buffer when a parser exists.
+vim.api.nvim_create_autocmd('FileType', {
+  callback = function(args)
+    if pcall(vim.treesitter.start, args.buf) then
+      vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    end
+  end,
+})
+
+-- Text objects (nvim-treesitter-textobjects `main`): keymaps are now manual.
+require('nvim-treesitter-textobjects').setup({
+  select = { lookahead = true, include_surrounding_whitespace = true },
+  move = { set_jumps = true },
+})
+
+local ts_select = require('nvim-treesitter-textobjects.select')
+local ts_move = require('nvim-treesitter-textobjects.move')
+
+for lhs, capture in pairs({
+  aa = '@parameter.outer', ia = '@parameter.inner',
+  af = '@function.outer', ['if'] = '@function.inner',
+  am = '@function.outer', im = '@function.inner',
+  ac = '@class.outer', ic = '@class.inner',
+  ab = '@block.outer', ib = '@block.inner',
+}) do
+  vim.keymap.set({ 'x', 'o' }, lhs, function()
+    ts_select.select_textobject(capture, 'textobjects')
+  end)
+end
+
+for fn, maps in pairs({
+  goto_next_start = { [']m'] = '@function.outer', [']]'] = '@class.outer' },
+  goto_next_end = { [']M'] = '@function.outer', [']['] = '@class.outer' },
+  goto_previous_start = { ['[m'] = '@function.outer', ['[['] = '@class.outer' },
+  goto_previous_end = { ['[M'] = '@function.outer', ['[]'] = '@class.outer' },
+}) do
+  for lhs, capture in pairs(maps) do
+    vim.keymap.set({ 'n', 'x', 'o' }, lhs, function()
+      ts_move[fn](capture, 'textobjects')
+    end)
+  end
+end
+
+-- Incremental selection: the `main` branch dropped this feature, so it is
+-- reimplemented on Neovim's core treesitter API. <c-space> starts/expands the
+-- selection, <M-space> shrinks it; <c-s> expands like <c-space> (the upstream
+-- `scope_incremental` has no core equivalent).
+local incremental = { history = {} }
+
+local function ts_visual_select(range)
+  local srow, scol, erow, ecol = range[1], range[2], range[3], range[4]
+  -- node:range() end col is exclusive; convert to the last included byte
+  -- (0-indexed), rolling back a line when the node ends at column 0.
+  local lrow, lcol
+  if ecol > 0 then
+    lrow, lcol = erow, ecol - 1
+  else
+    lrow = math.max(erow - 1, srow)
+    lcol = math.max(vim.fn.col({ lrow + 1, '$' }) - 2, 0)
+  end
+  -- Leave any active visual selection first, otherwise `normal! v` toggles
+  -- visual mode off instead of starting a fresh charwise selection.
+  if vim.fn.mode():find('[vV\22]') then
+    vim.cmd('normal! \27')
+  end
+  vim.api.nvim_win_set_cursor(0, { srow + 1, scol })
+  vim.cmd('normal! v')
+  vim.api.nvim_win_set_cursor(0, { lrow + 1, lcol })
+end
+
+local function ts_covers(node_range, sel)
+  local starts_before = node_range[1] < sel[1]
+    or (node_range[1] == sel[1] and node_range[2] <= sel[2])
+  local ends_after = node_range[3] > sel[3]
+    or (node_range[3] == sel[3] and node_range[4] >= sel[4])
+  return starts_before and ends_after
+end
+
+local function ts_expand(sel)
+  -- Anchor on the node that spans the whole current selection (the start-corner
+  -- leaf may be smaller than `sel` after earlier growth), then climb to the
+  -- first strictly larger ancestor.
+  local node = vim.treesitter.get_node({ pos = { sel[1], sel[2] } })
+  while node and not ts_covers({ node:range() }, sel) do
+    node = node:parent()
+  end
+  while node do
+    local range = { node:range() }
+    if range[1] ~= sel[1] or range[2] ~= sel[2]
+      or range[3] ~= sel[3] or range[4] ~= sel[4] then
+      return range
+    end
+    node = node:parent()
+  end
+  return sel
+end
+
+local function ts_grow()
+  local current = incremental.history[#incremental.history]
+  if not current then return end
+  local next_range = ts_expand(current)
+  table.insert(incremental.history, next_range)
+  ts_visual_select(next_range)
+end
+
+vim.keymap.set('n', '<c-space>', function()
+  local node = vim.treesitter.get_node()
+  if not node then return end
+  local range = { node:range() }
+  incremental.history = { range }
+  ts_visual_select(range)
+end)
+
+vim.keymap.set('x', '<c-space>', ts_grow)
+vim.keymap.set('x', '<c-s>', ts_grow)
+vim.keymap.set('x', '<M-space>', function()
+  if #incremental.history > 1 then
+    table.remove(incremental.history)
+  end
+  local range = incremental.history[#incremental.history]
+  if range then ts_visual_select(range) end
+end)
 
 -- LSP
 -- mason-lspconfig requires that these setup functions are called in this order
