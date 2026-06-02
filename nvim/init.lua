@@ -60,7 +60,7 @@ Plug 'mason-org/mason-lspconfig.nvim', { 'tag': 'v1.32.0' }       " Extension to
 Plug 'mason-org/mason.nvim', { 'tag': 'v1.11.0' }                 " Easily install and manage LSP servers, DAP servers, linters, and formatters
 Plug 'mhinz/vim-grepper'                                          " 👾 Helps you win at grep
 Plug 'neovim/nvim-lspconfig'                                      " Quickstart configs for Nvim LSP
-Plug 'norcalli/nvim-colorizer.lua'                                " The fastest Neovim colorizer.
+Plug 'catgoose/nvim-colorizer.lua'                                " The fastest Neovim colorizer (maintained fork of norcalli; deprecated APIs removed).
 Plug 'nvim-lua/plenary.nvim'                                      " All the lua functions I don't want to write twice
 Plug 'nvim-lualine/lualine.nvim'                                  " A blazing fast and easy to configure neovim statusline plugin written in pure lua
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' } " FZF sorter for telescope written in c
