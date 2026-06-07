@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# wt-setup-plts <primary-checkout-path>
+#
+# Run with the WORKTREE as the current working directory (wt does this).
+#
+# - Symlinks the core Erlang/Elixir PLTs from <primary>/_build. These are
+#   version-keyed (OTP + Elixir), identical across projects, and expensive to
+#   rebuild — safe to share read-only.
+# - Copies the project PLT from <primary>/_build/plts. This is a COPY, not a
+#   symlink, because it diverges as the agent adds code; sharing it would
+#   corrupt the primary's PLT.
+# ---------------------------------------------------------------------------
+
+PRIMARY="${1:?usage: wt-setup-plts <primary-checkout-path>}"
+
+mkdir -p _build/plts
+
+shopt -s nullglob
+for plt in "$PRIMARY"/_build/dialyxir_erlang-*.plt "$PRIMARY"/_build/dialyxir_erlang-*.plt.hash; do
+  ln -sf "$plt" "_build/$(basename "$plt")"
+  echo "  symlinked core PLT: $(basename "$plt")"
+done
+shopt -u nullglob
+
+for f in dialyzer.plt dialyzer.plt.hash; do
+  src="$PRIMARY/_build/plts/$f"
+  if [[ -f "$src" ]]; then
+    cp "$src" "_build/plts/$f"
+    echo "  copied project PLT: $f"
+  else
+    echo "  note: $src not found — dialyzer will rebuild the project PLT" >&2
+  fi
+done
