@@ -101,7 +101,7 @@ fi
 
 # Prevent nesting of tmux sessions. If tmux is already running, switch to the
 # session we just created. If it's not running, attach to the session instead.
-if [ -n "$TMUX" ]; then
+if [ -n "${TMUX:-}" ]; then
     if tmux has-session -t="$session_name" 2> /dev/null; then
         tmux switch-client -t "$session_name"
     fi
