@@ -18,6 +18,27 @@ Slash command skills (`/plan`, `/research`, `/handoff`) define body layout.
 These rules define **where the file goes** and **what metadata it carries**.
 Both layers always apply together.
 
+## Markdown Body Formatting
+
+Artifacts render in Obsidian, where a vault linter and the reading view can treat
+a single newline *inside* a paragraph as a paragraph break. Hard-wrapped prose
+then fragments into many one-line paragraphs (blank lines get inserted between
+every wrapped line). Avoid this by never hard-wrapping.
+
+Rules for the body of any `$CLAUDE_DOCS_ROOT` artifact:
+
+- **Do not hard-wrap prose.** Write each paragraph as one physical line and let
+  the editor soft-wrap. No fixed-column (e.g. 80-char) reflowing.
+- **One list item = one physical line.** Don't wrap a bullet or numbered item
+  across multiple lines.
+- Separate block elements (paragraphs, list items, headings, code fences, tables)
+  with a single blank line.
+- This forbids breaks *within* a paragraph or list item — not newlines in
+  general. Code fences, tables, and frontmatter keep their internal line breaks.
+
+This applies only to Markdown written to the vault. In source code, keep matching
+the surrounding file's wrapping conventions.
+
 ## Skills vs Commands
 
 Skills must stay portable — they render output, they do not persist. Only
