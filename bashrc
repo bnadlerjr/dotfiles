@@ -69,3 +69,5 @@ fi
 if [ -f ~/.local/bashrc ]; then
   . ~/.local/bashrc
 fi
+
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init bash)"; fi
