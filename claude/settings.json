@@ -331,13 +331,22 @@
     "padding": 0
   },
   "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "worktrunk@worktrunk": true
+  },
+  "extraKnownMarketplaces": {
+    "worktrunk": {
+      "source": {
+        "source": "github",
+        "repo": "max-sixty/worktrunk"
+      }
+    }
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
+  "skipAutoPermissionPrompt": true,
   "voiceEnabled": false,
   "feedbackSurveyState": {
     "lastShownTime": 1754088826871
-  },
-  "skipAutoPermissionPrompt": true
+  }
 }
