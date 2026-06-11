@@ -112,7 +112,7 @@ Spawn an Agent with the tester prompt template (see below). Include in the promp
 **Agent parameters:**
 ```
 subagent_type: "general-purpose"
-model: "sonnet"
+model: "opus"
 mode: "acceptEdits"
 description: "RED: [task summary]"
 ```
@@ -133,7 +133,7 @@ Spawn an Agent with the engineer prompt template (see below). Include in the pro
 **Agent parameters:**
 ```
 subagent_type: "general-purpose"
-model: "sonnet"
+model: "opus"
 mode: "acceptEdits"
 description: "GREEN: [task summary]"
 ```
@@ -154,7 +154,7 @@ Spawn an Agent with the refactorer prompt template (see below). Include in the p
 **Agent parameters:**
 ```
 subagent_type: "general-purpose"
-model: "sonnet"
+model: "opus"
 mode: "acceptEdits"
 description: "REFACTOR: [task summary]"
 ```
