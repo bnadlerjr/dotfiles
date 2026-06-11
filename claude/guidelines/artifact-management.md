@@ -4,6 +4,10 @@
 whether via a slash command, the built-in plan tool, or ad hoc.
 ADRs are the exception — see [ADRs](#adrs) below.
 
+**NEVER hard-wrap artifact bodies.** One paragraph or list item per physical
+line — see [Markdown Body Formatting](#markdown-body-formatting). This is the
+most commonly violated rule in this document; check it before every save.
+
 ## Paths
 
 - **Artifact root:** `$CLAUDE_DOCS_ROOT`
