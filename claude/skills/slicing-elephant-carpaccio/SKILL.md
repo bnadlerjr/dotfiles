@@ -1,6 +1,6 @@
 ---
 name: slicing-elephant-carpaccio
-description: "Breaks features into ultra-thin vertical slices using Alistair Cockburn's Elephant Carpaccio methodology. Use when planning new features, breaking down epics, slicing work across layers, or when a story feels too large. Produces an ordered backlog of 10-20 thin slices, each independently working, testable, and demoable."
+description: "Slices a single feature or story into ultra-thin vertical increments (minutes-to-hours each) using Alistair Cockburn's Elephant Carpaccio methodology. Use during implementation planning when one story or feature is too large to build in a session and you need demoable increments across layers. Produces an ordered backlog of 10-20 thin slices, each independently working, testable, and demoable. NOT for splitting an epic into sprint-sized stories (see decomposing-epics)."
 allowed-tools:
   - Read
   - Glob
@@ -16,10 +16,10 @@ Break features into the thinnest possible vertical slices — each one cutting a
 
 ## When to Use
 
-- Planning a new feature that spans multiple layers or components
-- Breaking down an epic or large story into deliverable increments
+- Planning the implementation of a single feature or story that spans multiple layers or components
+- Breaking one already-scoped story or feature into demoable increments you can build in a session each
 - User asks to "slice", "thin-slice", or "carpaccio" a feature
-- A story feels too large but isn't ready for task decomposition yet
+- A single story is too large to build in one session (to split an *epic* into stories, use `decomposing-epics` first)
 
 ## Workflow
 

@@ -1,5 +1,5 @@
 ---
-description: Slice an epic into an ordered backlog of thin vertical stories, grounded in existing user-facing capabilities
+description: Decompose an epic into an ordered backlog of vertical, sprint-sized stories, grounded in existing user-facing capabilities
 argument-hint: "<Jira ID | Linear ID | file path | inline epic text>"
 model: opus
 allowed-tools: Read, Write, Bash, Task, AskUserQuestion
@@ -7,11 +7,11 @@ allowed-tools: Read, Write, Bash, Task, AskUserQuestion
 
 # Epic to Stories
 
-**Level 4 (Delegation)** — Orchestrates parallel behavior-surface research, then applies the carpaccio slicing skill to produce an ordered backlog of 10-20 thin slices.
+**Level 4 (Delegation)** — Orchestrates parallel behavior-surface research, then applies the `decomposing-epics` skill to produce an ordered backlog of 4-8 sprint-sized stories.
 
-Take an epic, research existing user-facing capabilities related to it, and produce an ordered backlog of thin vertical slices using the elephant-carpaccio methodology. Each slice is a candidate story that can later be refined into a full BDD story via `/refine-jira-story` or `/refine-linear-story`.
+Take an epic, research existing user-facing capabilities related to it, and produce an ordered backlog of vertical, sprint-sized stories using the `decomposing-epics` methodology. Each story can later be refined into a full BDD story via `/refine-story`.
 
-Slicing decisions are anchored in behavior, never implementation. Research surfaces capabilities (what users can see or do); deep code research belongs in `/create-implementation-plan` and `/implement`, not here.
+Decomposition decisions are anchored in behavior, never implementation. Stories are sprint-sized coherent behaviors (~1-3 days), not minutes-to-hours slices — sub-story slicing belongs to `slicing-elephant-carpaccio` during implementation, not here. Research surfaces capabilities (what users can see or do); deep code research belongs in `/create-implementation-plan` and `/implement`, not here.
 
 ## Variables
 
@@ -21,8 +21,8 @@ Slicing decisions are anchored in behavior, never implementation. Research surfa
 
 ## Dependencies
 
-- **slicing-elephant-carpaccio skill**: Slicing methodology, INVEST + Vertical + Behavior-described validity rules, ordering principles
-- **thinking-patterns skill**: `atomic-thought` for research-target decomposition, `chain-of-thought` for slice validation
+- **decomposing-epics skill**: Story-altitude decomposition methodology, INVEST + Vertical + Behavior-described validity rules, ordering principles, sprint-sized granularity
+- **thinking-patterns skill**: `atomic-thought` for research-target decomposition, `chain-of-thought` for story validation
 - **managing-jira skill** (conditional): `jira issue view` for Jira-sourced epics
 - **managing-linear skill** (conditional): Linear CLI for Linear-sourced epics
 - **docs-locator agent**: Locate product docs (PRDs, READMEs, ADRs) describing existing user-facing capabilities
@@ -96,7 +96,7 @@ Invoke `/thinking atomic-thought` to derive 3-7 independent research questions f
 - "What user-facing capabilities exist today for `${flow_Y}`?"
 - "What user-facing vocabulary does the product use for `${data_type_Z}`?"
 
-Present the research targets to the user. Allow editing before continuing — bad targets produce shallow research. Reject any target framed in implementation language — apply the same Implementation Leak rule the `slicing-elephant-carpaccio` skill uses for slice descriptions.
+Present the research targets to the user. Allow editing before continuing — bad targets produce shallow research. Reject any target framed in implementation language — apply the same Implementation Leak rule the `decomposing-epics` skill uses for story descriptions.
 
 ---
 
@@ -108,14 +108,14 @@ For each `(repo, research_target)` pair, spawn behavior-surface research agents 
 
 - **Primary**: `docs-locator` followed by `docs-analyzer` for product documentation (PRDs, READMEs, ADRs about user-facing capabilities). Docs are written in user language; the translation distance to behavior is zero.
 - **Secondary**: `capability-locator` for entry-point inventory — used when the area has sparse product documentation. The agent reads only entry points (routes, pages, CLI commands, public APIs) and reports capability statements with no implementation detail.
-- **Forbidden**: `codebase-analyzer` and any other agent that returns deep implementation context. Slicing operates on behavior; implementation knowledge belongs in `/create-implementation-plan` and `/implement`. Mixing substrates contaminates slice descriptions.
+- **Forbidden**: `codebase-analyzer` and any other agent that returns deep implementation context. Decomposition operates on behavior; implementation knowledge belongs in `/create-implementation-plan` and `/implement`. Mixing substrates contaminates story descriptions.
 
 ### Agent Prompt Template
 
 Each agent prompt is self-contained.
 
 ```markdown
-# Behavior-Surface Research for Epic Slicing
+# Behavior-Surface Research for Epic Decomposition
 
 You are researching `${REPO}` to surface existing user-facing capabilities related to an epic. Your job is to describe what users can currently *see* or *do* — never how it is built.
 
@@ -134,7 +134,7 @@ Document only what *exists today* at the behavioral surface. Do NOT propose chan
 1. **Existing capabilities** — what users can currently see or do in this domain, expressed as "A user can [verb] [noun] [conditions]"
 2. **Domain vocabulary** — user-facing terms the product uses canonically for these concepts
 3. **Capability gaps** — what users CANNOT yet do that the epic would enable
-4. **Adjacent capabilities** — related user-facing capabilities outside the epic's scope but inside its vocabulary (useful for slice ordering and vocabulary alignment)
+4. **Adjacent capabilities** — related user-facing capabilities outside the epic's scope but inside its vocabulary (useful for story ordering and vocabulary alignment)
 
 ## Output Format
 
@@ -159,46 +159,44 @@ Do not proceed until every spawned agent returns.
 
 Merge per-target findings into a single research summary. Bucket explicitly:
 
-- **Capability adjacencies** — existing user-visible capabilities a slice can extend or compose
-- **Net-new capabilities** — capabilities the epic introduces with no behavioral precedent (slices here will be heavier; slice 1 must be a real walking skeleton rather than an extension)
-- **Domain glossary** — canonical user-facing terms to use in slice descriptions
+- **Capability adjacencies** — existing user-visible capabilities a story can extend or compose
+- **Net-new capabilities** — capabilities the epic introduces with no behavioral precedent (stories here will be heavier; story 1 must be a real walking skeleton rather than an extension)
+- **Domain glossary** — canonical user-facing terms to use in story descriptions
 
 Present the consolidated summary to the user.
 
 ---
 
-## Phase 4: Carpaccio Slicing
+## Phase 4: Story Decomposition
 
-Load the `slicing-elephant-carpaccio` skill and apply it directly. Behavior context has already been established by Phases 1-3, so the skill's Step 1 is satisfied — pass BOTH the epic context AND the consolidated research as the supplied scope; the skill confirms rather than re-researches. The skill produces and validates the backlog; this command owns the user-confirmation gate (Phase 5).
+Load the `decomposing-epics` skill and apply it directly. Behavior context has already been established by Phases 1-3, so the skill's Step 1 is satisfied — pass BOTH the epic context AND the consolidated research as the supplied scope; the skill confirms rather than re-researches. The skill produces and validates the backlog at story altitude (sprint-sized, not minutes-to-hours); this command owns the user-confirmation gate (Phase 5).
 
-Use the research to inform:
-
-- **Slice 1 (walking skeleton)**: Slice 1 should extend an existing user-visible capability when research surfaces one — otherwise build a real walking skeleton.
+Pass the consolidated research so the skill can choose story 1's form — a brownfield extension of a surfaced capability, or a greenfield walking skeleton when research surfaces none. The skill owns that rule; the command only supplies the evidence.
 
 ### Validate the Backlog
 
-Invoke `/thinking chain-of-thought` to check each slice against:
+Invoke `/thinking chain-of-thought` to check each story against:
 
-1. **INVEST + Vertical + Behavior-described** — every slice must pass all eight validity tests from the slicing skill
-2. **Research grounding** — does each slice description reflect what research actually found? A slice claimed as "extending capability X" must cite the specific capability statement from research, not implementation detail
-3. **Cross-slice references** — if a description or Value line points to another slice, it must use that slice's title in quotes, not its number and not the word "slice" (per the slicing skill's Cross-Slice References rule). Slices propagate downstream as standalone Jira/Linear stories where numbering and slice-jargon lose meaning. Reword any violation before showing the user.
+1. **INVEST + Vertical + Behavior-described** — every story must pass all eight validity tests from the `decomposing-epics` skill, including Estimable & Sprint-sized (one coherent ~1-3 day behavior, not a minutes-to-hours slice). If a backlog item is sub-story sized — splits a behavior from its essential validation, or hard-codes now to generalize in a separate item — merge it up.
+2. **Research grounding** — does each story description reflect what research actually found? A story claimed as "extending capability X" must cite the specific capability statement from research, not implementation detail
+3. **Cross-story references** — if a description or Value line points to another story, it must use that story's title in quotes, not its number and not the word "story" or "slice" (per the skill's Cross-Story References rule). Stories propagate downstream as standalone Jira/Linear tickets where numbering and backlog jargon lose meaning. Reword any violation before showing the user.
 
-If any slice fails, re-slice before showing the user.
+If any story fails, re-decompose before showing the user.
 
 ---
 
 ## Phase 5: Review
 
-Present the backlog using the slicing skill's confirmation step.
+Present the backlog using the `decomposing-epics` skill's output format.
 
 **AskUserQuestion**:
-- Header: "Slice backlog"
-- Question: "Does this slice ordering look right?"
+- Header: "Story backlog"
+- Question: "Does this story ordering look right?"
 - Options:
   - "Looks good"
   - "Adjust ordering"
-  - "Slices too thick — split further"
-  - "Slices too thin — combine some"
+  - "Stories too big — split further"
+  - "Stories too small — combine some"
   - "Re-research a target" (loops back to Phase 3 with revised targets)
 
 Iterate until the user accepts the backlog.
@@ -220,10 +218,10 @@ ${DESCRIPTION}
 
 ${CONSOLIDATED_RESEARCH}
 
-## Slice Backlog
+## Story Backlog
 
-[Numbered list per slicing-elephant-carpaccio output_format —
- each slice has a name, one-line description, and a Value: line]
+[Numbered list per decomposing-epics output format —
+ each story has a name, one-line description, and a Value: line]
 
 ## Domain Glossary
 
@@ -231,7 +229,7 @@ ${CONSOLIDATED_RESEARCH}
 
 ## Open Questions
 
-[Anything research could not answer — these block specific slices]
+[Anything research could not answer — these block specific stories]
 
 ## References
 
@@ -246,17 +244,17 @@ ${CONSOLIDATED_RESEARCH}
 After saving, show the user:
 
 - Path to the saved artifact
-- Slice count and slice 1 (the walking skeleton)
-- Top 3 capability adjacencies (existing capabilities slices extend)
+- Story count and story 1 (the walking skeleton)
+- Top 3 capability adjacencies (existing capabilities stories extend)
 - Top 3 net-new capabilities (introduced by the epic)
 - Suggested follow-up:
   ```
-  To turn an individual slice into a full BDD story:
-  - /refine-jira-story <issue-id>     (after creating the issue)
-  - /refine-linear-story <issue-id>   (after creating the issue)
+  To turn an individual story into a full BDD story (after creating the issue):
+  - /refine-story <issue-id> --tool jira
+  - /refine-story <issue-id> --tool linear
   ```
 
-If the source was a Jira/Linear epic, OFFER to create child issues for each slice — never create tickets without explicit user confirmation.
+If the source was a Jira/Linear epic, OFFER to create child issues for each story — never create tickets without explicit user confirmation.
 
 ---
 
@@ -276,8 +274,8 @@ Ask the user whether to retry, paste the epic content directly, or abort.
 
 ### Research returns nothing actionable
 
-If every research target comes back empty, the system has no relevant existing capabilities (no docs and no entry points found). Note this explicitly in the artifact's Research Summary and proceed — slices will be heavier and slice 1 will require a real walking-skeleton build, not a thin extension of an existing capability.
+If every research target comes back empty, the system has no relevant existing capabilities (no docs and no entry points found). Note this explicitly in the artifact's Research Summary and proceed — stories will be heavier and story 1 will require a real walking-skeleton build, not a thin extension of an existing capability.
 
-### Slice backlog never converges
+### Story backlog never converges
 
-If the user rejects the backlog three times in a row with conflicting feedback, stop and ask: "The slicing keeps shifting. Is the epic itself too broad? Should we split it into multiple epics first?" Do not keep re-slicing in a loop.
+If the user rejects the backlog three times in a row with conflicting feedback, stop and ask: "The decomposition keeps shifting. Is the epic itself too broad? Should we split it into multiple epics first?" Do not keep re-decomposing in a loop.
