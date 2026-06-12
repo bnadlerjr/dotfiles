@@ -1,6 +1,6 @@
 ---
 name: planning-tdd
-description: Creates TDD implementation plans where tests ARE the plan. Specifies test specs and structural context per phase — implementation emerges during execution, not planning. Verification is fully automated; no manual verification step. Use when planning features test-first, creating TDD plans from design artifacts, or when the user asks for a test-driven implementation plan.
+description: Creates TDD implementation plans where tests ARE the plan. Specifies test specs and structural context per phase — implementation emerges during execution, not planning. Verification is fully automated; no manual verification step. Use when planning features test-first, creating TDD plans from design artifacts, or when the user asks for a test-driven implementation plan. NOT for executing a plan test-first (the Red-Green-Refactor cycle during implementation) — that is practicing-tdd.
 allowed-tools: Read, Glob, Grep, Agent
 ---
 
@@ -9,14 +9,9 @@ allowed-tools: Read, Glob, Grep, Agent
 Create test-driven implementation plans where every phase is organized
 around TDD cycles with both automated and manual testing.
 
-## Dependencies (soft)
-
-These skills enhance the planning process but are not required. The skill
-functions without them using standard reasoning and TDD principles.
-
-- **practicing-tdd** skill: Provides TDD methodology (Iron Law, cycle rules)
-- **thinking-patterns** skill: Structured reasoning at each planning gate
-- **reviewing-test-design** skill: Dave Farley's 8 properties of good tests. When shaping behavioral cycles, keep these properties in mind (especially Atomic, Necessary, Granular) so cycles don't force the Tester to diverge from the plan to satisfy them during implementation.
+The skills listed under [Related Skills](#related-skills) enhance planning but
+are soft dependencies — this skill functions without them using standard
+reasoning and TDD principles.
 
 ## Quick Start
 
@@ -52,9 +47,9 @@ Given a task, design artifact, or ticket:
 
 ### Step 1: Context Gathering
 
-1. Apply `/thinking atomic-thought` to decompose the task into key
-   questions: What is the goal? What exists today? What changes? What
-   constraints apply? What design artifacts exist?
+1. Decompose the task into key questions (apply `/thinking atomic-thought`
+   if thinking-patterns is available): What is the goal? What exists today?
+   What changes? What constraints apply? What design artifacts exist?
 
 2. **Read all mentioned files FULLY** (stories, designs, tickets, specs)
    - **NEVER** read files partially
@@ -106,7 +101,7 @@ After clarifications:
 1. **Verify corrections**: If user corrects you, spawn new research tasks. Don't just accept -- verify.
 
 2. **Evaluate testability of approaches**: If multiple valid approaches exist,
-   apply `/thinking tree-of-thoughts` to compare on:
+   compare them (apply `/thinking tree-of-thoughts` if available) on:
    - How easily can each approach be tested?
    - Does it require complex mocking or can tests use real dependencies?
    - How many integration seams exist?
@@ -126,8 +121,8 @@ After clarifications:
 
 This is the key differentiator from standard implementation planning.
 
-1. Apply `/thinking skeleton-of-thought` to break the work into testable
-   behavioral increments.
+1. Break the work into testable behavioral increments (apply
+   `/thinking skeleton-of-thought` if available).
 
 2. **Identify testable behaviors**: Each behavior becomes one TDD cycle. A behavior is testable when:
    - It has a clear input and observable output
@@ -186,21 +181,6 @@ Each cycle (either form) MUST NOT contain:
 
 GREEN and REFACTOR emerge during execution via `practicing-tdd` and `refactoring-code` skills. They do not belong in a plan.
 
-### Test Cycle Validity
-
-A test cycle must define **a transformation under test**: an input that goes through a function which branches, computes, queries, or transforms before producing the asserted output. If the RED-phase test would pass by writing a literal into the source — with no transformation between the literal and the assertion — the cycle is mis-specified.
-
-**Before adding a cycle to the plan, answer:** *What production defect would this test catch that would not also be caught by an integration test of the consumer?*
-
-If the only answer is "the static catalog has the wrong shape," replace the cycle with:
-
-- A higher-level cycle that tests the consumer's behavior over the catalog (the runtime evaluator, the renderer, the GraphQL resolver — whatever actually transforms the data).
-- No cycle at all, **only when** a higher-level test already pins the relevant behavior. Record that test's `file:line` in the plan as the source of coverage. The static data is documented by the source itself and the type checker pins its shape, but the wiring is not free coverage — it needs a named test.
-
-This is the one carve-out from Core Principle 6: tautological cycles may be removed silently. Every other coverage gap — including "no downstream test pins this yet" — must be escalated, not dropped.
-
-**"Pinning the registered shape of a static catalog" is not a TDD cycle. It is a tautology with `test` as a keyword.**
-
 ### Step 4: Detailed Plan
 
 When user approves structure, write the complete plan using the template
@@ -225,18 +205,14 @@ For each phase, detail:
      resolved at detailing time
    - Expected pass/fail count
 
-After writing the plan, apply `/thinking self-consistency` to validate:
+After writing the plan, validate it (apply `/thinking self-consistency` if
+thinking-patterns is available, otherwise reason through it directly):
 - Does every phase start with failing tests?
 - Does every phase have clear "done when" criteria?
 - Is automated testing covered in every phase with an exact run command?
 - Are dependencies between phases correct?
 - Is scope properly bounded?
-- Does any phase contain test code? -> Convert to behavioral cycles
-- Does every cycle have a Behavior, Assertion focus, and Expected failure category?
-- Does any cycle contain a GREEN or implementation section? -> Remove it
-- Does any cycle contain a REFACTOR section or "None needed" commentary? -> Remove it
-- Does any cycle contain code that is NOT a test? -> Replace with structural context
-- Does any cycle's RED test pass purely by writing a literal into source, with no transformation between the literal and the assertion? -> Remove or replace per the Test Cycle Validity rule above
+- Does every cycle conform to the [Cycle Output Format](#cycle-output-format) (Behavior + Assertion focus + Expected failure category; no GREEN/REFACTOR sections, no code that isn't a test, no test code at planning time) and the [Test Cycle Validity](#test-cycle-validity) rule? -> Fix any cycle that doesn't
 
 ## Guidelines
 
@@ -257,6 +233,21 @@ After writing the plan, apply `/thinking self-consistency` to validate:
 - Write tests that test mock behavior (see `practicing-tdd` anti-patterns)
 - Include implementation code in the plan — it presupposes design and defeats TDD
 - Propose test patterns that conflict with existing codebase conventions
+
+### Test Cycle Validity
+
+A test cycle must define **a transformation under test**: an input that goes through a function which branches, computes, queries, or transforms before producing the asserted output. If the RED-phase test would pass by writing a literal into the source — with no transformation between the literal and the assertion — the cycle is mis-specified.
+
+**Before adding a cycle to the plan, answer:** *What production defect would this test catch that would not also be caught by an integration test of the consumer?*
+
+If the only answer is "the static catalog has the wrong shape," replace the cycle with:
+
+- A higher-level cycle that tests the consumer's behavior over the catalog (the runtime evaluator, the renderer, the GraphQL resolver — whatever actually transforms the data).
+- No cycle at all, **only when** a higher-level test already pins the relevant behavior. Record that test's `file:line` in the plan as the source of coverage. The static data is documented by the source itself and the type checker pins its shape, but the wiring is not free coverage — it needs a named test.
+
+This is the one carve-out from Core Principle 6: tautological cycles may be removed silently. Every other coverage gap — including "no downstream test pins this yet" — must be escalated, not dropped.
+
+**"Pinning the registered shape of a static catalog" is not a TDD cycle. It is a tautology with `test` as a keyword.**
 
 ### No Open Questions Rule
 
@@ -293,12 +284,17 @@ When a design artifact is available (e.g., from `collaborating-on-design`), use 
 
 ## Related Skills
 
-- **practicing-tdd**: Enforces Red-Green-Refactor cycle during execution (handles GREEN + REFACTOR)
-- **refactoring-code**: Provides refactoring patterns during execution (not during planning)
-- **reviewing-test-design**: Dave Farley's 8 test properties — guidance for shaping RED test specs so they're Farley-compatible from the start
-- **code-simplifier** agent: Post-implementation review for unnecessary complexity
+All are soft dependencies — planning proceeds without them.
+
+**Planning-time (enhance this skill):**
 - **thinking-patterns**: Structured reasoning at planning gates
-- **collaborating-on-design**: Producing design artifacts that feed into this skill
+- **collaborating-on-design**: Produces the design artifacts that feed into this skill
+- **reviewing-test-design**: Dave Farley's 8 test properties. When shaping behavioral cycles, keep these in mind (especially Atomic, Necessary, Granular) so cycles don't force the Tester to diverge from the plan during implementation
+
+**Execution-time (take over where this skill leaves off):**
+- **practicing-tdd**: Enforces the Red-Green-Refactor cycle during execution (handles GREEN + REFACTOR)
+- **refactoring-code**: Provides refactoring patterns during execution (not during planning)
+- **code-simplifier** agent: Post-implementation review for unnecessary complexity
 
 ## Common Patterns
 
