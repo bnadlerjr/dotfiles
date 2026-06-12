@@ -30,7 +30,7 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
   should be added, split, or reordered, flag it with rationale and wait.
 - Do NOT spawn research agents — research is complete. Use Read/Glob/Grep
   directly if you need to verify references or gather surrounding context.
-- Tests ARE the plan. Specify RED test specs + structural context per cycle. Do NOT include GREEN/implementation code or REFACTOR commentary — those emerge during execution via the `practicing-tdd` and `refactoring-code` skills.
+- Tests ARE the plan — specified as behavior, not code. Every phase's cycles are behavioral (Behavior, Assertion focus, Expected failure category, Structural context). The plan contains NO test code and NO implementation code: exact test code is design that goes stale before execution reaches it — earlier phases reshape contracts and concurrent work ships changes planning never saw. `/implement` details each phase into exact RED specs just-in-time; GREEN and REFACTOR emerge during execution via the `practicing-tdd` and `refactoring-code` skills.
 - Read `~/dotfiles/claude/skills/planning-tdd/SKILL.md` for the full methodology before detailing phases.
 - No open questions in the final plan. If anything is unclear, ask NOW.
 
@@ -58,20 +58,21 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
 
    <phase-detail>
    - **Overview**: What this phase accomplishes (from the structure outline)
-   - **TDD Cycles**: Per testable behavior (one cycle per behavior):
-     - **RED — Write Failing Test**: The exact test to write first, as a code
-       block with concrete inputs and expected outputs. Use the project's
-       existing test patterns and framework.
-     - **Expected failure**: What the failure message will look like when run
-       (e.g., "function X is undefined", assertion message, etc.)
-     - **Structural context**: `file:line` references for modules/files in
-       play, where the test file lives, relevant contracts or interfaces.
-       Do NOT include GREEN/implementation code or REFACTOR commentary —
-       those emerge during execution.
+   - **TDD Cycles**: Per testable behavior (one cycle per behavior), in
+     behavioral form — no code:
+     - **Behavior**: Given/When/Then at the behavior level
+     - **Assertion focus**: the single thing the test asserts
+     - **Expected failure category**: e.g., "function undefined",
+       "assertion mismatch", "constraint missing"
+     - **Structural context**: module-level references; `file:line` only
+       where the reference is stable across phases. Do NOT include
+       GREEN/implementation code or REFACTOR commentary — those emerge
+       during execution.
    - **Automated Testing** (phase summary):
-     - Checkboxed list of all tests in the phase with brief descriptions
+     - Checkboxed list of all tests in the phase with brief descriptions —
+       test file paths marked "path resolved at detailing time"
      - Exact command to run them (prefer `make` targets or project-standard
-       test command scoped to the phase's test files)
+       test command scoped to the phase's test directory)
      - Expected pass/fail count
    - **Done When**: Checkboxed list of:
      - All tests pass (reference the run command)
@@ -80,9 +81,10 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
    </phase-detail>
 
 4. **Validate completeness** — apply `/thinking self-consistency`:
-   - Does every cycle start with a RED test spec (exact test code, concrete inputs, expected outputs)?
+   - Does any phase contain test code? → Convert to behavioral cycles
+   - Does every cycle have a Behavior, Assertion focus, and Expected failure category?
    - Does any cycle contain GREEN/implementation code or REFACTOR commentary? → Remove it
-   - Does any cycle contain code that is not a test? → Replace with structural context
+   - Does any cycle contain code of any kind? → Replace with structural context
    - Does every phase have an automated testing summary with an exact run command?
    - Are all `file:line` references verified against current source?
    - Are dependencies from the structure outline respected?

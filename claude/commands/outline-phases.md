@@ -72,6 +72,10 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
    - Identify the minimal ordered sequence of changes
    - Each phase gets its own success criteria
    - Each phase has a clear dependency chain
+   - Minimize cross-phase surface coupling: later phases should build on
+     earlier phases' observable behavior (public contracts), not their
+     internal structure — internal shape will drift during execution as
+     implementation emerges, invalidating anything that referenced it
    - Optimize for: independent verifiability, safe stopping points,
      single-session scope
 

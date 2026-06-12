@@ -29,6 +29,11 @@ PLAN_PATH: $ARGUMENTS
     for a follow-up tester invocation.
 - The orchestrator drives the entire cycle. Subagents do not communicate with
   each other — every handoff goes through you.
+- Plans arrive fully behavioral: every phase holds behavioral cycles
+  (Given/When/Then, no test code). Each phase is detailed just-in-time at
+  the start of its loop iteration (Step 0), against the codebase as it
+  exists at that moment — after preceding phases and any concurrent changes
+  shipped since planning.
 - Update plan checkboxes as phases complete using the Edit tool.
 - One set of agent invocations per task. One phase at a time.
 
@@ -87,7 +92,38 @@ Store these as working variables for use in agent prompts and verification steps
 
 ### Phase Loop
 
-For each incomplete phase, execute steps 1-3:
+For each incomplete phase, execute steps 0-3:
+
+#### Step 0: Detail Phase (Just-In-Time)
+
+Check whether the phase's TDD cycles are detailed (RED code blocks) or
+behavioral (Given/When/Then, no code). Plans arrive with every phase
+behavioral; a phase is already detailed only when a previously
+interrupted run detailed it. Doing this check at the start of every
+phase makes resume safe.
+
+If the cycles are already detailed, skip to Step 1.
+
+If behavioral:
+
+1. Spawn a Phase Detailer agent (prompt template below).
+
+   **Agent parameters:**
+   ```
+   subagent_type: "general-purpose"
+   model: "opus"
+   description: "DETAIL: Phase [N] - [name]"
+   ```
+
+2. If the detailer reports a behavioral conflict (a specified behavior can
+   no longer exist as described), STOP and present the conflict to the user.
+   Do not guess.
+3. Otherwise, replace the phase's TDD Cycles and Automated Testing sections
+   in the plan file with the returned detailed content using Edit. Preserve
+   the phase's Overview and Done When sections.
+4. Report the detailer's shape adaptations to the user in 1-2 lines
+   (e.g., "Phase 3 detailed; adapted `Accounts.verify/1` →
+   `Accounts.verify_email/1`"). No pause needed — proceed to Step 1.
 
 #### Step 1: Create Tasks
 
@@ -221,6 +257,58 @@ After all phases are done:
 
 ## Subagent Prompt Templates
 
+### Phase Detailer
+
+```
+You are a TDD planning expert. The implementation plan specifies every
+phase as behavioral cycles — no test code. Your job is to convert one
+phase's behavioral cycles into detailed RED test specs against the
+CURRENT state of the codebase — earlier phases and concurrent work may
+have reshaped names, signatures, or module structure since the plan was
+written.
+
+## Before Starting (MANDATORY)
+Read these files before producing output:
+- `CLAUDE.md` — project conventions, test patterns, and test commands
+- `~/.claude/skills/planning-tdd/SKILL.md` — the Cycle Output Format section
+
+## Plan File
+{plan_path} — read it fully for context. You are detailing Phase {N} ONLY.
+
+## What You Do
+1. Read Phase {N}'s behavioral cycles (Behavior, Assertion focus,
+   Expected failure category, Structural context)
+2. Read the current code those cycles reference — verify every module,
+   function, and contract against the codebase as it exists NOW
+3. For each behavioral cycle, write the detailed form:
+   - **RED — Write Failing Test**: exact test code block with concrete
+     inputs and expected outputs, following the project's test conventions
+   - **Expected failure**: the concrete failure message expected when run
+   - **Structural context**: current `file:line` references
+4. Rewrite the phase's Automated Testing summary with concrete test file
+   paths (keep the run command and expected counts, adjusting if needed)
+
+## Constraints
+- Behavior is the contract; shape is yours to resolve. Preserve every
+  cycle's behavioral intent and assertion focus exactly — never weaken,
+  drop, or add assertions
+- Do not add, remove, merge, or reorder cycles
+- Do not detail any phase other than Phase {N}
+- Do not include GREEN/implementation code or REFACTOR commentary
+- If a specified behavior can no longer exist as described — not merely
+  renamed or reshaped, but behaviorally impossible or already delivered
+  differently by an earlier phase or concurrent work — STOP and report
+  the conflict instead of detailing around it
+
+## Output
+When done, report:
+1. The complete detailed TDD Cycles and Automated Testing sections as a
+   markdown block matching the plan's detailed-cycle format
+2. Shape adaptations made (old reference → current reference), or "None"
+3. Behavioral conflicts encountered, or "None"
+Do NOT edit the plan file — the orchestrator applies your output.
+```
+
 ### Tester
 
 ```
@@ -250,6 +338,12 @@ framework conventions exactly as described in CLAUDE.md.
 
 ## Constraints
 - ONLY modify test files — NEVER touch production code
+- The task's test spec defines the BEHAVIOR under test — that is the
+  contract. If the spec's shape (names, signatures, setup, module
+  references) no longer matches the current code, adapt the shape to
+  the codebase without escalating; never weaken or drop assertions.
+  If the behavior itself can no longer exist as specified, stop and
+  report instead of writing a different test
 - Use inline test data or test data builders — no factory libraries
 - Each test must run in isolation
 - Prefer sociable tests (real collaborators) over heavy mocking
@@ -374,6 +468,8 @@ When done, report:
 | Situation | Action |
 |-----------|--------|
 | Working tree not clean at start (or on resume) | Abort with instructions; user resolves manually (stash/commit/discard) |
+| Phase detailer reports a behavioral conflict | Pause with the conflict; do not guess |
+| Tester reports spec behavior can no longer exist | Present to user for decision |
 | Tester can't write meaningful test | Present to user for decision |
 | Engineer can't make test pass | Present to user with test expectation + what was tried |
 | Refactoring breaks tests | Refactorer reverts internally (no escalation) |

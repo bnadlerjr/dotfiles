@@ -2,11 +2,91 @@
 
 Concrete examples showing the expected output format for different scenarios.
 
+Every cycle in a plan is behavioral — no test code anywhere. Exact RED test specs are produced just-in-time during execution; see "Execution-Time Detailing" below for the transformation.
+
 ## Example 1: New Feature -- Email Verification
 
 **Input**: "Add email verification to user registration"
 
 ### Phase 1: Email Validation (2 TDD cycles)
+
+#### Cycle 1: Valid email format
+
+**Behavior**: Given a registration attempt with a malformed email, when the user is registered, then registration is rejected with an email validation error
+
+**Assertion focus**: changeset error on `email` for malformed input
+
+**Expected failure category**: function undefined (no registration operation exists yet)
+
+**Structural context**: User schema at `lib/accounts/user.ex:12`; test in `test/accounts/`
+
+#### Cycle 2: Unique email constraint
+
+**Behavior**: Given an email already registered, when a second registration uses the same email, then registration is rejected with a uniqueness error
+
+**Assertion focus**: "has already been taken" changeset error on duplicate email
+
+**Expected failure category**: constraint missing (no unique index yet — test passes when it should fail)
+
+**Structural context**: User schema at `lib/accounts/user.ex:12`; `priv/repo/migrations/` for new unique index
+
+### Automated Testing
+
+- [ ] Unit: rejects invalid email format -- path resolved at detailing time
+- [ ] Unit: rejects duplicate email -- path resolved at detailing time
+
+**Run**: `mix test test/accounts/`
+**Expected**: 2 tests, 0 failures
+
+---
+
+### Phase 2: Verification Token (3 TDD cycles)
+
+#### Cycle 1: Token generation on registration
+
+**Behavior**: Given a valid registration, when the user is created, then the user has a non-nil verification token and is not yet verified
+
+**Assertion focus**: token present, `verified_at` absent on a freshly registered user
+
+**Expected failure category**: schema field missing
+
+**Structural context**: User schema (`lib/accounts/user.ex`) gains token/verified fields via migration
+
+#### Cycle 2: Token verification
+
+**Behavior**: Given a registered user with a verification token, when the token is submitted, then the user becomes verified
+
+**Assertion focus**: `verified_at` is set after verifying with a valid token
+
+**Expected failure category**: function undefined (no verify operation exists yet)
+
+**Structural context**: Accounts context module (`lib/accounts.ex`)
+
+#### Cycle 3: Expired or invalid token
+
+**Behavior**: Given an expired token (or a token that was never issued), when verification is attempted, then it is rejected with a distinct error per case
+
+**Assertion focus**: `:token_expired` vs `:invalid_token` error discrimination
+
+**Expected failure category**: missing expiration/validation logic
+
+**Structural context**: Accounts context module; a test helper for aging tokens will be needed in `test/support/`
+
+### Automated Testing
+
+- [ ] Unit: generates verification token -- path resolved at detailing time
+- [ ] Unit: verifies with valid token -- path resolved at detailing time
+- [ ] Unit: rejects expired token -- path resolved at detailing time
+- [ ] Unit: rejects invalid token -- path resolved at detailing time
+
+**Run**: `mix test test/accounts/`
+**Expected**: 6 tests (cumulative), 0 failures
+
+---
+
+## Execution-Time Detailing
+
+Behavioral cycles are converted to detailed RED test specs by `/implement` as each phase starts, against the codebase as it exists at that moment. Phase 1's Cycle 1 above, once detailed, becomes:
 
 #### Cycle 1: Valid email format
 
@@ -23,95 +103,7 @@ end
 
 **Structural context**: `lib/accounts/user.ex:12` (existing User schema), test at `test/accounts/user_test.exs`
 
-#### Cycle 2: Unique email constraint
-
-**RED -- Write Failing Test**
-
-```elixir
-test "rejects registration with duplicate email" do
-  {:ok, _user} = Accounts.register_user(%{email: "taken@example.com", password: "secret123"})
-  assert {:error, changeset} = Accounts.register_user(%{email: "taken@example.com", password: "other456"})
-  assert "has already been taken" in errors_on(changeset).email
-end
-```
-
-**Expected failure**: Uniqueness constraint not yet added; test passes when it should fail (no unique index)
-
-**Structural context**: `lib/accounts/user.ex:12`, `priv/repo/migrations/` for new unique index
-
-### Automated Testing
-
-- [ ] Unit: rejects invalid email format -- `test/accounts/user_test.exs`
-- [ ] Unit: rejects duplicate email -- `test/accounts/user_test.exs`
-
-**Run**: `mix test test/accounts/user_test.exs`
-**Expected**: 2 tests, 0 failures
-
----
-
-### Phase 2: Verification Token (3 TDD cycles)
-
-#### Cycle 1: Token generation on registration
-
-**RED -- Write Failing Test**
-
-```elixir
-test "generates a verification token on registration" do
-  {:ok, user} = Accounts.register_user(%{email: "new@example.com", password: "secret123"})
-  assert user.verification_token != nil
-  assert user.verified_at == nil
-end
-```
-
-**Expected failure**: `verification_token` field does not exist on User schema
-
-**Structural context**: `lib/accounts/user.ex:12` (needs new fields), `priv/repo/migrations/` for migration
-
-#### Cycle 2: Token verification
-
-**RED -- Write Failing Test**
-
-```elixir
-test "verifies user with valid token" do
-  {:ok, user} = Accounts.register_user(%{email: "new@example.com", password: "secret123"})
-  assert {:ok, verified_user} = Accounts.verify_email(user.verification_token)
-  assert verified_user.verified_at != nil
-end
-```
-
-**Expected failure**: `Accounts.verify_email/1 is undefined`
-
-**Structural context**: `lib/accounts.ex` (context module), test at `test/accounts_test.exs`
-
-#### Cycle 3: Expired or invalid token
-
-**RED -- Write Failing Test**
-
-```elixir
-test "rejects expired verification token" do
-  {:ok, user} = Accounts.register_user(%{email: "new@example.com", password: "secret123"})
-  expire_token(user)
-  assert {:error, :token_expired} = Accounts.verify_email(user.verification_token)
-end
-
-test "rejects invalid verification token" do
-  assert {:error, :invalid_token} = Accounts.verify_email("bogus-token")
-end
-```
-
-**Expected failure**: No expiration logic exists yet
-
-**Structural context**: `lib/accounts.ex`, test helper `expire_token/1` to add in `test/support/`
-
-### Automated Testing
-
-- [ ] Unit: generates verification token -- `test/accounts/user_test.exs`
-- [ ] Unit: verifies with valid token -- `test/accounts_test.exs`
-- [ ] Unit: rejects expired token -- `test/accounts_test.exs`
-- [ ] Unit: rejects invalid token -- `test/accounts_test.exs`
-
-**Run**: `mix test test/accounts/`
-**Expected**: 6 tests (cumulative), 0 failures
+This form exists only in plans under execution — never in a freshly planned artifact. The behavior and assertion focus carry over unchanged; the shape (function names, setup, file paths) reflects the current code.
 
 ---
 
@@ -123,32 +115,19 @@ end
 
 #### Cycle 1: Concurrent update triggers duplicate delivery
 
-**RED -- Write Failing Test**
+**Behavior**: Given an order with a registered "order.updated" webhook, when two updates to the order commit concurrently, then exactly one webhook delivery is recorded
 
-```elixir
-test "delivers webhook exactly once for concurrent order updates" do
-  order = insert(:order)
-  webhook = insert(:webhook, event: "order.updated", url: "https://example.com/hook")
+**Assertion focus**: delivery count is exactly 1 under concurrent updates
 
-  # Simulate two concurrent updates
-  task1 = Task.async(fn -> Orders.update(order, %{status: "shipped"}) end)
-  task2 = Task.async(fn -> Orders.update(order, %{status: "shipped"}) end)
-  Task.await_many([task1, task2])
+**Expected failure category**: assertion mismatch — 2 deliveries observed where 1 is expected (this IS the bug)
 
-  deliveries = Webhooks.list_deliveries(webhook.id)
-  assert length(deliveries) == 1
-end
-```
-
-**Expected failure**: `assert length(deliveries) == 1` fails with `2` (this IS the bug)
-
-**Structural context**: `lib/webhooks/dispatcher.ex:45` (dispatch logic), `test/webhooks/dispatcher_test.exs`
+**Structural context**: dispatch logic at `lib/webhooks/dispatcher.ex:45`
 
 ### Automated Testing
 
-- [ ] Integration: exactly-once delivery under concurrency -- `test/webhooks/dispatcher_test.exs`
+- [ ] Integration: exactly-once delivery under concurrency -- path resolved at detailing time
 
-**Run**: `mix test test/webhooks/dispatcher_test.exs`
+**Run**: `mix test test/webhooks/`
 **Expected**: 1 test, 1 failure (this test captures the bug)
 
 ### Done When
@@ -161,39 +140,30 @@ end
 
 #### Cycle 1: Idempotency guard
 
-**RED -- Write Failing Test** (already written in Phase 1 -- now make it pass)
+**Behavior**: Given the failing reproduction test from Phase 1, when the fix is applied, then concurrent updates deliver exactly one webhook
 
-The test from Phase 1 is the RED test. Implementation makes it GREEN.
+**Assertion focus**: the Phase 1 test passes (it is this cycle's RED test — no new test is written)
 
-**Structural context**: `lib/webhooks/dispatcher.ex:45` (add idempotency key or advisory lock)
+**Expected failure category**: already failing from Phase 1
+
+**Structural context**: dispatch logic in `lib/webhooks/dispatcher.ex` (idempotency key or advisory lock)
 
 #### Cycle 2: Regression -- rapid sequential updates
 
-**RED -- Write Failing Test**
+**Behavior**: Given an order updated twice in quick succession with distinct statuses, when both updates commit, then two separate webhooks deliver with the correct payloads in order
 
-```elixir
-test "delivers separate webhooks for distinct status changes" do
-  order = insert(:order, status: "pending")
+**Assertion focus**: legitimate distinct updates are NOT deduplicated by the fix
 
-  Orders.update(order, %{status: "shipped"})
-  Orders.update(order, %{status: "delivered"})
+**Expected failure category**: depends on fix approach -- an over-aggressive fix deduplicates legitimate updates
 
-  deliveries = Webhooks.list_deliveries_for(order.id)
-  assert length(deliveries) == 2
-  assert Enum.map(deliveries, & &1.payload["status"]) == ["shipped", "delivered"]
-end
-```
-
-**Expected failure**: Depends on fix approach -- if the fix is too aggressive it may deduplicate legitimate updates
-
-**Structural context**: `lib/webhooks/dispatcher.ex`, `test/webhooks/dispatcher_test.exs`
+**Structural context**: dispatch logic in `lib/webhooks/dispatcher.ex`
 
 ### Automated Testing
 
-- [ ] Integration: exactly-once delivery under concurrency -- `test/webhooks/dispatcher_test.exs`
-- [ ] Integration: distinct updates deliver separately -- `test/webhooks/dispatcher_test.exs`
+- [ ] Integration: exactly-once delivery under concurrency -- written in Phase 1
+- [ ] Integration: distinct updates deliver separately -- path resolved at detailing time
 
-**Run**: `mix test test/webhooks/dispatcher_test.exs`
+**Run**: `mix test test/webhooks/`
 **Expected**: 3 tests (cumulative), 0 failures
 
 ### Done When
@@ -214,56 +184,39 @@ These tests document CURRENT behavior before any structural changes.
 
 #### Cycle 1: Base price calculation
 
-**RED -- Write Failing Test**
+**Behavior**: Given a line item with a unit price and quantity, when the price is calculated through the new `Pricing` module, then the total equals unit price times quantity (matching current controller behavior)
 
-```elixir
-test "calculates base price for a single item" do
-  item = build(:line_item, unit_price: Money.new(1000), quantity: 2)
-  assert Money.new(2000) == Pricing.calculate([item])
-end
-```
+**Assertion focus**: single-item total equals `unit_price * quantity`
 
-**Expected failure**: `Pricing` module does not exist yet
+**Expected failure category**: module undefined (`Pricing` does not exist yet)
 
-**Structural context**: Logic currently lives in `lib/web/controllers/order_controller.ex:78-95`. Test at `test/pricing_test.exs` (new file).
+**Structural context**: Logic currently lives in `lib/web/controllers/order_controller.ex:78-95`; new module and new test file
 
 #### Cycle 2: Discount application
 
-**RED -- Write Failing Test**
+**Behavior**: Given line items and a percentage discount, when the price is calculated, then the discount is applied to the total (matching current controller behavior)
 
-```elixir
-test "applies percentage discount to total" do
-  items = [build(:line_item, unit_price: Money.new(1000), quantity: 1)]
-  discount = %Discount{type: :percentage, value: 10}
-  assert Money.new(900) == Pricing.calculate(items, discount: discount)
-end
-```
+**Assertion focus**: a 10% discount reduces the total by exactly 10%
 
-**Expected failure**: `Pricing.calculate/2` clause does not exist
+**Expected failure category**: function clause missing (no discount option handled yet)
 
 **Structural context**: Discount logic at `lib/web/controllers/order_controller.ex:97-110`
 
 #### Cycle 3: Tax calculation
 
-**RED -- Write Failing Test**
+**Behavior**: Given line items, a discount, and a tax rate, when the price is calculated, then tax applies to the discounted total, not the original (matching current controller behavior)
 
-```elixir
-test "adds tax to discounted total" do
-  items = [build(:line_item, unit_price: Money.new(1000), quantity: 1)]
-  discount = %Discount{type: :percentage, value: 10}
-  assert Money.new(954) == Pricing.calculate(items, discount: discount, tax_rate: 0.06)
-end
-```
+**Assertion focus**: tax computed on the post-discount amount
 
-**Expected failure**: `tax_rate` option not handled
+**Expected failure category**: option not handled (`tax_rate`)
 
 **Structural context**: Tax logic at `lib/web/controllers/order_controller.ex:112-120`
 
 ### Automated Testing
 
-- [ ] Unit: base price calculation -- `test/pricing_test.exs`
-- [ ] Unit: discount application -- `test/pricing_test.exs`
-- [ ] Unit: tax calculation -- `test/pricing_test.exs`
+- [ ] Unit: base price calculation -- path resolved at detailing time
+- [ ] Unit: discount application -- path resolved at detailing time
+- [ ] Unit: tax calculation -- path resolved at detailing time
 
 **Run**: `mix test test/pricing_test.exs`
 **Expected**: 3 tests, 0 failures
@@ -278,7 +231,12 @@ end
 
 ## Anti-Example: Implementation Leakage
 
-This shows a common mistake -- including GREEN implementation code and REFACTOR commentary in a plan cycle. The plan should contain ONLY the RED test spec.
+Two leakage mistakes to avoid:
+
+1. **Planning-time leakage**: any test code in a plan. Plans carry behavioral cycles only — the detailed form is produced during execution.
+2. **Execution-time leakage**: GREEN implementation code or REFACTOR commentary in a detailed cycle. Even when `/implement` details a phase, the cycle contains ONLY the RED test spec.
+
+The example below shows the second mistake, in a cycle that has been detailed during execution.
 
 ### Wrong -- includes implementation code
 

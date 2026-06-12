@@ -55,6 +55,11 @@ Do NOT describe implementation — that emerges from the tests.]
 
 ## Phase 1: [Descriptive Name]
 
+<!-- ALL phases use BEHAVIORAL cycles — no test code anywhere in the plan.
+     /implement details each phase just-in-time as execution reaches it,
+     rewriting behavioral cycles into exact RED test specs against the
+     codebase as it exists at that moment. -->
+
 ### Overview
 [What this phase accomplishes — the behavioral slice it delivers]
 
@@ -63,40 +68,36 @@ Do NOT describe implementation — that emerges from the tests.]
 #### Cycle 1: [Behavior Name]
 - [ ] Complete
 
-**RED — Write Failing Test**
+**Behavior**: Given [context], when [action], then [observable outcome]
 
-```language
-# Test to write FIRST — expected to fail
-```
+**Assertion focus**: [The single thing the test asserts]
 
-**Expected failure**: [What the failure message should look like]
+**Expected failure category**: [e.g., "function undefined", "assertion mismatch", "constraint missing"]
 
-**Structural context**: [Which modules/files are in play, where the test file lives, relevant contracts or interfaces with `file:line` refs. Do NOT include implementation or refactoring guidance.]
+**Structural context**: [Module-level references; `file:line` only where stable across phases]
 
-<!-- Cycle ends here. Do NOT add GREEN, REFACTOR, or implementation sections. -->
+<!-- Cycle ends here. Do NOT add test code, GREEN, REFACTOR, or implementation sections. -->
 
 #### Cycle 2: [Behavior Name]
 - [ ] Complete
 
-**RED — Write Failing Test**
+**Behavior**: Given [context], when [action], then [observable outcome]
 
-```language
-# Test to write FIRST
-```
+**Assertion focus**: [The single thing the test asserts]
 
-**Expected failure**: [Failure description]
+**Expected failure category**: [Failure category]
 
-**Structural context**: [Modules/files in play with `file:line` refs]
+**Structural context**: [Module-level references]
 
-<!-- Cycle ends here. Do NOT add GREEN, REFACTOR, or implementation sections. -->
+<!-- Cycle ends here. Do NOT add test code, GREEN, REFACTOR, or implementation sections. -->
 
 ### Automated Testing
 
 All automated tests for this phase:
 
-- [ ] Unit: [test description] — `path/to/test:line`
-- [ ] Unit: [test description] — `path/to/test:line`
-- [ ] Integration: [test description] — `path/to/test:line`
+- [ ] Unit: [test description] — path resolved at detailing time
+- [ ] Unit: [test description] — path resolved at detailing time
+- [ ] Integration: [test description] — path resolved at detailing time
 
 **Run**: `[exact command to run this phase's tests]`
 **Expected**: [N tests, 0 failures]
@@ -120,22 +121,20 @@ All automated tests for this phase:
 #### Cycle 1: [Behavior Name]
 - [ ] Complete
 
-**RED — Write Failing Test**
+**Behavior**: Given [context], when [action], then [observable outcome]
 
-```language
-# Test to write FIRST
-```
+**Assertion focus**: [The single thing the test asserts]
 
-**Expected failure**: [Failure description]
+**Expected failure category**: [e.g., "function undefined", "assertion mismatch", "constraint missing"]
 
-**Structural context**: [Modules/files in play with `file:line` refs]
+**Structural context**: [Module-level references; `file:line` only where stable across phases]
 
-<!-- Cycle ends here. Do NOT add GREEN, REFACTOR, or implementation sections. -->
+<!-- Cycle ends here. Do NOT add test code, GREEN, REFACTOR, or implementation sections. -->
 
 ### Automated Testing
 
-- [ ] Unit: [test description] — `path/to/test:line`
-- [ ] Integration: [test description] — `path/to/test:line`
+- [ ] Unit: [test description] — path resolved at detailing time
+- [ ] Integration: [test description] — path resolved at detailing time
 
 **Run**: `[exact command to run this phase's tests]`
 **Expected**: [N tests, 0 failures]

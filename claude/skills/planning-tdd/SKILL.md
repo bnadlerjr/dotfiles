@@ -16,7 +16,7 @@ functions without them using standard reasoning and TDD principles.
 
 - **practicing-tdd** skill: Provides TDD methodology (Iron Law, cycle rules)
 - **thinking-patterns** skill: Structured reasoning at each planning gate
-- **reviewing-test-design** skill: Dave Farley's 8 properties of good tests. When shaping RED test specs, keep these properties in mind (especially Atomic, Necessary, Granular) so specs don't force the Tester to diverge from the plan to satisfy them during implementation.
+- **reviewing-test-design** skill: Dave Farley's 8 properties of good tests. When shaping behavioral cycles, keep these properties in mind (especially Atomic, Necessary, Granular) so cycles don't force the Tester to diverge from the plan to satisfy them during implementation.
 
 ## Quick Start
 
@@ -41,11 +41,12 @@ Given a task, design artifact, or ticket:
 
 1. **Tests ARE the Plan**: The plan specifies what to test, not how to implement. Implementation emerges from tests during execution. Including implementation code in the plan presupposes design and defeats the purpose of TDD.
 2. **Structural Context, Not Solutions**: The plan identifies which modules, files, and contracts are in play — enough to know *where* to work, not *what* to write.
-3. **Interactive**: Never dump a complete plan. Gather context -> verify understanding -> align on approach -> detail phases.
-4. **Grounded**: Every claim verified against actual code. Include `file:line` references.
-5. **Bounded**: Every plan MUST include "What We're NOT Doing" section.
-6. **Automated Verification**: Every phase is verified by automated tests. No manual-verification step exists in the plan or the implementation flow. Behavior that cannot be asserted by an automated test must be called out explicitly in the plan and escalated — not deferred to a manual check.
-7. **Incremental Confidence**: Each TDD cycle builds on the confidence established by previous passing tests.
+3. **Just-In-Time Detail**: Exact test code is design — it pins module names, signatures, and data shapes that go stale before execution reaches them: earlier phases legitimately reshape contracts, and concurrent work ships changes planning never saw. Every phase gets behavioral cycles (Given/When/Then, assertion focus, expected failure category); exact RED test code is written at execution time, phase by phase, against the codebase state that actually exists when each phase starts.
+4. **Interactive**: Never dump a complete plan. Gather context -> verify understanding -> align on approach -> detail phases.
+5. **Grounded**: Every claim verified against actual code. Include `file:line` references.
+6. **Bounded**: Every plan MUST include "What We're NOT Doing" section.
+7. **Automated Verification**: Every phase is verified by automated tests. No manual-verification step exists in the plan or the implementation flow. Behavior that cannot be asserted by an automated test must be called out explicitly in the plan and escalated — not deferred to a manual check.
+8. **Incremental Confidence**: Each TDD cycle builds on the confidence established by previous passing tests.
 
 ## Process
 
@@ -160,16 +161,28 @@ This is the key differentiator from standard implementation planning.
 
 ### Cycle Output Format
 
-Each TDD cycle in the plan contains exactly 3 parts:
+Cycles take one of two forms depending on lifecycle stage (Core Principle 3). At planning time, every cycle in every phase is behavioral. The detailed form is produced during execution, when `/implement` details each phase just-in-time against the codebase state that actually exists.
+
+**Behavioral cycle (planning-time form — all phases)** — exactly 4 parts, no code:
+
+1. **Behavior** — Given/When/Then at the behavior level
+2. **Assertion focus** — the single thing the test asserts
+3. **Expected failure category** — e.g., "function undefined", "assertion mismatch", "constraint missing"
+4. **Structural context** — module-level references; `file:line` only where the reference is stable across phases
+
+**Detailed cycle (execution-time form — produced when a phase is detailed)** — exactly 3 parts:
 
 1. **RED test spec** — A code block with the exact test to write first
 2. **Expected failure** — What the failure message looks like when run
 3. **Structural context** — `file:line` references for modules/files in play
 
-Each cycle MUST NOT contain:
+The behavioral cycle is the contract: its intent and assertion focus must survive detailing unchanged. Shape — names, signatures, setup, file paths — is resolved at execution time by whoever details the phase.
+
+Each cycle (either form) MUST NOT contain:
 - **GREEN** sections or implementation code
 - **REFACTOR** sections or "None needed" commentary
 - Code that is not a test
+- At planning time: any test code at all
 
 GREEN and REFACTOR emerge during execution via `practicing-tdd` and `refactoring-code` skills. They do not belong in a plan.
 
@@ -199,18 +212,17 @@ schema, follow that guidance after rendering.
 
 For each phase, detail:
 
-1. **TDD Cycles** (the heart of the plan):
-   - **RED**: The exact test to write, with expected failure message.
-     Include test name, inputs, expected outputs, and assertion focus.
-   - **Structural Context**: Which modules/files are in play, where
-     the test file lives, relevant contracts or interfaces. Do NOT
-     include implementation or refactoring guidance — both emerge
-     during execution via `practicing-tdd` and `refactoring-code`.
+1. **TDD Cycles** (the heart of the plan): behavioral cycles per the
+   Cycle Output Format — Behavior, Assertion focus, Expected failure
+   category, Structural context. No test code blocks anywhere in the
+   plan. The implementation workflow (`/implement`) details each phase
+   into exact RED test specs just-in-time as execution reaches it.
 
 2. **Automated Testing** (summary for the phase):
    - All unit tests with descriptions
    - Integration tests with scenarios
-   - The exact command to run them
+   - The exact command to run them — test file paths marked as
+     resolved at detailing time
    - Expected pass/fail count
 
 After writing the plan, apply `/thinking self-consistency` to validate:
@@ -219,6 +231,8 @@ After writing the plan, apply `/thinking self-consistency` to validate:
 - Is automated testing covered in every phase with an exact run command?
 - Are dependencies between phases correct?
 - Is scope properly bounded?
+- Does any phase contain test code? -> Convert to behavioral cycles
+- Does every cycle have a Behavior, Assertion focus, and Expected failure category?
 - Does any cycle contain a GREEN or implementation section? -> Remove it
 - Does any cycle contain a REFACTOR section or "None needed" commentary? -> Remove it
 - Does any cycle contain code that is NOT a test? -> Replace with structural context
@@ -272,10 +286,10 @@ When a design artifact is available (e.g., from `collaborating-on-design`), use 
 | Level 3: Interactions | Integration tests | Sequence diagrams -> test scenarios |
 | Level 4: Contracts | Unit tests | Function signatures -> test cases |
 
-**Example**: A Level 4 contract like `calculate_total(items :: [Item.t()]) :: Money.t()` becomes:
-- RED: `test "calculate_total returns Money for a list of items"`
-- RED: `test "calculate_total handles empty list"`
-- RED: `test "calculate_total sums item prices correctly"`
+**Example**: A Level 4 contract like `calculate_total(items :: [Item.t()]) :: Money.t()` becomes three behavioral cycles:
+- "calculate_total returns Money for a list of items"
+- "calculate_total handles empty list"
+- "calculate_total sums item prices correctly"
 
 ## Related Skills
 
@@ -313,8 +327,8 @@ When a design artifact is available (e.g., from `collaborating-on-design`), use 
 ## Success Criteria
 
 A TDD plan is well-formed when:
-- [ ] Every phase starts with RED test specifications (no implementation code)
-- [ ] Every test spec includes expected inputs, outputs, and failure modes
+- [ ] Every phase has behavioral cycles only — no test code anywhere in the plan
+- [ ] Every cycle includes a Behavior, Assertion focus, and Expected failure category
 - [ ] Every phase has an automated testing summary with an exact run command
 - [ ] Structural context uses `file:line` references to real code
 - [ ] Phases are ordered by dependency (foundational behaviors first)
@@ -335,6 +349,7 @@ See [references/examples.md](references/examples.md) for concrete, multi-phase e
 | Mistake | Why It's Wrong | Do This Instead |
 |---------|----------------|-----------------|
 | Implementation code in plan | Presupposes design, defeats TDD | Specify tests + structural context only |
+| Exact test code in the plan | Pins names/signatures that execution and concurrent work will reshape — specs go stale, causing confusion and rework | Behavioral cycles in every phase; detail just-in-time during execution |
 | Implementation before tests | Violates TDD Iron Law | Always specify RED step first |
 | Tests that mock everything | Tests verify mocks, not behavior | Use real dependencies; mock only at boundaries |
 | Vague test descriptions | Can't write tests from descriptions | Include expected inputs, outputs, and failure modes |
