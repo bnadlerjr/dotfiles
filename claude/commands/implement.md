@@ -1,6 +1,7 @@
 ---
 description: Orchestrate TDD subagent team to implement a plan phase-by-phase
 argument-hint: <path to implementation plan file>
+allowed-tools: Task, Bash, Read, Edit, Skill, TodoWrite
 model: opus
 ---
 
@@ -128,10 +129,14 @@ If behavioral:
 #### Step 1: Create Tasks
 
 Parse the phase's "Changes Required" section into individual tasks.
-Track them mentally or via notes — each task needs:
+Record them with TodoWrite so task state survives the long phase loop and
+any interruption/resume — each task needs:
 - A clear description in imperative form
 - The specific changes needed
 - Any ordering dependencies
+
+Mark each task `in_progress` when its TDD cycle starts and `completed` at
+Task Complete (Step 2), so the orchestrator never loses its place mid-phase.
 
 #### Step 2: TDD Cycle
 

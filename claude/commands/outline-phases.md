@@ -1,6 +1,7 @@
 ---
 description: Produce a phased structure outline for human approval before detailed planning
 argument-hint: [path(s) to design document(s) from /align-understanding]
+allowed-tools: Read, Bash, Write, Skill
 model: opus
 ---
 
@@ -23,13 +24,13 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
   "Usage: `/outline-phases <path-to-design-doc> [additional-paths...]`
   Run `/align-understanding` first to produce the design document(s)."
 - Target ~2 pages maximum — this is a skeleton, not a plan
-- Do NOT include code snippets — that's for /plan-implementation
-- Do NOT include detailed file changes — that's for /plan-implementation
+- Do NOT include code snippets — that's for /create-implementation-plan
+- Do NOT include detailed file changes — that's for /create-implementation-plan
 - DO name the files/components touched per phase (names only)
 - DO make each phase independently verifiable
 - Each phase must be completable in a single agent session
 - Each phase must not break the system if you stop after completing it
-- When a tracer is warranted (see tracer-check below), ALL phases follow slice-validity rules from `slicing-elephant-carpaccio` — vertical, working, distinct, valuable, small. Phase 1 is the walking skeleton; Phases 2..N keep crossing layers while broadening coverage. Hard-coded values are acceptable in the tracer; later phases replace them. Non-vertical phases (data migrations, infra setup) are allowed only with explicit justification.
+- When a tracer is warranted, phases follow slice-validity rules — see `<tracer-check>` in the Workflow for the full criteria.
 
 ## Workflow
 

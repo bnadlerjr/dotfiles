@@ -1,6 +1,7 @@
 ---
 description: Write detailed implementation plan from approved design and structure
 argument-hint: <design-doc-path> <structure-outline-path> [research-doc-paths...]
+allowed-tools: Read, Glob, Grep, Bash, Write, Skill
 model: opus
 ---
 
@@ -30,7 +31,12 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
   should be added, split, or reordered, flag it with rationale and wait.
 - Do NOT spawn research agents — research is complete. Use Read/Glob/Grep
   directly if you need to verify references or gather surrounding context.
-- Tests ARE the plan — specified as behavior, not code. Every phase's cycles are behavioral (Behavior, Assertion focus, Expected failure category, Structural context). The plan contains NO test code and NO implementation code: exact test code is design that goes stale before execution reaches it — earlier phases reshape contracts and concurrent work ships changes planning never saw. `/implement` details each phase into exact RED specs just-in-time; GREEN and REFACTOR emerge during execution via the `practicing-tdd` and `refactoring-code` skills.
+- Tests ARE the plan — specified as behavior, not code. Every phase's cycles are
+  behavioral (Behavior, Assertion focus, Expected failure category, Structural
+  context); the plan contains NO test code and NO implementation code.
+  Why: exact code is design that goes stale before execution reaches it. `/implement`
+  details each phase into exact RED specs just-in-time; GREEN and REFACTOR emerge
+  during execution via the `practicing-tdd` and `refactoring-code` skills.
 - Read `~/dotfiles/claude/skills/planning-tdd/SKILL.md` for the full methodology before detailing phases.
 - No open questions in the final plan. If anything is unclear, ask NOW.
 
@@ -91,7 +97,7 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
    - Is scope bounded by the "What We're NOT Doing" from the design doc?
 
 5. **Save artifact**
-   - Check for existing artifacts: `ls $CLAUDE_DOCS_ROOT/plans/`
+   - Check for existing artifacts: `ls ARTIFACT_DIR`
    - Read `$CLAUDE_DOCS_ROOT/projects.yaml` for project context
    - Save to `ARTIFACT_DIR/plan--<slug>.md` with full frontmatter per
      artifact-management guidelines
@@ -99,58 +105,16 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
 
 ## Report
 
-The artifact follows PLAN_TEMPLATE with these sections:
+The artifact follows PLAN_TEMPLATE (read in Workflow step 3) — that file is the
+single source of truth for format. In order, the sections are:
 
-```markdown
-# [Task Name] Implementation Plan
-
-## Overview
-
-[1-2 sentences: what we're building and why]
-
-## References
-
-- Design: [path to design doc]
-- Structure: [path to structure outline]
-- Research: [path(s) to research docs]
-- Ticket: [if referenced in upstream artifacts]
-
-## Current State Analysis
-
-### Key Discoveries
-
-[Carried forward from research — verified `file:line` references only]
-
-## Desired End State
-
-[From the design document]
-
-## What We're NOT Doing
-
-[From the design document — carried forward verbatim]
-
-## Phase Dependencies
-
-[From the structure outline — include only if non-linear]
-
----
-
-## Phase 1: [Name from structure outline]
-
-### Overview
-### TDD Cycles
-### Automated Testing
-### Done When
-
----
-
-## Phase N: ...
-
----
-
-## Migration Notes
-
-[Only if applicable — how to handle existing data/systems]
-```
+1. **Overview** — what we're building and why
+2. **References** — design doc, structure outline, research doc(s), ticket
+3. **Current State Analysis** — key discoveries with verified `file:line` references
+4. **Desired End State** — from the design document
+5. **What We're NOT Doing** — from the design document, carried forward verbatim
+6. **Phase Dependencies** — from the structure outline; include only if non-linear
+7. **Phase 1..N** — each with Overview, TDD Cycles, Automated Testing, Done When
+8. **Migration Notes** — only if existing data/systems need handling
 
 Present the plan file path to the user. Do NOT auto-proceed to implementation.
