@@ -1,7 +1,7 @@
 ---
 description: Surface design decisions and scope before codebase research begins
 argument-hint: [ticket reference or task description]
-allowed-tools: Read, Skill, AskUserQuestion, Write, Bash(gh), Bash(ls), Bash(grep)
+allowed-tools: Read, Skill, AskUserQuestion, Bash(gh), Bash(grep)
 model: opus
 ---
 
@@ -12,7 +12,6 @@ Identify the design decisions a human must make before codebase research can be 
 ## Variables
 
 TASK_INPUT: $ARGUMENTS
-ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
 
 ## Instructions
 
@@ -38,17 +37,13 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
    - **Unknowns**: What must research answer that can't be decided now?
 
 3. **Branch on task shape** before presenting anything:
-   - **3a. Simple** — no real design decisions exist. Say so and tell the user to proceed directly to research. Skip to End (no questions, no artifact).
-   - **3b. Vague** — the idea itself is under-specified (you cannot identify 3+ concrete decisions with distinct options, or the "options" you generate feel invented rather than extracted from the input). Do NOT pad with shallow questions. Tell the user the idea needs stress-testing first and recommend invoking the `grilling-ideas` skill. Skip to End (no questions, no artifact).
+   - **3a. Simple** — no real design decisions exist. Say so and tell the user to proceed directly to research. Skip to End (no questions).
+   - **3b. Vague** — the idea itself is under-specified (you cannot identify 3+ concrete decisions with distinct options, or the "options" you generate feel invented rather than extracted from the input). Do NOT pad with shallow questions. Tell the user the idea needs stress-testing first and recommend invoking the `grilling-ideas` skill. Skip to End (no questions).
    - **3c. Well-shaped** — 3–7 real design decisions surface cleanly. Continue to step 4.
 
 4. **Present and wait** — deliver questions in the Report format below, then STOP and wait for answers
 
-5. **After the user answers**, save the resolved decisions as an artifact:
-   - Check for existing artifacts: `ls $CLAUDE_DOCS_ROOT/research/`
-   - Read `$CLAUDE_DOCS_ROOT/projects.yaml` for project context
-   - Write to `ARTIFACT_DIR/research--<slug>-questions.md` with full frontmatter per artifact-management guidelines
-   - Body structure below in Artifact Format
+5. **After the user answers**, echo the resolved decisions back to the chat using the Resolved Decisions format below. Do NOT persist this to a file — `/explore-codebase` reads these decisions from the conversation context in the same session. End your turn here; the user runs `/explore-codebase` next.
 
 ## Report
 
@@ -72,7 +67,10 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
 >
 > Once you answer these, I'll target my research accordingly.
 
-## Artifact Format
+## Resolved Decisions
+
+Echo this block to the chat after the user answers, so the decisions are visible
+for review and available to `/explore-codebase` in the same session.
 
 ```markdown
 ## Goal

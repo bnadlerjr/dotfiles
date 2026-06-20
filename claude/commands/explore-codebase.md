@@ -1,26 +1,25 @@
 ---
 description: Conduct targeted codebase research based on resolved questions
-argument-hint: [path to decisions artifact from /question-me]
+argument-hint: [optional notes; uses /question-me decisions from this session]
 model: opus
 ---
 
 # Explore Codebase
 
-Conduct targeted codebase research driven by a decisions artifact. You are a cartographer — map what exists, where it exists, how it works, and how components connect. Do not suggest changes, critique implementations, or make design decisions.
+Conduct targeted codebase research driven by the resolved decisions from `/question-me`. You are a cartographer — map what exists, where it exists, how it works, and how components connect. Do not suggest changes, critique implementations, or make design decisions.
 
 Read and follow the methodology in the `researching-codebase` skill:
 `~/dotfiles/claude/skills/researching-codebase/SKILL.md`
 
 ## Variables
 
-DECISIONS_PATH: $ARGUMENTS
+NOTES: $ARGUMENTS
 ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
 
 ## Instructions
 
-- If DECISIONS_PATH is empty, STOP and respond:
-  "Usage: `/explore-codebase <path-to-decisions-artifact>`
-  Run `/question-me` first to produce the decisions artifact."
+- If this session has no resolved `/question-me` decisions in context (and none in NOTES), STOP and respond:
+  "Run `/question-me` first in this session to produce the decisions, then `/explore-codebase`."
 - Document only — describe what exists, not what to improve
 - Include `file:line` references for every finding
 - Wait for ALL agents to complete before synthesizing
@@ -29,8 +28,9 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
 ## Workflow
 
 1. **Load decisions**
-   - Read the decisions artifact at DECISIONS_PATH completely
+   - Use the resolved decisions from this session's `/question-me` output
    - Extract: Goal, Resolved Decisions, Scope Boundaries, Research Targets
+   - Fold in anything from NOTES that refines or overrides those decisions
    - These Research Targets drive all agent work below
 
 2. **Spawn parallel agents** — one batch per research target, all launched simultaneously:
@@ -68,7 +68,7 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
 ```markdown
 ## Research Question
 
-[Goal from the decisions artifact]
+[Goal from the resolved decisions]
 
 ## Summary
 
@@ -76,7 +76,7 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/research/
 
 ## Resolved Decisions
 
-[Carry forward from the decisions artifact for traceability]
+[Carry forward the resolved decisions for traceability]
 
 ## Detailed Findings
 

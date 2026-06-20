@@ -151,5 +151,5 @@ before this artifact was saved.
 
 ### What We're NOT Doing
 
-Explicit scope boundaries carried forward from the decisions artifact.
+Explicit scope boundaries carried forward from the research artifact's Scope Boundaries.
 ```
