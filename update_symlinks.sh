@@ -80,6 +80,16 @@ rm -r ~/.config/karabiner/karabiner.json
 ln -s ${DIR}/karabiner/karabiner.json ~/.config/karabiner/karabiner.json
 echo " ...~/.config/karabiner/karabiner.json re-linked"
 
+echo " ...removing ~/.config/gh/config.yml"
+rm -r ~/.config/gh/config.yml
+ln -s ${DIR}/gh-config.yml ~/.config/gh/config.yml
+echo " ...~/.config/gh/config.yml re-linked"
+
+echo " ...removing ~/.config/gh-dash/config.yml"
+rm -r ~/.config/gh-dash/config.yml
+ln -s ${DIR}/gh-dash-config.yml ~/.config/gh-dash/config.yml
+echo " ...~/.config/gh-dash/config.yml re-linked"
+
 ALFRED_SNIPPETS="${HOME}/Library/Application Support/Alfred/Alfred.alfredpreferences/snippets"
 echo " ...removing ${ALFRED_SNIPPETS}"
 rm -rf "${ALFRED_SNIPPETS}"
