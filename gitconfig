@@ -7,8 +7,6 @@
     autocrlf = false
     excludesfile = ~/.gitignore_global
     pager = delta
-[pager]
-    diff = diffnav
 [interactive]
     diffFilter = delta --color-only
 [delta]
@@ -28,6 +26,7 @@
     cob = checkout -b
     di = diff
     dh = diff HEAD~1
+    dn = "!f() { git diff \"$@\" | diffnav; }; f"
     ff = merge --ff-only
     glog = log -E -i --grep
     lg = log --graph --abbrev-commit --date=relative
