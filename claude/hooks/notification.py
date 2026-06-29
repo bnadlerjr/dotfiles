@@ -322,6 +322,10 @@ def send_linux_notification(title, message, sound_name):
 
 
 def main():
+    # Check if notifications are disabled
+    if os.environ.get("CLAUDE_NO_NOTIFY"):
+        sys.exit(0)
+
     # Check operating system
     system = platform.system()
     if system not in ["Darwin", "Linux"]:
