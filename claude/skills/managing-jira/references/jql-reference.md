@@ -43,8 +43,10 @@ jira issue list --jql "assignee IS EMPTY AND type = Bug AND priority IN (Highest
 # Recently updated by others
 jira issue list --jql "assignee = currentUser() AND updated >= -1d AND updatedBy != currentUser()"
 
-# Issues in specific epic
-jira issue list --jql "\"Epic Link\" = PROJ-123"
+# Issues in specific epic (children of an epic)
+# Use `parent` — the `parentEpic` and `"Epic Link"` fields may not resolve on
+# this instance.
+jira issue list --jql "parent = PROJ-123"
 
 # Multiple statuses
 jira issue list --jql "status IN ('To Do', 'In Progress')"

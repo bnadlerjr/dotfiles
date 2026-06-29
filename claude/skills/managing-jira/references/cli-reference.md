@@ -15,6 +15,18 @@ jira issue view ISSUE-KEY --comments 5
 jira issue view ISSUE-KEY --raw
 ```
 
+### Parsing Raw JSON
+
+Prefer `jq` over ad-hoc scripting when parsing `--raw` output. The CLI writes
+JSON to stdout but emits `warning package.json: No license field` to stderr —
+redirect stderr so it doesn't corrupt the JSON:
+
+```bash
+# Save raw output first, then parse (keeps the JSON clean of the stderr warning)
+jira issue view ISSUE-KEY --raw 2>/dev/null > /tmp/issue.json
+jq '.fields.parent.key' /tmp/issue.json
+```
+
 ## Listing Issues
 
 ```bash
