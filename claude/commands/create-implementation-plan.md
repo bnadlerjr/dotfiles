@@ -81,9 +81,11 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
        test command scoped to the phase's test directory)
      - Expected pass/fail count
    - **Done When**: Checkboxed list of:
-     - All tests pass (reference the run command)
      - Behavior-based criteria (e.g., "User can create a new account")
-     - Type checking and linting pass
+     - Type checking and linting pass. If project has a Justfile with a
+       `just verify` target, use it
+     - Tests pass. If project has a Justfile with a `just test-feature <feature-name>`
+       target, use it
    </phase-detail>
 
 4. **Validate completeness** — apply `/thinking self-consistency`:
