@@ -1,0 +1,8 @@
+{
+  "alfredsnippet" : {
+    "snippet" : "Implement all high and medium recommendations. Implement each recommendation as a separate commit. Before committing the recommendation, run `just verify` and `just test-feature {cursor}` to make sure everything passes.",
+    "uid" : "183FBBE1-862D-4283-937F-A1259EF885A5",
+    "name" : "Implement Recommendations",
+    "keyword" : ""
+  }
+}
