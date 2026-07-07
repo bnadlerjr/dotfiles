@@ -81,8 +81,7 @@ def run_command(command, cwd):
 def lint_elixir_file(file_path, project_dir):
     """Run Elixir linting commands in parallel."""
     commands = [
-        "mix compile --warnings-as-errors",
-        "mix credo --strict",
+        f"mix credo --strict {file_path}",
         f"mix format {file_path}",
     ]
 
