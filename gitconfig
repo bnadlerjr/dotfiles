@@ -62,6 +62,8 @@
     format = ssh
 [commit]
     gpgsign = true
+[diff "elixir"]
+    xfuncname = ^[[:space:]]*((def|defp|defmacro|defmacrop|defmodule|defprotocol|defimpl|test|describe|setup)[[:space:]].*)$
 [include]
     path = ~/.gitconfig.local
 [include]
