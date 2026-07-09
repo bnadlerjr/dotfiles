@@ -1,15 +1,15 @@
 ---
-description: Refine a Jira or Linear issue into a behavior-focused user story with BDD acceptance criteria through iterative review
+description: Refine a Jira or Linear issue into a user story with BDD acceptance criteria via parallel expert review
 argument-hint: "<issue ID> [--tool jira|linear]"
 model: opus
-allowed-tools: Read, Bash, Task, AskUserQuestion
+allowed-tools: Read, Bash, Task, AskUserQuestion, Skill
 ---
 
 # Refine Story
 
-**Level 4 (Delegation)** - Orchestrates sub-agents for capability research and independent review cycles. Tool-agnostic core delegates issue fetch and write-back to a tracker adapter (Jira or Linear).
+**Level 4 (Delegation)** - Orchestrates sub-agents for capability research and two parallel, independent reviews. Tool-agnostic core delegates issue fetch to a tracker adapter (Jira or Linear).
 
-Take a Jira or Linear issue, gather context from the tracker and relevant codebases, then produce a behavior-focused user story with BDD acceptance criteria. Two independent review cycles ensure quality from different perspectives.
+Take a Jira or Linear issue, gather context from the tracker and relevant codebases, then produce a behavior-focused user story with BDD acceptance criteria. After two interactive setup gates (tracker and project), the command runs autonomously: it drafts the story, runs two independent expert reviews in parallel, auto-applies only Critical fixes, and stops at a final draft. It does not write back to the tracker.
 
 ## Variables
 
@@ -25,7 +25,7 @@ Take a Jira or Linear issue, gather context from the tracker and relevant codeba
 - **thinking-patterns skill**: atomic-thought, chain-of-thought, self-consistency
 - **capability-locator agent**: Inventories user-facing entry points (routes, pages, CLI commands, public APIs) at the capability level — primary research agent for Phase 3
 - **codebase-analyzer agent**: Reserved for narrow fallback only (user-visible strings — error messages, status names, label text). NEVER for code paths, integration points, services, schemas, or file locations.
-- **general-purpose agent** (model: sonnet): Review sub-agents — sonnet suits structured checklist evaluation; opus orchestrates synthesis and drafting
+- **general-purpose agent** (model: opus): Review sub-agents — opus suits structured checklist evaluation
 - **Project registry**: `$CLAUDE_DOCS_ROOT/projects.yaml`
 
 ## Initial Response
@@ -43,15 +43,7 @@ Please provide an issue ID (e.g., POPS-123 for Jira, ENG-123 for Linear).
 Optionally specify --tool jira|linear; otherwise I'll ask.
 ```
 
-## Parallel Execution Contract
-
-Stories under the same epic CAN be run in parallel when they're truly independent: file paths are isolated per run (Phase 9 uses a per-PID temp file), tracker writes are issue-scoped, and DECISIONS logs do not cross-contaminate.
-
-Practical guidance:
-
-- Expect ~6 `AskUserQuestion` gates per story. Running 2-3 in parallel is comfortable; more becomes hard to attend to.
-- A common pattern: batch-launch through the draft phase, then walk review phases one story at a time.
-- If stories share invented vocabulary, refine one first to seed the Domain Glossary, then run the rest in parallel — DECISIONS logs are isolated, so independent runs may otherwise pick different canonical terms.
+> Parallel runs: independent stories under one epic can run concurrently (DECISIONS logs are isolated); if they share invented vocabulary, refine one first to seed the Domain Glossary.
 
 ---
 
@@ -81,10 +73,8 @@ This table binds tool-specific commands and field names referenced throughout th
 | `${FETCH_CMD}` | `jira issue view ${ISSUE_KEY} --comments 10` and `jira issue view ${ISSUE_KEY} --raw` | `npx -y linearis issues read ${ISSUE_KEY}` |
 | `${FETCH_RELATED}` | linked issues + comments | sub-issues + up-to-5 sibling issues under same parent |
 | `${COMMENTS_AVAILABLE}` | yes | no — compensate with siblings + parent context |
-| `${UPDATE_DESC_CMD}` | `jira issue edit ${ISSUE_KEY} --no-input --body "$(cat "$STORY_FILE")"` | `npx -y linearis issues update ${ISSUE_KEY} --description "$(cat "$STORY_FILE")"` |
-| `${ADD_COMMENT_CMD}` | `jira issue comment add ${ISSUE_KEY} --no-input -b"$(cat "$STORY_FILE")"` | `npx -y linearis comments create ${ISSUE_KEY} --body "$(cat "$STORY_FILE")"` |
 
-If a future tracker is added (e.g., GitHub Issues, Asana), extend this table and the Phase 0 question — phases 2–8 are tool-agnostic and require no changes.
+If a future tracker is added (e.g., GitHub Issues, Asana), extend this table and the Phase 0 question — phases 2–7 are tool-agnostic and require no changes.
 
 ---
 
@@ -146,12 +136,12 @@ Create the `${DECISIONS}` block per the Decision Log format below. Populate Scop
 
 ## Decision Log
 
-Maintain a structured `${DECISIONS}` block throughout the workflow. Reviewers receive this block alongside the story so they can distinguish real gaps from closed decisions. Append a decision when:
+Maintain a structured `${DECISIONS}` block throughout the workflow. Both reviewers receive this block verbatim alongside the story so they can distinguish real gaps from closed decisions. Append a decision when:
 
-- The user answers an `AskUserQuestion` (tracker selection, project selection, draft adjustments, feedback acceptance/rejection).
-- The user gives a free-form clarification or edit instruction.
+- The user answers a setup `AskUserQuestion` (tracker selection, project selection).
+- The user gives a free-form clarification at invocation.
 - Capability research surfaces a constraint that bounds the story.
-- A reviewer suggestion is accepted (record what changed) or rejected (record why).
+- The refinement pass auto-applies a Critical finding (record what changed) or leaves a finding unapplied (record that it fell below the auto-incorporate threshold).
 
 Format:
 
@@ -169,15 +159,14 @@ Format:
 - [Fact]: [where it was found and what it implies for the story]
 
 ### User Clarifications
-- [Decision]: [what was being chosen between, what the user picked, why if stated]
+- [Decision]: [what was chosen — tracker, project, or a free-form clarification given at invocation — and why if stated]
 
 ### Review Outcomes
-- Review 1 — Accepted: [suggestion → resulting story change]
-- Review 1 — Rejected: [suggestion] — Reason: [why]
-- Review 2 — Accepted / Rejected: [same format, populated after Phase 7]
+- Auto-applied (Critical): [finding → resulting story change]
+- Not applied: [finding] — Reason: below auto-incorporate threshold ([Major/Minor], or Charter Challenge)
 ```
 
-Only record decisions actually made — by user choice, research finding, or review outcome. Do NOT infer decisions. A missing entry means "not yet decided," which lets reviewers raise it. Pass the current `${DECISIONS}` block verbatim to every review sub-agent.
+Only record decisions actually made — by user choice, research finding, or refinement outcome. Do NOT infer decisions. A missing entry means "not yet decided," which lets reviewers raise it. Both reviewers run concurrently and each receives the same `${DECISIONS}` block verbatim; the Review Outcomes section is populated only after both reviews complete, so it is never seen by either reviewer.
 
 ---
 
@@ -362,28 +351,21 @@ Classify every gathered fact from this flow:
 
 If a fact lives in the last bucket, it does NOT belong in the story even when it bounds the implementation. It belongs in the downstream implementation plan, not here.
 
-### Present Draft
+### Record Draft
 
-Show the complete story draft to the user.
-
-**AskUserQuestion**:
-- Header: "Draft"
-- Question: "Here's the initial story draft. Ready to send it for expert review?"
-- Options:
-  - "Yes, proceed to review" - Continue to Phase 5
-  - "Make adjustments first" - Ask what to change, apply edits, re-present
-
-When the user provides edit instructions, append each substantive change to `${DECISIONS}` → User Clarifications (the change made + the reason if stated). Trivial wording fixes can be skipped; anything that resolves ambiguity, adjusts scope, or picks one term over another must be recorded.
+Retain the complete draft as `${STORY_CONTENT}` for the parallel reviews in Phase 5. Do not present a draft-approval gate — the draft goes to review automatically.
 
 ---
 
-## Phase 5: First Review (Charter-Aware)
+## Phase 5: Parallel Independent Reviews
 
-**CRITICAL**: Launch a sub-agent that does NOT see the orchestrator's reasoning (so it can't rubber-stamp), but DOES see the user's closed decisions (so it can't accidentally reverse them).
+**CRITICAL**: Spawn BOTH reviewer sub-agents in parallel — in a single message with two Task tool calls — so they review concurrently and independently. Each reviews the SAME `${STORY_CONTENT}` with the SAME `${DECISIONS}` block. Neither has seen the orchestrator's reasoning (so neither can rubber-stamp it) and neither has seen the other's report (they run concurrently). Both DO see the closed decisions in `${DECISIONS}` (so neither can accidentally reverse them).
 
-### Reviewer Agent Prompt
+The two reviewers apply different lenses: a senior agile practitioner (quality/completeness/testability) and a skeptical product owner (gaps that surface during development or acceptance). Substitute `${DECISIONS}` with the current decision log block and `${STORY_CONTENT}` with the complete draft in both prompts.
 
-Use the Task tool to spawn a `general-purpose` agent (model: `sonnet`). Substitute `${DECISIONS}` with the current decision log block and `${STORY_CONTENT}` with the complete story text:
+### Reviewer A — Agile Practitioner
+
+Use the Task tool to spawn a `general-purpose` agent (model: `opus`):
 
 ```markdown
 # User Story Expert Review
@@ -391,12 +373,14 @@ Use the Task tool to spawn a `general-purpose` agent (model: `sonnet`). Substitu
 You are a senior agile practitioner reviewing a user story for quality,
 completeness, and testability.
 
-You have NOT seen the orchestrator's reasoning that produced this draft —
-that prevents you from echoing it back. You DO see the DECISIONS block
-below: these are closed questions the user has already resolved. Do not
-propose suggestions that reverse a decision. If you believe a decision
-is unsafe, surface it as a CHARTER CHALLENGE in the dedicated section
-with concrete justification — never as an ordinary suggestion.
+You have NOT seen the orchestrator's reasoning that produced this draft,
+and you have NOT seen any other reviewer's report — these reviews run
+concurrently, so you evaluate the story independently and cannot echo
+anyone back. You DO see the DECISIONS block below: these are closed
+questions the user has already resolved. Do not propose suggestions that
+reverse a decision. If you believe a decision is unsafe, surface it as a
+CHARTER CHALLENGE in the dedicated section with concrete justification —
+never as an ordinary suggestion.
 
 Use `/thinking chain-of-thought` to work through each review criterion systematically.
 
@@ -481,68 +465,9 @@ Items that look like gaps but are already excluded by DECISIONS. List for awaren
 - **Top 3 Improvements (within charter)**: [Prioritized list — exclude charter challenges]
 ```
 
-### Pre-filter Reviewer Output
+### Reviewer B — Skeptical Product Owner
 
-Before presenting findings to the user, audit the reviewer's categorization:
-
-1. For each item in **Issues Within Scope**, check whether applying the suggestion would contradict any DECISIONS entry. If yes, move it to **Charter Challenges** (the reviewer mis-categorized it).
-2. For each **Charter Challenge**, pair it with the original DECISIONS entry verbatim so the user sees exactly what would be reopened.
-3. Do not modify the reviewer's text — only re-categorize.
-
-### Present Review Findings
-
-Present in three labeled groups, in this order:
-
-- **Issues Within Scope** — each with severity and suggested fix; default action is to address.
-- **Charter Challenges (default: keep decision)** — each shown with the DECISIONS entry it would override and the reviewer's justification side-by-side. Default action is to ignore.
-- **Out of Scope (FYI)** — one-line list, no action implied.
-
-**AskUserQuestion**:
-- Header: "Review 1"
-- Question: "How would you like to incorporate this feedback?"
-- Options:
-  - "Accept all in-scope suggestions" — Apply all Issues Within Scope; ignore charter challenges
-  - "Accept some" — Ask which Issues Within Scope to accept
-  - "Reopen a decision" — Identify which Charter Challenge to consider; user must explicitly confirm reopening
-  - "Discuss specific feedback" — Explore particular issues
-  - "Skip to second review" — Keep draft as-is
-
----
-
-## Phase 6: First Refinement
-
-Based on accepted feedback:
-
-1. **Update the story** with accepted changes
-2. **Append to `${DECISIONS}` → Review Outcomes**: list each accepted Issue (briefly: what changed in the story) and each rejected suggestion (with the reason). If a Charter Challenge was reopened and a DECISION was changed, update that DECISION entry in place AND note the change in Review Outcomes (so Review 2 sees it).
-3. **Invoke `/thinking self-consistency`** to verify coherence:
-
-```
-Verify the refined story for internal consistency:
-
-Path 1 - Narrative-Criteria Alignment:
-Does the narrative description match what the acceptance criteria test?
-
-Path 2 - Domain Language Consistency:
-Are terms used identically in narrative, context, and all scenarios?
-
-Path 3 - Failure Coverage:
-Do failure scenarios correspond to real constraints found in capability research?
-
-Synthesize: Any inconsistencies introduced by refinements?
-```
-
-4. **Present refined story** to user
-
----
-
-## Phase 7: Second Review (Charter-Aware)
-
-**CRITICAL**: Fresh sub-agent that has NOT seen the orchestrator's reasoning or the first reviewer's report — but DOES see the current `${DECISIONS}` block (now including Review 1 outcomes), so it cannot accidentally reverse what was just settled.
-
-### Reviewer Agent Prompt (Skeptical Product Owner)
-
-Use the Task tool to spawn a `general-purpose` agent (model: `sonnet`). Substitute `${DECISIONS}` with the updated decision log (post-Phase 6) and `${STORY_CONTENT}` with the complete refined story text:
+In the SAME message as Reviewer A, use the Task tool to spawn a second `general-purpose` agent (model: `opus`):
 
 ```markdown
 # User Story Validation — Product Owner Perspective
@@ -551,12 +476,14 @@ You are a skeptical product owner reviewing a user story before it enters
 a sprint. Your job is to find gaps that would cause problems during
 development or acceptance testing.
 
-You have NOT seen previous review reports or the orchestrator's reasoning,
-so you cannot rubber-stamp them. You DO see the DECISIONS block below —
-including which Review 1 suggestions were accepted or rejected. Do not
-re-litigate decisions. If you believe a closed decision is unsafe, raise
-it as a CHARTER CHALLENGE in the dedicated section, with concrete
-justification — never as an ordinary suggestion.
+You have NOT seen the orchestrator's reasoning that produced this draft,
+and you have NOT seen any other reviewer's report — these reviews run
+concurrently, so you evaluate the story independently and cannot echo
+anyone back. You DO see the DECISIONS block below: these are closed
+questions the user has already resolved. Do not re-litigate decisions. If
+you believe a closed decision is unsafe, raise it as a CHARTER CHALLENGE
+in the dedicated section, with concrete justification — never as an
+ordinary suggestion.
 
 Use `/thinking chain-of-thought` to work through each validation area systematically.
 
@@ -625,50 +552,66 @@ Items that look like gaps but are excluded by DECISIONS. List for awareness; not
 - **Top 3 Risks (within charter)**: [If story ships as-is and DECISIONS hold, what could go wrong]
 ```
 
-### Pre-filter Reviewer Output
+### Wait for Both Reviews
 
-Audit the reviewer's categorization the same way as Phase 6: anything in **Issues Within Scope** that contradicts a DECISIONS entry must be moved to **Charter Challenges** before presenting.
-
-### Present Validation Findings
-
-Present in three labeled groups: Issues Within Scope, Charter Challenges (default: keep decision, paired with the original DECISIONS entry), Out of Scope (FYI).
-
-**AskUserQuestion**:
-- Header: "Review 2"
-- Question: "Final feedback received. How would you like to proceed?"
-- Options:
-  - "Accept all in-scope suggestions" — Apply all Issues Within Scope; ignore charter challenges
-  - "Accept some" — Ask which Issues Within Scope to accept
-  - "Reopen a decision" — Pick a Charter Challenge to consider; user must explicitly confirm reopening
-  - "Story is ready as-is" — Skip refinement, proceed to output
+Collect both reviewer reports before proceeding. Both reviewed the same draft against the same DECISIONS; expect overlap.
 
 ---
 
-## Phase 8: Final Refinement
+## Phase 6: Refinement
 
-1. **Incorporate any final feedback**
-2. **Append to `${DECISIONS}` → Review Outcomes**: log Review 2 acceptances and rejections (with reasons). Update any DECISION whose challenge was reopened.
-3. **Invoke `/thinking self-consistency`** for final coherence check:
+This is the single refinement pass. There is no user gate — the steps below run autonomously.
+
+### Merge and Dedupe
+
+1. **Merge** the two reviewers' findings into one combined set, keeping each finding's section (Issues Within Scope / Charter Challenges / Out of Scope) and severity.
+2. **Dedupe** overlapping findings: when both reviewers raise the same underlying issue (same story location, same defect), collapse them into one entry. Keep the higher severity and the more specific/actionable suggestion; note that both reviewers flagged it.
+
+### Pre-filter (run once, over the merged set)
+
+Audit categorization across the merged findings:
+
+1. For each item in **Issues Within Scope**, check whether applying the suggestion would contradict any DECISIONS entry. If yes, re-categorize it as a **Charter Challenge** (the reviewer mis-categorized it).
+2. For each **Charter Challenge**, pair it with the original DECISIONS entry verbatim so the final report shows exactly what would be reopened.
+3. Do not rewrite the reviewers' text — only re-categorize.
+
+### Auto-incorporate Critical findings only
+
+Apply to the story **only** the Issues Within Scope with severity **Critical** (e.g., implementation leaks caught by the leak hunt). Apply the concrete rewritten Given/When/Then the reviewer supplied.
+
+Everything else is **NOT applied** and is carried to the final report for the user to act on manually:
+
+- Major and Minor Issues Within Scope
+- All Charter Challenges
+- Out of Scope (FYI) items
+
+### Record Outcomes
+
+Append to `${DECISIONS}` → Review Outcomes: each auto-applied Critical (what changed in the story) and each unapplied finding (with the reason: below auto-incorporate threshold — note Major/Minor or Charter Challenge).
+
+### Self-Consistency Coherence Check
+
+Invoke `/thinking self-consistency` to verify the refined story holds together after the Critical fixes:
 
 ```
 Final verification of the complete story:
 
-Path 1 - Read as developer: Could I implement this without asking questions?
-Path 2 - Read as tester: Could I write acceptance tests from scenarios alone?
-Path 3 - Read as product owner: Does this deliver the value described in the narrative?
+Path 1 - Narrative-Criteria Alignment: Does the narrative match what the acceptance criteria test?
+Path 2 - Domain Language Consistency: Are terms used identically in narrative, context, and all scenarios (per the Domain Glossary)?
+Path 3 - Failure Coverage: Do failure scenarios correspond to real constraints found in capability research?
 
-Synthesize: Is the story ready for sprint planning?
+Synthesize: Did the Critical fixes introduce any inconsistency? Is the story ready for sprint planning?
 ```
 
-4. **Prepare final story**
+Resolve any inconsistency the check surfaces, then prepare the final story.
 
 ---
 
-## Phase 9: Output
+## Phase 7: Output
 
 ### Present Final Story
 
-Display the complete refined story with quality check results:
+This is the end of the command. Display the complete refined story, the review summary, the Critical fixes that were auto-applied, and the findings that were NOT applied so the user can act on them manually:
 
 ```
 ## Final Story
@@ -679,13 +622,13 @@ Display the complete refined story with quality check results:
 
 ## Quality Summary
 
-### Review 1 (Agile Practitioner)
+### Reviewer A (Agile Practitioner)
 - Score: [X/10]
-- Key improvements made: [List]
+- Ready for development?: [Yes / Yes with minor fixes / No]
 
-### Review 2 (Product Owner)
+### Reviewer B (Product Owner)
 - Verdict: [Strong/Adequate/Weak]
-- Final adjustments: [List]
+- Sprint Ready?: [Yes / Yes with minor edits / No]
 
 ### Quality Checks
 [Pass/Fail for each checklist item from writing-agile-stories skill:
@@ -695,41 +638,21 @@ Display the complete refined story with quality check results:
  - Small & testable
  - Failure modes included
  - Scenarios independent]
+
+---
+
+## Critical Fixes Auto-Applied
+[Each Critical Issue Within Scope that was applied → what changed in the story. If none, "None."]
+
+## Unapplied Findings (for your review)
+Carried through for you to act on manually — none of these were applied.
+
+- **Major / Minor Issues Within Scope**: [location, severity, issue, suggested fix — or "None."]
+- **Charter Challenges**: [each paired with the DECISIONS entry it would reopen and the reviewer's justification — or "None."]
+- **Out of Scope (FYI)**: [one-line list — or "None."]
 ```
 
-### Tracker Update
-
-**AskUserQuestion**:
-- Header: "${TOOL} update"
-- Question: "How should I update ${ISSUE_KEY}?"
-- Options:
-  - "Update description" - Replace issue description with the story
-  - "Add as comment" - Add the story as a comment
-  - "Both" - Update description AND add a comment with the story
-  - "Don't update" - Display only, no tracker changes
-
-### Tracker Update Execution
-
-For multi-line story content, write to a per-run temp file first (CLIs choke on inline multi-line strings). The path includes both `${ISSUE_KEY}` and `$$` (PID) so parallel runs cannot collide:
-
-```bash
-STORY_FILE="/tmp/story-${ISSUE_KEY}-$$.md"
-cat > "$STORY_FILE" <<'EOF'
-${FINAL_STORY_CONTENT}
-EOF
-```
-
-Then run the appropriate tool dispatch command:
-
-- **Update description**: Run `${UPDATE_DESC_CMD}`
-- **Add as comment**: Run `${ADD_COMMENT_CMD}`
-- **Both**: Run both, in that order
-
-After the tracker write succeeds, clean up:
-
-```bash
-rm -f "$STORY_FILE"
-```
+Close with a one-line note: the story was NOT written back to the tracker; the user can ask to push it to ${ISSUE_KEY} (description or comment) if they want it saved.
 
 ---
 
