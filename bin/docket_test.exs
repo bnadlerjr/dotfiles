@@ -279,6 +279,14 @@ defmodule Docket.StoreTest do
     assert is_binary(created.ts)
   end
 
+  test "append/1 and events/0 roundtrip a linked event" do
+    System.put_env("DOCKET_DIR", tmp_dir!())
+
+    Docket.Store.append(%{id: 1, type: :linked, ref: "INS-451"})
+
+    assert [%{id: 1, type: :linked, ref: "INS-451"}] = Docket.Store.events()
+  end
+
   test "next_id/0 starts at 1 and increments past the highest id" do
     System.put_env("DOCKET_DIR", tmp_dir!())
 
@@ -354,6 +362,17 @@ defmodule Docket.ItemsTest do
     Docket.Store.append(%{id: 1, type: :unblocked})
 
     assert %{1 => %{blocked: nil}} = Docket.Items.all()
+  end
+
+  test "all/0 folds linked events with the latest ref winning" do
+    Docket.Store.append(%{id: 1, type: :created, title: "thing", machine: "sdlc", state: "idea"})
+
+    assert %{1 => %{ref: nil}} = Docket.Items.all()
+
+    Docket.Store.append(%{id: 1, type: :linked, ref: "INS-451"})
+    Docket.Store.append(%{id: 1, type: :linked, ref: "INS-452"})
+
+    assert %{1 => %{ref: "INS-452"}} = Docket.Items.all()
   end
 end
 
@@ -510,6 +529,117 @@ defmodule Docket.CLITest do
     assert err =~ "no item"
   end
 
+  test "new --ref creates and links in one step, rejecting bad keys up front", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["new", "thing", "--ref", "ins-9"]) == 0 end)
+    assert out =~ "#1 INS-9 [sdlc/idea] thing"
+
+    assert [%{type: :created, title: "thing"}, %{type: :linked, ref: "INS-9"}] =
+             Docket.Store.events()
+
+    err =
+      capture_io(:stderr, fn -> assert Docket.CLI.main(["new", "x", "--ref", "bogus"]) == 1 end)
+
+    assert err =~ "not a ticket key"
+    assert length(Docket.Store.events()) == 2
+  end
+
+  test "link attaches a ticket key, uppercased and validated", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+    capture_io(fn -> Docket.CLI.main(["new", "thing"]) end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["link", "1", "ins-451"]) == 0 end)
+    assert out =~ "#1 linked INS-451  (thing)"
+    assert %{1 => %{ref: "INS-451"}} = Docket.Items.all()
+
+    err = capture_io(:stderr, fn -> assert Docket.CLI.main(["link", "1", "not_a_key"]) == 1 end)
+    assert err =~ "not a ticket key"
+
+    err = capture_io(:stderr, fn -> assert Docket.CLI.main(["link", "9", "INS-1"]) == 1 end)
+    assert err =~ "no item"
+  end
+
+  test "ticket keys work anywhere an id goes", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "thing"])
+      Docket.CLI.main(["link", "1", "INS-1"])
+    end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["move", "ins-1", "shaped"]) == 0 end)
+    assert out =~ "#1 idea -> shaped"
+
+    shown = capture_io(fn -> assert Docket.CLI.main(["show", "INS-1"]) == 0 end)
+    assert shown =~ "#1"
+    assert shown =~ "thing"
+
+    err = capture_io(:stderr, fn -> assert Docket.CLI.main(["show", "INS-99"]) == 1 end)
+    assert err =~ "no item"
+    assert err =~ "INS-99"
+  end
+
+  test "a key shared across items resolves to the sole active one, else errors", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "first pass", "--ref", "INS-1"])
+      Docket.CLI.main(["move", "1", "dropped"])
+      Docket.CLI.main(["new", "rework", "--ref", "INS-1"])
+    end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["move", "INS-1", "shaped"]) == 0 end)
+    assert out =~ "#2 idea -> shaped"
+
+    capture_io(fn -> Docket.CLI.main(["new", "more rework", "--ref", "INS-1"]) end)
+
+    err = capture_io(:stderr, fn -> assert Docket.CLI.main(["show", "INS-1"]) == 1 end)
+    assert err =~ "INS-1"
+    assert err =~ "#2"
+    assert err =~ "#3"
+  end
+
+  test "a key whose matches are all terminal errors listing every candidate", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "first pass", "--ref", "INS-1"])
+      Docket.CLI.main(["move", "1", "dropped"])
+      Docket.CLI.main(["new", "second pass", "--ref", "INS-1"])
+      Docket.CLI.main(["move", "2", "dropped"])
+    end)
+
+    err = capture_io(:stderr, fn -> assert Docket.CLI.main(["show", "INS-1"]) == 1 end)
+    assert err =~ "INS-1 matches several items: #1, #2"
+  end
+
+  test "list shows a key column after the id and show puts the key in the header", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "linked thing", "--ref", "INS-1"])
+      Docket.CLI.main(["new", "wide key", "--ref", "POPS-1234"])
+      Docket.CLI.main(["new", "unlinked thing"])
+    end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["list"]) == 0 end)
+    assert out =~ ~r/#1  INS-1      idea/
+    assert out =~ ~r/#2  POPS-1234  idea/
+    assert out =~ ~r/#3             idea/
+
+    shown = capture_io(fn -> assert Docket.CLI.main(["show", "1"]) == 0 end)
+    assert shown =~ "#1 INS-1 linked thing  (sdlc: idea)"
+  end
+
+  test "list omits the key column when nothing is linked", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+    capture_io(fn -> Docket.CLI.main(["new", "plain thing"]) end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["list"]) == 0 end)
+    assert out =~ ~r/#1  idea/
+  end
+
   test "graph prints a machine verbatim and lists the registry when bare", %{dir: dir} do
     mmd = "stateDiagram-v2\n  [*] --> triage\n  triage --> fixed\n  fixed --> [*]\n"
     DocketTest.Env.write_machine(dir, "bugs", mmd)
@@ -613,6 +743,7 @@ defmodule Docket.CLITest do
           ~s({"ts":"#{ts}","id":2,"type":"zapped"}),
           ~s({"ts":"#{ts}","id":"two","type":"moved","state":"doing"}),
           ~s({"ts":"#{ts}","id":2,"type":"blocked"}),
+          ~s({"ts":"#{ts}","id":2,"type":"linked"}),
           ~s({"ts":"#{ts}","id":2,"type":"moved"}),
           ~s({"ts":"#{ts}","id":2,"type":"created","title":null,"machine":"sdlc","state":"idea"}),
           ~s({"id":2,"type":"unblocked"}),
@@ -686,5 +817,7 @@ defmodule Docket.CLITest do
     out = capture_io(:stderr, fn -> assert Docket.CLI.main(["bogus"]) == 1 end)
     assert out =~ "docket"
     assert out =~ "new <title>"
+    assert out =~ "--ref"
+    assert out =~ "link <id> <ref>"
   end
 end

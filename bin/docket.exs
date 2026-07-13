@@ -133,19 +133,22 @@ defmodule Docket.Store do
     "title" => :title,
     "machine" => :machine,
     "state" => :state,
-    "reason" => :reason
+    "reason" => :reason,
+    "ref" => :ref
   }
   @event_types %{
     "created" => :created,
     "moved" => :moved,
     "blocked" => :blocked,
-    "unblocked" => :unblocked
+    "unblocked" => :unblocked,
+    "linked" => :linked
   }
   @required_fields %{
     created: [:title, :machine, :state],
     moved: [:state],
     blocked: [:reason],
-    unblocked: []
+    unblocked: [],
+    linked: [:ref]
   }
 
   def dir do
@@ -288,7 +291,15 @@ defmodule Docket.Items do
   end
 
   defp build(id, evs) do
-    base = %{id: id, title: "(untitled)", machine: nil, state: nil, blocked: nil, history: []}
+    base = %{
+      id: id,
+      title: "(untitled)",
+      machine: nil,
+      state: nil,
+      blocked: nil,
+      ref: nil,
+      history: []
+    }
 
     evs
     |> Enum.reduce(base, fn ev, item ->
@@ -310,6 +321,9 @@ defmodule Docket.Items do
 
         :unblocked ->
           %{item | blocked: nil}
+
+        :linked ->
+          %{item | ref: ev.ref}
       end
     end)
     |> Map.update!(:history, &Enum.reverse/1)
@@ -328,6 +342,7 @@ defmodule Docket.CLI do
       ["list" | rest] -> list(rest)
       ["show", id] -> with_id(id, &show/1)
       ["block", id | reason] when reason != [] -> with_id(id, &block(&1, Enum.join(reason, " ")))
+      ["link", id, ref] -> with_id(id, &link(&1, ref))
       ["unblock", id] -> with_id(id, &unblock/1)
       ["graph"] -> registry()
       ["graph", name] -> graph(name)
@@ -465,7 +480,8 @@ defmodule Docket.CLI do
   defp show(id) do
     with_item(id, fn item ->
       blocked = if item.blocked, do: ", BLOCKED: #{item.blocked}", else: ""
-      IO.puts("##{item.id} #{item.title}  (#{item.machine}: #{item.state}#{blocked})")
+      key = if item.ref, do: "#{item.ref} ", else: ""
+      IO.puts("##{item.id} #{key}#{item.title}  (#{item.machine}: #{item.state}#{blocked})")
       Enum.each(item.history, fn {ts, state} -> IO.puts("  #{ts}  -> #{state}") end)
       0
     end)
@@ -477,6 +493,32 @@ defmodule Docket.CLI do
       IO.puts("##{id} blocked: #{reason}")
       0
     end)
+  end
+
+  defp link(id, ref) do
+    with_item(id, fn item ->
+      case parse_ref(ref) do
+        {:ok, key} ->
+          Store.append(%{id: id, type: :linked, ref: key})
+          IO.puts("##{id} linked #{key}  (#{item.title})")
+          0
+
+        {:error, msg} ->
+          fail(msg)
+      end
+    end)
+  end
+
+  @ref_key ~r/^[A-Z][A-Z0-9]*-\d+$/
+
+  defp parse_ref(s) do
+    key = String.upcase(s)
+
+    if key =~ @ref_key do
+      {:ok, key}
+    else
+      {:error, "not a ticket key: #{inspect(s)}; want e.g. ABC-123"}
+    end
   end
 
   defp unblock(id) do
@@ -518,10 +560,15 @@ defmodule Docket.CLI do
         fail(msg)
 
       {:ok, machines} ->
-        items
-        |> Enum.reject(fn i ->
-          !opts[:all] and i.state in machines[i.machine].terminals
-        end)
+        visible =
+          Enum.reject(items, fn i ->
+            !opts[:all] and i.state in machines[i.machine].terminals
+          end)
+
+        ref_width =
+          visible |> Enum.map(&String.length(&1.ref || "")) |> Enum.max(fn -> 0 end)
+
+        visible
         |> Enum.group_by(& &1.machine)
         |> Enum.sort_by(&elem(&1, 0))
         |> case do
@@ -534,7 +581,7 @@ defmodule Docket.CLI do
               rows =
                 group
                 |> Enum.sort_by(fn i -> {state_order(machines[name], i.state), i.id} end)
-                |> Enum.map(&row/1)
+                |> Enum.map(&row(&1, ref_width))
 
               if length(groups) > 1, do: [name | rows], else: rows
             end)
@@ -562,11 +609,13 @@ defmodule Docket.CLI do
   defp state_order(machine, state),
     do: Enum.find_index(machine.states, &(&1 == state)) || length(machine.states)
 
-  defp row(item) do
+  defp row(item, ref_width) do
     flag = if item.blocked, do: "  [BLOCKED: #{item.blocked}]", else: ""
+    key = if ref_width > 0, do: String.pad_trailing(item.ref || "", ref_width) <> "  ", else: ""
 
     String.pad_leading("##{item.id}", 4) <>
       "  " <>
+      key <>
       String.pad_trailing(item.state, 10) <>
       String.pad_leading("#{days_in_state(item)}d", 4) <> "  " <> item.title <> flag
   end
@@ -610,38 +659,66 @@ defmodule Docket.CLI do
   end
 
   defp with_id(s, fun) do
-    case parse_id(s) do
+    case resolve_id(s) do
       {:ok, id} -> fun.(id)
       {:error, msg} -> fail(msg)
     end
   end
 
-  defp parse_id("#" <> rest), do: parse_id(rest)
+  defp resolve_id("#" <> rest), do: resolve_id(rest)
 
-  defp parse_id(s) do
-    case Integer.parse(s) do
-      {id, ""} -> {:ok, id}
+  defp resolve_id(s) do
+    case {Integer.parse(s), parse_ref(s)} do
+      {{id, ""}, _} -> {:ok, id}
+      {_, {:ok, ref}} -> resolve_ref(ref)
       _ -> {:error, "not an item id: #{inspect(s)}"}
+    end
+  end
+
+  defp resolve_ref(ref) do
+    case Docket.Items.all() |> Map.values() |> Enum.filter(&(&1.ref == ref)) do
+      [] -> {:error, "no item with ref #{ref}"}
+      [item] -> {:ok, item.id}
+      items -> resolve_ambiguous_ref(ref, items)
+    end
+  end
+
+  defp resolve_ambiguous_ref(ref, items) do
+    with {:ok, machines} <- load_machines(items) do
+      case Enum.reject(items, &(&1.state in machines[&1.machine].terminals)) do
+        [item] ->
+          {:ok, item.id}
+
+        _ ->
+          ids = items |> Enum.sort_by(& &1.id) |> Enum.map_join(", ", &"##{&1.id}")
+          {:error, "#{ref} matches several items: #{ids}; use an id"}
+      end
     end
   end
 
   defp new(rest) do
     with {:ok, opts, words} <-
            parse_opts(rest,
-             strict: [machine: :string, state: :string],
+             strict: [machine: :string, state: :string, ref: :string],
              aliases: [m: :machine, s: :state]
            ),
          {:ok, title} <- require_title(words),
+         {:ok, ref} <- parse_ref_opt(opts[:ref]),
          {:ok, machine} <- resolve_machine(opts[:machine]),
          {:ok, state} <- resolve_entry(machine, opts[:state]) do
       id = Store.next_id()
       Store.append(%{id: id, type: :created, title: title, machine: machine.name, state: state})
-      IO.puts("##{id} [#{machine.name}/#{state}] #{title}")
+      if ref, do: Store.append(%{id: id, type: :linked, ref: ref})
+      key = if ref, do: "#{ref} ", else: ""
+      IO.puts("##{id} #{key}[#{machine.name}/#{state}] #{title}")
       0
     else
       {:error, msg} -> fail(msg)
     end
   end
+
+  defp parse_ref_opt(nil), do: {:ok, nil}
+  defp parse_ref_opt(ref), do: parse_ref(ref)
 
   defp require_title([]), do: {:error, "a title is required"}
   defp require_title(words), do: {:ok, Enum.join(words, " ")}
@@ -675,8 +752,10 @@ defmodule Docket.CLI do
   defp usage do
     IO.puts(:stderr, """
     docket — personal work-item tracker
-      new <title> [-m machine] [-s state] | move <id> <state> | list [--all] [-m machine]
-      show <id> | block <id> <reason> | unblock <id> | stats | graph [machine]
+      new <title> [-m machine] [-s state] [--ref key] | move <id> <state>
+      list [--all] [-m machine] | show <id> | link <id> <ref>
+      block <id> <reason> | unblock <id> | stats | graph [machine]
+      <id> is a #number or a linked ticket key (e.g. ABC-123)
     """)
 
     1
