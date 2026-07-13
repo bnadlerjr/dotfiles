@@ -346,6 +346,7 @@ defmodule Docket.CLI do
       ["unblock", id] -> with_id(id, &unblock/1)
       ["graph"] -> registry()
       ["graph", name] -> graph(name)
+      ["map" | rest] -> map(rest)
       ["stats"] -> stats()
       _ -> usage()
     end
@@ -475,6 +476,116 @@ defmodule Docket.CLI do
       {:error, msg} ->
         fail(msg)
     end
+  end
+
+  defp map(rest) do
+    case parse_opts(rest, strict: [all: :boolean]) do
+      {:ok, opts, []} -> map_all(opts)
+      {:ok, opts, [name]} -> map_one(name, opts)
+      {:ok, _opts, words} -> fail("unexpected argument: #{Enum.join(words, " ")}")
+      {:error, msg} -> fail(msg)
+    end
+  end
+
+  defp map_all(opts) do
+    items = Map.values(Docket.Items.all())
+
+    case load_machines(items) do
+      {:error, msg} ->
+        fail(msg)
+
+      {:ok, machines} ->
+        items
+        |> Enum.group_by(& &1.machine)
+        |> Enum.sort_by(&elem(&1, 0))
+        |> case do
+          [] ->
+            IO.puts("nothing here")
+
+          groups ->
+            groups
+            |> Enum.map(fn {name, group} ->
+              lines = map_lines(machines[name], group, opts)
+              if length(groups) > 1, do: [name | lines], else: lines
+            end)
+            |> Enum.intersperse([""])
+            |> List.flatten()
+            |> Enum.each(&IO.puts/1)
+        end
+
+        0
+    end
+  end
+
+  defp map_one(name, opts) do
+    case Machines.get(name) do
+      {:ok, machine} ->
+        items = Docket.Items.all() |> Map.values() |> Enum.filter(&(&1.machine == name))
+        Enum.each(map_lines(machine, items, opts), &IO.puts/1)
+        0
+
+      {:error, msg} ->
+        fail(msg)
+    end
+  end
+
+  defp map_lines(machine, items, opts) do
+    by_state = Enum.group_by(items, & &1.state)
+
+    ref_width =
+      items
+      |> Enum.reject(&(!opts[:all] and &1.state in machine.terminals))
+      |> Enum.map(&String.length(&1.ref || ""))
+      |> Enum.max(fn -> 0 end)
+
+    spine =
+      machine.states
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {state, i} ->
+        next = Enum.at(machine.states, i + 1)
+        in_state = by_state |> Map.get(state, []) |> Enum.sort_by(& &1.id)
+        node = node_line(machine, state, next)
+
+        lines =
+          if state in machine.terminals and !opts[:all],
+            do: [node <> count_suffix(length(in_state))],
+            else: [node | Enum.map(in_state, &map_row(&1, ref_width))]
+
+        lines ++ connector(machine, state, next)
+      end)
+
+    spine ++ stranded_lines(by_state, machine, ref_width)
+  end
+
+  defp stranded_lines(by_state, machine, ref_width) do
+    by_state
+    |> Map.drop(machine.states)
+    |> Enum.sort_by(&elem(&1, 0))
+    |> Enum.flat_map(fn {state, in_state} ->
+      rows = in_state |> Enum.sort_by(& &1.id) |> Enum.map(&map_row(&1, ref_width))
+      ["", "#{state} (not in machine)" | rows]
+    end)
+  end
+
+  defp count_suffix(0), do: ""
+  defp count_suffix(1), do: "  (1 item)"
+  defp count_suffix(n), do: "  (#{n} items)"
+
+  defp node_line(machine, state, next) do
+    case Enum.reject(machine.transitions[state], &(&1 == next)) do
+      [] -> state
+      skips -> "#{state} ──▶ #{Enum.join(skips, ", ")}"
+    end
+  end
+
+  defp connector(_machine, _state, nil), do: []
+
+  defp connector(machine, state, next) do
+    if next in machine.transitions[state], do: ["│"], else: [""]
+  end
+
+  defp map_row(item, ref_width) do
+    String.pad_leading("##{item.id}", 4) <> "  " <> ref_cell(item, ref_width) <> meta_cells(item)
   end
 
   defp show(id) do
@@ -610,14 +721,17 @@ defmodule Docket.CLI do
     do: Enum.find_index(machine.states, &(&1 == state)) || length(machine.states)
 
   defp row(item, ref_width) do
-    flag = if item.blocked, do: "  [BLOCKED: #{item.blocked}]", else: ""
-    key = if ref_width > 0, do: String.pad_trailing(item.ref || "", ref_width) <> "  ", else: ""
-
     String.pad_leading("##{item.id}", 4) <>
       "  " <>
-      key <>
-      String.pad_trailing(item.state, 10) <>
-      String.pad_leading("#{days_in_state(item)}d", 4) <> "  " <> item.title <> flag
+      ref_cell(item, ref_width) <> String.pad_trailing(item.state, 10) <> meta_cells(item)
+  end
+
+  defp ref_cell(_item, 0), do: ""
+  defp ref_cell(item, ref_width), do: String.pad_trailing(item.ref || "", ref_width) <> "  "
+
+  defp meta_cells(item) do
+    flag = if item.blocked, do: "  [BLOCKED: #{item.blocked}]", else: ""
+    String.pad_leading("#{days_in_state(item)}d", 4) <> "  " <> item.title <> flag
   end
 
   defp days_in_state(item) do
@@ -754,7 +868,8 @@ defmodule Docket.CLI do
     docket — personal work-item tracker
       new <title> [-m machine] [-s state] [--ref key] | move <id> <state>
       list [--all] [-m machine] | show <id> | link <id> <ref>
-      block <id> <reason> | unblock <id> | stats | graph [machine]
+      map [machine] [--all] | stats | graph [machine]
+      block <id> <reason> | unblock <id>
       <id> is a #number or a linked ticket key (e.g. ABC-123)
     """)
 

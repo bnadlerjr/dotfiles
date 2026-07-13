@@ -3,13 +3,14 @@ name: using-docket
 description: |
   Operate docket.exs, Bob's personal work-item tracker CLI, on the user's
   behalf: create work items, move them through their state machine, list and
-  show items, block/unblock, link items to Jira/Linear ticket keys, and report
-  dwell-time and cycle-time stats.
+  show items, block/unblock, link items to Jira/Linear ticket keys, render the
+  workflow map, and report dwell-time and cycle-time stats.
 
   Use on explicit request about the docket or personal work items — "what's on
   my docket", "add a work item", "move #3 to doing", "why is #5 blocked",
   "block #2 waiting on review", "docket stats", "show item 7", "list my items",
-  "link #3 to INS-451", "move INS-451 to review", "what ticket is #3 tied to".
+  "link #3 to INS-451", "move INS-451 to review", "what ticket is #3 tied to",
+  "show my workflow map", "where is everything in the pipeline".
   Usage only: running commands and interpreting output. Does NOT author or edit
   machine definitions (machines/*.mmd) or the docket.exs source.
 ---
@@ -45,6 +46,7 @@ When a command exits non-zero, docket writes a self-explanatory message to stder
 | `unblock <id>` | Clear the blocked flag. |
 | `graph` | Registry of machines: name, state count, item count, file path. |
 | `graph <name>` | Print the raw Mermaid source of one machine. |
+| `map [machine] [--all]` | Render each machine's states vertically with items attached to their current state. Bare `map` covers every machine with items; a name renders that machine even when empty. Items in terminal states collapse to a count unless `--all`. |
 | `stats` | Per-state average dwell time; adds cycle-time stats when a machine declares a `%% cycle: a --> b` directive. |
 
 ### Item ids and ticket keys
@@ -122,6 +124,13 @@ Survey machines and read one's definition:
 ```bash
 docket.exs graph
 docket.exs graph work
+```
+
+See where everything sits in its workflow (a `│` connects consecutive states with a transition; `state ──▶ a, b` names transitions that skip past the next state down):
+
+```bash
+docket.exs map
+docket.exs map work --all
 ```
 
 Report timing:

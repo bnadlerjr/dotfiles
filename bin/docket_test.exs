@@ -813,11 +813,189 @@ defmodule Docket.CLITest do
     assert err =~ "cannot read"
   end
 
+  test "map renders states in declaration order with items under their states", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "first thing"])
+      Docket.CLI.main(["new", "second thing"])
+      Docket.CLI.main(["move", "2", "shaped"])
+      Docket.CLI.main(["move", "2", "doing"])
+    end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["map"]) == 0 end)
+
+    assert out =~ ~r/^idea\b[^\n]*\n  #1\s+0d  first thing$/m
+    assert out =~ ~r/^doing\n  #2\s+0d  second thing$/m
+    assert out =~ ~r/idea.*shaped.*doing.*review.*shipped.*dropped/s
+  end
+
+  test "map draws spine connectors only between neighbors with a transition", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "thing"])
+      Docket.CLI.main(["move", "1", "shaped"])
+      Docket.CLI.main(["move", "1", "doing"])
+    end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["map"]) == 0 end)
+
+    assert out =~ "  0d  thing\n│\nreview"
+    assert out =~ "review\n│\nshipped"
+    assert out =~ ~r/^shipped\n\ndropped/m
+  end
+
+  test "map annotates transitions that skip past the vertical neighbor", %{dir: dir} do
+    DocketTest.Env.write_machine(dir, "loopy", """
+    stateDiagram-v2
+      [*] --> todo
+      todo --> doing
+      doing --> review
+      review --> doing
+      review --> done
+      todo --> dropped
+      done --> [*]
+      dropped --> [*]
+    """)
+
+    capture_io(fn -> Docket.CLI.main(["new", "thing", "-m", "loopy"]) end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["map"]) == 0 end)
+
+    assert out =~ ~r/^todo ──▶ dropped$/m
+    assert out =~ ~r/^review ──▶ doing$/m
+    assert out =~ ~r/^doing$/m
+  end
+
+  test "map summarizes terminal-state items as a count unless --all", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "keeper"])
+      Docket.CLI.main(["new", "goner"])
+      Docket.CLI.main(["move", "2", "dropped"])
+    end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["map"]) == 0 end)
+    assert out =~ ~r/^dropped  \(1 item\)$/m
+    assert out =~ ~r/^shipped$/m
+    refute out =~ "goner"
+
+    all = capture_io(fn -> assert Docket.CLI.main(["map", "--all"]) == 0 end)
+    assert all =~ ~r/^dropped\n  #2\s+0d  goner$/m
+  end
+
+  test "map groups by machine with headers, skipping machines without items", %{dir: dir} do
+    DocketTest.Env.write_machine(dir, "bugs", """
+    stateDiagram-v2
+      [*] --> triage
+      triage --> fixed
+      fixed --> [*]
+    """)
+
+    DocketTest.Env.write_machine(
+      dir,
+      "work",
+      "stateDiagram-v2\n  [*] --> idea\n  idea --> done\n  done --> [*]\n"
+    )
+
+    DocketTest.Env.write_machine(
+      dir,
+      "empty",
+      "stateDiagram-v2\n  [*] --> open\n  open --> closed\n  closed --> [*]\n"
+    )
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "fix crash", "-m", "bugs"])
+      Docket.CLI.main(["new", "write spec", "-m", "work"])
+    end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["map"]) == 0 end)
+    assert out =~ ~r/^bugs\ntriage\n.*fix crash.*\n\nwork\nidea\n.*write spec/s
+    refute out =~ "open"
+  end
+
+  test "map with a name renders that machine even when it has no items", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    DocketTest.Env.write_machine(
+      dir,
+      "empty",
+      "stateDiagram-v2\n  [*] --> open\n  open --> closed\n  closed --> [*]\n"
+    )
+
+    capture_io(fn -> assert Docket.CLI.main(["new", "thing", "-m", "sdlc"]) == 0 end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["map", "empty"]) == 0 end)
+    assert out =~ "open\n│\nclosed"
+    refute out =~ "thing"
+
+    err = capture_io(:stderr, fn -> assert Docket.CLI.main(["map", "nope"]) == 1 end)
+    assert err =~ "no machine"
+  end
+
+  test "map shows a padded ref column and blocked flags on item lines", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "linked thing", "--ref", "INS-1"])
+      Docket.CLI.main(["new", "plain thing"])
+      Docket.CLI.main(["block", "2", "waiting on api"])
+    end)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["map"]) == 0 end)
+
+    assert out =~ ~r/^  #1  INS-1    0d  linked thing$/m
+    assert out =~ ~r/^  #2           0d  plain thing  \[BLOCKED: waiting on api\]$/m
+  end
+
+  test "map keeps items visible when their state was removed from the machine", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    capture_io(fn ->
+      Docket.CLI.main(["new", "orphaned thing"])
+      Docket.CLI.main(["move", "1", "shaped"])
+    end)
+
+    DocketTest.Env.write_machine(dir, "sdlc", """
+    stateDiagram-v2
+      [*] --> idea
+      idea --> doing
+      doing --> shipped
+      shipped --> [*]
+    """)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["map"]) == 0 end)
+
+    assert out =~ ~r/^shaped \(not in machine\)\n  #1\s+0d  orphaned thing$/m
+    assert out =~ ~r/shipped.*shaped \(not in machine\)/s
+  end
+
+  test "map with no items prints nothing here", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    out = capture_io(fn -> assert Docket.CLI.main(["map"]) == 0 end)
+    assert out == "nothing here\n"
+  end
+
+  test "map rejects bad options and stray arguments", %{dir: dir} do
+    DocketTest.Env.write_sdlc(dir)
+
+    err = capture_io(:stderr, fn -> assert Docket.CLI.main(["map", "--bogus"]) == 1 end)
+    assert err =~ "error:"
+    assert err =~ "--bogus"
+
+    err = capture_io(:stderr, fn -> assert Docket.CLI.main(["map", "a", "b"]) == 1 end)
+    assert err =~ "unexpected argument"
+  end
+
   test "unknown commands print usage to stderr and fail" do
     out = capture_io(:stderr, fn -> assert Docket.CLI.main(["bogus"]) == 1 end)
     assert out =~ "docket"
     assert out =~ "new <title>"
     assert out =~ "--ref"
     assert out =~ "link <id> <ref>"
+    assert out =~ "map [machine]"
   end
 end
