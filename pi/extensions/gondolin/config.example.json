@@ -1,0 +1,37 @@
+{
+  "profiles": [
+    {
+      "name": "example",
+      "repositories": ["example-project"],
+      "imagePath": "~/.config/pi/gondolin/image/assets",
+      "allowedHttpHosts": [
+        "registry.npmjs.org",
+        "github.com"
+      ],
+      "ssh": {
+        "allowedHosts": ["github.com"],
+        "allowedGitOrganizations": ["example-organization"],
+        "agentSocket": "~/.ssh/agent.sock",
+        "denyPush": true
+      },
+      "tcpHosts": {
+        "database.internal": "127.0.0.1:5432"
+      },
+      "env": {
+        "DATABASE_URL": "postgres://localhost/database"
+      },
+      "buildCache": {
+        "enabled": true,
+        "seedFiles": [
+          {
+            "source": "~/.config/example/credentials",
+            "destination": "example/credentials"
+          }
+        ]
+      },
+      "memory": "4G",
+      "cpus": 2,
+      "provisionCommands": []
+    }
+  ]
+}

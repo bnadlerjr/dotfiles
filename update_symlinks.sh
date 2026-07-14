@@ -83,6 +83,18 @@ rm -r ~/.claude/guidelines
 ln -s ${DIR}/claude/guidelines ~/.claude/guidelines
 echo " ...~/.claude/guidelines re-linked"
 
+mkdir -p ~/.pi/agent
+
+echo " ...removing ~/.pi/agent/settings.json"
+rm -r ~/.pi/agent/settings.json
+ln -s ${DIR}/pi/settings.json ~/.pi/agent/settings.json
+echo " ...~/.pi/agent/settings.json re-linked"
+
+echo " ...removing ~/.pi/agent/extensions"
+rm -r ~/.pi/agent/extensions
+ln -s ${DIR}/pi/extensions ~/.pi/agent/extensions
+echo " ...~/.pi/agent/extensions re-linked"
+
 echo " ...removing ~/.config/karabiner/karabiner.json"
 rm -r ~/.config/karabiner/karabiner.json
 ln -s ${DIR}/karabiner/karabiner.json ~/.config/karabiner/karabiner.json
