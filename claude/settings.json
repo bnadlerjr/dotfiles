@@ -297,6 +297,16 @@
             "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
           }
         ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "plannotator",
+            "timeout": 345600
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [
