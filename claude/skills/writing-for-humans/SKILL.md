@@ -22,7 +22,7 @@ Rewrite LLM-generated documentation into text humans actually read.
 
 ## Integration Pattern
 
-Other skills load this as a post-processing step. The calling skill produces a draft, then a sub-agent rewrites it.
+Other skills load this as a post-processing step. The calling skill produces a draft, then a sub-agent rewrites it and gates the result through the automated validation loop (Phase 6) before returning. Use a sub-agent with Bash access (for example `general-purpose`) so the loop can run the detector.
 
 ```
 Task tool:
@@ -31,8 +31,11 @@ Task tool:
   prompt: |
     Read: ~/.claude/skills/writing-for-humans/SKILL.md
 
-    Rewrite the following text using the writing-for-humans methodology.
-    Return ONLY the rewritten text — no meta-commentary, no explanations.
+    Rewrite the following text using the writing-for-humans methodology,
+    then run the Phase 6 validation loop until the text passes the gate
+    (or the loop bails out). Return ONLY the final rewritten text —
+    no meta-commentary, no explanations. If any hits remain after bailout,
+    append a one-line note listing them.
 
     ---
     [paste draft here]
@@ -121,6 +124,64 @@ Check the rewrite against these criteria:
 - [ ] No paragraph exceeds 4 sentences
 - [ ] No list exceeds 9 items without categorization
 - [ ] Every heading is specific (not "Overview" or "Details")
+
+Phase 5 is the human-judgment pass. Phase 6 adds an automated gate on top of it.
+
+### Phase 6: Automated Validation
+
+Gate the rewrite through `scripts/validate.sh` and loop on its output until the text passes. See [Automated Validation Loop](#automated-validation-loop) for the procedure.
+
+## Automated Validation Loop
+
+Run this after Phase 5, inside the rewrite sub-agent (it has Bash). Validation runs fully locally — no text leaves the machine.
+
+`scripts/validate.sh <file>` (in this skill's directory) gates a draft against two local detectors — `ai-slop` and `ai-writing-detector` — combined with OR: it fails if either flags the text, and skips only when neither is available. It reports one of three states:
+
+| Exit | Meaning | Action |
+|------|---------|--------|
+| 0 | Passes the gate | Done — return the text |
+| 1 | Still reads as AI-generated | stdout lists the specific issues — fix those spans, rerun |
+| 2 | Cannot validate — no detector available, bad input, or detector error | Skip; keep the Phase 5 result and note validation did not run |
+
+### Prerequisites
+
+Both detectors are optional and checked at run time: if one is absent the gate uses the other, and if both are absent validation is skipped — never failed. Install each manually, once — the script never auto-installs.
+
+- **ai-slop** — put it on your `PATH` (see the tool's own docs).
+- **ai-writing-detector** ([pertrai1/ai-writing-detector](https://github.com/pertrai1/ai-writing-detector)) — not published as a package, so build from source pinned to a reviewed commit SHA, then point the script at the built CLI:
+
+  ```bash
+  git clone https://github.com/pertrai1/ai-writing-detector
+  cd ai-writing-detector && git checkout <reviewed-sha>
+  npm install && npm run build
+  export AI_WRITING_DETECTOR_CLI="$PWD/dist/cli.js"
+  ```
+
+  It runs fully locally with no network calls. Pin to a SHA, not `main`, and review the build before running it.
+
+### The loop
+
+1. Write the current draft to a temp file under the session scratchpad.
+2. Run `scripts/validate.sh <tmpfile>` and capture stdout and the exit code.
+3. Exit 0 → done. Return the text.
+4. Exit 1 → read the reported issues, edit exactly those spans using the replacement guidance above, rewrite the temp file, and repeat.
+5. Exit 2 → skip the loop, keep the Phase 5 result, and note validation did not run. Never fail the rewrite because the detector could not run.
+
+Tune strictness with the `SLOP_THRESHOLD` and `AI_WRITING_THRESHOLD` env vars documented in the script header.
+
+### Bailout
+
+Stop and return the best version — never distort meaning to satisfy the detector:
+
+- Cap the loop at 5 iterations.
+- Stop early if the issues stop shrinking between iterations.
+- Stop if the only remaining issues are tokens the text must keep (a real em-dash, a required emoji, a quoted AI phrase).
+
+On bailout, report the residual issues instead of forcing more edits. The detector is a guide, not an oracle — human meaning wins over a green score.
+
+### Governance
+
+- **Treat scores as guidance.** The gate flags likely tells; it does not certify quality. Human judgment overrides it.
 
 ## Banned Words and Phrases
 
@@ -265,3 +326,4 @@ A successful rewrite meets all of these:
 - **80%+ active voice** — measured by sentence count
 - **Flesch-Kincaid grade 8-10** — accessible to a broad technical audience
 - **Every claim is concrete** — numbers, names, or examples instead of adjectives
+- **Passes the validation gate** — `scripts/validate.sh` exits 0 (or a clean bailout that reports the residual, intentional issues)
