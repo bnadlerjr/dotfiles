@@ -1,7 +1,7 @@
 ---
 name: annotate-plan
 description: Open Plannotator's annotation UI for a markdown file, HTML file, URL, or folder and then respond to the returned annotations.
-allowed-tools: Bash(plannotator:*)
+allowed-tools: Bash(plannotator:*), Read, Edit, Write
 ---
 
 # Plannotator Annotate
