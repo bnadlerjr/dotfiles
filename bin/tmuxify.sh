@@ -13,20 +13,10 @@ IFS=$'\n\t'
 #
 # All of these must be available on $PATH:
 # * fd
+# * fzf
 # * tmux
-# * my personal fork of tmuxinator that has "pause" and "resume" support
 #
 # [1]: https://frontendmasters.com/courses/developer-productivity/
-
-mux="$HOME/dev/personal/tmuxinator/bin/tmuxinator"
-
-# Function to check if tmuxinator is available
-tmuxinator_available() {
-  if [[ -x "$mux" ]]; then
-    return 0
-  fi
-  return 1
-}
 
 # Not all my machines have the same directories, so filter out the ones that
 # don't exist on the machine that's running this script.
@@ -65,38 +55,16 @@ fi
 
 session_name=$(basename "$session")
 
-# If tmux isn't running at all, we always want to start a new session.
+# If tmux isn't running at all, start a new attached session and we're done.
 if ! tmux info &> /dev/null; then
-    # Check if there's a tmuxinator config that matches the project name. If
-    # so, start a new session using tmuxinator and the config. Otherwise, start
-    # a new plain tmux session.
-    if tmuxinator_available && $mux list -n | grep -F -q -x "$session_name"; then
-        $mux start "$session_name"
-    else
-        tmux new-session -s "$session_name" -c "$session" -n "workspace"
-    fi
+    tmux new-session -s "$session_name" -c "$session" -n "workspace"
     exit 0
 fi
 
-# If there's currently a tmuxinator session running, pause it.
-current_tmux_session_name=$(tmux display-message -p "#S")
-if tmuxinator_available && $mux list -n | grep -F -q -x "$current_tmux_session_name"; then
-    $mux pause "$current_tmux_session_name"
-fi
-
 # If tmux is running but doesn't have a session for the project, start one
-# using the same logic as above.
+# detached (we attach/switch to it below).
 if ! tmux has-session -t="$session_name" 2> /dev/null; then
-    if tmuxinator_available && $mux list -n | grep -F -q -x "$session_name"; then
-        $mux start "$session_name" --no-attach
-    else
-        tmux new-session -ds "$session_name" -c "$session" -n "workspace"
-    fi
-fi
-
-# If the session we're connecting to has a tmuxinator config, resume it.
-if tmuxinator_available && $mux list -n | grep -F -q -x "$session_name"; then
-    $mux resume "$session_name"
+    tmux new-session -ds "$session_name" -c "$session" -n "workspace"
 fi
 
 # Prevent nesting of tmux sessions. If tmux is already running, switch to the
