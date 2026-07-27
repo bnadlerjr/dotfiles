@@ -1,0 +1,14 @@
+onboarding = false
+
+[theme]
+name = "catppuccin"
+auto_switch = false
+
+[ui]
+show_agent_labels_on_pane_borders = true
+
+[keys]
+prefix = "ctrl+a"
+
+[terminal]
+new_cwd = "follow"

@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+#
+# Create (or focus) a herdr workspace for a Jira issue.
+#
+# The herdr twin of tmux-workspace. Given a Jira issue key, looks up the issue
+# title via the Jira CLI and creates a herdr workspace labeled "<KEY>-<kebab-title>"
+# (e.g. POPS-1234-add-auth-to-resolver) rooted at ~/dev/instinct. Re-running for
+# the same issue focuses the existing workspace rather than creating a duplicate;
+# matching is by the issue key, so a title change in Jira still resolves to the
+# one workspace. Runs alongside tmux-workspace during the herdr trial.
+#
+# USAGE:
+#   herdr-workspace <ISSUE-KEY>
+#
+# OPTIONS:
+#   Set a DEBUG environment variable (1|yes|true) to enable tracing.
+#
+# Requires: herdr, jq, jira (configured via `jira init`).
+
+set -euo pipefail
+IFS=$'\n\t'
+
+case "${DEBUG-}" in
+  1 | yes | true) set -x ;;
+esac
+
+SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_NAME
+readonly WORKSPACE_DIR="$HOME/dev/instinct"
+
+die() {
+  echo "${SCRIPT_NAME}: error: $*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<EOF
+Usage: ${SCRIPT_NAME} <ISSUE-KEY>
+
+Create or focus a herdr workspace for a Jira issue.
+
+Arguments:
+  ISSUE-KEY    Jira issue key (e.g. POPS-1234). Case-insensitive.
+
+The workspace is labeled "<KEY>-<kebab-title>" and rooted at ${WORKSPACE_DIR}.
+Re-running for the same issue focuses the existing workspace.
+
+Exit codes:
+  0  Success
+  1  General error (jira unconfigured, issue not found, etc.)
+  2  Invalid arguments
+EOF
+}
+
+# Convert the given string to kebab-case.
+# (borrowed from dev_scripts/scripts/git-create-feature-branch)
+to_kebab_case() {
+  echo "$1" |
+    tr '[:upper:]' '[:lower:]' |
+    sed 's/[^a-z0-9]/-/g' |
+    sed 's/--*/-/g' |
+    sed 's/^-//' |
+    sed 's/-$//'
+}
+
+# Print the summary/title for a Jira issue key.
+#
+# Returns non-zero if the lookup fails and echoes jira's own diagnostic to
+# stderr: jira-cli exits 1 (empty stdout) for both a missing issue AND an
+# unconfigured/unreachable CLI, so the exit code alone can't tell them apart —
+# surface jira's message ("No result found ..." vs an auth error) instead of
+# guessing. Isolated here so another tracker (GitHub, Linear) can be swapped in.
+ticket_title() {
+  local key="$1" out err
+  err=$(mktemp)
+  out=$(jira issue list \
+    --jql "key=$key" \
+    --columns key,summary \
+    --plain \
+    --no-headers 2>"$err") || {
+    cat "$err" >&2
+    rm -f "$err"
+    return 1
+  }
+  rm -f "$err"
+  # Drop the leading key column, leaving the summary.
+  printf '%s\n' "$out" | awk '{$1=""; sub(/^[[:space:]]+/, ""); print}'
+}
+
+# Ensure the herdr server is running so the workspace socket API is reachable.
+# A successful `workspace list` is the liveness probe; if it fails, start a
+# headless server and wait briefly for the socket to come up (herdr's server is
+# meant to persist, like tmux's, so this is a cold-start convenience).
+ensure_server() {
+  herdr workspace list &>/dev/null && return 0
+  herdr server &>/dev/null &
+  for _ in $(seq 1 50); do
+    herdr workspace list &>/dev/null && return 0
+    sleep 0.1
+  done
+  die "herdr server did not start"
+}
+
+# Print the id of an existing workspace for this key, if any. Matches the key
+# exactly or as a "<KEY>-..." label prefix so a title rename still resolves to it.
+existing_workspace_id() {
+  local key="$1"
+  herdr workspace list |
+    jq -r --arg key "$key" \
+      '.result.workspaces[] | select(.label | test("^" + $key + "(-|$)")) | .workspace_id' |
+    head -n 1 || true
+}
+
+# Focus a workspace, attaching a client first when we're outside herdr (detaching
+# returns to the caller, like tmux-workspace's `tmux attach`). Inside herdr the
+# attached client already follows the focus change. (parallels enter_session in
+# tmux-workspace)
+enter_workspace() {
+  local id="$1"
+  herdr workspace focus "$id" >/dev/null
+  if [[ -z ${HERDR_PANE_ID:-} ]]; then
+    herdr
+  fi
+}
+
+main() {
+  case "${1:-}" in
+    -h | --help) usage; exit 0 ;;
+  esac
+
+  [[ $# -eq 1 ]] || { usage >&2; exit 2; }
+
+  command -v herdr >/dev/null 2>&1 || die "herdr CLI not found on PATH"
+  command -v jq >/dev/null 2>&1 || die "jq not found on PATH"
+  command -v jira >/dev/null 2>&1 || die "jira CLI not found on PATH"
+  [[ -d "$WORKSPACE_DIR" ]] || die "workspace directory not found: $WORKSPACE_DIR"
+
+  # Normalize to uppercase and validate the PROJECT-NUMBER shape up front.
+  local key
+  key=$(printf '%s' "$1" | tr '[:lower:]' '[:upper:]')
+  [[ "$key" =~ ^[A-Z]+-[0-9]+$ ]] || {
+    echo "${SCRIPT_NAME}: invalid issue key: '$1' (expected PROJECT-123)" >&2
+    exit 2
+  }
+
+  ensure_server
+
+  # If a workspace for this issue already exists, just go to it.
+  local existing
+  existing=$(existing_workspace_id "$key")
+  if [[ -n "$existing" ]]; then
+    enter_workspace "$existing"
+    exit 0
+  fi
+
+  # Otherwise resolve the title and create the workspace. ticket_title has
+  # already echoed jira's own error to stderr on failure.
+  local title
+  title=$(ticket_title "$key") || die "could not resolve $key (see jira error above)"
+
+  local slug label workspace_id
+  slug=$(to_kebab_case "$title")
+  label="${key}-${slug}"
+  workspace_id=$(herdr workspace create \
+    --cwd "$WORKSPACE_DIR" \
+    --label "$label" \
+    --no-focus |
+    jq -r '.result.workspace.workspace_id')
+  [[ -n "$workspace_id" ]] || die "herdr workspace create failed for $label"
+  enter_workspace "$workspace_id"
+}
+
+main "$@"

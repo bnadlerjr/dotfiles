@@ -53,3 +53,6 @@ PS1="\[$BLDGRN\]\n\u:\w \[$TXTBLU\](\$(srb_git_prompt)\[$TXTBLU\])\[$TXTRST\] \n
 
 # Hotkey for tmuxify script
 bind -x '"\C-f":"tmuxify.sh"'
+
+# Hotkey for herdrify script (herdr trial; Ctrl-f still runs tmuxify)
+bind -x '"\C-g":"herdrify.sh"'

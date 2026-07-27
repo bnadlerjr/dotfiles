@@ -40,6 +40,14 @@ rm -r ~/.config/ghostty
 ln -s ${DIR}/ghostty ~/.config/ghostty
 echo " ...ghostty folder re-linked"
 
+# Only the config file is linked; ~/.config/herdr also holds herdr's sockets,
+# logs, and session.json, so never rm -r the directory.
+echo " ...removing ~/.config/herdr/config.toml"
+mkdir -p ~/.config/herdr
+rm -f ~/.config/herdr/config.toml
+ln -s ${DIR}/herdr/config.toml ~/.config/herdr/config.toml
+echo " ...herdr config re-linked"
+
 echo " ...removing ~/.claude/CLAUDE.md"
 rm -r ~/.claude/CLAUDE.md
 ln -s ${DIR}/claude/CLAUDE-PERSONAL.md ~/.claude/CLAUDE.md
