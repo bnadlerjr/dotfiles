@@ -100,9 +100,7 @@
       "WebFetch(domain:gist.github.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:hex.pm)",
-      "WebFetch(domain:hexdocs.pm)",
-      "Write(/tmp/**)",
-      "Write(~/Dropbox/vimwiki/claude-artifacts/**)"
+      "WebFetch(domain:hexdocs.pm)"
     ]
   },
   "model": "opus[1m]",
