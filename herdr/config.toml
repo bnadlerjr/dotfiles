@@ -12,3 +12,6 @@ prefix = "ctrl+a"
 
 [terminal]
 new_cwd = "follow"
+
+[ui.sound]
+enabled = false
