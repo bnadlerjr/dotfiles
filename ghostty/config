@@ -2,6 +2,7 @@ cursor-style = block
 cursor-style-blink = true
 font-family = RobotoMono Nerd Font Mono
 font-size = 20
+font-style = bold
 shell-integration-features = no-cursor
 theme = nightfox
 keybind = shift+enter=text:\n
