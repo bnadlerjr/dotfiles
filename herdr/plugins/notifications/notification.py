@@ -17,10 +17,10 @@ import time
 
 def get_dedup_file():
     """Get the path to the deduplication tracking file."""
-    return os.path.join(tempfile.gettempdir(), "claude_notification_dedup.json")
+    return os.path.join(tempfile.gettempdir(), "herdr_notification_dedup.json")
 
 
-def should_skip_notification(hook_type, dedup_window=5.0):
+def should_skip_notification(event_key, dedup_window=5.0):
     """Check if we should skip this notification due to recent duplicate."""
     dedup_file = get_dedup_file()
     current_time = time.time()
@@ -34,13 +34,13 @@ def should_skip_notification(hook_type, dedup_window=5.0):
             dedup_data = {}
 
         # Check if this event type was recently notified
-        if hook_type in dedup_data:
-            last_time = dedup_data[hook_type]
+        if event_key in dedup_data:
+            last_time = dedup_data[event_key]
             if current_time - last_time < dedup_window:
                 return True  # Skip this notification
 
         # Update the timestamp for this event type
-        dedup_data[hook_type] = current_time
+        dedup_data[event_key] = current_time
 
         # Clean old entries (older than 60 seconds)
         dedup_data = {k: v for k, v in dedup_data.items() if current_time - v < 60}
@@ -86,75 +86,30 @@ def get_custom_sound(sound_type):
     return None
 
 
-def get_sound_for_event(hook_type, tool_name):
-    """Select appropriate sound based on event type."""
-    if hook_type == "Stop":
-        return "CUSTOM_STOP"  # Use custom stop sounds
-    elif hook_type == "PostToolUse" and tool_name:
-        return "Glass"  # Pleasant chime for tool completions
-    elif hook_type == "PreToolUse" or hook_type == "UserPromptSubmit":
-        return "Ping"  # Quick alert for starting operations
-    elif hook_type == "SubagentStop":
-        return "Hero"  # More prominent sound for subagent completion
-    elif hook_type == "Notification":
-        return "CUSTOM_NOTIFICATION"  # Use custom notification sounds
-    else:
-        return "Pop"  # Gentle sound for general notifications
+def get_sound_for_event(status):
+    """Select a custom sound based on the agent status."""
+    if status == "done":
+        return "CUSTOM_STOP"
+    return "CUSTOM_NOTIFICATION"
 
 
-def format_notification_message(event_data):
-    """Format event data into notification title and body."""
-    hook_type = event_data.get("hook_event_name", "unknown")
-    tool_name = event_data.get("tool_name", "")
+def format_agent_name(event_data):
+    """Return a readable name for the agent that emitted the event."""
+    if display_name := event_data.get("display_agent"):
+        return str(display_name)
+    name = event_data.get("agent") or "Agent"
+    return str(name).replace("-", " ").replace("_", " ").title()
 
-    # Get project info
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", event_data.get("cwd"))
-    project_name = extract_project_name(project_dir, event_data.get("cwd"))
 
-    # Format title based on hook type
-    if hook_type == "Notification":
-        title = "Claude Code Needs Approval"
-    elif hook_type == "Stop":
-        title = "Claude Code Finished"
-    elif hook_type == "UserPromptSubmit":
-        title = "Claude Code Processing"
-    elif hook_type == "PreToolUse" and tool_name:
-        title = f"Claude Code: {tool_name}"
-    elif hook_type == "PostToolUse" and tool_name:
-        title = f"Claude Code: {tool_name} Complete"
-    elif hook_type == "SubagentStop":
-        title = "Claude Code Subagent Complete"
-    else:
-        title = f"Claude Code: {hook_type}"
+def format_notification_message(event_data, context):
+    """Format a Herdr agent-status event as a notification."""
+    status = event_data["agent_status"]
+    agent_name = format_agent_name(event_data)
+    title = f"{agent_name} {'Finished' if status == 'done' else 'Needs Input'}"
 
-    # Format body
-    body_parts = []
-    if project_name and project_name not in ["home", "root"]:
-        body_parts.append(f"Project: {project_name}")
-
-    if hook_type == "UserPromptSubmit":
-        prompt = event_data.get("prompt", "")
-        if prompt:
-            # Truncate long prompts
-            prompt_preview = prompt[:50] + "..." if len(prompt) > 50 else prompt
-            body_parts.append(f"Prompt: {prompt_preview}")
-    elif tool_name:
-        # Add tool-specific info
-        tool_input = event_data.get("tool_input", {})
-        if isinstance(tool_input, dict):
-            if (
-                tool_name in ["Edit", "Write", "MultiEdit"]
-                and "file_path" in tool_input
-            ):
-                file_path = tool_input["file_path"]
-                file_name = os.path.basename(file_path)
-                body_parts.append(f"File: {file_name}")
-            elif tool_name == "Bash" and "command" in tool_input:
-                cmd = tool_input["command"]
-                cmd_preview = cmd[:30] + "..." if len(cmd) > 30 else cmd
-                body_parts.append(f"Command: {cmd_preview}")
-
-    body = " • ".join(body_parts) if body_parts else hook_type
+    project_dir = context.get("workspace_cwd") or context.get("focused_pane_cwd")
+    project_name = extract_project_name(project_dir, project_dir)
+    body = f"Project: {project_name}" if project_name not in ["home", "root"] else status
 
     return title, body
 
@@ -296,7 +251,7 @@ def send_linux_notification(title, message, sound_name):
     """Send a Linux desktop notification using notify-send with sound."""
     try:
         # Determine urgency based on title content
-        urgency = "critical" if "Approval" in title else "normal"
+        urgency = "critical" if "Needs Input" in title else "normal"
 
         # Build notify-send command
         cmd = [
@@ -304,7 +259,7 @@ def send_linux_notification(title, message, sound_name):
             "-u",
             urgency,
             "-a",
-            "Claude Code",
+            "Herdr",
             "-c",
             "im",
             title,
@@ -322,49 +277,37 @@ def send_linux_notification(title, message, sound_name):
 
 
 def main():
-    # Check if notifications are disabled
-    if os.environ.get("CLAUDE_NO_NOTIFY"):
+    if os.environ.get("HERDR_NO_NOTIFY"):
         sys.exit(0)
 
-    # Check operating system
     system = platform.system()
     if system not in ["Darwin", "Linux"]:
-        # Unsupported platform, exit silently
         sys.exit(0)
 
     try:
-        # Read JSON from stdin
-        input_data = json.load(sys.stdin)
-
-        # Filter notifications - show for approvals and when Claude is finished
-        hook_type = input_data.get("hook_event_name", "unknown")
-        if hook_type not in ["Stop", "SubagentStop", "Notification"]:
-            # Exit silently for all other events
+        event = json.loads(os.environ.get("HERDR_PLUGIN_EVENT_JSON", "{}"))
+        context = json.loads(os.environ.get("HERDR_PLUGIN_CONTEXT_JSON", "{}"))
+        event_data = event.get("data", {})
+        status = event_data.get("agent_status")
+        if status not in ["done", "blocked"]:
             sys.exit(0)
 
-        # Check for duplicate notifications
-        if should_skip_notification(hook_type):
-            # Skip this notification to avoid duplicates
+        event_key = f"{event_data.get('pane_id', 'unknown')}:{status}"
+        if should_skip_notification(event_key):
             sys.exit(0)
 
-        # Format notification
-        title, body = format_notification_message(input_data)
+        title, body = format_notification_message(event_data, context)
+        sound = get_sound_for_event(status)
 
-        # Get appropriate sound for event type
-        tool_name = input_data.get("tool_name", "")
-        sound = get_sound_for_event(hook_type, tool_name)
-
-        # Send notification with sound based on platform
         if system == "Darwin":
             send_macos_notification(title, body, sound)
         elif system == "Linux":
             send_linux_notification(title, body, sound)
 
-        # Always exit successfully to avoid blocking
         sys.exit(0)
 
     except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON input: {e}", file=sys.stderr)
+        print(f"Error: Invalid Herdr event JSON: {e}", file=sys.stderr)
         sys.exit(0)
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)

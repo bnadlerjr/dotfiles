@@ -153,10 +153,6 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ~/dotfiles/claude/hooks/notification.py"
           }
         ]
       }
@@ -175,10 +171,6 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ~/dotfiles/claude/hooks/notification.py"
           },
           {
             "type": "command",
@@ -201,10 +193,6 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ~/dotfiles/claude/hooks/notification.py"
           }
         ]
       }
@@ -233,10 +221,6 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ~/dotfiles/claude/hooks/notification.py"
           }
         ]
       }

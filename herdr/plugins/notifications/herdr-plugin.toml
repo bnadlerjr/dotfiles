@@ -1,0 +1,10 @@
+id = "bobnadler.notifications"
+name = "Notifications"
+version = "1.0.0"
+min_herdr_version = "0.7.5"
+description = "Shows notifications when an agent finishes or needs input."
+platforms = ["macos", "linux"]
+
+[[events]]
+on = "pane.agent_status_changed"
+command = ["uv", "run", "notification.py"]
