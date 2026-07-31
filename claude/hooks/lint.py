@@ -5,260 +5,368 @@
 # ///
 
 import json
-import os
+import shutil
 import subprocess
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+TIMEOUT_SECONDS = 60
 
-def find_project_root(file_path):
-    """Find the project root directory by looking for package.json, mix.exs, or Gemfile."""
-    current_path = Path(file_path).resolve().parent
+# Sentinel return code for "the command could not be run at all" (timeout,
+# unresolvable binary, crash) as opposed to "the linter reported findings".
+TOOL_FAILURE = -1
 
-    # Walk up the directory tree looking for project markers
-    for parent in [current_path] + list(current_path.parents):
-        # Check for various project markers
-        if (parent / "package.json").exists():
-            return str(parent)
-        elif (parent / "mix.exs").exists():
-            return str(parent)
-        elif (parent / "Gemfile").exists():
-            return str(parent)
-        elif (parent / "pyproject.toml").exists():
-            return str(parent)
-        elif (parent / "setup.py").exists():
-            return str(parent)
-        elif any(parent.glob("*.tf")):
-            return str(parent)
-
-    # Fallback to the file's directory
-    return str(current_path)
+ESLINT_CONFIGS = (
+    "eslint.config.js",
+    "eslint.config.mjs",
+    "eslint.config.cjs",
+    "eslint.config.ts",
+    "eslint.config.mts",
+    "eslint.config.cts",
+    ".eslintrc",
+    ".eslintrc.js",
+    ".eslintrc.cjs",
+    ".eslintrc.json",
+    ".eslintrc.yml",
+    ".eslintrc.yaml",
+)
 
 
-def detect_package_manager(project_dir):
-    """Detect which package manager the project uses."""
-    project_path = Path(project_dir)
+def find_marker_dir(file_path, predicate):
+    """Walk up from a file looking for the directory a tool is configured in.
 
-    if (project_path / "yarn.lock").exists():
-        return "yarn"
-    elif (project_path / "pnpm-lock.yaml").exists():
-        return "pnpm"
-    elif (project_path / "package-lock.json").exists():
-        return "npm"
+    Stops after the first directory containing .git, or at the user's home
+    directory, whichever comes first. Lint configs are repo-scoped artifacts,
+    so a marker found outside the repo does not belong to this project.
+
+    Returns the matching directory, or None if no marker is found in bounds.
+    """
+    home = Path.home().resolve()
+    start = Path(file_path).resolve().parent
+
+    for directory in [start] + list(start.parents):
+        if predicate(directory):
+            return directory
+
+        # .git is a file, not a directory, in worktrees and submodules.
+        if (directory / ".git").exists() or directory == home:
+            return None
+
+    return None
+
+
+def has_file(name):
+    """Build a find_marker_dir predicate matching a single filename."""
+    return lambda directory: (directory / name).exists()
+
+
+def has_node_bin(name):
+    """Build a predicate matching an installed node_modules binary."""
+    return lambda directory: (directory / "node_modules" / ".bin" / name).exists()
+
+
+def has_eslint_config(directory):
+    """Whether any recognized eslint config file lives in this directory."""
+    return any((directory / name).exists() for name in ESLINT_CONFIGS)
+
+
+def detect_package_manager(file_path):
+    """Detect the package manager from the nearest lockfile above the file."""
+    for lockfile, manager in (
+        ("yarn.lock", "yarn"),
+        ("pnpm-lock.yaml", "pnpm"),
+        ("package-lock.json", "npm"),
+    ):
+        if find_marker_dir(file_path, has_file(lockfile)):
+            return manager
+
+    return "npx"
+
+
+def js_argv(pkg_manager, tool, args):
+    """Build the invocation for a JS tool under the given package manager."""
+    if pkg_manager == "yarn":
+        return ["yarn", tool] + args
+    elif pkg_manager == "npm":
+        return ["npm", "exec", tool, "--"] + args
+    elif pkg_manager == "pnpm":
+        return ["pnpm", "exec", tool] + args
     else:
-        return "npx"
+        return ["npx", tool] + args
 
 
-def run_command(command, cwd):
-    """Run a shell command and return its output."""
+def elixir_commands(file_path):
+    """Elixir commands whose preconditions are met.
+
+    mix format works on a standalone file outside a Mix project; mix credo is
+    a Mix task and needs one.
+
+    The formatter discovers .formatter.exs relative to the working directory
+    and does not search upward, so running it from the file's own directory
+    would silently ignore the project's import_deps, plugins, and
+    locals_without_parens and reformat against the project's own style.
+    """
+    if not shutil.which("mix"):
+        return []
+
+    format_dir = (
+        find_marker_dir(file_path, has_file(".formatter.exs")) or Path(file_path).parent
+    )
+    commands = [(["mix", "format", file_path], str(format_dir))]
+
+    mix_dir = find_marker_dir(file_path, has_file("mix.exs"))
+    if mix_dir:
+        commands.append((["mix", "credo", "--strict", file_path], str(mix_dir)))
+
+    return commands
+
+
+def ruby_commands(file_path):
+    """Ruby commands whose preconditions are met.
+
+    A Gemfile only proves the project is Ruby; .rubocop.yml is the evidence
+    that rubocop is actually used here.
+    """
+    if not shutil.which("bundle"):
+        return []
+
+    config_dir = find_marker_dir(
+        file_path,
+        lambda d: (d / ".rubocop.yml").exists() and (d / "Gemfile").exists(),
+    )
+    if not config_dir:
+        return []
+
+    return [(["bundle", "exec", "rubocop", "-A", file_path], str(config_dir))]
+
+
+def python_commands(file_path):
+    """Python commands whose preconditions are met.
+
+    ruff needs no configuration, so only the driver has to resolve. Format
+    first so check reports against the content that ends up on disk.
+    """
+    if not shutil.which("uvx"):
+        return []
+
+    file_dir = str(Path(file_path).parent)
+
+    return [
+        (["uvx", "ruff", "format", file_path], file_dir),
+        (["uvx", "ruff", "check", file_path], file_dir),
+    ]
+
+
+def typescript_commands(file_path):
+    """JS/TS commands whose preconditions are met.
+
+    Both tools must be installed locally — invoking them through npx when they
+    are absent downloads them over the network mid-edit. eslint additionally
+    hard-errors without a config file. The config and the installed binary may
+    sit in different directories in a workspace, so they are located
+    separately.
+    """
+    pkg_manager = detect_package_manager(file_path)
+    commands = []
+
+    eslint_config_dir = find_marker_dir(file_path, has_eslint_config)
+    if eslint_config_dir and find_marker_dir(file_path, has_node_bin("eslint")):
+        commands.append(
+            (
+                js_argv(pkg_manager, "eslint", ["--fix", file_path]),
+                str(eslint_config_dir),
+            )
+        )
+
+    prettier_dir = find_marker_dir(file_path, has_node_bin("prettier"))
+    if prettier_dir:
+        commands.append(
+            (
+                js_argv(pkg_manager, "prettier", ["--write", file_path]),
+                str(prettier_dir),
+            )
+        )
+
+    return commands
+
+
+def terraform_commands(file_path):
+    """Terraform commands whose preconditions are met.
+
+    fmt is purely syntactic and accepts a single file; validate needs the
+    directory to have been initialized.
+    """
+    if not shutil.which("terraform"):
+        return []
+
+    file_dir = Path(file_path).parent
+    commands = [(["terraform", "fmt", file_path], str(file_dir))]
+
+    if (file_dir / ".terraform").exists():
+        commands.append((["terraform", "validate"], str(file_dir)))
+
+    return commands
+
+
+EXTENSION_HANDLERS = {
+    ".ex": elixir_commands,
+    ".exs": elixir_commands,
+    ".rb": ruby_commands,
+    ".py": python_commands,
+    ".ts": typescript_commands,
+    ".tsx": typescript_commands,
+    ".js": typescript_commands,
+    ".jsx": typescript_commands,
+    ".tf": terraform_commands,
+    ".tfvars": terraform_commands,
+}
+
+
+def lint_commands(file_path):
+    """Return the (argv, cwd) pairs that should run for this file, in order.
+
+    Pure: consults only the filesystem and PATH, runs nothing. An empty list
+    means the project is not set up to lint this file and it is skipped.
+
+    Order is part of the contract, since run_all executes sequentially:
+    commands that rewrite the file come before commands that read it.
+    """
+    handler = EXTENSION_HANDLERS.get(Path(file_path).suffix)
+
+    return handler(file_path) if handler else []
+
+
+def run_command(argv, cwd):
+    """Run a command without a shell and return its output."""
     try:
         result = subprocess.run(
-            command, shell=True, capture_output=True, text=True, cwd=cwd, timeout=30
+            argv,
+            capture_output=True,
+            text=True,
+            cwd=cwd,
+            timeout=TIMEOUT_SECONDS,
+            check=False,
         )
         return {
-            "command": command,
+            "command": " ".join(argv),
             "returncode": result.returncode,
             "stdout": result.stdout,
             "stderr": result.stderr,
         }
     except subprocess.TimeoutExpired:
         return {
-            "command": command,
-            "returncode": -1,
+            "command": " ".join(argv),
+            "returncode": TOOL_FAILURE,
             "stdout": "",
-            "stderr": f"Command timed out after 30 seconds: {command}",
+            "stderr": f"Command timed out after {TIMEOUT_SECONDS} seconds",
         }
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError) as e:
         return {
-            "command": command,
-            "returncode": -1,
+            "command": " ".join(argv),
+            "returncode": TOOL_FAILURE,
             "stdout": "",
-            "stderr": f"Error running command: {str(e)}",
+            "stderr": f"Error running command: {e}",
         }
 
 
-def lint_elixir_file(file_path, project_dir):
-    """Run Elixir linting commands in parallel."""
-    commands = [
-        f"mix credo --strict {file_path}",
-        f"mix format {file_path}",
-    ]
+def run_all(commands):
+    """Run commands one at a time, in order, and collect the results.
 
+    Deliberately sequential. Every multi-command handler pairs a command that
+    rewrites the file with one that reads it, so running them concurrently
+    races: findings get computed against pre-format content, and eslint --fix
+    and prettier --write would write the same file at the same time.
+    """
     results = []
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        futures = {
-            executor.submit(run_command, cmd, project_dir): cmd for cmd in commands
-        }
-        for future in as_completed(futures):
-            results.append(future.result())
+
+    for argv, cwd in commands:
+        results.append(run_command(argv, cwd))
 
     return results
 
 
-def lint_ruby_file(file_path, project_dir):
-    """Run Ruby linting command."""
-    command = f"bundle exec rubocop -A {file_path}"
-    return [run_command(command, project_dir)]
+def render(result, heading, file_path):
+    """Format one failed result as a reportable block."""
+    lines = [f"\n=== {heading} for {file_path} ===", f"Command: {result['command']}"]
+
+    if result["stdout"]:
+        lines.append("STDOUT:")
+        lines.append(result["stdout"])
+    if result["stderr"]:
+        lines.append("STDERR:")
+        lines.append(result["stderr"])
+    lines.append("=" * 50)
+
+    return "\n".join(lines)
 
 
-def lint_python_file(file_path, project_dir):
-    """Run Python linting commands in parallel."""
-    commands = [f"uvx ruff check {file_path}", f"uvx ruff format {file_path}"]
+def partition_results(results, file_path):
+    """Split results into lint findings and tool-invocation failures.
 
-    results = []
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        futures = {
-            executor.submit(run_command, cmd, project_dir): cmd for cmd in commands
-        }
-        for future in as_completed(futures):
-            results.append(future.result())
-
-    return results
-
-
-def lint_typescript_file(file_path, project_dir):
-    """Run TypeScript linting commands in parallel."""
-    # Find the actual TypeScript project root
-    actual_project_dir = find_project_root(file_path)
-
-    # Detect package manager
-    pkg_manager = detect_package_manager(actual_project_dir)
-
-    # Convert to relative path from project root
-    try:
-        rel_path = os.path.relpath(file_path, actual_project_dir)
-    except ValueError:
-        # If paths are on different drives (Windows), use absolute path
-        rel_path = file_path
-
-    # Build commands based on package manager
-    if pkg_manager == "yarn":
-        commands = [
-            f"yarn eslint --fix {rel_path}",
-            f"yarn prettier --write {rel_path}",
-        ]
-    elif pkg_manager == "npm":
-        commands = [
-            f"npm exec eslint -- --fix {rel_path}",
-            f"npm exec prettier -- --write {rel_path}",
-        ]
-    elif pkg_manager == "pnpm":
-        commands = [
-            f"pnpm exec eslint --fix {rel_path}",
-            f"pnpm exec prettier --write {rel_path}",
-        ]
-    else:
-        # Fallback to npx
-        commands = [
-            f"npx eslint --fix {rel_path}",
-            f"npx prettier --write {rel_path}",
-        ]
-
-    results = []
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        futures = {
-            executor.submit(run_command, cmd, actual_project_dir): cmd
-            for cmd in commands
-        }
-        for future in as_completed(futures):
-            results.append(future.result())
-
-    return results
-
-
-def lint_terraform_file(file_path, project_dir):
-    """Run Terraform formatting and validation in parallel."""
-    tf_dir = str(Path(file_path).parent)
-
-    commands = [
-        f"terraform fmt {file_path}",
-        f"terraform -chdir={tf_dir} validate",
-    ]
-
-    results = []
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        futures = {
-            executor.submit(run_command, cmd, project_dir): cmd for cmd in commands
-        }
-        for future in as_completed(futures):
-            results.append(future.result())
-
-    return results
-
-
-def format_output(results, file_path):
-    """Format linting results for output."""
-    has_errors = False
-    output_lines = []
+    Findings are actionable by editing the code. Tool failures are
+    environmental and cannot be fixed by editing the code, so they are
+    reported to the user instead of being fed back into the agent.
+    """
+    findings = []
+    failures = []
 
     for result in results:
-        if result["returncode"] != 0:
-            has_errors = True
-            output_lines.append(f"\n=== Linting error for {file_path} ===")
-            output_lines.append(f"Command: {result['command']}")
-            if result["stdout"]:
-                output_lines.append("STDOUT:")
-                output_lines.append(result["stdout"])
-            if result["stderr"]:
-                output_lines.append("STDERR:")
-                output_lines.append(result["stderr"])
-            output_lines.append("=" * 50)
+        if result["returncode"] == 0:
+            continue
+        elif result["returncode"] == TOOL_FAILURE:
+            failures.append(render(result, "Linter could not run", file_path))
+        else:
+            findings.append(render(result, "Linting error", file_path))
 
-    return has_errors, "\n".join(output_lines)
+    return findings, failures
+
+
+def lint_file(input_data):
+    """Lint the edited file and return the exit code for the hook.
+
+    2 blocks the edit and reports findings to the agent. 1 reports an
+    environmental problem to the user without blocking. 0 is silence, which is
+    also what a skipped file gets.
+    """
+    if input_data.get("tool_name", "") not in ["Write", "Edit", "MultiEdit"]:
+        return 0
+
+    file_path = input_data.get("tool_input", {}).get("file_path", "")
+    if not file_path:
+        return 0
+
+    commands = lint_commands(file_path)
+    if not commands:
+        return 0
+
+    findings, failures = partition_results(run_all(commands), file_path)
+
+    if findings:
+        print("\n".join(findings), file=sys.stderr)
+        return 2
+
+    if failures:
+        print("\n".join(failures), file=sys.stderr)
+        return 1
+
+    return 0
 
 
 def main():
     try:
         input_data = json.load(sys.stdin)
-        tool_name = input_data.get("tool_name", "")
-        tool_input = input_data.get("tool_input", {})
-
-        # Only process Write, Edit, and MultiEdit tools
-        if tool_name not in ["Write", "Edit", "MultiEdit"]:
-            sys.exit(0)
-
-        # Extract file path
-        file_path = tool_input.get("file_path", "")
-        if not file_path:
-            sys.exit(0)
-
-        # Get project directory
-        project_dir = os.environ.get("CLAUDE_PROJECT_DIR", os.getcwd())
-
-        # Determine file type and run appropriate linters
-        path = Path(file_path)
-        results = []
-
-        if path.suffix in [".ex", ".exs"]:
-            results = lint_elixir_file(file_path, project_dir)
-        elif path.suffix == ".rb":
-            results = lint_ruby_file(file_path, project_dir)
-        elif path.suffix == ".py":
-            results = lint_python_file(file_path, project_dir)
-        elif path.suffix in [".ts", ".tsx", ".js", ".jsx"]:
-            results = lint_typescript_file(file_path, project_dir)
-        elif path.suffix in [".tf", ".tfvars"]:
-            results = lint_terraform_file(file_path, project_dir)
-        else:
-            # No linting for other file types
-            sys.exit(0)
-
-        # Format and output results
-        has_errors, output = format_output(results, file_path)
-
-        if has_errors:
-            print(output, file=sys.stderr)
-            sys.exit(2)
-
-        sys.exit(0)
-
     except json.JSONDecodeError as e:
         print(f"Error: Invalid JSON input: {e}", file=sys.stderr)
-        sys.exit(2)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(1)
+
+    try:
+        code = lint_file(input_data)
+    # A bug in this hook must not surface as a bare traceback on every edit.
+    except Exception as e:  # noqa: BLE001
+        print(f"Unexpected error in lint hook: {e}", file=sys.stderr)
+        code = 1
+
+    sys.exit(code)
 
 
 if __name__ == "__main__":
