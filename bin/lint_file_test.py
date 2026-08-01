@@ -1,16 +1,28 @@
-"""Tests for the lint hook's precondition logic.
+"""Tests for the lint-file CLI's precondition logic.
 
-The hook skips silently when a project is not set up to use a tool, so a
+The CLI skips silently when a project is not set up to use a tool, so a
 mis-specified precondition produces a linter that quietly never runs. These
 tests assert which commands would run for a given directory tree, without
 executing any linter.
 
-Run with: uv run --with pytest pytest claude/hooks/test_lint.py
+Run with: uv run --with pytest pytest bin/lint_file_test.py
 """
+
+import importlib.util
+import subprocess
+from importlib.machinery import SourceFileLoader
+from pathlib import Path
 
 import pytest
 
-import lint
+# The CLI is named for how it is typed, not for how it imports: `lint-file` is
+# not a valid module name, so it is loaded by path rather than by import.
+CLI = Path(__file__).parent / "lint-file"
+_spec = importlib.util.spec_from_file_location(
+    "lint", CLI, loader=SourceFileLoader("lint", str(CLI))
+)
+lint = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(lint)
 
 
 @pytest.fixture(autouse=True)
@@ -33,6 +45,45 @@ def tools(commands):
 def cwd_for(commands, tool):
     """The working directory chosen for the command invoking a given tool."""
     return next(cwd for argv, cwd in commands if tool in argv)
+
+
+def subcommands(commands):
+    """The ruff/mix/terraform subcommand each command invokes."""
+    return [argv[2] if argv[0] == "uvx" else argv[1] for argv, _ in commands]
+
+
+def test_a_relative_path_is_resolved_before_it_reaches_a_linter(tmp_path, monkeypatch):
+    """Each handler picks a cwd of its own, so a relative path resolves twice.
+
+    Left relative, `lib/app.py` run from cwd `lib` becomes `lib/lib/app.py`.
+    The linter's "no such file" then arrives as a non-zero exit, which is
+    reported as a lint finding and blocks the edit.
+    """
+    root = repo(tmp_path)
+    source = root / "lib" / "app.py"
+    source.parent.mkdir()
+    source.touch()
+    monkeypatch.chdir(root)
+
+    argv, _cwd = lint.lint_commands("lib/app.py")[0]
+
+    assert argv[-1] == str(source.resolve())
+
+
+def test_a_path_that_looks_like_an_option_is_not_passed_as_one(tmp_path, monkeypatch):
+    """A leading dash turns the filename into a flag for the downstream tool.
+
+    `rubocop --require=x` loads and runs arbitrary Ruby, and eslint, prettier,
+    mix and terraform all have comparable option surfaces. Agents choose these
+    filenames, so this is reachable. An absolute path cannot parse as an option.
+    """
+    root = repo(tmp_path)
+    (root / "--require=evil.py").touch()
+    monkeypatch.chdir(root)
+
+    argv, _cwd = lint.lint_commands("--require=evil.py")[0]
+
+    assert argv[-1].startswith("/")
 
 
 def test_standalone_exs_gets_format_but_not_credo(tmp_path):
@@ -128,11 +179,6 @@ def test_python_needs_no_config(tmp_path):
     assert tools(lint.lint_commands(str(source))) == ["uvx", "uvx"]
 
 
-def subcommands(commands):
-    """The ruff/mix/terraform subcommand each command invokes."""
-    return [argv[2] if argv[0] == "uvx" else argv[1] for argv, _ in commands]
-
-
 def test_ruff_formats_before_it_checks(tmp_path):
     """Checking first would report findings against pre-format content."""
     source = repo(tmp_path) / "hook.py"
@@ -213,17 +259,19 @@ def test_eslint_fixes_before_prettier_writes(tmp_path):
 
     commands = lint.lint_commands(str(source))
 
-    assert ["eslint" in argv for argv, _ in commands] == [True, False]
+    assert len(commands) == 2
+    assert "eslint" in commands[0][0]
     assert "prettier" in commands[1][0]
 
 
 def test_run_all_runs_commands_in_order(monkeypatch):
     calls = []
-    monkeypatch.setattr(
-        lint,
-        "run_command",
-        lambda argv, cwd: calls.append(argv[0]) or {"returncode": 0},
-    )
+
+    def record(argv, cwd):
+        calls.append(argv[0])
+        return {"returncode": 0}
+
+    monkeypatch.setattr(lint, "run_command", record)
 
     lint.run_all([(["first"], "/tmp"), (["second"], "/tmp"), (["third"], "/tmp")])
 
@@ -273,25 +321,14 @@ def test_search_stops_at_a_worktree_whose_git_is_a_file(tmp_path):
     assert tools(lint.lint_commands(str(source))) == ["format"]
 
 
-def edit_of(file_path):
-    """A hook payload representing an edit to a file."""
-    return {"tool_name": "Edit", "tool_input": {"file_path": str(file_path)}}
-
-
-def test_skipped_file_exits_silently(tmp_path):
+def test_skipped_file_is_silent(tmp_path):
     source = repo(tmp_path) / "notes.md"
     source.touch()
 
-    assert lint.lint_file(edit_of(source)) == 0
+    assert lint.lint_path(str(source)) == 0
 
 
-def test_unwatched_tool_exits_silently():
-    assert (
-        lint.lint_file({"tool_name": "Read", "tool_input": {"file_path": "a.py"}}) == 0
-    )
-
-
-def test_findings_block_the_edit(tmp_path, monkeypatch):
+def test_findings_are_reported_as_blocking(tmp_path, monkeypatch):
     monkeypatch.setattr(
         lint,
         "run_all",
@@ -302,10 +339,10 @@ def test_findings_block_the_edit(tmp_path, monkeypatch):
     source = repo(tmp_path) / "app.py"
     source.touch()
 
-    assert lint.lint_file(edit_of(source)) == 2
+    assert lint.lint_path(str(source)) == 2
 
 
-def test_tool_failure_reports_without_blocking(tmp_path, monkeypatch):
+def test_tool_failure_is_reported_without_blocking(tmp_path, monkeypatch):
     monkeypatch.setattr(
         lint,
         "run_all",
@@ -321,7 +358,7 @@ def test_tool_failure_reports_without_blocking(tmp_path, monkeypatch):
     source = repo(tmp_path) / "app.py"
     source.touch()
 
-    assert lint.lint_file(edit_of(source)) == 1
+    assert lint.lint_path(str(source)) == 1
 
 
 def test_findings_and_tool_failures_are_partitioned():
@@ -337,3 +374,32 @@ def test_findings_and_tool_failures_are_partitioned():
     assert len(failures) == 1
     assert "Linting error" in findings[0]
     assert "Linter could not run" in failures[0]
+
+
+def test_no_path_argument_is_a_usage_error(capsys):
+    with pytest.raises(SystemExit) as exit_info:
+        lint.main([])
+
+    assert exit_info.value.code != 0
+    assert "usage" in capsys.readouterr().err.lower()
+
+
+def test_the_cli_runs_as_a_command(tmp_path):
+    """A broken shebang looks identical to a linter that found nothing.
+
+    Every other test imports the module, so only this one would notice that the
+    file stopped being executable or that its interpreter line stopped
+    resolving.
+    """
+    source = repo(tmp_path) / "notes.md"
+    source.touch()
+
+    result = subprocess.run(
+        [str(CLI), str(source)],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
