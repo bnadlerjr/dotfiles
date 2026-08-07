@@ -2,120 +2,161 @@
 
 **Read these first** — they are the authority this audit enforces:
 
-1. `../SKILL.md` — Core Principles (markdown format, no XML tags; gerund naming)
-2. `../references/best-practices.md` — concise-is-key, descriptions, progressive disclosure, checklist
-3. `../references/official-spec.md` — frontmatter fields, lifecycle, the 1,536-char description cap
+1. `references/agent-skills-spec.md` — the normative rules
+2. `references/claude-code-extensions.md` — which fields carry to which clients
+3. `references/authoring-guidance.md` — the quality bar beyond mere validity
 
-## Step 1: List Available Skills
-
-**Do NOT use AskUserQuestion** — there may be many skills.
+## Step 1: Select the skill
 
 ```bash
 ls ~/.claude/skills/
 ```
 
-Present them as a numbered list, then ask: "Which skill would you like to audit? (enter number or name)"
+Present a numbered list, then ask which to audit. **Do not use AskUserQuestion** —
+there may be more skills than it can display.
 
-## Step 2: Read the Skill
+If the target was supplied by the caller, skip straight to Step 2.
+
+## Step 2: Run the validator first
+
+```bash
+uv run ~/.claude/skills/creating-agent-skills/scripts/validate_skill.py ~/.claude/skills/{skill-name}
+```
+
+This settles every mechanical question — frontmatter validity, limits, broken links,
+reference depth, unreachable files — before you spend attention on judgment calls.
+Everything it reports is a finding; record the codes.
+
+Run it across the whole library when auditing more than one:
+
+```bash
+uv run ~/.claude/skills/creating-agent-skills/scripts/validate_skill.py ~/.claude/skills/*/
+```
+
+## Step 3: Read the whole skill
 
 ```bash
 cat ~/.claude/skills/{skill-name}/SKILL.md
-ls ~/.claude/skills/{skill-name}/
-ls ~/.claude/skills/{skill-name}/references/ 2>/dev/null
-ls ~/.claude/skills/{skill-name}/workflows/ 2>/dev/null
+ls -R ~/.claude/skills/{skill-name}/
 ```
 
-Read the reference and workflow files too — the audit covers the whole skill, not just SKILL.md.
+Read the reference and workflow files too. The audit covers the whole skill, not just
+`SKILL.md` — and the most damaging defects live in the disagreements *between* files.
 
-## Step 3: Run the Audit Checklist
+## Step 4: Work the checklist
 
-Evaluate against each criterion.
+The validator has already covered the mechanical items. These need reading.
 
-### YAML Frontmatter
+### Frontmatter
 
-- [ ] `description` present, third person ("Use when…"), states what it does AND when to use it
-- [ ] Description front-loads trigger keywords; combined `description` + `when_to_use` within the 1,536-char cap
-- [ ] If `name` is set: lowercase letters, numbers, hyphens only, ≤64 chars, matches the directory
-- [ ] Name uses gerund form (`processing-pdfs`, `reviewing-code`) — not `helper`/`utils`/`tools`/`anthropic-*`/`claude-*`
+- [ ] `description` is third person, states what it does **and** when to use it
+- [ ] Description front-loads trigger keywords and names contexts explicitly, including
+      ones where the user wouldn't name the domain
+- [ ] Any non-standard field is a deliberate choice, checked against the support matrix
+      rather than assumed dead — and where it *is* single-client, `compatibility` says so
 
-### Body Structure
+### Body
 
-- [ ] SKILL.md body under 500 lines
-- [ ] **Standard markdown headings in the body — no XML tags** (`#`/`##`, not `<objective>`/`<process>`)
-- [ ] Examples are concrete (input/output pairs), not abstract
+- [ ] Standard markdown headings
+- [ ] Examples are concrete input/output pairs, not abstract description
+- [ ] Instructions are actionable — no "handle it appropriately", no "do the thing"
+- [ ] Specificity matches fragility: exact commands for irreversible steps, criteria
+      rather than steps for judgment calls
+- [ ] One default with an escape hatch, not a menu of equivalent options
 - [ ] Consistent terminology throughout
-- [ ] No time-sensitive information (use an "old patterns" section instead)
-- [ ] Forward-slash paths only (`scripts/helper.py`, never backslashes)
+- [ ] No time-sensitive content — no hardcoded years, no "before <date>, use…"
+- [ ] Success criteria are verifiable, not "the user is satisfied"
 
-### Progressive Disclosure (multi-file skills)
+### Internal consistency
 
-- [ ] SKILL.md is an overview that navigates to detail; heavy content lives in references
-- [ ] References are one level deep from SKILL.md (no SKILL.md → a.md → b.md chains)
-- [ ] Reference files over 100 lines have a table of contents
-- [ ] No redundant content duplicated across files (intentional repetition of a hard safety constraint is acceptable)
-- [ ] Reference files also use markdown headings, not XML tags
+The highest-value check, and the one only a human-style read catches:
 
-### Scripts (if present)
+- [ ] No two files state opposing rules — particularly a *create* procedure and an
+      *audit* rubric that disagree about the same thing
+- [ ] `SKILL.md` does not duplicate a procedure that also lives in a workflow file;
+      when it does, the two have already diverged
+- [ ] Every intake question has a routing table entry pointing at a real file
+- [ ] Terminology and structure conventions hold across references
 
-- [ ] Handle errors explicitly
-- [ ] No unexplained "voodoo constants"
-- [ ] Required packages listed
-- [ ] Clear documentation
+### Progressive disclosure
 
-### Content Quality
+- [ ] `SKILL.md` navigates to detail rather than containing it
+- [ ] The skill says **when** to load each file, not just that it exists
+- [ ] Reference files over ~100 lines have a contents list
+- [ ] No content duplicated across files (repeating a hard safety constraint is fine)
 
-- [ ] Instructions are actionable (not vague platitudes like "handle it appropriately")
-- [ ] Steps are specific (not "do the thing")
-- [ ] Any success criteria are verifiable (not "user is satisfied")
+### Scripts, if present
 
-### Invocation Surface
+- [ ] Handle errors explicitly rather than punting to the agent
+- [ ] No unexplained constants
+- [ ] Dependencies declared — inline metadata preferred over a separate manifest
+- [ ] Never prompt interactively; `--help` documents the interface
+- [ ] Structured output on stdout, diagnostics on stderr
+- [ ] Credentials never appear in a command the agent runs — see
+      `references/api-security.md`
 
-- [ ] No single-skill `/{skill-name}` command wrapper in `~/.claude/commands/` — skills are auto-discovered via their `description`; a wrapper that only invokes one skill is duplicate surface to keep in sync
+### Grounding
 
-## Step 4: Generate the Report
+- [ ] Content is specific to its domain, not generic advice a model already knows
+- [ ] There is at least one gotcha, or a clear reason there isn't
+- [ ] Claims about external tools and APIs are still true — if in doubt, run
+      `workflows/verify-skill.md`
+
+## Step 5: Report
 
 ```
 ## Audit Report: {skill-name}
 
-### Passing
-- [list passing items]
+### Validator
+{clean, or the list of codes with counts}
 
-### Issues Found
-1. **[Issue]** (severity: critical | major | minor): [description]
-   → Fix: [specific action]
+### Passing
+- {list}
+
+### Issues
+1. **{Issue}** (critical | major | minor): {description}
+   → Fix: {specific action}
 
 ### Score: X/Y criteria passing
 ```
 
-## Step 5: Offer Fixes
+Severity: **critical** = invalid per the spec, or two files that contradict each other;
+**major** = the skill will misfire or mislead; **minor** = quality and consistency.
 
-If issues found, ask: "Would you like me to fix these issues?"
+## Step 6: Offer fixes
 
-1. **Fix all** — apply all recommended fixes
-2. **Fix critical/major only** — apply the highest-severity fixes
-3. **Just the report** — no changes
+Ask: "Would you like me to fix these?"
 
-If fixing: make each change, confirm the file is still valid, and report what was fixed.
+1. **Fix all**
+2. **Fix critical and major only**
+3. **Just the report**
 
-## Anti-Patterns to Flag
+If fixing: make each change, re-run the validator, and report what changed.
 
-- **XML tags in the body** — use markdown headings instead (the most common stale-skill defect)
-- **Monolithic skill** — single SKILL.md over 500 lines that should be split
-- **Mixed concerns** — step-by-step procedures and reference knowledge crammed into one file
-- **Vague steps** — "Handle the error appropriately"
-- **Untestable criteria** — "User is satisfied"
-- **Deep nesting** — references more than one level from SKILL.md
+## Anti-patterns to flag
+
+- **Contradictory rules across files** — the most damaging defect, because the skill
+  produces output that fails its own checks
+- **Orphaned files** — workflows or references nothing reaches
+- **Intake without routing** — a question whose answers lead nowhere
+- **Duplicated procedures** — the same workflow in two places, already diverged
+- **Monolithic SKILL.md** — over 500 lines or 5,000 tokens
+- **Vague steps** — "handle the error appropriately"
+- **Untestable criteria** — "user is satisfied"
 - **Broken references** — files linked but absent
-- **Redundant content** — the same information repeated across files
-- **Single-skill command wrapper** — a `/foo` shim that only forwards to one skill
+- **Deep chains** — more than two hops from `SKILL.md`
 - **Windows paths** — backslashes instead of forward slashes
-- **Time-sensitive info** — "before August 2025, use…" instead of an "old patterns" section
+- **Time-sensitive info** — hardcoded dates and years
+- **Unmarked single-client fields** — a field no other client honours, used without a
+  `compatibility` declaration saying so
+- **Phantom infrastructure** — instructions to run scripts or read files that do not
+  exist
+- **Single-skill command wrapper** — a `/foo` shim that only forwards to one skill
 
-## Success Criteria
+## Success criteria
 
-The audit is complete when:
-
-- [ ] The whole skill (SKILL.md + references + workflows) has been read
-- [ ] Every checklist item has been evaluated
-- [ ] The report, with a score and severity-tagged issues, has been presented
-- [ ] Fixes have been applied if requested
+- [ ] Validator run and its output recorded
+- [ ] The whole skill read — `SKILL.md`, references, workflows
+- [ ] Every checklist item evaluated
+- [ ] Report presented with a score and severity-tagged issues
+- [ ] Fixes applied if requested, and the validator re-run afterwards

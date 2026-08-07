@@ -1,161 +1,124 @@
-# Workflow: Upgrade Skill to Router Pattern
+# Workflow: Upgrade a Skill to the Router Pattern
 
-<required_reading>
-**Read these reference files NOW:**
-1. references/recommended-structure.md
-2. references/skill-structure.md
-</required_reading>
+**Read first:** `references/skill-structure.md`.
 
-<process>
-## Step 1: Select the Skill
+## Step 1: Select the skill
 
 ```bash
 ls ~/.claude/skills/
 ```
 
-Present numbered list, ask: "Which skill should be upgraded to the router pattern?"
+Present a numbered list and ask which to upgrade. If the caller named one, skip ahead.
 
-## Step 2: Verify It Needs Upgrading
+## Step 2: Confirm it needs upgrading
 
-Read the skill:
 ```bash
 cat ~/.claude/skills/{skill-name}/SKILL.md
-ls ~/.claude/skills/{skill-name}/
+ls -R ~/.claude/skills/{skill-name}/
 ```
 
-**Already a router?** (has workflows/ and intake question)
-→ Tell user it's already using router pattern, offer to add workflows instead
+**Already a router** (has `workflows/` and an intake question) → say so, and offer
+`workflows/add-workflow.md` instead.
 
-**Simple skill that should stay simple?** (under 200 lines, single workflow)
-→ Explain that router pattern may be overkill, ask if they want to proceed anyway
+**Has workflows but no routing table** → this is not an upgrade, it is a *repair*. The
+routing table is missing and every workflow is unreachable. Go to Step 7, and check
+whether `SKILL.md` has grown duplicate copies of the workflow procedures — if it has,
+they have already diverged, and you must reconcile them before deleting either.
 
-**Good candidate for upgrade:**
-- Over 200 lines
-- Multiple distinct use cases
-- Essential principles that shouldn't be skipped
-- Growing complexity
+**Small and single-purpose** (under ~200 lines, one intent) → say the router is likely
+overkill, and ask whether to proceed anyway.
 
-## Step 3: Identify Components
+**Good candidate** → over ~200 lines, multiple distinct intents, principles that
+shouldn't be skipped, still growing.
 
-Analyze the current skill and identify:
+## Step 3: Identify the components
 
-1. **Essential principles** - Rules that apply to ALL use cases
-2. **Distinct workflows** - Different things a user might want to do
-3. **Reusable knowledge** - Patterns, examples, technical details
+Analyse the current skill and separate:
 
-Present findings:
+1. **Essential principles** — rules that apply to every intent
+2. **Distinct intents** — the different things a user might want
+3. **Reusable knowledge** — patterns, examples, technical detail
+
+Present the breakdown and ask whether it looks right before moving anything.
+
 ```
 ## Analysis
 
-**Essential principles I found:**
-- [Principle 1]
-- [Principle 2]
+**Essential principles:**
+- ...
 
-**Distinct workflows I identified:**
-- [Workflow A]: [description]
-- [Workflow B]: [description]
+**Distinct intents (→ workflows):**
+- {name}: {description}
 
-**Knowledge that could be references:**
-- [Reference topic 1]
-- [Reference topic 2]
+**Knowledge (→ references):**
+- {topic}
 ```
 
-Ask: "Does this breakdown look right? Any adjustments?"
-
-## Step 4: Create Directory Structure
+## Step 4: Create the directories
 
 ```bash
-mkdir -p ~/.claude/skills/{skill-name}/workflows
-mkdir -p ~/.claude/skills/{skill-name}/references
+mkdir -p ~/.claude/skills/{skill-name}/{workflows,references}
 ```
 
-## Step 5: Extract Workflows
+## Step 5: Extract the workflows
 
-For each identified workflow:
+For each intent, create `workflows/{name}.md` with required reading at the top, the
+steps moved from the original, and verifiable success criteria.
 
-1. Create `workflows/{workflow-name}.md`
-2. Add required_reading section (references it needs)
-3. Add process section (steps from original skill)
-4. Add success_criteria section
+Choose the filenames deliberately and keep them stable — callers may target them
+directly, so renaming later is a breaking change.
 
-## Step 6: Extract References
+## Step 6: Extract the references
 
-For each identified reference topic:
+For each knowledge topic, create `references/{name}.md` and move the content. Give any
+file over ~100 lines a contents list.
 
-1. Create `references/{reference-name}.md`
-2. Move relevant content from original skill
-3. Structure with semantic XML tags
+## Step 7: Rewrite SKILL.md as a router
 
-## Step 7: Rewrite SKILL.md as Router
+Use `assets/router-skill.md`. It must contain:
 
-Replace SKILL.md with router structure:
+- The essential principles, **inline**
+- The intake question
+- **A routing table naming a file for every branch** — this is the part that gets lost
+- The non-interactive caller contract
+- Reference and workflow indexes
 
-```markdown
----
-name: {skill-name}
-description: {existing description}
----
+## Step 8: Delete what you moved
 
-<essential_principles>
-[Extracted principles - inline, cannot be skipped]
-</essential_principles>
+**This is the step that gets skipped, and skipping it is what breaks the skill.**
 
-<intake>
-**Ask the user:**
+Remove the extracted procedures and knowledge from `SKILL.md`. A copy left behind does
+not stay a copy: the two versions drift, and eventually the skill tells the agent to do
+one thing in `SKILL.md` and the opposite in a workflow.
 
-What would you like to do?
-1. [Workflow A option]
-2. [Workflow B option]
-...
+## Step 9: Verify nothing was lost
 
-**Wait for response before proceeding.**
-</intake>
+- [ ] Every principle preserved, now inline
+- [ ] Every procedure preserved, now in exactly one workflow
+- [ ] Every piece of knowledge preserved, now in a reference
+- [ ] No content duplicated between `SKILL.md` and a workflow
+- [ ] Nothing orphaned
 
-<routing>
-| Response | Workflow |
-|----------|----------|
-| 1, "keywords" | `workflows/workflow-a.md` |
-| 2, "keywords" | `workflows/workflow-b.md` |
-</routing>
-
-<reference_index>
-[List all references by category]
-</reference_index>
-
-<workflows_index>
-| Workflow | Purpose |
-|----------|---------|
-| workflow-a.md | [What it does] |
-| workflow-b.md | [What it does] |
-</workflows_index>
+```bash
+uv run ~/.claude/skills/creating-agent-skills/scripts/validate_skill.py ~/.claude/skills/{skill-name}
 ```
 
-## Step 8: Verify Nothing Was Lost
+Exit 0 required. The validator's reachability check is the direct test that Step 7's
+routing table actually reaches everything Step 5 created.
 
-Compare original skill content against new structure:
-- [ ] All principles preserved (now inline)
-- [ ] All procedures preserved (now in workflows)
-- [ ] All knowledge preserved (now in references)
-- [ ] No orphaned content
+## Step 10: Test
 
-## Step 9: Test
+Invoke the upgraded skill and confirm the intake question appears, each routing option
+reaches the right workflow, workflows load the references they declare, and behaviour
+matches the original.
 
-Invoke the upgraded skill:
-- Does intake question appear?
-- Does each routing option work?
-- Do workflows load correct references?
-- Does behavior match original skill?
+## Success criteria
 
-Report any issues.
-</process>
-
-<success_criteria>
-Upgrade is complete when:
-- [ ] workflows/ directory created with workflow files
-- [ ] references/ directory created (if needed)
-- [ ] SKILL.md rewritten as router
-- [ ] Essential principles inline in SKILL.md
-- [ ] All original content preserved
-- [ ] Intake question routes correctly
-- [ ] Tested and working
-</success_criteria>
+- [ ] `workflows/` created and populated
+- [ ] `references/` created if needed
+- [ ] `SKILL.md` rewritten as a router with a complete routing table
+- [ ] Essential principles inline
+- [ ] Extracted content **deleted** from `SKILL.md`
+- [ ] All original content preserved somewhere
+- [ ] `validate_skill.py` exits 0 with no unreachable files
+- [ ] Tested end to end

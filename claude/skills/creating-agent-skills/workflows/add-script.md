@@ -1,93 +1,105 @@
 # Workflow: Add a Script to a Skill
 
-<required_reading>
-**Read these reference files NOW:**
-1. references/using-scripts.md
-</required_reading>
+**Read first:** `references/using-scripts.md`. Also read `references/api-security.md`
+if the script will touch credentials.
 
-<process>
-## Step 1: Identify the Skill
+## Step 1: Identify the skill and the operation
 
-Ask (if not already provided):
-- Which skill needs a script?
-- What operation should the script perform?
+Ask, if not already supplied: which skill, and what operation should the script perform?
 
-## Step 2: Analyze Script Need
+## Step 2: Confirm a script is the right answer
 
-Confirm this is a good script candidate:
-- [ ] Same code runs across multiple invocations
-- [ ] Operation is error-prone when rewritten
+- [ ] The same logic runs across multiple invocations
+- [ ] It is error-prone when rewritten from scratch each time
 - [ ] Consistency matters more than flexibility
 
-If not a good fit, suggest alternatives (inline code in workflow, reference examples).
+The strongest signal comes from evidence: while using the skill, the agent kept
+reinventing the same helper. If that hasn't happened yet, inline instructions may be
+enough — a script is a maintenance commitment.
 
-## Step 3: Create Scripts Directory
+If an existing packaged tool already does this, prefer invoking it directly
+(`uvx`, `npx`, `pipx run`) with a pinned version. No script needed.
+
+## Step 3: Design the interface
+
+The interface is what the agent sees, so design it first:
+
+- **Inputs** — flags, environment variables, or stdin. **Never interactive prompts**;
+  agents run in non-interactive shells and a prompt hangs forever.
+- **Output** — structured (JSON/CSV) on stdout; progress and warnings on stderr.
+- **Failures** — what can go wrong, and what the error message should tell the agent to
+  do next.
+- **Exit codes** — distinct codes for distinct failures.
+- **Destructive operations** — add `--dry-run`, and consider requiring `--confirm`.
+- **Output size** — if it could be large, default to a summary and offer a flag for
+  more.
+
+Choose the language by the work: bash for shell and file operations, Python for data
+processing and APIs, Node/TypeScript for the JS ecosystem.
+
+## Step 4: Create the directory
 
 ```bash
 mkdir -p ~/.claude/skills/{skill-name}/scripts
 ```
 
-## Step 4: Design Script
+## Step 5: Write the script
 
-Gather requirements:
-- What inputs does the script need?
-- What should it output or accomplish?
-- What errors might occur?
-- Should it be idempotent?
+Declare dependencies inline so there is no separate install step. For Python, PEP 723:
 
-Choose language:
-- **bash** - Shell operations, file manipulation, CLI tools
-- **python** - Data processing, API calls, complex logic
-- **node/ts** - JavaScript ecosystem, async operations
+````python
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["requests>=2.32,<3"]
+# ///
+````
 
-## Step 5: Write Script File
+Run with `uv run scripts/{name}.py`.
 
-Create `scripts/{script-name}.{ext}` with:
-- Purpose comment at top
-- Usage instructions
-- Input validation
-- Error handling
-- Clear output/feedback
+Include a purpose comment, usage in `--help`, input validation, explicit error handling,
+and named constants with reasons — never `TIMEOUT = 47` with no explanation.
 
-For bash scripts:
+For bash: `#!/usr/bin/env bash` and `set -euo pipefail`, then `chmod +x`.
+
+**No hardcoded secrets, and no command that renders a credential into the transcript.**
+
+## Step 6: Test the script directly
+
+Before wiring it in, run it standalone: the happy path, a bad-input case, and `--help`.
+Confirm the error messages would actually tell an agent what to do differently.
+
+Write tests if the logic is non-trivial. `scripts/validate_skill.py` and
+`scripts/test_validate_skill.py` in this skill are a worked example.
+
+## Step 7: Wire it into the skill
+
+List it where the agent will look:
+
+```markdown
+## Available scripts
+
+- **`scripts/{name}.py`** — {what it does}
+```
+
+Then add the invocation to the workflow step that needs it, using a **relative path from
+the skill root** — the agent runs commands from there.
+
+## Step 8: Validate
+
 ```bash
-#!/bin/bash
-set -euo pipefail
+uv run ~/.claude/skills/creating-agent-skills/scripts/validate_skill.py ~/.claude/skills/{skill-name}
 ```
 
-## Step 6: Make Executable (if bash)
+A script nothing references is an orphan; the validator will flag it.
 
-```bash
-chmod +x ~/.claude/skills/{skill-name}/scripts/{script-name}.sh
-```
+## Success criteria
 
-## Step 7: Update Workflow to Use Script
-
-Find the workflow that needs this operation. Add:
-```xml
-<process>
-...
-N. Run `scripts/{script-name}.sh [arguments]`
-N+1. Verify operation succeeded
-...
-</process>
-```
-
-## Step 8: Test
-
-Invoke the skill workflow and verify:
-- Script runs at the right step
-- Inputs are passed correctly
-- Errors are handled gracefully
-- Output matches expectations
-</process>
-
-<success_criteria>
-Script is complete when:
-- [ ] scripts/ directory exists
-- [ ] Script file has proper structure (comments, validation, error handling)
-- [ ] Script is executable (if bash)
-- [ ] At least one workflow references the script
-- [ ] No hardcoded secrets or credentials
-- [ ] Tested with real invocation
-</success_criteria>
+- [ ] A script is genuinely warranted, not a one-off
+- [ ] Never prompts interactively; `--help` documents the interface
+- [ ] Structured output on stdout, diagnostics on stderr, meaningful exit codes
+- [ ] Errors say what went wrong, what was expected, and what to try
+- [ ] Dependencies declared inline; constants explained
+- [ ] No hardcoded secrets, and no credential rendered into a command
+- [ ] Executable, if a shell script
+- [ ] Referenced from at least one workflow by relative path
+- [ ] Tested standalone and through the skill

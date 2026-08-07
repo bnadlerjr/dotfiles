@@ -1,182 +1,168 @@
 # Workflow: Create a New Skill
 
-<required_reading>
-**Read these reference files NOW:**
-1. references/recommended-structure.md
-2. references/skill-structure.md
-3. references/core-principles.md
-4. references/use-xml-tags.md
-</required_reading>
+**Read these first:**
 
-<process>
-## Step 1: Adaptive Requirements Gathering
+1. `references/agent-skills-spec.md` — the rules the result must satisfy
+2. `references/skill-structure.md` — single file vs. router
+3. `references/authoring-guidance.md` — what goes in and how prescriptive to be
 
-**If user provided context** (e.g., "build a skill for X"):
-→ Analyze what's stated, what can be inferred, what's unclear
-→ Skip to asking about genuine gaps only
+Read `references/instruction-patterns.md` when writing the body, and
+`references/using-scripts.md` only if the skill will bundle executable code.
 
-**If user just invoked skill without context:**
-→ Ask what they want to build
+## Step 1: Gather requirements
 
-### Using AskUserQuestion
+**If the request already contains context** ("build a skill for X"): analyse what is
+stated, what can be inferred, and what is genuinely unclear. Ask only about real gaps.
 
-Ask 2-4 domain-specific questions based on actual gaps. Each question should:
-- Have specific options with descriptions
-- Focus on scope, complexity, outputs, boundaries
-- NOT ask things obvious from context
+**If invoked with no context**: ask what they want to build.
 
-Example questions:
-- "What specific operations should this skill handle?" (with options based on domain)
-- "Should this also handle [related thing] or stay focused on [core thing]?"
-- "What should the user see when successful?"
+Ask 2-4 domain-specific questions with AskUserQuestion, focused on scope, boundaries,
+inputs, and outputs. Do not ask what is already obvious from the request.
 
-### Decision Gate
+Then confirm: "Ready to proceed with building, or would you like me to ask more
+questions?"
 
-After initial questions, ask:
-"Ready to proceed with building, or would you like me to ask more questions?"
+**Non-interactive callers**: if the requirements were supplied up front, or you are a
+subagent, skip this step and the AskUserQuestion calls entirely. Derive the answers
+from the context you were given and continue.
 
-Options:
-1. **Proceed to building** - I have enough context
-2. **Ask more questions** - There are more details to clarify
-3. **Let me add details** - I want to provide additional context
+## Step 2: Ground it in real expertise
 
-## Step 2: Research Trigger (If External API)
+This is the step that most determines quality. A skill generated from general model
+knowledge produces generic procedure — "handle errors appropriately" — instead of the
+specific conventions and failure modes that make a skill worth loading.
 
-**When external service detected**, ask using AskUserQuestion:
-"This involves [service name] API. Would you like me to research current endpoints and patterns before building?"
+Before writing, gather concrete material:
 
-Options:
-1. **Yes, research first** - Fetch current documentation for accurate implementation
-2. **No, proceed with general patterns** - Use common patterns without specific API research
+- Has the user just done this task manually? Extract the steps that worked and,
+  especially, **the corrections they made along the way**.
+- Are there existing artifacts — runbooks, style guides, API specs, schemas, code
+  review comments, past incident write-ups? Read them.
+- Does the skill target an external service or library? Ask whether to research current
+  documentation first, then use WebSearch or WebFetch against official sources.
 
-If research requested:
-- Use Context7 MCP to fetch current library documentation
-- Or use WebSearch for recent API documentation
-- Focus on 2024-2026 sources
-- Store findings for use in content generation
+If none of this is available, say so plainly — the skill will be thinner, and the
+user should know that before it is built.
 
-## Step 3: Decide Structure
+## Step 3: Choose the structure
 
-**Simple skill (single workflow, <200 lines):**
-→ Single SKILL.md file with all content
+**Single file** — one workflow, small knowledge set, under ~200 lines.
 
-**Complex skill (multiple workflows OR domain knowledge):**
-→ Router pattern:
+**Router** — multiple distinct intents, shared knowledge across them, principles that
+must not be skipped, or a skill likely to grow:
+
 ```
 skill-name/
-├── SKILL.md (router + principles)
-├── workflows/ (procedures - FOLLOW)
-├── references/ (knowledge - READ)
-├── templates/ (output structures - COPY + FILL)
-└── scripts/ (reusable code - EXECUTE)
+├── SKILL.md      # principles + intake + routing
+├── workflows/    # procedures — FOLLOW
+├── references/   # knowledge — READ
+├── assets/       # output structures — COPY AND FILL
+└── scripts/      # reusable code — RUN
 ```
 
-Factors favoring router pattern:
-- Multiple distinct user intents (create vs debug vs ship)
-- Shared domain knowledge across workflows
-- Essential principles that must not be skipped
-- Skill likely to grow over time
+Add `assets/` when the skill produces consistent output structures and the structure
+matters more than creative generation. Add `scripts/` when the same code would
+otherwise be rewritten every invocation, or when the operation is error-prone by hand.
 
-**Consider templates/ when:**
-- Skill produces consistent output structures (plans, specs, reports)
-- Structure matters more than creative generation
+Start smaller than feels right. Growing to a router later is easy; an over-structured
+skill nobody maintains is not.
 
-**Consider scripts/ when:**
-- Same code runs across invocations (deploy, setup, API calls)
-- Operations are error-prone when rewritten each time
-
-See references/recommended-structure.md for templates.
-
-## Step 4: Create Directory
+## Step 4: Create the directory
 
 ```bash
 mkdir -p ~/.claude/skills/{skill-name}
-# If complex:
-mkdir -p ~/.claude/skills/{skill-name}/workflows
-mkdir -p ~/.claude/skills/{skill-name}/references
-# If needed:
-mkdir -p ~/.claude/skills/{skill-name}/templates  # for output structures
-mkdir -p ~/.claude/skills/{skill-name}/scripts    # for reusable code
+# Router only, and only the directories actually needed:
+mkdir -p ~/.claude/skills/{skill-name}/{workflows,references}
+mkdir -p ~/.claude/skills/{skill-name}/{assets,scripts}
 ```
+
+The directory name **must** equal the `name` in frontmatter.
 
 ## Step 5: Write SKILL.md
 
-**Simple skill:** Write complete skill file with:
-- YAML frontmatter (name, description)
-- `<objective>`
-- `<quick_start>`
-- Content sections with pure XML
-- `<success_criteria>`
+Copy the matching template and fill it in:
 
-**Complex skill:** Write router with:
-- YAML frontmatter
-- `<essential_principles>` (inline, unavoidable)
-- `<intake>` (question to ask user)
-- `<routing>` (maps answers to workflows)
-- `<reference_index>` and `<workflows_index>`
+- Single file → `assets/simple-skill.md`
+- Router → `assets/router-skill.md`
 
-## Step 6: Write Workflows (if complex)
+Frontmatter requirements:
 
-For each workflow:
-```xml
-<required_reading>
-Which references to load for this workflow
-</required_reading>
+- `name` — required; lowercase, hyphens, no consecutive hyphens, matches the directory
+- `description` — required; third person, states what it does **and** when to use it,
+  under 1024 characters
+- Optional spec fields — `license`, `compatibility`, `metadata`, `allowed-tools`
+- **Non-spec fields only when deliberately chosen.** Support is per field, not per
+  client — check the matrix in `references/claude-code-extensions.md` before assuming
+  either way. If the field you chose is single-client, say so in `compatibility` and
+  tell the user why the trade was worth it.
 
-<process>
-Step-by-step procedure
-</process>
+Body: standard markdown headings. Keep it under 500 lines and 5,000 tokens.
 
-<success_criteria>
-How to know this workflow is done
-</success_criteria>
+A router's `SKILL.md` must contain a **routing table naming a file for every branch**.
+An intake question with nothing to route to is the single most common way these skills
+break.
+
+## Step 6: Write the workflows (router only)
+
+One file per intent, each with required reading at the top, numbered steps, and
+verifiable success criteria. Keep the filenames stable — callers may target them
+directly.
+
+## Step 7: Write the references (router only)
+
+Knowledge that multiple workflows need, that doesn't change based on which workflow is
+running: patterns, technical detail, domain facts. Give any file over ~100 lines a
+contents list.
+
+State **when** to load each one. "Read `references/api-errors.md` if the API returns a
+non-200" beats listing the file.
+
+## Step 8: Validate
+
+```bash
+uv run ~/.claude/skills/creating-agent-skills/scripts/validate_skill.py ~/.claude/skills/{skill-name}
 ```
 
-## Step 7: Write References (if needed)
+Fix every error. Exit 0 is required before continuing.
 
-Domain knowledge that:
-- Multiple workflows might need
-- Doesn't change based on workflow
-- Contains patterns, examples, technical details
+The validator checks the spec rules, plus broken links, chains too deep to reach, and
+files nothing references. Warnings about non-standard fields are expected if you chose
+an extension deliberately — confirm each one was a decision, not an accident.
 
-## Step 8: Validate Structure
+## Step 9: Test it on a real task
 
-Check:
-- [ ] YAML frontmatter valid
-- [ ] Name matches directory (lowercase-with-hyphens)
-- [ ] Description says what it does AND when to use it (third person)
-- [ ] No markdown headings (#) in body - use XML tags
-- [ ] Required tags present: objective, quick_start, success_criteria
-- [ ] All referenced files exist
-- [ ] SKILL.md under 500 lines
-- [ ] XML tags properly closed
+Not a hypothetical one.
 
-## Step 9: Skill Discovery (no slash command)
+1. Ask the skill to do something it was built for, phrased the way a user would.
+2. Confirm it activates from the description alone — if it doesn't, the description is
+   the problem, not the body. See `references/evaluating-skills.md`.
+3. For a router: confirm the intake question appears and routes to the right workflow,
+   and that the workflow loads the references it declared.
+4. Run the same task **without** the skill. If the result is just as good, the skill
+   isn't earning its context yet.
+5. Read the transcript for wasted steps and ignored instructions.
 
-Do not create a per-skill slash command. Skills are auto-discovered via their `description` frontmatter — the harness routes a user's natural-language request to the skill whose description matches. A `/<skill-name>` wrapper that only invokes one skill is duplicate surface: two files to keep in sync, no composition value, and it ties the skill's identity to one invocation path.
+Add every correction you had to make to a gotchas section, then iterate.
 
-If users want a manual entry point for one skill, they type the request as natural language — the description routes them to the skill. No `/foo` shim required.
+## Do not create a slash command
 
-## Step 10: Test
+Skills are auto-discovered through their `description` — the harness routes a natural
+language request to the matching skill. A `/{skill-name}` wrapper that only invokes one
+skill is duplicate surface: two files to keep in sync, no composition value, and it ties
+the skill's identity to one invocation path.
 
-Invoke the skill and observe:
-- Does it ask the right intake question?
-- Does it load the right workflow?
-- Does the workflow load the right references?
-- Does output match expectations?
+A command earns its place only when it composes multiple skills or adds orchestration
+the skill cannot carry itself.
 
-Iterate based on real usage, not assumptions.
-</process>
+## Success criteria
 
-<success_criteria>
-Skill is complete when:
-- [ ] Requirements gathered with appropriate questions
-- [ ] API research done if external service involved
-- [ ] Directory structure correct
-- [ ] SKILL.md has valid frontmatter
-- [ ] Essential principles inline (if complex skill)
-- [ ] Intake question routes to correct workflow
-- [ ] All workflows have required_reading + process + success_criteria
-- [ ] References contain reusable domain knowledge
-- [ ] Tested with real invocation (natural-language request matches the description)
-</success_criteria>
+- [ ] Requirements gathered, or derived from supplied context
+- [ ] Grounded in real expertise, or the gap stated explicitly
+- [ ] Directory name matches `name`
+- [ ] `name` and `description` present and spec-valid; description under 1024 chars
+- [ ] Non-standard fields used only deliberately, with the trade-off recorded
+- [ ] Body uses markdown headings, under 500 lines and 5,000 tokens
+- [ ] Router: principles inline, routing table names a file for every branch
+- [ ] Every bundled file reachable, and the skill says when to load each
+- [ ] `validate_skill.py` exits 0
+- [ ] Tested on a real task, and against the no-skill baseline

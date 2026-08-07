@@ -1,204 +1,128 @@
 # Workflow: Verify Skill Content Accuracy
 
-<required_reading>
-**Read these reference files NOW:**
-1. references/skill-structure.md
-</required_reading>
+**Read first:** `references/authoring-guidance.md` (the "avoid time-sensitive
+information" section explains most of what goes stale).
 
-<purpose>
-Audit checks structure. **Verify checks truth.**
+`workflows/audit-skill.md` checks **structure**. This workflow checks **truth**.
 
-Skills contain claims about external things: APIs, CLI tools, frameworks, services. These change over time. This workflow checks if a skill's content is still accurate.
-</purpose>
+Skills make claims about external things — APIs, CLI tools, frameworks, services. Those
+change. This finds the claims that are no longer accurate.
 
-<process>
-## Step 1: Select the Skill
+## Step 1: Select the skill
 
 ```bash
 ls ~/.claude/skills/
 ```
 
-Present numbered list, ask: "Which skill should I verify for accuracy?"
+Present a numbered list and ask which to verify. If the caller named one, skip ahead.
 
-## Step 2: Read and Categorize
+## Step 2: Read and categorize
 
-Read the entire skill (SKILL.md + workflows/ + references/):
 ```bash
 cat ~/.claude/skills/{skill-name}/SKILL.md
-cat ~/.claude/skills/{skill-name}/workflows/*.md 2>/dev/null
 cat ~/.claude/skills/{skill-name}/references/*.md 2>/dev/null
+cat ~/.claude/skills/{skill-name}/workflows/*.md 2>/dev/null
 ```
 
-Categorize by primary dependency type:
+Categorize by the dependency that dominates:
 
-| Type | Examples | Verification Method |
-|------|----------|---------------------|
-| **API/Service** | manage-stripe, manage-gohighlevel | Context7 + WebSearch |
-| **CLI Tools** | build-macos-apps (xcodebuild, swift) | Run commands |
-| **Framework** | build-iphone-apps (SwiftUI, UIKit) | Context7 for docs |
-| **Integration** | setup-stripe-payments | WebFetch + Context7 |
-| **Pure Process** | create-agent-skills | No external deps |
+| Type | Verification method |
+|---|---|
+| **API / service** | Fetch current docs; check the changelog |
+| **CLI tool** | Run the commands |
+| **Framework / library** | Fetch current docs for the specific APIs used |
+| **Internal / project** | Check the repository — do the paths and conventions still hold? |
+| **Pure process** | No external dependencies; verify internal consistency only |
 
-Report: "This skill is primarily [type]-based. I'll verify using [method]."
+Report: "This skill is primarily {type}-based. I'll verify using {method}."
 
-## Step 3: Extract Verifiable Claims
+## Step 3: Extract verifiable claims
 
-Scan skill content and extract:
+Scan for anything that could have changed:
 
-**CLI Tools mentioned:**
-- Tool names (xcodebuild, swift, npm, etc.)
-- Specific flags/options documented
-- Expected output patterns
+- **CLI tools** — tool names, documented flags, expected output patterns
+- **API endpoints** — paths, authentication methods, SDK versions, request shapes
+- **Framework patterns** — APIs used, version-specific features
+- **Paths and structures** — expected project layouts, config file locations
+- **Bundled scripts** — do they still run? Do their dependencies still resolve?
 
-**API Endpoints:**
-- Service names (Stripe, Meta, etc.)
-- Specific endpoints documented
-- Authentication methods
-- SDK versions
+Report: "Found N verifiable claims to check."
 
-**Framework Patterns:**
-- Framework names (SwiftUI, React, etc.)
-- Specific APIs/patterns documented
-- Version-specific features
+## Step 4: Verify
 
-**File Paths/Structures:**
-- Expected project structures
-- Config file locations
+**CLI tools** — check directly:
 
-Present: "Found X verifiable claims to check."
-
-## Step 4: Verify by Type
-
-### For CLI Tools
 ```bash
-# Check tool exists
-which {tool-name}
-
-# Check version
-{tool-name} --version
-
-# Verify documented flags work
-{tool-name} --help | grep "{documented-flag}"
+command -v {tool} && {tool} --version
+{tool} --help | grep -- "{documented-flag}"
 ```
 
-### For API/Service Skills
-Use Context7 to fetch current documentation:
-```
-mcp__context7__resolve-library-id: {service-name}
-mcp__context7__get-library-docs: {library-id}, topic: {relevant-topic}
-```
+**APIs, frameworks, services** — fetch current documentation and compare against what
+the skill documents. Are the endpoints still valid? Has authentication changed? Are
+deprecated methods being used? Prefer official docs and changelogs over search results.
 
-Compare skill's documented patterns against current docs:
-- Are endpoints still valid?
-- Has authentication changed?
-- Are there deprecated methods being used?
+When searching, describe the change rather than pinning a year: "{service} breaking
+changes", "{service} deprecated endpoints", "{framework} migration guide". A hardcoded
+year in a search string is itself the kind of staleness this workflow exists to find —
+if you see one in the skill, flag it.
 
-### For Framework Skills
-Use Context7:
-```
-mcp__context7__resolve-library-id: {framework-name}
-mcp__context7__get-library-docs: {library-id}, topic: {specific-api}
-```
+**Bundled scripts** — run them against a known input and confirm the output still
+matches what the skill claims.
 
-Check:
-- Are documented APIs still current?
-- Have patterns changed?
-- Are there newer recommended approaches?
-
-### For Integration Skills
-WebSearch for recent changes:
-```
-"[service name] API changes 2026"
-"[service name] breaking changes"
-"[service name] deprecated endpoints"
-```
-
-Then Context7 for current SDK patterns.
-
-### For Services with Status Pages
-WebFetch official docs/changelog if available.
-
-## Step 5: Generate Freshness Report
-
-Present findings:
+## Step 5: Report
 
 ```
 ## Verification Report: {skill-name}
 
-### ✅ Verified Current
-- [Claim]: [Evidence it's still accurate]
+### Verified current
+- {claim}: {evidence}
 
-### ⚠️ May Be Outdated
-- [Claim]: [What changed / newer info found]
-  → Current: [what docs now say]
+### May be outdated
+- {claim}: {what changed}
+  → Current: {what the docs now say}
 
-### ❌ Broken / Invalid
-- [Claim]: [Why it's wrong]
-  → Fix: [What it should be]
+### Broken or invalid
+- {claim}: {why it's wrong}
+  → Fix: {what it should be}
 
-### ℹ️ Could Not Verify
-- [Claim]: [Why verification wasn't possible]
+### Could not verify
+- {claim}: {why not}
 
----
-**Overall Status:** [Fresh / Needs Updates / Significantly Stale]
-**Last Verified:** [Today's date]
+**Overall:** Fresh | Needs updates | Significantly stale
+**Verified on:** {today's date}
 ```
 
-## Step 6: Offer Updates
+## Step 6: Offer updates
 
-If issues found:
+1. **Update all** — apply every correction
+2. **Review each** — show each change first
+3. **Just the report**
 
-"Found [N] items that need updating. Would you like me to:"
+When updating, record the verification date in the file so the next reader knows how
+much to trust it:
 
-1. **Update all** - Apply all corrections
-2. **Review each** - Show each change before applying
-3. **Just the report** - No changes
-
-If updating:
-- Make changes based on verified current information
-- Add verification date comment if appropriate
-- Report what was updated
-
-## Step 7: Suggest Verification Schedule
-
-Based on skill type, recommend:
-
-| Skill Type | Recommended Frequency |
-|------------|----------------------|
-| API/Service | Every 1-2 months |
-| Framework | Every 3-6 months |
-| CLI Tools | Every 6 months |
-| Pure Process | Annually |
-
-"This skill should be re-verified in approximately [timeframe]."
-</process>
-
-<verification_shortcuts>
-## Quick Verification Commands
-
-**Check if CLI tool exists and get version:**
-```bash
-which {tool} && {tool} --version
+```markdown
+<!-- Verified against spec: YYYY-MM-DD. If today is more than ~60 days past this
+     date, re-fetch the source URL and diff before trusting this file. -->
 ```
 
-**Context7 pattern for any library:**
-```
-1. resolve-library-id: "{library-name}"
-2. get-library-docs: "{id}", topic: "{specific-feature}"
-```
+A stamp like that is only useful if someone acts on it. When you find one that has
+expired, say so in the report — an expired freshness contract is a finding.
 
-**WebSearch patterns:**
-- Breaking changes: "{service} breaking changes 2026"
-- Deprecations: "{service} deprecated API"
-- Current best practices: "{framework} best practices 2026"
-</verification_shortcuts>
+## Step 7: Recommend a cadence
 
-<success_criteria>
-Verification is complete when:
+| Skill type | Re-verify |
+|---|---|
+| API / service | Every 1-2 months |
+| Framework / library | Every 3-6 months |
+| CLI tools | Every 6 months |
+| Pure process | Annually |
+
+## Success criteria
+
 - [ ] Skill categorized by dependency type
-- [ ] Verifiable claims extracted
-- [ ] Each claim checked with appropriate method
-- [ ] Freshness report generated
-- [ ] Updates applied (if requested)
-- [ ] User knows when to re-verify
-</success_criteria>
+- [ ] Verifiable claims extracted and counted
+- [ ] Each claim checked with the appropriate method
+- [ ] Expired freshness stamps reported
+- [ ] Report generated with a dated overall status
+- [ ] Updates applied if requested

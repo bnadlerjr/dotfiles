@@ -1,96 +1,76 @@
-# Workflow: Add a Reference to Existing Skill
+# Workflow: Add a Reference to an Existing Skill
 
-<required_reading>
-**Read these reference files NOW:**
-1. references/recommended-structure.md
-2. references/skill-structure.md
-</required_reading>
+**Read first:** `references/skill-structure.md`.
 
-<process>
-## Step 1: Select the Skill
+## Step 1: Select the skill
 
 ```bash
 ls ~/.claude/skills/
 ```
 
-Present numbered list, ask: "Which skill needs a new reference?"
+Present a numbered list and ask which skill needs a reference. If the caller named one,
+skip ahead.
 
-## Step 2: Analyze Current Structure
+## Step 2: Read the current structure
 
 ```bash
 cat ~/.claude/skills/{skill-name}/SKILL.md
 ls ~/.claude/skills/{skill-name}/references/ 2>/dev/null
 ```
 
-Determine:
-- **Has references/ folder?** → Good, can add directly
-- **Simple skill?** → May need to create references/ first
-- **What references exist?** → Understand the knowledge landscape
+Report what already exists. If there is no `references/` directory, the skill is
+single-file — adding one reference may be fine, but if this is the third thing being
+bolted on, `workflows/upgrade-to-router.md` is the better move.
 
-Report current references to user.
-
-## Step 3: Gather Reference Requirements
+## Step 3: Check it belongs in a reference at all
 
 Ask:
-- What knowledge should this reference contain?
-- Which workflows will use it?
-- Is this reusable across workflows or specific to one?
 
-**If specific to one workflow** → Consider putting it inline in that workflow instead.
+- What knowledge should this contain?
+- Which workflows need it?
+- Is it reusable across workflows, or specific to one?
 
-## Step 4: Create the Reference File
+**If it serves exactly one workflow, put it in that workflow instead.** A reference read
+by one caller is indirection with no benefit. References earn their place by being
+shared, or by being large enough that loading them conditionally saves real context.
 
-Create `references/{reference-name}.md`:
+Also check it isn't already covered. Overlapping references are how a skill starts
+contradicting itself.
 
-Use semantic XML tags to structure the content:
-```xml
-<overview>
-Brief description of what this reference covers
-</overview>
+## Step 4: Write the file
 
-<patterns>
-## Common Patterns
-[Reusable patterns, examples, code snippets]
-</patterns>
+Create `references/{name}.md` with markdown headings. Keep it to one topic.
 
-<guidelines>
-## Guidelines
-[Best practices, rules, constraints]
-</guidelines>
+Give any file over ~100 lines a contents list near the top so the agent can find the
+relevant section without reading all of it.
 
-<examples>
-## Examples
-[Concrete examples with explanation]
-</examples>
-```
+## Step 5: Register it in SKILL.md
 
-## Step 5: Update SKILL.md
+Add a row to the reference index, and say **when** to read it:
 
-Add the new reference to `<reference_index>`:
 ```markdown
-**Category:** existing.md, new-reference.md
+| [{name}.md](references/{name}.md) | ...the condition that makes it relevant |
 ```
 
-## Step 6: Update Workflows That Need It
+"Read it when the API returns a non-200" is useful. "Additional details" is not.
 
-For each workflow that should use this reference:
+## Step 6: Point the workflows at it
 
-1. Read the workflow file
-2. Add to its `<required_reading>` section
-3. Verify the workflow still makes sense with this addition
+For each workflow that needs it, add the file to that workflow's required reading at the
+top, then re-read the workflow to confirm it still hangs together.
 
-## Step 7: Verify
+A reference that no workflow reads is an orphan — the validator will say so.
 
-- [ ] Reference file exists and is well-structured
-- [ ] Reference is in SKILL.md reference_index
-- [ ] Relevant workflows have it in required_reading
-- [ ] No broken references
-</process>
+## Step 7: Validate
 
-<success_criteria>
-Reference addition is complete when:
-- [ ] Reference file created with useful content
-- [ ] Added to reference_index in SKILL.md
-- [ ] Relevant workflows updated to read it
-- [ ] Content is reusable (not workflow-specific)
-</success_criteria>
+```bash
+uv run ~/.claude/skills/creating-agent-skills/scripts/validate_skill.py ~/.claude/skills/{skill-name}
+```
+
+## Success criteria
+
+- [ ] The content is genuinely reusable, not workflow-specific
+- [ ] File created with markdown headings, one topic, contents list if long
+- [ ] Listed in the SKILL.md reference index **with a load condition**
+- [ ] Read by at least one workflow
+- [ ] `validate_skill.py` exits 0 with no new orphans

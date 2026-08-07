@@ -1,74 +1,88 @@
 # Workflow: Add a Template to a Skill
 
-<required_reading>
-**Read these reference files NOW:**
-1. references/using-templates.md
-</required_reading>
+**Read first:** the "Templates for output format" section of
+`references/instruction-patterns.md`.
 
-<process>
-## Step 1: Identify the Skill
+Templates are reusable output structures the agent copies and fills. They live in
+**`assets/`** — the directory the Agent Skills specification names for templates and
+static resources. (Older skills may use `templates/`; rename it to `assets/` while
+you're here.)
 
-Ask (if not already provided):
-- Which skill needs a template?
-- What output does this template structure?
+## Step 1: Identify the skill and the output
 
-## Step 2: Analyze Template Need
+Ask, if not already supplied: which skill, and what output should this template shape?
 
-Confirm this is a good template candidate:
-- [ ] Output has consistent structure across uses
+## Step 2: Confirm a template is the right answer
+
+- [ ] The output has a consistent structure across uses
 - [ ] Structure matters more than creative generation
-- [ ] Filling placeholders is more reliable than blank-page generation
+- [ ] Filling placeholders is more reliable than starting from blank
 
-If not a good fit, suggest alternatives (workflow guidance, reference examples).
+If the output genuinely needs to vary, a template will fight the task. Describe the
+shape in the workflow instead.
 
-## Step 3: Create Templates Directory
+**Short templates belong inline** in `SKILL.md` or the workflow. Move a template into
+`assets/` when it is long, or when it is only needed in some cases — that is what makes
+on-demand loading worth the indirection.
+
+## Step 3: Create the directory
 
 ```bash
-mkdir -p ~/.claude/skills/{skill-name}/templates
+mkdir -p ~/.claude/skills/{skill-name}/assets
 ```
 
-## Step 4: Design Template Structure
+## Step 4: Design the structure
 
-Gather requirements:
 - What sections does the output need?
-- What information varies between uses? (→ placeholders)
-- What stays constant? (→ static structure)
+- What varies between uses? → placeholders
+- What stays constant? → static structure
 
-## Step 5: Write Template File
+## Step 5: Write the template
 
-Create `templates/{template-name}.md` with:
+Create `assets/{name}.md`:
+
 - Clear section markers
-- `{{PLACEHOLDER}}` syntax for variable content
-- Brief inline guidance where helpful
-- Minimal example content
+- One consistent placeholder syntax — `{{PLACEHOLDER}}` throughout, not mixed with
+  `[PLACEHOLDER]`
+- Brief inline guidance where a section could be misread
+- **Minimal example content.** Anything concrete you write will be copied verbatim
+  sooner or later, so keep examples to the shape, not the substance.
 
-## Step 6: Update Workflow to Use Template
+Complete but minimal. Over-constraining with too many required sections produces
+padded output.
 
-Find the workflow that produces this output. Add:
-```xml
-<process>
-...
-N. Read `templates/{template-name}.md`
-N+1. Copy template structure
-N+2. Fill each placeholder based on gathered context
-...
-</process>
+## Step 6: Wire it into the workflow
+
+Tell the agent when to use it and what to do with it:
+
+```markdown
+1. Read `assets/{name}.md`
+2. Copy the structure
+3. Fill each placeholder from the gathered context
+4. Confirm no placeholders remain unfilled
 ```
 
-## Step 7: Test
+The workflow supplies *when*; the template supplies *what shape*.
 
-Invoke the skill workflow and verify:
-- Template is read at the right step
-- All placeholders get filled appropriately
-- Output structure matches template
-- No placeholders left unfilled
-</process>
+## Step 7: Validate
 
-<success_criteria>
-Template is complete when:
-- [ ] templates/ directory exists
-- [ ] Template file has clear structure with placeholders
-- [ ] At least one workflow references the template
-- [ ] Workflow instructions explain when/how to use template
-- [ ] Tested with real invocation
-</success_criteria>
+```bash
+uv run ~/.claude/skills/creating-agent-skills/scripts/validate_skill.py ~/.claude/skills/{skill-name}
+```
+
+A template nothing references is an orphan; the validator will flag it.
+
+## Step 8: Test
+
+Run the workflow and check that the template is read at the right step, every
+placeholder is filled, the output matches the structure, and nothing was copied
+verbatim that should have been adapted.
+
+## Success criteria
+
+- [ ] A template genuinely fits the output
+- [ ] Lives in `assets/`, not `templates/`
+- [ ] Consistent placeholder syntax; minimal example content
+- [ ] Referenced from at least one workflow, with instructions on when and how
+- [ ] `validate_skill.py` exits 0 with no new orphans
+- [ ] Tested, with no placeholders left unfilled

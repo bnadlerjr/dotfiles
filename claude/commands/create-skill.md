@@ -1,22 +1,25 @@
 ---
 description: Create or improve a Claude Code skill through guided requirements gathering and delegated authoring
-argument-hint: "[skill description, existing skill name, or 'audit <skill-name>']"
+argument-hint: "[skill description | existing skill name | 'audit <skill-name>[: <focus>]' | 'verify <skill-name>']"
 model: opus
-allowed-tools: Read, Bash, Task, AskUserQuestion, Glob
+allowed-tools: Read, Bash, Agent, AskUserQuestion, Glob
 ---
 
 # Create Skill
 
-**Level 4 (Delegation)** - Gathers requirements in the orchestrator (where AskUserQuestion works), then delegates to a sub-agent that invokes the `creating-agent-skills` skill.
+**Level 4 (Delegation)** — This command wraps a single skill, justified by the two things it adds. **Interactive intake**: sub-agents cannot use AskUserQuestion, so requirements are gathered here, in the orchestrator, and embedded in the delegation prompt. **Context isolation**: `creating-agent-skills` is a large router that pulls in workflows and references; running it in a sub-agent keeps the main thread clean and returns only the report.
 
 ## Variables
 
-- **INPUT**: `$ARGUMENTS` - A description of a new skill, an existing skill name, or `audit <skill-name>`
+- **INPUT**: `$ARGUMENTS` — A description of a new skill, an existing skill name, `audit <skill-name>[: <focus>]`, or `verify <skill-name>`
+- **AUDIT_FOCUS**: For audit intent only — optional free-text hypothesis or emphasis after the skill name (e.g., `audit foo: I think its references have drifted`). Empty if not provided.
+- **SKILL_PATH**: Absolute path to the target skill directory (e.g. `~/.claude/skills/${SKILL_NAME}`). Set for improve, audit, and verify.
+- **WORKFLOW_FILE**: The `creating-agent-skills` workflow the sub-agent must follow.
 
 ## Dependencies
 
 - **creating-agent-skills skill**: Core skill-authoring methodology (invoked by sub-agent)
-- **thinking-patterns skill**: atomic-thought, tree-of-thoughts, self-consistency
+- **thinking-patterns skill**: atomic-thought, self-consistency
 - **general-purpose agent** (model: opus): Sub-agent that invokes the skill and writes files
 
 ## Initial Response
@@ -31,8 +34,9 @@ I'll help you create or improve a Claude Code skill.
 
 You can provide:
 - A description of what the skill should do (creates new)
-- An existing skill name (offers improve or audit)
-- `audit <skill-name>` (runs quality audit)
+- An existing skill name (offers improve, audit, or verify)
+- `audit <skill-name>[: <focus>]` (quality audit against the spec)
+- `verify <skill-name>` (checks whether the skill's claims are still true)
 
 Usage: /create-skill "Format and lint Terraform files"
 ```
@@ -45,11 +49,18 @@ Determine what the user wants by examining `INPUT`.
 
 ### Detection Logic
 
-1. **Check for audit prefix**: If INPUT starts with "audit " (case-insensitive), extract the skill name after "audit " and set intent to **audit**.
+1. **Check for audit prefix**: If INPUT starts with "audit " (case-insensitive):
+   - Set intent to **audit**
+   - Split the remainder on the first `:`, `.`, or newline. The first segment is the skill name (trimmed of quotes/punctuation); anything after is captured as `AUDIT_FOCUS`.
+   - Example: `audit create-skill: I think it duplicates the skill` → name=`create-skill`, focus=`I think it duplicates the skill`
 
-2. **Check for existing skill**: Run `ls ~/.claude/skills/` and check if INPUT matches a directory name (exact or fuzzy match). If it matches, set intent to **improve**.
+2. **Check for verify prefix**: If INPUT starts with "verify " (case-insensitive), the remainder is the skill name and intent is **verify**.
 
-3. **Otherwise**: Set intent to **create**.
+3. **Check for existing skill**: Run `ls ~/.claude/skills/` and `ls .claude/skills/ 2>/dev/null` and check if INPUT matches a directory name **exactly**. If it matches, set intent to **improve**. Substring/typo matches do NOT count — fall through to create.
+
+4. **Otherwise**: Set intent to **create**.
+
+Set `SKILL_PATH` from the matched directory for improve, audit, and verify.
 
 ### Confirm Intent (improve only)
 
@@ -59,112 +70,110 @@ If intent is **improve**, read the existing skill's SKILL.md and present a summa
 - Header: "Intent"
 - Question: "I found the `${SKILL_NAME}` skill. What would you like to do?"
 - Options:
-  - "Improve it" - Enhance or extend this existing skill
-  - "Audit it" - Run a quality audit against best practices
-  - "Create something new" - The name match was coincidental
+  - "Improve it" — Enhance or extend this existing skill
+  - "Audit it" — Run a quality audit against the spec and best practices
+  - "Verify it" — Check whether its claims about external tools are still true
+  - "Create something new" — The name match was coincidental
 
 ---
 
 ## Phase 2: Requirements Gathering (create/improve only)
 
-Skip this phase for **audit** intent — go directly to Phase 4.
+Skip this phase for **audit** and **verify** — go directly to Phase 4.
 
-### Decompose Input
+### Identify the gaps
 
-Invoke `/thinking atomic-thought` to decompose the user's input into independent questions:
+Read `~/.claude/skills/creating-agent-skills/workflows/create-new-skill.md` (Steps 1-2) and `~/.claude/skills/creating-agent-skills/references/authoring-guidance.md`. Those files define what an author must settle before writing — work from them rather than from a list restated here.
+
+Reason in the style of the `atomic-thought` pattern from the `thinking-patterns` skill: for each thing they call for, **commit to an answer first**, then mark it RESOLVED if the user's input forces that answer, or GAP if it does not. Pay particular attention to Step 2's grounding question — whether real expertise, artifacts, or docs exist to build from. A skill with no grounding source will be thin, and the user should hear that before it is built.
+
+If you cannot form a recommendation on more than half of them, the input is too vague — say so rather than asking many naked questions:
+
+> "Your description leaves these open: <list>. Can you say more about <the most load-bearing one>?"
+
+### Ask About Gaps with Committed Recommendations
+
+For each GAP, ask via AskUserQuestion. The recommended answer goes **first** and is labeled `(Recommended)`; each option's `description` carries a one-sentence rationale for the trade-off. Never ask a naked question ("Should this skill handle Terragrunt?") — if you cannot mark one option recommended, the gap isn't ready to ask about.
 
 ```
-Independent dimensions to clarify for this skill:
-
-1. **Core purpose**: What specific operations should this skill handle?
-2. **Scope boundaries**: What is explicitly out of scope?
-3. **Inputs**: What does the user provide when invoking the skill?
-4. **Outputs**: What should the skill produce?
-5. **Domain knowledge**: What expert knowledge does this skill encode?
-6. **Tool requirements**: What tools (Bash, Read, Write, WebSearch, etc.) does this skill need?
-
-Answer each from the user's input. Mark gaps that need clarification.
+Question: "What should this skill's scope cover?"
+Options:
+  - "HCL formatting and linting only (Recommended)" — Your description names two concrete operations; a narrow skill triggers more reliably than a broad one.
+  - "Add Terragrunt support" — Use if you actually run Terragrunt; it changes file discovery and adds a second toolchain.
+  - "Full Terraform lifecycle (plan/apply)" — Use only if you want the skill to run state-changing commands.
 ```
 
-### Ask About Gaps
-
-Based on gaps identified above, ask 2-4 targeted questions using AskUserQuestion. Only ask about genuine gaps — skip anything obvious from the input.
-
-Example questions (adapt to the specific skill being created):
-
-**AskUserQuestion** (up to 4 questions):
-- Focus on scope, complexity, outputs, and boundaries
-- Each question should have 2-4 specific options with descriptions
-- Do NOT ask things that are obvious from the input
+Cap at 4 questions. Skip any GAP whose answer is low-stakes.
 
 ### Decision Gate
-
-After gathering requirements:
 
 **AskUserQuestion**:
 - Header: "Ready?"
 - Question: "I have enough context to build the skill. Shall I proceed, or is there more to clarify?"
 - Options:
-  - "Proceed to building" - Start building the skill
-  - "Let me add details" - I want to provide additional context
+  - "Proceed to building" — Start building the skill
+  - "Let me add details" — I want to provide additional context
 
 ---
 
 ## Phase 3: Structure Decision (create only)
 
-Skip this phase for **improve** and **audit** intents.
+Skip this phase for **improve**, **audit**, and **verify**.
 
-### Evaluate Structure Options
+### Route domain-expertise shapes first
 
-Invoke `/thinking tree-of-thoughts` to evaluate skill structure:
+If the request is **mostly knowledge with procedures attached** — a whole practice area across its lifecycle (build, debug, test, ship), or a reference library other skills will read — set `WORKFLOW_FILE` to `workflows/create-domain-expertise-skill.md` and **skip the structure question**. That workflow fixes the structure itself (always a router) and organizes references by domain concern.
 
-```
-Evaluate three structural approaches for this skill:
+Otherwise set `WORKFLOW_FILE` to `workflows/create-new-skill.md` and choose the structure below.
 
-Branch A: Simple skill (single SKILL.md)
-- Pros: Easy to maintain, fast to load, low complexity
-- Cons: Limited to ~500 lines, no workflow separation
-- Best when: Single purpose, straightforward guidance
+### Choose single file or router
 
-Branch B: Router skill (SKILL.md + workflows/ + references/)
-- Pros: Multiple entry points, shared knowledge, scalable
-- Cons: More files to maintain, routing overhead
-- Best when: Multiple user intents, shared domain knowledge
-
-Branch C: Domain expertise skill (SKILL.md + references/ only)
-- Pros: Deep knowledge base, progressive disclosure
-- Cons: May not need workflows if guidance is consistent
-- Best when: Single workflow but extensive reference material
-
-Select the best branch based on the requirements gathered.
-```
-
-Present the recommendation to the user:
+Read `~/.claude/skills/creating-agent-skills/references/skill-structure.md` ("The two shapes") and commit to a recommendation before asking. Default to single file — growing to a router later is easy; an over-structured skill nobody maintains is not.
 
 **AskUserQuestion**:
 - Header: "Structure"
 - Question: "Based on the requirements, I recommend a ${RECOMMENDED} skill. Does this sound right?"
 - Options:
-  - "${RECOMMENDED} (Recommended)" - Use the recommended structure
-  - "${ALTERNATIVE_1}" - Brief description of alternative
-  - "${ALTERNATIVE_2}" - Brief description of alternative
+  - "${RECOMMENDED} (Recommended)" — One sentence tying the recommendation to the requirements gathered
+  - "${ALTERNATIVE}" — One sentence on what it buys and what it costs
 
 ---
 
 ## Phase 4: Delegation
 
-### Build Sub-Agent Prompt
+Every intent spawns the same agent: use the **Agent tool with `subagent_type: general-purpose`** (model: `opus`). Each prompt is the shared contract below, followed by the intent-specific block. Embed all gathered context so the sub-agent never needs the user.
 
-Construct a comprehensive prompt for the sub-agent that embeds all gathered context so it can proceed without user interaction.
+### Shared contract (include verbatim in every prompt)
 
-#### For create intent:
+````markdown
+## Contract
 
-Use the Task tool to spawn a `general-purpose` agent (model: `opus`):
+- Invoke the `creating-agent-skills` skill using the Skill tool. You are a
+  **non-interactive caller**: per its "Non-interactive callers" section, skip the intake
+  question and follow `${WORKFLOW_FILE}` directly.
+- AskUserQuestion will NOT reach the user from a sub-agent. Do not use it. Derive every
+  answer the workflow asks for from the context in this prompt.
+- Run the validator and paste its output verbatim, including the exit code, under a
+  `### Validator` heading in your report:
 
-```markdown
+  ```bash
+  uv run ~/.claude/skills/creating-agent-skills/scripts/validate_skill.py ${SKILL_PATH}
+  ```
+
+  Exit 0 is the definition of done for **create** and **improve**: fix every error, re-run
+  until it exits 0, and never report success on a non-zero exit. For **audit** and
+  **verify**, which change nothing, its output is a finding to report.
+- Use the report headings given below, in the order given.
+````
+
+### For create intent
+
+`SKILL_PATH` is `~/.claude/skills/${SKILL_NAME}`. Prompt body after the contract:
+
+````markdown
 # Build a New Claude Code Skill
 
-You are building a new Claude Code skill. All requirements have been gathered — proceed directly to building without asking the user any questions.
+Build a new skill. All requirements are gathered — proceed without asking the user anything.
 
 ## Requirements
 
@@ -175,62 +184,37 @@ ${REQUIREMENTS_SUMMARY}
 - **Scope**: ${SCOPE}
 - **Inputs**: ${INPUTS}
 - **Outputs**: ${OUTPUTS}
-- **Domain knowledge**: ${DOMAIN_KNOWLEDGE}
-- **Tool requirements**: ${TOOLS}
-- **Structure**: ${STRUCTURE_CHOICE} (simple | router | domain-expertise)
+- **Grounding sources**: ${GROUNDING}
+- **Structure**: ${STRUCTURE_CHOICE} (single file | router)
 
 ## Instructions
 
-1. Invoke the `creating-agent-skills` skill using the Skill tool:
-   - Skill: `creating-agent-skills`
-
-2. The skill will present an intake question. Based on the requirements above, select the **create-new-skill** workflow.
-
-3. When the create-new-skill workflow asks questions via AskUserQuestion, you already have all the answers from the requirements above. Answer them directly in your reasoning and proceed to building.
-
-4. **IMPORTANT**: Since you are a sub-agent, AskUserQuestion will NOT reach the user. Do NOT use AskUserQuestion. Instead, use the requirements above to make all decisions and proceed directly to writing files.
-
-5. Follow the skill's workflow to:
-   - Create the skill directory at `~/.claude/skills/${SKILL_NAME}/`
-   - Write SKILL.md with valid frontmatter
-   - Write workflow files (if router structure)
-   - Write reference files (if needed)
-
-6. **Do NOT create a slash command for this skill.** Skills are auto-discovered through their `description` frontmatter — the harness routes natural-language requests to them without a `/<skill-name>` wrapper. Per-skill commands are an anti-pattern: duplicate discovery surface, no composition value. Commands earn their place only when they compose 2+ skills or add orchestration the skill itself can't carry (e.g., AskUserQuestion flows). If `creating-agent-skills` produces a `Step 9: Create Slash Command` step, ignore it — that step has been removed from the current workflow, and any residual instruction is stale.
-
-## Thinking Patterns
-
-- Use `/thinking atomic-thought` to decompose implementation into independent components
-- After building, use `/thinking self-consistency` to validate the skill from three perspectives:
-  1. **User perspective**: Is it easy to invoke and understand?
-  2. **Author perspective**: Is it well-structured and maintainable?
-  3. **Consumer perspective**: Does it produce the right outputs?
+1. Follow `${WORKFLOW_FILE}` to create `~/.claude/skills/${SKILL_NAME}/` and write SKILL.md
+   plus whatever workflow and reference files the chosen structure calls for.
+2. **Do not create a slash command for this skill** — see the "Do not create a slash
+   command" section in `workflows/create-new-skill.md`; the rule applies equally on the
+   domain-expertise route, which has no such section of its own.
+3. Reason in the style of the `self-consistency` pattern from the `thinking-patterns`
+   skill: **user** (does it trigger from the description alone?), **author** (does each
+   file earn its place?), **execution** (are the instructions specific enough to follow
+   without the author present?).
 
 ## Report
 
-When complete, provide a summary:
+Headings in order: `### Files Created` (absolute paths), `### Skill Structure` (what and
+why), `### Validator`, `### Self-Consistency Check` (all three perspectives),
+`### Suggestions for Testing` (2-3 example invocations).
+````
 
-### Files Created
-- [List all files created with paths]
+### For improve intent
 
-### Skill Structure
-- [Describe the structure chosen and why]
+Read the skill's full content first. `WORKFLOW_FILE` is whichever `creating-agent-skills` workflow matches the change — `add-workflow.md`, `add-reference.md`, `add-script.md`, `add-template.md`, `upgrade-to-router.md`, or `create-new-skill.md` for a rewrite. Prompt body after the contract:
 
-### Validation Results
-- [Results from self-consistency check]
-
-### Suggestions for Testing
-- [2-3 example invocations to test the skill]
-```
-
-#### For improve intent:
-
-Read the existing skill's full content first. Then use the Task tool to spawn a `general-purpose` agent (model: `opus`):
-
-```markdown
+````markdown
 # Improve an Existing Claude Code Skill
 
-You are improving the `${SKILL_NAME}` skill. All requirements have been gathered — proceed directly to making changes without asking the user any questions.
+Improve the `${SKILL_NAME}` skill at `${SKILL_PATH}`. All requirements are gathered —
+proceed without asking the user anything.
 
 ## Current Skill Content
 
@@ -242,113 +226,128 @@ ${REQUIREMENTS_SUMMARY}
 
 ## Instructions
 
-1. Invoke the `creating-agent-skills` skill using the Skill tool:
-   - Skill: `creating-agent-skills`
-
-2. The skill will present an intake question. Select the workflow that best matches the requested changes (create-new-skill for major rewrites, add-workflow/add-reference for additions).
-
-3. **IMPORTANT**: Since you are a sub-agent, AskUserQuestion will NOT reach the user. Do NOT use AskUserQuestion. Use the requirements above to make all decisions.
-
-4. Apply the requested changes while preserving existing functionality.
-
-5. After changes, use `/thinking self-consistency` to validate:
-   1. **User perspective**: Do existing invocations still work?
-   2. **Author perspective**: Is the structure still clean?
-   3. **Consumer perspective**: Are the new capabilities properly exposed?
+1. Read the whole tree first — `${SKILL_PATH}/SKILL.md` and every file under
+   `workflows/` and `references/`. Editing only `SKILL.md` is how a router starts
+   contradicting its own workflows.
+2. Apply the requested changes while preserving existing behavior. Strip anything that no
+   longer earns its place; do not add files "just in case".
+3. Reason in the style of the `self-consistency` pattern from the `thinking-patterns`
+   skill: **user** (do existing invocations still work?), **author** (is the structure
+   still clean?), **execution** (are the new instructions specific enough to follow?).
 
 ## Report
 
-When complete, provide a summary:
+Headings in order: `### Files Modified` (absolute paths + what changed), `### Files
+Created`, `### Validator`, `### Self-Consistency Check`, `### Before/After` (key
+differences in skill behavior).
+````
 
-### Files Modified
-- [List all files changed with descriptions of changes]
+### For audit intent
 
-### Files Created
-- [List any new files, if applicable]
+`WORKFLOW_FILE` is `workflows/audit-skill.md`. Prompt body after the contract:
 
-### Validation Results
-- [Results from self-consistency check]
-
-### Before/After
-- [Key differences in skill behavior]
-```
-
-#### For audit intent:
-
-Use the Task tool to spawn a `general-purpose` agent (model: `opus`):
-
-```markdown
+````markdown
 # Audit a Claude Code Skill
 
-You are auditing the `${SKILL_NAME}` skill for quality and best-practice compliance.
+Audit the `${SKILL_NAME}` skill at `${SKILL_PATH}` for quality and spec compliance.
+
+## User's Audit Focus (optional)
+
+${AUDIT_FOCUS}
+
+If non-empty, treat this as a hypothesis the user wants pressure-tested: report an explicit
+verdict (accept / partially accept / reject) with rationale tied to the skill's actual
+content, then run the standard checklist. If empty, run the standard checklist only.
 
 ## Instructions
 
-1. Invoke the `creating-agent-skills` skill using the Skill tool:
-   - Skill: `creating-agent-skills`
-
-2. The skill will present an intake question. Select the **audit-skill** workflow.
-
-3. When the audit workflow asks which skill to audit, target: `${SKILL_NAME}`
-
-4. **IMPORTANT**: Since you are a sub-agent, AskUserQuestion will NOT reach the user. Do NOT use AskUserQuestion. Read the skill files directly and perform the audit checklist yourself.
-
-5. Run the full audit checklist from the workflow.
-
-6. Generate the audit report with passing items, issues found, and score.
+1. Run the validator **first** — it settles every mechanical question before you spend
+   attention on judgment calls, and everything it reports is a finding.
+2. **Read the whole tree**: start with `ls -R ${SKILL_PATH}`, then read `SKILL.md` and
+   every file under `workflows/` and `references/`. The audit covers the whole skill, not
+   just `SKILL.md`; the most damaging defects live in the disagreements *between* files.
+3. Work the workflow's full checklist and its anti-pattern list. Do not offer to apply
+   fixes — return the report only.
+4. Assign severity on the workflow's scale, verbatim: **critical** = invalid per the spec,
+   or two files that contradict each other; **major** = the skill will misfire or mislead;
+   **minor** = quality and consistency.
 
 ## Report
 
-Provide the complete audit report including:
+### Validator
+{output verbatim, including the exit code}
 
 ### Audit Report: ${SKILL_NAME}
 
-#### Passing
-- [List passing checklist items]
+Then the report format from `workflows/audit-skill.md` Step 5: `#### Passing`,
+`#### Issues` (each tagged critical | major | minor, naming the file, with a specific fix),
+`#### Score: X/Y criteria passing`, `#### Recommended Fixes` (prioritized). If AUDIT_FOCUS
+was non-empty, put `#### On the user's focus` — verdict plus rationale — ahead of them.
+````
 
-#### Issues Found
-- [Each issue with severity, description, and suggested fix]
+### For verify intent
 
-#### Score
-- [X/Y criteria passing]
+`WORKFLOW_FILE` is `workflows/verify-skill.md`. Prompt body after the contract:
 
-#### Recommended Fixes
-- [Prioritized list of fixes to apply]
-```
+````markdown
+# Verify a Claude Code Skill's Content
+
+Verify whether the `${SKILL_NAME}` skill at `${SKILL_PATH}` still tells the truth. This
+checks **content accuracy**, not structure — claims about APIs, CLI tools, frameworks,
+paths, and bundled scripts that may have changed since the skill was written.
+
+## Instructions
+
+1. Follow the workflow: categorize the skill by dependency type, extract and count the
+   verifiable claims, then check each with the method that type calls for. Prefer official
+   docs and changelogs over search results.
+2. Report expired freshness stamps as findings.
+3. Do not apply updates — return the report only.
+
+## Report
+
+### Validator
+{output verbatim, including the exit code}
+
+### Verification Report: ${SKILL_NAME}
+
+Then the report format from `workflows/verify-skill.md` Step 5 exactly: `#### Verified
+current` (claim + evidence), `#### May be outdated` (claim + what changed + what the docs
+now say), `#### Broken or invalid` (claim + why + the fix), `#### Could not verify` (claim
++ why not), then **Overall:** Fresh | Needs updates | Significantly stale and
+**Verified on:** {today's date}. Close with the re-verify cadence from Step 7's table.
+````
 
 ---
 
 ## Phase 5: Results
 
-When the sub-agent completes, present the results to the user.
+Display the sub-agent's report verbatim, then offer the next step. This is the only place fixes can be authorized, since the sub-agent cannot ask.
 
-### For create/improve:
-
-Display the sub-agent's report, then:
+### For create/improve
 
 **AskUserQuestion**:
 - Header: "Next steps"
-- Question: "The skill has been created. What would you like to do next?"
+- Question: "The skill is written and the validator passed. What next?"
 - Options:
-  - "Run an audit" - Audit the new skill against best practices
-  - "Test it now" - Try invoking the skill to verify it works
-  - "Done" - Everything looks good
+  - "Run an audit" — Check it against the spec and the quality checklist
+  - "Verify its claims" — Check whether its external claims are still true
+  - "Test it now" — Try invoking the skill to see if it triggers
+  - "Done" — Everything looks good
 
-If "Run an audit": Re-enter Phase 4 with audit intent for the newly created skill.
+Re-enter Phase 4 with the corresponding intent if audit or verify is chosen.
 
-### For audit:
-
-Display the audit report, then:
+### For audit/verify
 
 **AskUserQuestion**:
 - Header: "Fixes"
 - Question: "Would you like me to apply the recommended fixes?"
 - Options:
-  - "Fix all issues" - Apply all recommended fixes
-  - "Fix critical only" - Apply only critical/major fixes
-  - "No fixes needed" - Just wanted the report
+  - "Fix all issues" — Apply every recommended fix
+  - "Fix critical and major only" — Skip the minor quality items
+  - "No fixes needed" — Just wanted the report
 
-If fixes requested: Re-enter Phase 4 with improve intent, embedding the audit findings as the requirements.
+If fixes are requested, re-enter Phase 4 with **improve** intent, embedding the findings as `REQUIREMENTS_SUMMARY`. The improve prompt's validator gate is what confirms the fixes landed.
 
 ---
 
@@ -360,15 +359,17 @@ If fixes requested: Re-enter Phase 4 with improve intent, embedding the audit fi
 No input provided. Please specify what you'd like to do:
 
 Usage:
-  /create-skill "Format and lint Terraform files"  — create a new skill
-  /create-skill developing-elixir                  — improve an existing skill
-  /create-skill audit reviewing-code               — audit an existing skill
+  /create-skill "Format and lint Terraform files"     — create a new skill
+  /create-skill developing-elixir                     — improve an existing skill
+  /create-skill audit reviewing-code                  — audit an existing skill
+  /create-skill audit reviewing-code: check the refs  — audit with a specific hypothesis
+  /create-skill verify datadog-cli                    — check whether its claims still hold
 ```
 
-### Skill Not Found (improve/audit)
+### Skill Not Found (improve/audit/verify)
 
 ```
-Skill "${SKILL_NAME}" not found in ~/.claude/skills/.
+Skill "${SKILL_NAME}" not found in ~/.claude/skills/ or .claude/skills/.
 
 Available skills:
 ${SKILL_LIST}
@@ -379,7 +380,7 @@ Did you mean one of these, or would you like to create a new skill named "${SKIL
 ### Sub-Agent Failure
 
 ```
-The skill-building agent encountered an issue. Here's what happened:
+The skill-building sub-agent encountered an issue:
 ${ERROR_DETAILS}
 
 Options:
@@ -393,35 +394,35 @@ Options:
 ## Example Sessions
 
 ### Create a new skill
+
 ```bash
 /create-skill "Format and lint Terraform files"
 ```
 
-1. Detects "create" intent (no matching skill directory)
-2. Decomposes requirements, asks about scope (HCL only? Terragrunt?), output format, etc.
-3. Recommends simple skill structure
-4. Delegates to sub-agent which invokes creating-agent-skills
-5. Presents created files
-6. Offers audit or testing
+1. Detects **create** (no exact directory match)
+2. Reads `create-new-skill.md` Steps 1-2, commits to answers, asks only about real gaps (scope, grounding sources) with a recommended option first
+3. Recommends single file over router, confirms
+4. Delegates with `WORKFLOW_FILE = workflows/create-new-skill.md`; the sub-agent writes the files and must exit 0 on the validator
+5. Presents the report, offers audit / verify / test
 
-### Improve an existing skill
+### Audit with a focus
+
 ```bash
-/create-skill developing-elixir
+/create-skill audit reviewing-code: I think the checklist contradicts the workflow
 ```
 
-1. Detects "improve" intent (matches existing skill)
-2. Reads current skill, confirms user wants to improve
-3. Gathers requirements for the improvement
-4. Delegates to sub-agent with existing content + changes
-5. Presents modified files
+1. Detects **audit**, splits on `:` → name=`reviewing-code`, focus=the hypothesis
+2. Skips Phases 2 and 3
+3. Sub-agent runs the validator, reads the whole tree, works the checklist, and rules on the hypothesis
+4. Presents validator output plus the severity-tagged report and score
+5. Offers to apply fixes via the improve intent
 
-### Audit an existing skill
+### Verify a skill's claims
+
 ```bash
-/create-skill audit reviewing-code
+/create-skill verify datadog-cli
 ```
 
-1. Detects "audit" intent (starts with "audit")
-2. Skips requirements gathering
-3. Delegates to sub-agent which runs audit-skill workflow
-4. Presents audit report with score
-5. Offers to fix issues
+1. Detects **verify**
+2. Sub-agent follows `workflows/verify-skill.md`: categorizes the skill as CLI-based, extracts claims, runs the documented commands
+3. Presents claims as verified current / may be outdated / broken / could not verify, with a dated overall status and a re-verify cadence
