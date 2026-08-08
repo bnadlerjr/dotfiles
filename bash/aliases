@@ -13,13 +13,14 @@ alias emacs="/Applications/Emacs.app/Contents/MacOS/Emacs $@"
 alias hoboken="~/dev/hoboken/bin/hoboken"
 alias l="ls -lgohG"
 alias la="ls -AlgohG"
+alias piup="pi update && pi update --extensions"
 alias reload="source ~/dotfiles/bash/aliases"
-alias twk="task-warrior-kanban"
 alias t=tree-with-fd
 alias tf=terraform
 alias tfresh="terraform apply -refresh-only"
 alias tm="tmate -2 -f ~/.tmux.conf"
 alias tms="tmate show-messages"
+alias twk="task-warrior-kanban"
 
 # Only setup these aliases if we're on Linux
 if [ "$(uname)" = "Linux" ]; then
