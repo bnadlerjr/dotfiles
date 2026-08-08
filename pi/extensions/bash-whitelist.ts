@@ -140,6 +140,14 @@ function displayCommand(command: string): string {
 }
 
 export default function bashWhitelistExtension(pi: ExtensionAPI): void {
+  pi.on("before_agent_start", async (event) => ({
+    systemPrompt:
+      `${event.systemPrompt}\n\n` +
+      "Bash whitelist: each bash tool call must contain one simple command. " +
+      "Shell composition, including pipes, command chaining, and redirection, is not allowed. " +
+      "Use separate or parallel tool calls, and prefer the read, grep, find, and ls tools for inspection.",
+  }));
+
   pi.on("tool_call", async (event) => {
     if (event.toolName !== "bash") return undefined;
 
@@ -155,7 +163,10 @@ export default function bashWhitelistExtension(pi: ExtensionAPI): void {
 
     return {
       block: true,
-      reason: `Bash whitelist: ${reason}.\n  Command: ${displayCommand(command)}`,
+      reason:
+        `Bash whitelist: ${reason}.\n` +
+        "Use separate tool calls or the read, grep, find, and ls tools; do not retry with sh -c.\n" +
+        `  Command: ${displayCommand(command)}`,
     };
   });
 }
