@@ -103,6 +103,7 @@ interface GondolinProfile {
   ssh?: SshConfig;
   tcpHosts?: Record<string, string>;
   env?: Record<string, string>;
+  forwardEnv?: string[];
   buildCache?: BuildCacheConfig;
   memory?: string;
   cpus?: number;
@@ -588,6 +589,15 @@ function updatePiGuestEnv(
   }
 }
 
+function forwardHostEnv(variableNames: string[]): Record<string, string> {
+  const forwarded: Record<string, string> = {};
+  for (const name of variableNames) {
+    const value = process.env[name];
+    if (value !== undefined) forwarded[name] = value;
+  }
+  return forwarded;
+}
+
 function createGondolinBashOps(
   vm: VM,
   localCwd: string,
@@ -649,6 +659,7 @@ export default function (pi: ExtensionAPI) {
       : undefined;
   const guestEnv: Record<string, string> = {
     ...BASE_GUEST_ENV,
+    ...forwardHostEnv(profile.forwardEnv ?? []),
     ...(profile.ssh
       ? {
           GIT_SSH_COMMAND:

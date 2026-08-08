@@ -32,12 +32,22 @@ Supported profile fields:
 - `ssh`: allowed hosts, Git organizations, agent socket, and push policy
 - `tcpHosts`: guest hostname to host endpoint mappings
 - `env`: guest environment overrides
+- `forwardEnv`: names of environment variables to copy from Pi's host
+  environment; variables that are not set are ignored
 - `buildCache`: enables `/build-cache` and optionally seeds local files
 - `memory` and `cpus`: VM resources
 - `provisionCommands`: commands run once after guest startup
 
 Relative paths resolve from Pi's working directory. Paths beginning with `~/`
 resolve from the user's home directory.
+
+To supply secrets without storing their values in the config, list their names
+in `forwardEnv` and inject them when launching Pi. For example, using the
+1Password CLI:
+
+```sh
+GH_TOKEN=$(op read "op://Private/Github/Token") pi
+```
 
 ## Custom image
 

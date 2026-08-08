@@ -20,6 +20,7 @@
       "env": {
         "DATABASE_URL": "postgres://localhost/database"
       },
+      "forwardEnv": ["GH_TOKEN"],
       "buildCache": {
         "enabled": true,
         "seedFiles": [
