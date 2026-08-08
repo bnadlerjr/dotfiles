@@ -6,6 +6,13 @@ import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
  * A prefix matches either the complete command or the prefix followed by
  * whitespace. Shell composition is rejected separately below.
  */
+// Commands in this list must match in full. Keep environment-variable access
+// here so callers cannot append the name of a secret variable.
+const ALLOWED_EXACT_COMMANDS = [
+  "printenv PI_MODEL",
+  "printenv PI_SESSION_ID",
+] as const;
+
 const ALLOWED_PREFIXES = [
   // Elixir commands run explicitly in the test environment.
   "MIX_ENV=test mix compile",
@@ -28,7 +35,7 @@ const ALLOWED_PREFIXES = [
   "du",
   "echo",
   "fd",
-  "find",
+  "file",
   "grep",
   "head",
   "ls",
@@ -38,10 +45,12 @@ const ALLOWED_PREFIXES = [
   "rg",
   "sloc",
   "sort",
+  "stat",
   "tail",
   "terraform plan",
   "terraform validate",
   "wc",
+  "which",
 
   // GitHub CLI (read-only/status-oriented commands).
   "gh issue list",
@@ -58,10 +67,12 @@ const ALLOWED_PREFIXES = [
   "gh status",
 
   // Git and git-machete.
+  "git branch --show-current",
   "git config commit.template",
+  "git diff",
+  "git grep",
   "git log",
-  "git rev-parse",
-  "git show",
+  "git ls-files",
   "git machete completion",
   "git machete diff",
   "git machete file",
@@ -74,6 +85,10 @@ const ALLOWED_PREFIXES = [
   "git machete show",
   "git machete status",
   "git machete version",
+  "git rev-parse",
+  "git show",
+  "git status",
+  "git worktree list",
 
   // Jira CLI.
   "jira board list",
@@ -110,8 +125,12 @@ const FORBIDDEN_SHELL_SYNTAX = /[\0\r\n;&|`<>]|\$\(/;
 export function isBashCommandAllowed(command: string): boolean {
   if (!command || FORBIDDEN_SHELL_SYNTAX.test(command)) return false;
 
+  if (ALLOWED_EXACT_COMMANDS.some((allowed) => command === allowed))
+    return true;
+
   return ALLOWED_PREFIXES.some(
-    (prefix) => command === prefix ||
+    (prefix) =>
+      command === prefix ||
       (command.startsWith(prefix) && /^\s/.test(command.slice(prefix.length))),
   );
 }
@@ -125,7 +144,8 @@ export default function bashWhitelistExtension(pi: ExtensionAPI): void {
     if (event.toolName !== "bash") return undefined;
 
     const input = event.input as { command?: unknown } | undefined;
-    const command = typeof input?.command === "string" ? input.command.trim() : "";
+    const command =
+      typeof input?.command === "string" ? input.command.trim() : "";
 
     if (isBashCommandAllowed(command)) return undefined;
 
