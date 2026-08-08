@@ -6,7 +6,7 @@
 	"scripts": {
 		"clean": "echo 'nothing to clean'",
 		"build": "echo 'nothing to build'",
-		"check": "echo 'nothing to check'"
+		"check": "tsc --noEmit"
 	},
 	"pi": {
 		"extensions": [
@@ -15,5 +15,10 @@
 	},
 	"dependencies": {
 		"@earendil-works/gondolin": "0.12.0"
+	},
+	"devDependencies": {
+		"@earendil-works/pi-coding-agent": "0.84.1",
+		"@types/node": "^24.10.0",
+		"typescript": "^5.9.3"
 	}
 }

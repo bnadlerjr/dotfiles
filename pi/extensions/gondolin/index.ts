@@ -569,6 +569,25 @@ function sanitizeEnv(
   return result;
 }
 
+function updatePiGuestEnv(
+  guestEnv: Record<string, string>,
+  ctx?: ExtensionContext,
+): void {
+  const modelId = ctx?.model?.id;
+  if (typeof modelId === "string" && modelId.length > 0) {
+    guestEnv.PI_MODEL = modelId;
+  }
+
+  try {
+    const sessionId = ctx?.sessionManager?.getSessionId?.();
+    if (typeof sessionId === "string" && sessionId.length > 0) {
+      guestEnv.PI_SESSION_ID = sessionId;
+    }
+  } catch {
+    // Session metadata is informational and must not prevent VM startup.
+  }
+}
+
 function createGondolinBashOps(
   vm: VM,
   localCwd: string,
@@ -651,6 +670,7 @@ export default function (pi: ExtensionAPI) {
   let shellPath = "/bin/sh";
 
   async function startVm(ctx?: ExtensionContext): Promise<VM> {
+    updatePiGuestEnv(guestEnv, ctx);
     ctx?.ui.setStatus(
       "gondolin",
       ctx.ui.theme.fg("accent", `Gondolin: starting ${localCwd}`),
@@ -857,6 +877,7 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.on("before_agent_start", async (event, ctx) => {
+    updatePiGuestEnv(guestEnv, ctx);
     await ensureVm(ctx);
     const note =
       `All tools run inside a Gondolin micro-VM sandbox. ` +
