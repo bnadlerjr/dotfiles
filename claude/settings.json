@@ -327,13 +327,20 @@
   },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": false,
-    "worktrunk@worktrunk": true
+    "worktrunk@worktrunk": true,
+    "plannotator@plannotator": true
   },
   "extraKnownMarketplaces": {
     "worktrunk": {
       "source": {
         "source": "github",
         "repo": "max-sixty/worktrunk"
+      }
+    },
+    "plannotator": {
+      "source": {
+        "source": "github",
+        "repo": "backnotprop/plannotator"
       }
     }
   },
