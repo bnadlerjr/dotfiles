@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>dev.bobnadler.herdr-agent-alerts</string>
+
+  <!-- A login shell, not the script directly: launchd starts jobs with a bare
+       PATH, and both `uv` (the script's interpreter) and `herdr` live in
+       Homebrew's prefix. Running the script directly fails silently every
+       minute. Using $HOME also keeps this plist free of hardcoded paths. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-lc</string>
+    <string>exec "$HOME/dotfiles/herdr/plugins/notifications/agent_alerts.py" &gt;&gt; "$HOME/Library/Logs/herdr-agent-alerts.log" 2&gt;&amp;1</string>
+  </array>
+
+  <!-- The blocked threshold is five minutes, so a one-minute poll puts an
+       alert between 5:00 and 6:00 after a pane blocks. -->
+  <key>StartInterval</key>
+  <integer>60</integer>
+
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>
