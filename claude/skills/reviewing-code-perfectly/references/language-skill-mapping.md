@@ -11,7 +11,6 @@ Map changed file extensions to language/framework skills. Load all matching skil
 | `.ts`, `.tsx`, `.js`, `.jsx` | `developing-typescript` | TypeScript/React patterns, hooks, state management |
 | `.test.ts`, `.test.tsx`, `.spec.ts`, `.spec.tsx` | `developing-typescript`, `testing-react-with-vitest` | React Testing Library, Vitest patterns, RTL query priority |
 | `.sh`, `.bash`, `Makefile` | `developing-bash` | POSIX/Bash patterns, defensive scripting, portability |
-| Files importing `@mui/material` | `mui` | MUI component patterns, sx prop, theme integration |
 
 ## Detection Rules
 
