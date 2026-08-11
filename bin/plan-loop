@@ -7,7 +7,7 @@
 """Iteratively review and revise an agent-generated plan with Plannotator.
 
 Usage:
-    plan-loop <prompt.md>
+    plan-loop --prompt <prompt.md>
 
 The prompt file is sent to Pi, and Pi's Markdown response is opened in
 Plannotator. If annotations are submitted, their feedback is sent back to the
@@ -25,6 +25,7 @@ reuses that run's response.md path. Run state is retained after the command
 exits and may contain sensitive prompts, responses, feedback, and tool results.
 """
 
+import argparse
 import json
 import os
 import shutil
@@ -231,11 +232,27 @@ def request_review(output: str, review_file: Path) -> dict[str, object]:
     return decision
 
 
-def main() -> None:
-    if len(sys.argv) != 2:
-        die(f"usage: {Path(sys.argv[0]).name} <prompt.md>")
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog=Path(sys.argv[0]).name,
+        description=(
+            "Iteratively review and revise an agent-generated plan with Plannotator."
+        ),
+    )
+    parser.add_argument(
+        "--prompt",
+        required=True,
+        type=Path,
+        metavar="FILE",
+        help="Markdown file holding the prompt to send to Pi",
+    )
+    return parser.parse_args()
 
-    prompt_file = Path(sys.argv[1]).expanduser()
+
+def main() -> None:
+    args = parse_args()
+
+    prompt_file = args.prompt.expanduser()
     if not prompt_file.is_file():
         die(f"prompt file does not exist: {prompt_file}")
 
