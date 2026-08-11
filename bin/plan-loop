@@ -9,18 +9,25 @@
 Usage:
     plan-loop --prompt <prompt.md>
     plan-loop --stdin < prompt.md
+    plan-loop --harness claude --prompt <prompt.md>
 
-The prompt is read from a file or from standard input and sent to Pi, and Pi's
-Markdown response is opened in Plannotator. If annotations are submitted, their
-feedback is sent back to the same Pi session and the complete revised response is
-opened for review again. The loop ends when the response is approved or
-dismissed. The final response is written to stdout; Pi progress and tool activity
-are written to stderr.
+The prompt is read from a file or from standard input and sent to the harness.
+The harness response is opened in Plannotator. If annotations are submitted,
+their feedback is sent back to the same harness session and the complete revised
+response is opened for review again. The loop ends when the response is approved
+or dismissed. The final response is written to stdout; harness progress and tool
+activity are written to stderr.
 
-Each invocation stores its run metadata, reviewed response, and isolated Pi
-session under:
+The --harness option selects the agent. The option has priority. If the option
+is absent, the AGENT_HARNESS environment variable selects the agent. If that
+variable is empty or unset, the harness is pi.
+
+Each invocation stores its run metadata and reviewed response under:
 
     ${XDG_STATE_HOME:-~/.local/state}/plan-loop/runs/<run-id>/
+
+A pi run keeps its session in that directory. Claude Code writes its session in
+its own configuration directory, and run.json records that path.
 
 Plannotator revision history works within a run because every response revision
 reuses that run's response.md path. Run state is retained after the command
@@ -39,6 +46,10 @@ from typing import NoReturn
 from uuid import uuid4
 
 
+HARNESSES = ("pi", "claude")
+PI_SESSION_PATH = "harness/pi/sessions"
+
+
 def die(message: str, exit_code: int = 1) -> NoReturn:
     print(f"error: {message}", file=sys.stderr)
     raise SystemExit(exit_code)
@@ -51,6 +62,20 @@ def require_command(name: str) -> None:
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def resolve_harness(selected: str | None) -> str:
+    if selected is not None:
+        return selected
+    configured = os.environ.get("AGENT_HARNESS", "").strip()
+    if not configured:
+        return "pi"
+    if configured not in HARNESSES:
+        die(
+            f"AGENT_HARNESS must be one of {', '.join(HARNESSES)}, "
+            f"not {configured!r}"
+        )
+    return configured
 
 
 def read_prompt_file(prompt_file: Path) -> str:
@@ -75,7 +100,9 @@ def read_prompt_stdin() -> str:
     return prompt
 
 
-def create_run(prompt_file: Path | None) -> tuple[Path, dict[str, object]]:
+def create_run(
+    prompt_file: Path | None, harness: str
+) -> tuple[Path, dict[str, object]]:
     state_home = Path(
         os.environ.get("XDG_STATE_HOME", Path.home() / ".local" / "state")
     ).expanduser()
@@ -86,15 +113,16 @@ def create_run(prompt_file: Path | None) -> tuple[Path, dict[str, object]]:
     state: dict[str, object] = {
         "version": 1,
         "id": run_id,
-        "harness": "pi",
+        "harness": harness,
         "status": "running",
         "createdAt": utc_now(),
         "cwd": str(Path.cwd()),
         "promptFile": str(prompt_file.resolve()) if prompt_file is not None else None,
-        "session": {
-            "kind": "pi-session-directory",
-            "path": "harness/pi/sessions",
-        },
+        "session": (
+            {"kind": "pi-session-directory", "path": PI_SESSION_PATH}
+            if harness == "pi"
+            else {"kind": "claude-session-id", "id": None, "transcript": None}
+        ),
     }
     write_run_state(run_dir, state)
     return run_dir, state
@@ -112,6 +140,18 @@ def find_pi_session(session_dir: Path) -> Path:
     if len(sessions) != 1:
         die(f"expected one pi session in {session_dir}, found {len(sessions)}")
     return sessions[0]
+
+
+def find_claude_session(session_id: str) -> Path | None:
+    config_home = Path(
+        os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude")
+    ).expanduser()
+    transcripts = list((config_home / "projects").glob(f"*/{session_id}.jsonl"))
+    # The transcript belongs to Claude Code, not to the run, so a moved or
+    # missing file must not end an otherwise healthy loop.
+    if len(transcripts) != 1:
+        return None
+    return transcripts[0]
 
 
 def assistant_text(event: dict[str, object]) -> str | None:
@@ -134,13 +174,21 @@ def assistant_text(event: dict[str, object]) -> str | None:
     )
 
 
-def describe_tool_call(event: dict[str, object]) -> None:
-    name = event.get("toolName", "unknown")
-    args = event.get("args")
+def describe_tool_call(harness: str, name: object, args: object) -> None:
     details = json.dumps(args, ensure_ascii=False, separators=(",", ":"))
     if len(details) > 500:
         details = f"{details[:497]}..."
-    print(f"[pi] → {name} {details}", file=sys.stderr, flush=True)
+    print(f"[{harness}] → {name} {details}", file=sys.stderr, flush=True)
+
+
+def message_blocks(event: dict[str, object]) -> list[dict[str, object]]:
+    message = event.get("message")
+    if not isinstance(message, dict):
+        return []
+    content = message.get("content")
+    if not isinstance(content, list):
+        return []
+    return [block for block in content if isinstance(block, dict)]
 
 
 def run_pi(message: str, session_dir: Path, *, session_file: Path | None) -> str:
@@ -200,7 +248,9 @@ def run_pi(message: str, session_dir: Path, *, session_file: Path | None) -> str
                 sys.stderr.flush()
                 thinking_active = False
         elif event_type == "tool_execution_start":
-            describe_tool_call(event)
+            describe_tool_call(
+                "pi", event.get("toolName", "unknown"), event.get("args")
+            )
         elif event_type == "tool_execution_end":
             name = event.get("toolName", "unknown")
             status = "failed" if event.get("isError") else "done"
@@ -219,6 +269,77 @@ def run_pi(message: str, session_dir: Path, *, session_file: Path | None) -> str
         die(f"pi exited with status {return_code}", return_code)
     if output is None or not output.strip():
         die("pi returned an empty response")
+    return output
+
+
+def run_claude(message: str, *, session_id: str, resume: bool) -> str:
+    # --safe-mode keeps the reviewed response free of hook and skill output from
+    # the user configuration of this machine.
+    command = [
+        "claude",
+        "-p",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--safe-mode",
+        "--permission-mode",
+        "dontAsk",
+    ]
+    command.extend(["--resume", session_id] if resume else ["--session-id", session_id])
+
+    process = subprocess.Popen(
+        command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        text=True,
+        bufsize=1,
+    )
+    assert process.stdin is not None
+    assert process.stdout is not None
+    process.stdin.write(message)
+    process.stdin.close()
+
+    print("[claude] working...", file=sys.stderr, flush=True)
+    output: str | None = None
+    tool_names: dict[object, object] = {}
+    for line in process.stdout:
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            process.terminate()
+            die("claude returned an invalid JSON event")
+        if not isinstance(event, dict):
+            continue
+
+        event_type = event.get("type")
+        if event_type == "assistant":
+            for block in message_blocks(event):
+                if block.get("type") != "tool_use":
+                    continue
+                name = block.get("name", "unknown")
+                tool_names[block.get("id")] = name
+                describe_tool_call("claude", name, block.get("input"))
+        elif event_type == "user":
+            for block in message_blocks(event):
+                if block.get("type") != "tool_result":
+                    continue
+                name = tool_names.get(block.get("tool_use_id"), "unknown")
+                # A successful tool result omits is_error.
+                status = "failed" if block.get("is_error") else "done"
+                print(f"[claude] ← {name} {status}", file=sys.stderr, flush=True)
+        elif event_type == "result":
+            text = event.get("result")
+            if event.get("is_error"):
+                process.terminate()
+                die(f"claude reported an error: {text}")
+            if isinstance(text, str):
+                output = text
+
+    return_code = process.wait()
+    if return_code != 0:
+        die(f"claude exited with status {return_code}", return_code)
+    if output is None or not output.strip():
+        die("claude returned an empty response")
     return output
 
 
@@ -271,12 +392,17 @@ def parse_args() -> argparse.Namespace:
         "--prompt",
         type=Path,
         metavar="FILE",
-        help="Markdown file holding the prompt to send to Pi",
+        help="Markdown file holding the prompt to send to the harness",
     )
     source.add_argument(
         "--stdin",
         action="store_true",
         help="read the prompt from standard input instead of a file",
+    )
+    parser.add_argument(
+        "--harness",
+        choices=HARNESSES,
+        help="agent to run; overrides AGENT_HARNESS (default: pi)",
     )
     return parser.parse_args()
 
@@ -284,24 +410,35 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
+    harness = resolve_harness(args.harness)
     prompt_file = None if args.stdin else args.prompt.expanduser()
     if prompt_file is None:
         prompt = read_prompt_stdin()
     else:
         prompt = read_prompt_file(prompt_file)
 
-    require_command("pi")
+    require_command(harness)
     require_command("plannotator")
 
-    run_dir, run_state = create_run(prompt_file)
-    session_dir = run_dir / "harness" / "pi" / "sessions"
-    session_dir.mkdir(parents=True)
-    output = run_pi(prompt, session_dir, session_file=None)
-    session_file = find_pi_session(session_dir)
-    run_state["session"] = {
-        "kind": "pi-session-file",
-        "path": str(session_file.relative_to(run_dir)),
-    }
+    run_dir, run_state = create_run(prompt_file, harness)
+    if harness == "pi":
+        session_dir = run_dir / PI_SESSION_PATH
+        session_dir.mkdir(parents=True)
+        output = run_pi(prompt, session_dir, session_file=None)
+        session_file = find_pi_session(session_dir)
+        run_state["session"] = {
+            "kind": "pi-session-file",
+            "path": str(session_file.relative_to(run_dir)),
+        }
+    else:
+        session_id = str(uuid4())
+        output = run_claude(prompt, session_id=session_id, resume=False)
+        transcript = find_claude_session(session_id)
+        run_state["session"] = {
+            "kind": "claude-session-id",
+            "id": session_id,
+            "transcript": str(transcript) if transcript is not None else None,
+        }
     write_run_state(run_dir, run_state)
     review_file = run_dir / "response.md"
 
@@ -322,11 +459,11 @@ def main() -> None:
         feedback = result.get("feedback")
         if not isinstance(feedback, str) or not feedback.strip():
             die("plannotator returned an annotation without feedback")
-        output = run_pi(
-            revision_prompt(feedback, prompt_file, review_file),
-            session_dir,
-            session_file=session_file,
-        )
+        revision = revision_prompt(feedback, prompt_file, review_file)
+        if harness == "pi":
+            output = run_pi(revision, session_dir, session_file=session_file)
+        else:
+            output = run_claude(revision, session_id=session_id, resume=True)
 
 
 if __name__ == "__main__":
