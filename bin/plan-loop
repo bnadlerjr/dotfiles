@@ -8,12 +8,14 @@
 
 Usage:
     plan-loop --prompt <prompt.md>
+    plan-loop --stdin < prompt.md
 
-The prompt file is sent to Pi, and Pi's Markdown response is opened in
-Plannotator. If annotations are submitted, their feedback is sent back to the
-same Pi session and the complete revised response is opened for review again.
-The loop ends when the response is approved or dismissed. The final response is
-written to stdout; Pi progress and tool activity are written to stderr.
+The prompt is read from a file or from standard input and sent to Pi, and Pi's
+Markdown response is opened in Plannotator. If annotations are submitted, their
+feedback is sent back to the same Pi session and the complete revised response is
+opened for review again. The loop ends when the response is approved or
+dismissed. The final response is written to stdout; Pi progress and tool activity
+are written to stderr.
 
 Each invocation stores its run metadata, reviewed response, and isolated Pi
 session under:
@@ -51,7 +53,29 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def create_run(prompt_file: Path) -> tuple[Path, dict[str, object]]:
+def read_prompt_file(prompt_file: Path) -> str:
+    if not prompt_file.is_file():
+        die(f"prompt file does not exist: {prompt_file}")
+    try:
+        prompt = prompt_file.read_text()
+    except (OSError, UnicodeError) as error:
+        die(f"cannot read prompt file: {error}")
+    if not prompt.strip():
+        die("prompt file is empty")
+    return prompt
+
+
+def read_prompt_stdin() -> str:
+    try:
+        prompt = sys.stdin.read()
+    except (OSError, UnicodeError) as error:
+        die(f"cannot read prompt from stdin: {error}")
+    if not prompt.strip():
+        die("prompt on stdin is empty")
+    return prompt
+
+
+def create_run(prompt_file: Path | None) -> tuple[Path, dict[str, object]]:
     state_home = Path(
         os.environ.get("XDG_STATE_HOME", Path.home() / ".local" / "state")
     ).expanduser()
@@ -66,7 +90,7 @@ def create_run(prompt_file: Path) -> tuple[Path, dict[str, object]]:
         "status": "running",
         "createdAt": utc_now(),
         "cwd": str(Path.cwd()),
-        "promptFile": str(prompt_file.resolve()),
+        "promptFile": str(prompt_file.resolve()) if prompt_file is not None else None,
         "session": {
             "kind": "pi-session-directory",
             "path": "harness/pi/sessions",
@@ -198,13 +222,16 @@ def run_pi(message: str, session_dir: Path, *, session_file: Path | None) -> str
     return output
 
 
-def revision_prompt(feedback: str, prompt_file: Path, review_file: Path) -> str:
+def revision_prompt(feedback: str, prompt_file: Path | None, review_file: Path) -> str:
+    protected = f"the annotated response file ({review_file})"
+    if prompt_file is not None:
+        protected += f" or the source prompt file ({prompt_file})"
+
     return f"""The text below is review feedback on your previous assistant response.
 Revise that response and return the complete replacement as your final assistant
-message. Do not edit the annotated response file ({review_file}) or the source
-prompt file ({prompt_file}). You may still use tools and modify other project
-files when needed to fulfill the original task. Do not wrap the complete response
-in a Markdown code fence.
+message. Do not edit {protected}. You may still use tools and modify other
+project files when needed to fulfill the original task. Do not wrap the complete
+response in a Markdown code fence.
 
 {feedback}"""
 
@@ -239,12 +266,17 @@ def parse_args() -> argparse.Namespace:
             "Iteratively review and revise an agent-generated plan with Plannotator."
         ),
     )
-    parser.add_argument(
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument(
         "--prompt",
-        required=True,
         type=Path,
         metavar="FILE",
         help="Markdown file holding the prompt to send to Pi",
+    )
+    source.add_argument(
+        "--stdin",
+        action="store_true",
+        help="read the prompt from standard input instead of a file",
     )
     return parser.parse_args()
 
@@ -252,16 +284,11 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
 
-    prompt_file = args.prompt.expanduser()
-    if not prompt_file.is_file():
-        die(f"prompt file does not exist: {prompt_file}")
-
-    try:
-        prompt = prompt_file.read_text()
-    except (OSError, UnicodeError) as error:
-        die(f"cannot read prompt file: {error}")
-    if not prompt.strip():
-        die("prompt file is empty")
+    prompt_file = None if args.stdin else args.prompt.expanduser()
+    if prompt_file is None:
+        prompt = read_prompt_stdin()
+    else:
+        prompt = read_prompt_file(prompt_file)
 
     require_command("pi")
     require_command("plannotator")
