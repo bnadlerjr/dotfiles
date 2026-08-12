@@ -1,4 +1,6 @@
 #!/usr/bin/env -S uv run --script
+# vim: set filetype=python :
+#
 # /// script
 # requires-python = ">=3.11"
 # dependencies = []
@@ -14,12 +16,13 @@ Usage:
 
 The prompt is a Jinja template, read from a file or from standard input and
 rendered by ``render-prompt`` with the selected harness name available as
-``harness``. The rendered prompt is sent to the harness and its response is
-opened in Plannotator. If annotations are submitted, their feedback is sent back
-to the same harness session and the complete revised response is opened for
-review again. The loop ends when the response is approved or dismissed. The final
-response is written to stdout; harness progress and tool activity are written to
-stderr.
+``harness``. The rendered prompt is sent to the harness by ``run-agent``, which
+also keeps the harness session so a revision continues the same conversation. The
+response is opened in Plannotator. If annotations are submitted, their feedback is
+sent back to the same harness session and the complete revised response is opened
+for review again. The loop ends when the response is approved or dismissed. The
+final response is written to stdout; harness progress and tool activity are
+written to stderr.
 
 The --harness option selects the agent: pi, claude, or opencode. The option has
 priority. If the option is absent, the AGENT_HARNESS environment variable selects
@@ -29,9 +32,7 @@ Each invocation stores its run metadata and reviewed response under:
 
     ${XDG_STATE_HOME:-~/.local/state}/plan-loop/runs/<run-id>/
 
-A pi run keeps its session in that directory. Claude Code writes its session in
-its own configuration directory, and run.json records that path. opencode keeps
-its sessions in one database, and run.json records the database path.
+``run-agent`` records the harness session in session.json in that directory.
 
 Plannotator revision history works within a run because every response revision
 reuses that run's response.md path. Run state is retained after the command
@@ -51,7 +52,6 @@ from uuid import uuid4
 
 
 HARNESSES = ("pi", "claude", "opencode")
-PI_SESSION_PATH = "harness/pi/sessions"
 
 
 def die(message: str, exit_code: int = 1) -> NoReturn:
@@ -82,44 +82,32 @@ def resolve_harness(selected: str | None) -> str:
     return configured
 
 
+def run_child(command: list[str], message: str | None = None) -> str:
+    # Without a message the child inherits this command's stdin, which is what
+    # render-prompt needs to read a template from it.
+    result = subprocess.run(
+        command, input=message, text=True, stdout=subprocess.PIPE, check=False
+    )
+    if result.returncode != 0:
+        # The child already named the failure; a second line here would report
+        # one problem twice.
+        raise SystemExit(result.returncode)
+    return result.stdout
+
+
 def render_prompt(prompt_file: Path | None, harness: str) -> str:
     command = ["render-prompt", "--harness", harness]
     if prompt_file is not None:
         command.extend(["--", str(prompt_file)])
-
-    result = subprocess.run(command, text=True, stdout=subprocess.PIPE, check=False)
-    if result.returncode != 0:
-        die(
-            f"render-prompt exited with status {result.returncode}",
-            result.returncode,
-        )
-    return result.stdout
+    return run_child(command)
 
 
-def opencode_database() -> Path | None:
-    data_home = Path(
-        os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share")
-    ).expanduser()
-    database = data_home / "opencode" / "opencode.db"
-    # opencode owns this file, so a missing database must not end the loop.
-    return database if database.is_file() else None
-
-
-def opencode_session(session_id: str | None) -> dict[str, object]:
-    database = opencode_database()
-    return {
-        "kind": "opencode-session-id",
-        "id": session_id,
-        "database": str(database) if database is not None else None,
-    }
-
-
-def initial_session(harness: str) -> dict[str, object]:
-    if harness == "pi":
-        return {"kind": "pi-session-directory", "path": PI_SESSION_PATH}
-    if harness == "claude":
-        return {"kind": "claude-session-id", "id": None, "transcript": None}
-    return opencode_session(None)
+def run_agent(message: str, harness: str, handle: Path) -> str:
+    # The message is passed on stdin rather than inherited, because this
+    # command's own stdin may already be the consumed --stdin prompt.
+    return run_child(
+        ["run-agent", "--harness", harness, "--session", str(handle)], message
+    )
 
 
 def create_run(
@@ -140,7 +128,6 @@ def create_run(
         "createdAt": utc_now(),
         "cwd": str(Path.cwd()),
         "promptFile": str(prompt_file.resolve()) if prompt_file is not None else None,
-        "session": initial_session(harness),
     }
     write_run_state(run_dir, state)
     return run_dir, state
@@ -151,283 +138,6 @@ def write_run_state(run_dir: Path, state: dict[str, object]) -> None:
     temporary = run_dir / ".run.json.tmp"
     temporary.write_text(json.dumps(state, indent=2, ensure_ascii=False) + "\n")
     temporary.replace(destination)
-
-
-def find_pi_session(session_dir: Path) -> Path:
-    sessions = list(session_dir.glob("*.jsonl"))
-    if len(sessions) != 1:
-        die(f"expected one pi session in {session_dir}, found {len(sessions)}")
-    return sessions[0]
-
-
-def find_claude_session(session_id: str) -> Path | None:
-    config_home = Path(
-        os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude")
-    ).expanduser()
-    transcripts = list((config_home / "projects").glob(f"*/{session_id}.jsonl"))
-    if len(transcripts) != 1:
-        return None
-    return transcripts[0]
-
-
-def assistant_text(event: dict[str, object]) -> str | None:
-    message = event.get("message")
-    if not isinstance(message, dict) or message.get("role") != "assistant":
-        return None
-
-    content = message.get("content")
-    if isinstance(content, str):
-        return content
-    if not isinstance(content, list):
-        return None
-
-    return "".join(
-        block.get("text", "")
-        for block in content
-        if isinstance(block, dict)
-        and block.get("type") == "text"
-        and isinstance(block.get("text"), str)
-    )
-
-
-def truncated_args(args: object) -> str:
-    details = json.dumps(args, ensure_ascii=False, separators=(",", ":"))
-    if len(details) > 500:
-        details = f"{details[:497]}..."
-    return details
-
-
-def describe_tool_call(harness: str, name: object, args: object) -> None:
-    print(
-        f"[{harness}] → {name} {truncated_args(args)}", file=sys.stderr, flush=True
-    )
-
-
-def message_blocks(event: dict[str, object]) -> list[dict[str, object]]:
-    message = event.get("message")
-    if not isinstance(message, dict):
-        return []
-    content = message.get("content")
-    if not isinstance(content, list):
-        return []
-    return [block for block in content if isinstance(block, dict)]
-
-
-def start_harness(command: list[str], message: str) -> "subprocess.Popen[str]":
-    process = subprocess.Popen(
-        command,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        text=True,
-        bufsize=1,
-    )
-    assert process.stdin is not None
-    assert process.stdout is not None
-    process.stdin.write(message)
-    process.stdin.close()
-    return process
-
-
-def run_pi(message: str, session_dir: Path, *, session_file: Path | None) -> str:
-    command = ["pi", "--mode", "json", "--session-dir", str(session_dir)]
-    if session_file is not None:
-        command.extend(["--session", str(session_file)])
-
-    process = start_harness(command, message)
-    assert process.stdout is not None
-
-    print("[pi] working...", file=sys.stderr, flush=True)
-    output: str | None = None
-    thinking_active = False
-    thinking_ends_with_newline = False
-    for line in process.stdout:
-        try:
-            event = json.loads(line)
-        except json.JSONDecodeError:
-            process.terminate()
-            die("pi returned an invalid JSON event")
-        if not isinstance(event, dict):
-            continue
-
-        event_type = event.get("type")
-        if event_type == "message_update":
-            update = event.get("assistantMessageEvent")
-            if not isinstance(update, dict):
-                continue
-            update_type = update.get("type")
-            if update_type == "thinking_start":
-                sys.stderr.write("[pi] thinking: ")
-                sys.stderr.flush()
-                thinking_active = True
-                thinking_ends_with_newline = False
-            elif update_type == "thinking_delta":
-                delta = update.get("delta")
-                if not isinstance(delta, str):
-                    continue
-                if not thinking_active:
-                    sys.stderr.write("[pi] thinking: ")
-                    thinking_active = True
-                sys.stderr.write(delta)
-                sys.stderr.flush()
-                thinking_ends_with_newline = delta.endswith("\n")
-            elif update_type == "thinking_end" and thinking_active:
-                if not thinking_ends_with_newline:
-                    sys.stderr.write("\n")
-                sys.stderr.flush()
-                thinking_active = False
-        elif event_type == "tool_execution_start":
-            describe_tool_call(
-                "pi", event.get("toolName", "unknown"), event.get("args")
-            )
-        elif event_type == "tool_execution_end":
-            name = event.get("toolName", "unknown")
-            status = "failed" if event.get("isError") else "done"
-            print(f"[pi] ← {name} {status}", file=sys.stderr, flush=True)
-        elif event_type == "message_end":
-            text = assistant_text(event)
-            if text is not None:
-                output = text
-
-    if thinking_active and not thinking_ends_with_newline:
-        sys.stderr.write("\n")
-        sys.stderr.flush()
-
-    return_code = process.wait()
-    if return_code != 0:
-        die(f"pi exited with status {return_code}", return_code)
-    if output is None or not output.strip():
-        die("pi returned an empty response")
-    return output
-
-
-def run_claude(message: str, *, session_id: str, resume: bool) -> str:
-    command = [
-        "claude",
-        "-p",
-        "--output-format",
-        "stream-json",
-        "--verbose",
-        "--safe-mode",
-        "--permission-mode",
-        "dontAsk",
-    ]
-    command.extend(["--resume", session_id] if resume else ["--session-id", session_id])
-
-    process = start_harness(command, message)
-    assert process.stdout is not None
-
-    print("[claude] working...", file=sys.stderr, flush=True)
-    output: str | None = None
-    tool_names: dict[object, object] = {}
-    for line in process.stdout:
-        try:
-            event = json.loads(line)
-        except json.JSONDecodeError:
-            process.terminate()
-            die("claude returned an invalid JSON event")
-        if not isinstance(event, dict):
-            continue
-
-        event_type = event.get("type")
-        if event_type == "assistant":
-            for block in message_blocks(event):
-                if block.get("type") != "tool_use":
-                    continue
-                name = block.get("name", "unknown")
-                tool_names[block.get("id")] = name
-                describe_tool_call("claude", name, block.get("input"))
-        elif event_type == "user":
-            for block in message_blocks(event):
-                if block.get("type") != "tool_result":
-                    continue
-                name = tool_names.get(block.get("tool_use_id"), "unknown")
-                # A successful tool result omits is_error.
-                status = "failed" if block.get("is_error") else "done"
-                print(f"[claude] ← {name} {status}", file=sys.stderr, flush=True)
-        elif event_type == "result":
-            text = event.get("result")
-            if event.get("is_error"):
-                process.terminate()
-                die(f"claude reported an error: {text}")
-            if isinstance(text, str):
-                output = text
-
-    return_code = process.wait()
-    if return_code != 0:
-        die(f"claude exited with status {return_code}", return_code)
-    if output is None or not output.strip():
-        die("claude returned an empty response")
-    return output
-
-
-def opencode_error(event: dict[str, object]) -> str:
-    error = event.get("error")
-    if not isinstance(error, dict):
-        return "unknown error"
-    data = error.get("data")
-    message = data.get("message") if isinstance(data, dict) else None
-    name = error.get("name", "error")
-    return f"{name}: {message}" if message else str(name)
-
-
-def run_opencode(message: str, *, session_id: str | None) -> tuple[str, str | None]:
-    command = ["opencode", "run", "--format", "json", "--pure", "--auto"]
-    if session_id is not None:
-        command.extend(["-s", session_id])
-
-    process = start_harness(command, message)
-    assert process.stdout is not None
-
-    print("[opencode] working...", file=sys.stderr, flush=True)
-    captured = session_id
-    output = ""
-    text_message = None
-    for line in process.stdout:
-        try:
-            event = json.loads(line)
-        except json.JSONDecodeError:
-            process.terminate()
-            die("opencode returned an invalid JSON event")
-        if not isinstance(event, dict):
-            continue
-
-        reported = event.get("sessionID")
-        if isinstance(reported, str):
-            captured = reported
-        part = event.get("part")
-        if not isinstance(part, dict):
-            part = {}
-
-        event_type = event.get("type")
-        if event_type == "text":
-            if part.get("messageID") != text_message:
-                text_message = part.get("messageID")
-                output = ""
-            text = part.get("text")
-            if isinstance(text, str):
-                output += text
-        elif event_type == "tool_use":
-            state = part.get("state")
-            if not isinstance(state, dict):
-                state = {}
-            status = state.get("status", "unknown")
-            print(
-                f"[opencode] ← {part.get('tool', 'unknown')} "
-                f"{'done' if status == 'completed' else status} "
-                f"{truncated_args(state.get('input'))}",
-                file=sys.stderr,
-                flush=True,
-            )
-        elif event_type == "error":
-            process.terminate()
-            die(f"opencode reported an error: {opencode_error(event)}")
-
-    return_code = process.wait()
-    if return_code != 0:
-        die(f"opencode exited with status {return_code}", return_code)
-    if not output.strip():
-        die("opencode returned an empty response")
-    return output, captured
 
 
 def revision_prompt(feedback: str, prompt_file: Path | None, review_file: Path) -> str:
@@ -506,36 +216,20 @@ def main() -> None:
     harness = resolve_harness(args.harness)
     prompt_file = None if args.stdin else args.prompt.expanduser()
 
+    # Checked before anything is rendered or written, so a missing command
+    # cannot leave a run directory behind.
     require_command(harness)
     require_command("plannotator")
     require_command("render-prompt")
+    require_command("run-agent")
 
     prompt = render_prompt(prompt_file, harness)
 
     run_dir, run_state = create_run(prompt_file, harness)
-    if harness == "pi":
-        session_dir = run_dir / PI_SESSION_PATH
-        session_dir.mkdir(parents=True)
-        output = run_pi(prompt, session_dir, session_file=None)
-        session_file = find_pi_session(session_dir)
-        run_state["session"] = {
-            "kind": "pi-session-file",
-            "path": str(session_file.relative_to(run_dir)),
-        }
-    elif harness == "claude":
-        session_id = str(uuid4())
-        output = run_claude(prompt, session_id=session_id, resume=False)
-        transcript = find_claude_session(session_id)
-        run_state["session"] = {
-            "kind": "claude-session-id",
-            "id": session_id,
-            "transcript": str(transcript) if transcript is not None else None,
-        }
-    else:
-        output, session_id = run_opencode(prompt, session_id=None)
-        run_state["session"] = opencode_session(session_id)
-    write_run_state(run_dir, run_state)
+    handle = run_dir / "session.json"
     review_file = run_dir / "response.md"
+
+    output = run_agent(prompt, harness, handle)
 
     while True:
         result = request_review(output, review_file)
@@ -554,15 +248,9 @@ def main() -> None:
         feedback = result.get("feedback")
         if not isinstance(feedback, str) or not feedback.strip():
             die("plannotator returned an annotation without feedback")
-        revision = revision_prompt(feedback, prompt_file, review_file)
-        if harness == "pi":
-            output = run_pi(revision, session_dir, session_file=session_file)
-        elif harness == "claude":
-            output = run_claude(revision, session_id=session_id, resume=True)
-        else:
-            if session_id is None:
-                die("opencode did not report a session id, cannot revise")
-            output, _ = run_opencode(revision, session_id=session_id)
+        output = run_agent(
+            revision_prompt(feedback, prompt_file, review_file), harness, handle
+        )
 
 
 if __name__ == "__main__":
