@@ -1,0 +1,124 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["jinja2>=3.1,<4"]
+# ///
+
+"""Render a Jinja prompt template for a specific agent harness.
+
+Usage:
+    render-prompt --harness claude prompt.md
+    render-prompt --harness pi < prompt.md
+
+The template is read from FILE, or from standard input when FILE is absent, and
+rendered with the selected harness name available as ``harness``. Plain text
+templates render unchanged. The rendered prompt is written to stdout.
+
+A template branches on the harness name to account for capability differences
+between agents:
+
+    {% if harness == "claude" %}Delegate research to sub-agents.{% endif %}
+
+An undefined variable is an error rather than an empty string, so a misspelled
+name fails here instead of quietly stripping an instruction from a prompt an
+agent then acts on. The trailing newline of the template is preserved, and
+nothing is HTML-escaped: these are Markdown prompts, not web pages.
+"""
+
+import argparse
+import sys
+from pathlib import Path
+from typing import NoReturn
+
+from jinja2 import Environment, StrictUndefined, TemplateSyntaxError, UndefinedError
+
+
+HARNESSES = ("pi", "claude", "opencode")
+
+
+def die(message: str) -> NoReturn:
+    print(f"error: {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+
+def read_template(prompt_file: Path | None) -> tuple[str, str]:
+    if prompt_file is None:
+        try:
+            return sys.stdin.read(), "stdin"
+        except (OSError, UnicodeError) as error:
+            die(f"cannot read prompt from stdin: {error}")
+
+    if not prompt_file.exists():
+        die(f"prompt file does not exist: {prompt_file}")
+    try:
+        return prompt_file.read_text(), str(prompt_file)
+    except (OSError, UnicodeError) as error:
+        die(f"cannot read prompt file: {error}")
+
+
+def location(source: str, error: Exception) -> str:
+    line = None
+    trace = error.__traceback__
+    while trace is not None:
+        if trace.tb_frame.f_code.co_filename == "<template>":
+            line = trace.tb_lineno
+        trace = trace.tb_next
+    return source if line is None else f"{source} at line {line}"
+
+
+def render(template: str, source: str, harness: str) -> str:
+    environment = Environment(keep_trailing_newline=True, undefined=StrictUndefined)
+    try:
+        prompt = environment.from_string(template).render(harness=harness)
+    except TemplateSyntaxError as error:
+        die(
+            f"invalid Jinja template in {source} at line "
+            f"{error.lineno}: {error.message}"
+        )
+    except UndefinedError as error:
+        die(f"undefined variable in {location(source, error)}: {error.message}")
+    except Exception as error:  # noqa: BLE001
+        die(f"cannot render {location(source, error)}: {error}")
+    if not prompt.strip():
+        die(f"rendered prompt from {source} is empty")
+    return prompt
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog=Path(sys.argv[0]).name,
+        description="Render a Jinja prompt template for a specific agent harness.",
+    )
+    parser.add_argument(
+        "prompt",
+        type=Path,
+        nargs="?",
+        metavar="FILE",
+        help="Jinja template holding the prompt (default: standard input)",
+    )
+    parser.add_argument(
+        "--harness",
+        choices=HARNESSES,
+        required=True,
+        help=(
+            "agent the prompt is rendered for; the name is available to the "
+            "template as 'harness'"
+        ),
+    )
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+
+    prompt_file = None if args.prompt is None else args.prompt.expanduser()
+    template, source = read_template(prompt_file)
+    sys.stdout.write(render(template, source, args.harness))
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nInterrupted", file=sys.stderr)
+        raise SystemExit(130) from None
