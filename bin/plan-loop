@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["jinja2>=3.1,<4"]
+# dependencies = []
 # ///
 
 """Iteratively review and revise an agent-generated plan with Plannotator.
@@ -12,14 +12,14 @@ Usage:
     plan-loop --harness claude --prompt <prompt.md>
     plan-loop --harness opencode --prompt <prompt.md>
 
-The prompt is read from a file or from standard input, rendered as a Jinja
-template with the selected harness name available as ``harness``, and sent to
-the harness. Plain text prompts render unchanged. The harness response is opened
-in Plannotator. If annotations are submitted,
-their feedback is sent back to the same harness session and the complete revised
-response is opened for review again. The loop ends when the response is approved
-or dismissed. The final response is written to stdout; harness progress and tool
-activity are written to stderr.
+The prompt is a Jinja template, read from a file or from standard input and
+rendered by ``render-prompt`` with the selected harness name available as
+``harness``. The rendered prompt is sent to the harness and its response is
+opened in Plannotator. If annotations are submitted, their feedback is sent back
+to the same harness session and the complete revised response is opened for
+review again. The loop ends when the response is approved or dismissed. The final
+response is written to stdout; harness progress and tool activity are written to
+stderr.
 
 The --harness option selects the agent: pi, claude, or opencode. The option has
 priority. If the option is absent, the AGENT_HARNESS environment variable selects
@@ -48,8 +48,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import NoReturn
 from uuid import uuid4
-
-from jinja2 import Environment, TemplateSyntaxError
 
 
 HARNESSES = ("pi", "claude", "opencode")
@@ -84,36 +82,18 @@ def resolve_harness(selected: str | None) -> str:
     return configured
 
 
-def read_prompt_file(prompt_file: Path) -> str:
-    if not prompt_file.is_file():
-        die(f"prompt file does not exist: {prompt_file}")
-    try:
-        prompt = prompt_file.read_text()
-    except (OSError, UnicodeError) as error:
-        die(f"cannot read prompt file: {error}")
-    return prompt
+def render_prompt(prompt_file: Path | None, harness: str) -> str:
+    command = ["render-prompt", "--harness", harness]
+    if prompt_file is not None:
+        command.extend(["--", str(prompt_file)])
 
-
-def read_prompt_stdin() -> str:
-    try:
-        prompt = sys.stdin.read()
-    except (OSError, UnicodeError) as error:
-        die(f"cannot read prompt from stdin: {error}")
-    return prompt
-
-
-def render_prompt(template: str, source: str, harness: str) -> str:
-    environment = Environment(keep_trailing_newline=True)
-    try:
-        prompt = environment.from_string(template).render(harness=harness)
-    except TemplateSyntaxError as error:
+    result = subprocess.run(command, text=True, stdout=subprocess.PIPE, check=False)
+    if result.returncode != 0:
         die(
-            f"invalid Jinja template in {source} at line "
-            f"{error.lineno}: {error.message}"
+            f"render-prompt exited with status {result.returncode}",
+            result.returncode,
         )
-    if not prompt.strip():
-        die(f"rendered prompt from {source} is empty")
-    return prompt
+    return result.stdout
 
 
 def opencode_database() -> Path | None:
@@ -185,8 +165,6 @@ def find_claude_session(session_id: str) -> Path | None:
         os.environ.get("CLAUDE_CONFIG_DIR", Path.home() / ".claude")
     ).expanduser()
     transcripts = list((config_home / "projects").glob(f"*/{session_id}.jsonl"))
-    # The transcript belongs to Claude Code, not to the run, so a moved or
-    # missing file must not end an otherwise healthy loop.
     if len(transcripts) != 1:
         return None
     return transcripts[0]
@@ -323,8 +301,6 @@ def run_pi(message: str, session_dir: Path, *, session_file: Path | None) -> str
 
 
 def run_claude(message: str, *, session_id: str, resume: bool) -> str:
-    # --safe-mode keeps the reviewed response free of hook and skill output from
-    # the user configuration of this machine.
     command = [
         "claude",
         "-p",
@@ -395,8 +371,6 @@ def opencode_error(event: dict[str, object]) -> str:
 
 
 def run_opencode(message: str, *, session_id: str | None) -> tuple[str, str | None]:
-    # opencode does not accept a session id. It reports the id it creates, and
-    # the caller sends that id back to continue the same session.
     command = ["opencode", "run", "--format", "json", "--pure", "--auto"]
     if session_id is not None:
         command.extend(["-s", session_id])
@@ -426,8 +400,6 @@ def run_opencode(message: str, *, session_id: str | None) -> tuple[str, str | No
 
         event_type = event.get("type")
         if event_type == "text":
-            # Each step is a new message. The last message holds the answer, so
-            # a new message starts the response again.
             if part.get("messageID") != text_message:
                 text_message = part.get("messageID")
                 output = ""
@@ -533,16 +505,12 @@ def main() -> None:
 
     harness = resolve_harness(args.harness)
     prompt_file = None if args.stdin else args.prompt.expanduser()
-    if prompt_file is None:
-        template = read_prompt_stdin()
-        source = "stdin"
-    else:
-        template = read_prompt_file(prompt_file)
-        source = str(prompt_file)
-    prompt = render_prompt(template, source, harness)
 
     require_command(harness)
     require_command("plannotator")
+    require_command("render-prompt")
+
+    prompt = render_prompt(prompt_file, harness)
 
     run_dir, run_state = create_run(prompt_file, harness)
     if harness == "pi":
