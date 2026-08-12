@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.11"
-# dependencies = []
+# dependencies = ["jinja2>=3.1,<4"]
 # ///
 
 """Iteratively review and revise an agent-generated plan with Plannotator.
@@ -12,8 +12,10 @@ Usage:
     plan-loop --harness claude --prompt <prompt.md>
     plan-loop --harness opencode --prompt <prompt.md>
 
-The prompt is read from a file or from standard input and sent to the harness.
-The harness response is opened in Plannotator. If annotations are submitted,
+The prompt is read from a file or from standard input, rendered as a Jinja
+template with the selected harness name available as ``harness``, and sent to
+the harness. Plain text prompts render unchanged. The harness response is opened
+in Plannotator. If annotations are submitted,
 their feedback is sent back to the same harness session and the complete revised
 response is opened for review again. The loop ends when the response is approved
 or dismissed. The final response is written to stdout; harness progress and tool
@@ -46,6 +48,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import NoReturn
 from uuid import uuid4
+
+from jinja2 import Environment, TemplateSyntaxError
 
 
 HARNESSES = ("pi", "claude", "opencode")
@@ -87,8 +91,6 @@ def read_prompt_file(prompt_file: Path) -> str:
         prompt = prompt_file.read_text()
     except (OSError, UnicodeError) as error:
         die(f"cannot read prompt file: {error}")
-    if not prompt.strip():
-        die("prompt file is empty")
     return prompt
 
 
@@ -97,8 +99,20 @@ def read_prompt_stdin() -> str:
         prompt = sys.stdin.read()
     except (OSError, UnicodeError) as error:
         die(f"cannot read prompt from stdin: {error}")
+    return prompt
+
+
+def render_prompt(template: str, source: str, harness: str) -> str:
+    environment = Environment(keep_trailing_newline=True)
+    try:
+        prompt = environment.from_string(template).render(harness=harness)
+    except TemplateSyntaxError as error:
+        die(
+            f"invalid Jinja template in {source} at line "
+            f"{error.lineno}: {error.message}"
+        )
     if not prompt.strip():
-        die("prompt on stdin is empty")
+        die(f"rendered prompt from {source} is empty")
     return prompt
 
 
@@ -493,12 +507,18 @@ def parse_args() -> argparse.Namespace:
         "--prompt",
         type=Path,
         metavar="FILE",
-        help="Markdown file holding the prompt to send to the harness",
+        help=(
+            "Jinja template holding the prompt; the selected harness name is "
+            "available as 'harness'"
+        ),
     )
     source.add_argument(
         "--stdin",
         action="store_true",
-        help="read the prompt from standard input instead of a file",
+        help=(
+            "read the Jinja prompt template from standard input; the selected "
+            "harness name is available as 'harness'"
+        ),
     )
     parser.add_argument(
         "--harness",
@@ -514,9 +534,12 @@ def main() -> None:
     harness = resolve_harness(args.harness)
     prompt_file = None if args.stdin else args.prompt.expanduser()
     if prompt_file is None:
-        prompt = read_prompt_stdin()
+        template = read_prompt_stdin()
+        source = "stdin"
     else:
-        prompt = read_prompt_file(prompt_file)
+        template = read_prompt_file(prompt_file)
+        source = str(prompt_file)
+    prompt = render_prompt(template, source, harness)
 
     require_command(harness)
     require_command("plannotator")
