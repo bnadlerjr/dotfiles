@@ -1,0 +1,99 @@
+#!/usr/bin/env -S uv run --script
+# vim: set filetype=python :
+#
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
+
+"""Build a filename slug from an issue key and summary.
+
+Usage:
+    generate-issue-slug POPS-1861 "Automation creator is told when their automation fails"
+    jira issue view POPS-1861 --raw | jq -r '.fields.summary' | generate-issue-slug POPS-1861
+
+The summary is read from the SUMMARY argument, or from standard input when
+SUMMARY is absent. The slug is written to stdout as "<key>-<word>-<word>...".
+
+Bracket tags and parentheticals are dropped, the remainder is ASCII-folded,
+lowercased, and stripped of filler words. Word order is preserved and there is
+no length cap. The key keeps the case it was given, so the tracker's own form of
+the key survives into the filename.
+
+Both halves must survive the transform. A key or summary that reduces to nothing
+is an error rather than a bare key, because the output becomes a filename or a
+branch name: a failed upstream lookup would otherwise be laundered into a
+plausible-looking artifact.
+"""
+
+import argparse
+import re
+import sys
+import unicodedata
+
+# Lucene/Snowball English stop set, minus "no" and "not".
+LUCENE = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for",
+          "if", "in", "into", "is", "it", "of", "on", "or", "such", "that",
+          "the", "their", "then", "there", "these", "they", "this", "to",
+          "was", "will", "with"]
+
+# Auxiliaries, modals, pronouns, common prepositions.
+EXTRA = ["am", "been", "being", "can", "could", "did", "do", "does", "from",
+         "had", "has", "have", "he", "her", "him", "his", "i", "its", "me",
+         "my", "our", "she", "should", "so", "than", "them", "us", "we",
+         "were", "what", "when", "where", "which", "who", "whom", "whose",
+         "why", "would", "you", "your"]
+
+# "no" and "not" are deliberately excluded even though standard stop lists
+# include both. Dropping them inverts meaning: "Do not send reminder on cancel"
+# would become "send-reminder-cancel", a filename that lies.
+STOP = set(LUCENE) | set(EXTRA)
+
+
+def die(message):
+    print(f"error: {message}", file=sys.stderr)
+    sys.exit(1)
+
+
+def to_ascii(text):
+    """Fold text to ASCII, dropping whatever has no ASCII equivalent."""
+    return unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
+
+
+def slug_key(key):
+    """Slugify an issue key, preserving its case and keeping every word."""
+    return "-".join(re.findall(r"[A-Za-z0-9]+", to_ascii(key)))
+
+
+def slug_body(summary):
+    """Slugify a summary, dropping bracket tags, parentheticals, and filler."""
+    text = re.sub(r"\[[^\]]*\]", " ", summary)   # [FE], [BE], [Glow Up]
+    text = re.sub(r"\([^)]*\)", " ", text)       # parentheticals
+    words = re.findall(r"[a-z0-9]+", to_ascii(text).lower())
+    return "-".join(w for w in words if w not in STOP)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Build a filename slug from an issue key and summary.",
+        epilog="SUMMARY is read from standard input when omitted.",
+    )
+    parser.add_argument("key", help="issue key, e.g. POPS-1861; case is preserved")
+    parser.add_argument("summary", nargs="?", help="issue summary")
+    args = parser.parse_args()
+
+    summary = args.summary if args.summary is not None else sys.stdin.read()
+
+    key = slug_key(args.key)
+    if not key:
+        die(f"no usable characters in key: {args.key!r}")
+
+    body = slug_body(summary)
+    if not body:
+        die(f"no usable words in summary: {summary.strip()!r}")
+
+    print(f"{key}-{body}")
+
+
+if __name__ == "__main__":
+    main()

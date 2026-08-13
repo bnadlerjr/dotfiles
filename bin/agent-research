@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+# Research a Jira issue in the current repository and save the result.
+#
+# The issue becomes a list of research questions, reviewed in Plannotator, and
+# the approved questions go to a second agent that never sees the issue.
+#
+# Run this from the repository to be researched: run-agent inherits the working
+# directory. Dismissing the review does not stop the run, and researching the
+# same issue twice overwrites the first document.
+#
+# A failed run keeps its temporary directory and names it on stderr, because the
+# agent's response lives there until the last step and cannot be reproduced.
+#
+# USAGE:
+#   agent-research --jira <issue-key> [--harness pi|claude|opencode]
+
+set -euo pipefail
+
+readonly PROMPTS="$HOME/dotfiles"
+
+die() { echo "agent-research: error: $*" >&2; exit 1; }
+
+require_command() {
+    command -v "$1" >/dev/null 2>&1 || die "'$1' not found in PATH"
+}
+
+key=""
+harness=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --jira)
+            key="${2:-}"
+            [[ -n "$key" ]] || die "--jira requires an issue key"
+            shift 2
+            ;;
+        --harness)
+            harness="${2:-}"
+            [[ -n "$harness" ]] || die "--harness requires an agent name"
+            shift 2
+            ;;
+        *) die "unknown argument: $1" ;;
+    esac
+done
+[[ -n "$key" ]] || die "usage: agent-research --jira <issue-key> [--harness pi|claude|opencode]"
+harness="${harness:-${AGENT_HARNESS:-pi}}"
+
+[[ -n "${CLAUDE_DOCS_ROOT:-}" ]] || die "CLAUDE_DOCS_ROOT is not set"
+for command_name in jira jq generate-issue-slug render-prompt plan-loop \
+                    run-agent save-artifact; do
+    require_command "$command_name"
+done
+
+tmp="$(mktemp -d)"
+cleanup() {
+    local status=$?
+    if [[ $status -eq 0 ]]; then
+        rm -rf -- "$tmp"
+    else
+        echo "agent-research: kept $tmp" >&2
+    fi
+}
+trap cleanup EXIT
+
+render-prompt --harness "$harness" -- "$PROMPTS/question-me.md.j2" > "$tmp/questions"
+render-prompt --harness "$harness" -- "$PROMPTS/explore-codebase.md.j2" > "$tmp/prompt"
+
+raw="$(jira issue view "$key" --raw)" ||
+    die "cannot read $key: missing issue, or jira is not configured"
+summary="$(jq -er '.fields.summary' <<<"$raw")"
+slug="$(generate-issue-slug "$key" "$summary")"
+
+ticket="$(jira issue view "$key" --plain)" ||
+    die "cannot read $key: missing issue, or jira is not configured"
+
+printf '\n%s\n' "$ticket" >> "$tmp/questions"
+questions="$(plan-loop --stdin --harness "$harness" < "$tmp/questions")"
+
+{
+    printf '\n%s\n' "$questions"
+    printf '\n## Run metadata\n\ndate: %s\n' "$(date +%F)"
+} >> "$tmp/prompt"
+
+run-agent --harness "$harness" < "$tmp/prompt" > "$tmp/research.md"
+
+save-artifact "$CLAUDE_DOCS_ROOT/$slug/$key-research.md" "$tmp/research.md"

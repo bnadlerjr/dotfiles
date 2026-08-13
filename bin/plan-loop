@@ -12,11 +12,9 @@ Usage:
     plan-loop --prompt <prompt.md>
     plan-loop --stdin < prompt.md
     plan-loop --harness claude --prompt <prompt.md>
-    plan-loop --harness opencode --prompt <prompt.md>
+    render-prompt --harness claude -- prompt.md.j2 | plan-loop --stdin
 
-The prompt is a Jinja template, read from a file or from standard input and
-rendered by ``render-prompt`` with the selected harness name available as
-``harness``. The rendered prompt is sent to the harness by ``run-agent``, which
+The prompt is sent to the harness by ``run-agent``, which
 also keeps the harness session so a revision continues the same conversation. The
 response is opened in Plannotator. If annotations are submitted, their feedback is
 sent back to the same harness session and the complete revised response is opened
@@ -82,9 +80,7 @@ def resolve_harness(selected: str | None) -> str:
     return configured
 
 
-def run_child(command: list[str], message: str | None = None) -> str:
-    # Without a message the child inherits this command's stdin, which is what
-    # render-prompt needs to read a template from it.
+def run_child(command: list[str], message: str) -> str:
     result = subprocess.run(
         command, input=message, text=True, stdout=subprocess.PIPE, check=False
     )
@@ -95,11 +91,19 @@ def run_child(command: list[str], message: str | None = None) -> str:
     return result.stdout
 
 
-def render_prompt(prompt_file: Path | None, harness: str) -> str:
-    command = ["render-prompt", "--harness", harness]
-    if prompt_file is not None:
-        command.extend(["--", str(prompt_file)])
-    return run_child(command)
+def read_prompt(prompt_file: Path | None) -> str:
+    try:
+        if prompt_file is None:
+            prompt = sys.stdin.read()
+        elif not prompt_file.exists():
+            die(f"prompt file does not exist: {prompt_file}")
+        else:
+            prompt = prompt_file.read_text()
+    except (OSError, UnicodeError) as error:
+        die(f"cannot read prompt: {error}")
+    if not prompt.strip():
+        die("prompt is empty")
+    return prompt
 
 
 def run_agent(message: str, harness: str, handle: Path) -> str:
@@ -189,18 +193,12 @@ def parse_args() -> argparse.Namespace:
         "--prompt",
         type=Path,
         metavar="FILE",
-        help=(
-            "Jinja template holding the prompt; the selected harness name is "
-            "available as 'harness'"
-        ),
+        help="file holding the prompt, sent as written",
     )
     source.add_argument(
         "--stdin",
         action="store_true",
-        help=(
-            "read the Jinja prompt template from standard input; the selected "
-            "harness name is available as 'harness'"
-        ),
+        help="read the prompt from standard input, sent as written",
     )
     parser.add_argument(
         "--harness",
@@ -216,14 +214,11 @@ def main() -> None:
     harness = resolve_harness(args.harness)
     prompt_file = None if args.stdin else args.prompt.expanduser()
 
-    # Checked before anything is rendered or written, so a missing command
-    # cannot leave a run directory behind.
     require_command(harness)
     require_command("plannotator")
-    require_command("render-prompt")
     require_command("run-agent")
 
-    prompt = render_prompt(prompt_file, harness)
+    prompt = read_prompt(prompt_file)
 
     run_dir, run_state = create_run(prompt_file, harness)
     handle = run_dir / "session.json"

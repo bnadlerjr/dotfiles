@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+# Save a file, or standard input, to a destination path.
+#
+# Creates any missing parent directories. Prints the destination on stdout, so
+# the result is usable in command substitution. An existing destination is
+# overwritten, matching cp.
+#
+# The destination is a full path, not a directory, so the stdin form has a
+# filename to write to. A trailing slash or an existing directory instead keeps
+# the source file's own name.
+#
+# In `producer | save-artifact dest`, a producer that fails partway cannot be
+# detected: a pipeline sink never sees its producer's exit status, so the
+# destination ends up holding the partial output and this script still reports
+# success. Prefer the two-argument form for output that cannot be lost.
+#
+# USAGE:
+#   save-artifact <dest> [file]
+#
+# EXAMPLES:
+#   save-artifact ~/notes/2026/plan.md report.md   # copy a file there
+#   some-cmd | save-artifact ~/notes/2026/out.txt  # capture stdout
+#   save-artifact ~/notes/2026/ report.md          # trailing slash keeps basename
+#
+
+set -euo pipefail
+
+readonly SCRIPT_NAME="${0##*/}"
+
+die() {
+    echo "${SCRIPT_NAME}: error: $*" >&2
+    exit 1
+}
+
+main() {
+    if [[ $# -lt 1 || $# -gt 2 ]]; then
+        echo "Usage: ${SCRIPT_NAME} <dest> [file]" >&2
+        exit 2
+    fi
+
+    local dest="$1" src="${2:-}"
+
+    # An empty path reaches cp as a confusing error about identical files.
+    [[ -n "$dest" ]] || die "destination path is empty"
+
+    # An empty source argument would silently fall through to reading stdin.
+    if [[ $# -eq 2 && -z "$src" ]]; then
+        die "source path is empty"
+    fi
+
+    # Only a shell expands a tilde. A non-shell caller would otherwise create a
+    # literal "~" directory in the working directory, and get back a printed
+    # path that looks like it went home.
+    [[ "$dest" != "~"* ]] || die "unexpanded tilde in $dest, pass a full path"
+
+    if [[ "$dest" == */ || -d "$dest" ]]; then
+        [[ -n "$src" ]] || die "$dest names a directory, need a filename"
+        dest="${dest%/}/$(basename -- "$src")"
+
+        # The rewritten path can itself be a directory, which cp would recurse
+        # into, leaving the printed path naming a directory rather than a file.
+        [[ ! -d "$dest" ]] || die "$dest is a directory"
+    fi
+
+    # Both checked before mkdir so a bad source leaves no empty directory tree.
+    # -d rather than -f, because -f is false for the /dev/fd path of a process
+    # substitution, which is a source worth supporting.
+    if [[ -n "$src" ]]; then
+        [[ ! -d "$src" ]] || die "$src is a directory"
+        [[ -r "$src" ]] || die "cannot read $src"
+    fi
+
+    mkdir -p -- "$(dirname -- "$dest")"
+
+    if [[ -n "$src" ]]; then
+        cp -- "$src" "$dest"
+    else
+        cat > "$dest"
+    fi
+
+    printf '%s\n' "$dest"
+}
+
+main "$@"
