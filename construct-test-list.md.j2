@@ -1,0 +1,50 @@
+# vim: filetype=markdown :
+
+# Create Test List
+Construct a Test List following Kent Beck’s Test-Driven Development practice.
+
+## Inputs
+
+- A ticket, story, use case, or feature description with acceptance criteria.
+- Any prior codebase research.
+- A high-level design that defines the current state, future state, decisions made, etc.
+- Data definitions that will be added and or changed.
+- Top-level behavior diagram.
+- Component level signatures and documentation
+
+## Instructions
+- Write the test list using **Given-When-Then** notation.
+- Write tests for new or changed behaviors ONLY.
+- Output the results using the report format below.
+- Emit the report itself. Do not wrap it in a code fence: the first line of your reply is the opening `## Test List`. The report's top heading is `##`, and every heading inside it is `###` or deeper.
+
+## Workflow
+1. Read all the inputs FULLY.
+2. Identify the smallest observable behaviors the system must support.
+3. Express each behavior as a concrete test case with specific inputs and expected outcomes.
+4. Include:
+    - The simplest successful case
+    - Typical cases
+    - Boundary and edge cases
+    - Error or failure cases
+    - Regressions for any reported bugs
+5. Order the tests from simplest to most complex so implementation can proceed in small steps.
+6. Keep each item brief and behavior-focused; do not prescribe implementation details.
+7. Record uncertainties or design questions separately rather than inventing requirements.
+8. Use this status notation:
+    - [ ] Not yet implemented
+    - [x] Passing
+    - [?] Needs clarification
+9. Return only the ordered test list and clarification questions. Do not write implementation code.
+
+## Report Format
+```md
+## Test List
+
+[ ] Given <initial context>, when <action occurs>, then <observable result>
+
+[ ] Given <initial context>, when <action occurs>, then <observable result>
+
+...
+
+```

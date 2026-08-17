@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+
+# Interview a human about a Jira issue and save the agreed design and structure.
+#
+# The issue and its prior research document open a design alignment interview in
+# Plannotator. Rounds run until the human approves, and the approved round is
+# saved as the design document.
+#
+# Four further prompts then build the structure document: data definitions,
+# top-level behavior, signatures, and a test list. Each response is reviewed the
+# same way, and each prompt carries the ticket, the research, the design, and
+# every earlier structure response. A full run is five reviews.
+#
+# Run this from the repository being designed for: plan-loop inherits the working
+# directory, and the interview reads that repository for facts.
+#
+# The research document must already exist: agent-research writes it.
+#
+# Approving a round that still holds questions saves that round as the design,
+# and dismissing the review does the same. Designing the same issue twice
+# overwrites the first documents.
+#
+# A failed run keeps its temporary directory and names it on stderr, because the
+# agent's response lives there until the last step and cannot be reproduced. A
+# structure step that fails leaves the design document already saved.
+#
+# USAGE:
+#   agent-plan --jira <issue-key> [--harness pi|claude|opencode]
+
+set -euo pipefail
+
+readonly PROMPTS="$HOME/dotfiles"
+
+die() { echo "agent-plan: error: $*" >&2; exit 1; }
+
+require_command() {
+    command -v "$1" >/dev/null 2>&1 || die "'$1' not found in PATH"
+}
+
+key=""
+harness=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --jira)
+            key="${2:-}"
+            [[ -n "$key" ]] || die "--jira requires an issue key"
+            shift 2
+            ;;
+        --harness)
+            harness="${2:-}"
+            [[ -n "$harness" ]] || die "--harness requires an agent name"
+            shift 2
+            ;;
+        *) die "unknown argument: $1" ;;
+    esac
+done
+[[ -n "$key" ]] || die "usage: agent-plan --jira <issue-key> [--harness pi|claude|opencode]"
+harness="${harness:-${AGENT_HARNESS:-pi}}"
+
+[[ -n "${CLAUDE_DOCS_ROOT:-}" ]] || die "CLAUDE_DOCS_ROOT is not set"
+for command_name in jira jq generate-issue-slug render-prompt plan-loop \
+                    save-artifact; do
+    require_command "$command_name"
+done
+
+## Setup
+##############################################################################
+raw="$(jira issue view "$key" --raw)" ||
+    die "cannot read $key: missing issue, or jira is not configured"
+summary="$(jq -er '.fields.summary' <<<"$raw")"
+slug="$(generate-issue-slug "$key" "$summary")"
+
+research="$CLAUDE_DOCS_ROOT/$slug/$key-research.md"
+[[ -f "$research" ]] ||
+    die "no research document at $research: run agent-research --jira $key first"
+[[ -r "$research" ]] || die "research document is not readable: $research"
+
+ticket="$(jira issue view "$key" --plain)" ||
+    die "cannot read $key: missing issue, or jira is not configured"
+
+tmp="$(mktemp -d)"
+cleanup() {
+    local status=$?
+    if [[ $status -eq 0 ]]; then
+        rm -rf -- "$tmp"
+    else
+        echo "agent-plan: kept $tmp" >&2
+    fi
+}
+trap cleanup EXIT
+
+# Write a document to stdout, ending it with exactly one newline. An agent
+# response need not end with one, and the next heading would then run into its
+# last line.
+emit_document() {
+    local document
+    # Command substitution strips every trailing newline, and printf puts one
+    # back. The assignment stands alone so a read failure still stops the run.
+    document="$(cat -- "$1")"
+    printf '%s\n' "$document"
+}
+
+# Add a section to the context every later step is given.
+add_section() {
+    local heading="$1" file="$2"
+    {
+        printf '\n## %s\n\n' "$heading"
+        emit_document "$file"
+    } >> "$tmp/context"
+}
+
+# Add a document that titles its own section. A response that does not open one
+# would land in the artifact under the wrong heading, or under none at all, and
+# the run would still report success.
+add_document() {
+    [[ "$(grep -m 1 -v '^[[:space:]]*$' -- "$1")" == '## '* ]] ||
+        die "$1 does not open with a '## ' heading"
+    {
+        printf '\n'
+        emit_document "$1"
+    } >> "$tmp/context"
+}
+
+# One prompt, one review loop. The prompt is the rendered template followed by
+# everything the earlier steps settled.
+run_step() {
+    local template="$1" out="$2"
+    local prompt="$tmp/${template%.md.j2}.prompt"
+    {
+        render-prompt --harness "$harness" -- "$PROMPTS/$template"
+        cat -- "$tmp/context"
+    } > "$prompt"
+
+    plan-loop --stdin --harness "$harness" < "$prompt" > "$out"
+}
+
+printf '\n## Ticket\n\n%s\n' "$ticket" > "$tmp/context"
+add_section "Prior Research" "$research"
+
+## Create Design Artifact
+##############################################################################
+run_step align-me.md.j2 "$tmp/design.md"
+
+save-artifact "$CLAUDE_DOCS_ROOT/$slug/$key-design.md" "$tmp/design.md"
+
+# The design document titles itself "# Design: <feature>", so its section needs
+# a heading of its own, which its title then outranks. That costs nothing in a
+# prompt. A structure response arrives already titled at "## ".
+add_section Design "$tmp/design.md"
+
+## Create Structure Artifact
+##############################################################################
+run_step define-data-definitions.md.j2 "$tmp/data-definitions.md"
+add_document "$tmp/data-definitions.md"
+
+run_step draw-top-level-behavior.md.j2 "$tmp/top-level-behavior.md"
+add_document "$tmp/top-level-behavior.md"
+
+run_step write-signatures.md.j2 "$tmp/signatures.md"
+add_document "$tmp/signatures.md"
+
+run_step construct-test-list.md.j2 "$tmp/test-list.md"
+
+# Nothing reads the context after the last step. This call is what checks the
+# heading of a document that goes straight into the artifact.
+add_document "$tmp/test-list.md"
+
+# Assembled first, then copied: save-artifact cannot detect a producer that
+# fails mid-pipe.
+{
+    printf '# Structure\n\n'
+    emit_document "$tmp/data-definitions.md"
+    printf '\n'
+    emit_document "$tmp/top-level-behavior.md"
+    printf '\n'
+    emit_document "$tmp/signatures.md"
+    printf '\n'
+    emit_document "$tmp/test-list.md"
+} > "$tmp/structure.md"
+
+save-artifact "$CLAUDE_DOCS_ROOT/$slug/$key-structure.md" "$tmp/structure.md"
