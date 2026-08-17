@@ -1,0 +1,38 @@
+# vim: set filetype=markdown :
+
+# Define Data Definitions
+
+Generate data definitions that will be added and or changed. These may include but are not
+limited to: GraphQL types, data structures, types, etc.
+
+## Inputs
+
+- A ticket, story, use case, or feature description with acceptance criteria.
+- Any prior codebase research.
+- A high-level design that defines the current state, future state, decisions made, etc.
+
+## Instructions
+- Write data definitions using the syntax of the codebase (GraphQL, Elixir, TypeScript, etc.).
+- Use `diff` when the point is what changes and the surrounding shape already exists. Match the diff shape to the topic.
+- Write data definitions (e.g. GraphQL types, DB schemas, etc.) ONLY. Do not write functions, classes, etc.
+- Output the results using the report format below.
+- Emit the report itself. Do not wrap it in a code fence: the first line of your reply is the opening `## Data Definitions`. The report's top heading is `##`, and every heading inside it is `###` or deeper.
+
+## Workflow
+
+- Read all the inputs FULLY.
+- Generate data definitions that will be needed and or changed.
+- Report the data definitions following the report format below.
+
+## Report Format
+```md
+## Data Definitions
+
+### <topic>
+<data definition>
+
+### <topic>
+<data definition>
+
+...
+```

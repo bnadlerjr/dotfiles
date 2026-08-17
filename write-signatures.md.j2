@@ -1,0 +1,40 @@
+# vim: filetype=markdown :
+
+# Write Signatures
+Write component level signatures and documentation for modules, functions, classes, etc.
+
+## Inputs
+
+- A ticket, story, use case, or feature description with acceptance criteria.
+- Any prior codebase research.
+- A high-level design that defines the current state, future state, decisions made, etc.
+- Data definitions that will be added and or changed.
+- Top-level behavior diagram.
+
+## Instructions
+- Write signatures using the syntax of the codebase (Elixir, TypeScript, etc.).
+- Use `diff` when the point is what changes and the surrounding shape already exists. Match the diff shape to the topic.
+- Write signatures, documentation, pre/post conditions ONLY. Do not write implementation.
+- Write signatures for production code ONLY, not tests.
+- Write docstrings only for public components.
+- Write a simple call-stack or call-tree diagram. Use `diff` to show changes.
+- Output the results using the report format below.
+- Emit the report itself. Do not wrap it in a code fence: the first line of your reply is the opening `## Signatures`. The report's top heading is `##`, and every heading inside it is `###` or deeper.
+
+## Workflow
+
+- Read all the inputs FULLY.
+- For each new component, generate signatures and documentation. The documentation should include pre/post conditions.
+- For any components that change, use `diff` to show the signature changes.
+- Report using the report format below.
+
+## Report Format
+```md
+## Signatures
+
+### Call Tree
+<call tree>
+
+### Signatures
+<component signatures>
+```

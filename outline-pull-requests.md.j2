@@ -1,0 +1,18 @@
+# Outline Pull Requests
+
+Produce a phased structure outline — the skeleton that maps HOW to get from the current state to the desired end state, broken into independently-verifiable phases. Design says where we're going; this outline says how we get there.
+
+Each phase will be a pull request that contains one or more planned commits.
+Draft a pull request message for each phase.
+
+- Target ~2 pages maximum — this is a skeleton, not a plan
+- Do NOT include code snippets — that's for /create-implementation-plan
+- Do NOT include detailed file changes — that's for /create-implementation-plan
+- DO name the files/components touched per phase (names only)
+- DO make each phase independently verifiable
+- Each phase must be completable in a single agent session
+- Each phase must not break the system
+- Each phase gets its own success criteria
+- Each phase has a clear dependency chain
+- Minimize cross-phase surface coupling: later phases should build on earlier phases' observable behavior (public contracts), not their internal structure — internal shape will drift during execution as implementation emerges, invalidating anything that referenced it
+- Optimize for: independent verifiability, safe stopping points, single-session scope
