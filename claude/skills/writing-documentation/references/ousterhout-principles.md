@@ -33,7 +33,7 @@ Describes internal mechanics — what maintainers need to know:
 - Non-obvious control flow
 - Performance trade-offs made
 
-**Rule**: Interface docs are mandatory. Implementation docs are added only when the implementation is non-obvious.
+**Rule**: Interface docs are mandatory. Implementation docs are added only when the implementation is non-obvious. Write implementation docs sparingly.
 
 ## 3. Document Non-Obvious Things
 
@@ -101,7 +101,7 @@ Interface documentation should describe WHAT, not HOW:
 | "Iterates through the list and filters" | "Returns items matching the predicate" |
 | "Calls the Redis SETNX command" | "Acquires a distributed lock, returning true if successful" |
 
-Implementation details in interface docs create false coupling — readers start depending on the internal mechanism instead of the abstraction.
+Implementation details in interface docs create false coupling and make readers start depending on the internal mechanism instead of the abstraction.
 
 ## Applying These Principles
 

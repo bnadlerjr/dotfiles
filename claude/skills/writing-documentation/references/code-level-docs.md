@@ -1,6 +1,6 @@
 # Code-Level Documentation Workflow
 
-Write module headers, function/method docs, and inline comments that serve both human developers and LLMs.
+Write module headers, function/method docs, and inline comments that serve developers.
 
 ## Inputs
 
@@ -87,15 +87,10 @@ Apply Ousterhout's interface vs. implementation rule: describe WHAT, not HOW.
 
 ### Step 5: Write Inline Comments
 
-Inline comments explain WHY, not WHAT. Add them for:
-
-- **Design decisions**: Why this approach over the obvious alternative
-- **Workarounds**: What bug or limitation this works around (include ticket/issue reference)
-- **Non-obvious behavior**: Behavior a reader would not expect from scanning the code
-- **Performance trade-offs**: Why the less readable option was chosen
-- **Invariants**: Conditions that must hold but are not enforced by the type system
+Inline comments explain WHY, not WHAT. Add them only as a last resort.
 
 **Do not add inline comments that restate the code**:
+
 ```
 # Bad: restates the code
 count = count + 1  # increment count
@@ -104,16 +99,7 @@ count = count + 1  # increment count
 count = count + 1  # compensate for zero-indexed API response
 ```
 
-### Step 6: Apply LLM Patterns
-
-After writing the docs, check against LLM-friendly patterns from `references/llm-doc-patterns.md`:
-
-- [ ] First reference to any entity uses its fully qualified name
-- [ ] No ambiguous pronouns ("it", "this") across section boundaries
-- [ ] Function doc sections follow a consistent order (description, params, returns, errors)
-- [ ] Type specs use the language's standard format (Elixir `@spec`, TypeScript JSDoc, Python type hints)
-
-### Step 7: Apply Ousterhout Checklist
+### Step 6: Apply Ousterhout Checklist
 
 Final validation against `references/ousterhout-principles.md`:
 
@@ -149,15 +135,10 @@ Adapt the output format to the language:
 - Document each function with a comment block above it
 - Explain non-obvious flags and pipelines inline
 
-## Post-Processing
-
-Code-level docs do NOT go through `writing-for-humans` post-processing. They have different constraints (precision over scannability, co-located with code, language-specific formatting).
-
 ## Quality Check
 
 A well-documented code file passes these tests:
 
 1. A developer can use any public function without reading its implementation
 2. A maintainer can understand WHY the code is structured this way
-3. An LLM can accurately summarize the module's purpose and API from the docs alone
-4. Searching for the module's fully qualified name finds its documentation
+3. Searching for the module's fully qualified name finds its documentation

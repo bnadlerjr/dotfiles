@@ -1,6 +1,6 @@
 # Architecture Documentation Workflow
 
-Write system overviews, ADRs, design docs, and module interaction descriptions that serve both human developers and LLMs.
+Write system overviews, ADRs, design docs, and module interaction descriptions that serve developers.
 
 ## Inputs
 
@@ -50,13 +50,6 @@ Follow the selected template. Apply these principles throughout:
 - Separate interface descriptions from implementation details
 - Explain the WHY behind architectural decisions
 - Provide high-level intuition before low-level details
-
-**From LLM patterns (see `references/llm-doc-patterns.md`)**:
-- Use explicit, keyword-rich headings
-- Front-load context in each section (BLUF)
-- Make each section self-contained
-- Use fully qualified module names on first reference
-- State relationships explicitly (depends on, called by, talks to)
 
 ### Step 4: Validate
 
@@ -270,10 +263,6 @@ Module interaction docs describe how specific modules communicate.
 ```
 
 ---
-
-## Post-Processing
-
-Architecture docs do NOT go through `writing-for-humans` post-processing. They prioritize precision and completeness over scannability. They already follow BLUF and explicit headings from the LLM patterns.
 
 ## Quality Checklist
 
