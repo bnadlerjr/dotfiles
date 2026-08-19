@@ -1,20 +1,11 @@
 ---
 name: writing-git-commits
-description: Write Tim Pope-style Git commit messages. Honors repo-specific commit templates when present. Forbids AI attribution. Use when committing staged changes, amending commit messages, or when someone mentions commit message, git commit, or commit format.
-allowed-tools: Bash(git commit:*), Bash(git config --get:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git rev-parse:*), Bash(cat:*), Read
+description: Write Git commit messages. Honors repo-specific commit templates when present. Forbids AI attribution. Use when committing staged changes, amending commit messages, or when someone mentions commit message, git commit, or commit format.
 ---
 
 # Writing Git Commits
 
 Write clear, professional Git commit messages following Tim Pope's style guide.
-
-## Quick Start
-
-This skill activates when committing staged changes, amending a commit message, or when the user mentions "commit message", "git commit", or "commit format". On activation:
-
-1. Run the [Template Lookup](#template-lookup-dynamic) to detect a project template.
-2. Follow that template, or fall back to [Tim Pope Format](#tim-pope-format) when none is configured.
-3. Validate against the [Success Checklist](#success-checklist) before invoking `git commit`.
 
 ## The Iron Law
 
@@ -34,8 +25,6 @@ The commit body is user-facing prose: BLUF, active voice, no banned words, no he
 The **subject line is mechanical** (imperative mood, ~50 chars, completion test) and its rules override prose rules where they conflict.
 
 Use bullets for genuinely parallel items; use prose for narrative explanation. Don't bullet-list a single thought.
-
-For long-form prose guidance beyond what's inlined here, see [writing-for-humans](../writing-for-humans/SKILL.md) as further reading.
 
 ## What Belongs in the Body
 
@@ -92,58 +81,7 @@ fi
 [ -n "$template" ] && cat "$template"
 ```
 
-If `$template` resolves to a file, read it and follow its conventions. Otherwise, use [Tim Pope format](#tim-pope-format).
-
-## Tim Pope Format
-
-### The Seven Rules
-
-1. **Subject ~50 chars** (hard max: 72)
-2. **Capitalize** the subject line
-3. **No period** at end of subject
-4. **Imperative mood** in subject ("Add" not "Added" or "Adds")
-5. **Blank line** separating subject from body
-6. **Wrap body at 72 chars**
-7. **Body explains what/why**, not how
-
-### The Completion Test
-
-Every subject line must pass this test:
-
-> "If applied, this commit will **[your subject line]**"
-
-Examples:
-- "If applied, this commit will **Add user authentication**" ✓
-- "If applied, this commit will **Fixed the bug**" ✗
-- "If applied, this commit will **Refactor payment module for clarity**" ✓
-
-### Subject Line Verbs
-
-Most action verbs are self-evident (Add, Remove, Update). These are the ones that need disambiguation:
-
-| Verb | Use For |
-|------|---------|
-| Fix | Bug fixes only — not "improvements" or refactors |
-| Refactor | Code restructuring with **no behavior change**. If behavior changes, use Update |
-| Extract | Breaking code out into a new function/module (no behavior change). Distinct from Move |
-| Move | Relocating existing code without restructuring it |
-| Rename | Renaming files, variables, or functions (no other change) |
-| Replace | Swapping one implementation for another. Distinct from Update (which modifies in place) |
-| Revert | Undoing a prior commit. Include the SHA and WHY in the body |
-
-### When to Include a Body
-
-**Trivial changes (subject only):** typo fixes, version bumps, dependency upgrades with no API change, formatting-only commits. If the change is obvious from the diff and would surprise no one, the subject is enough.
-
-**Non-trivial changes (write a body):** anything that involved a decision. Code review of your future self should be able to ask "why did you do it this way?" and get an answer from the commit message, not from the diff.
-
-The body's job is WHY, not WHAT — the [Diff-Redundancy Test](#test-1-the-diff-redundancy-test) still applies. If your draft body paraphrases the diff, rewrite it to explain motivation, rejected alternatives, or constraints. Don't delete it; fix it.
-
-**When in doubt, write the body.** A paragraph the next reader skips costs them three seconds. A missing paragraph during a bisection costs them an hour.
-
-**If the subject feels cryptic at 50 chars:** that's a signal the change needs a body, not a sharper subject. Keep the subject as the headline; let the body carry the context the 50-char limit pushed out.
-
-Do not use the body to *complete* the subject grammatically — the body is WHY, not WHAT. If your subject and first body sentence read as one continuous thought, rewrite both.
+If `$template` resolves to a file, read it and follow its conventions. Otherwise, use [Tim Pope format](references/tim-pope-format.md).
 
 ## Workflow
 
@@ -198,8 +136,6 @@ The top offenders likely to appear in commit bodies. Cut or replace every instan
 | prior to | before |
 | has the ability to | can |
 | It's important to note that | (delete — state the fact) |
-
-For the full list, see [writing-for-humans banned words](../writing-for-humans/SKILL.md#banned-words-and-phrases).
 
 ### Step 4: Validate
 
@@ -354,9 +290,3 @@ Before finalizing any commit message, verify:
 **Hard rules:**
 - [ ] No AI attribution anywhere
 - [ ] Issue references at end of body (if applicable)
-
-## References
-
-- [Tim Pope Format Details](references/tim-pope-format.md)
-- [writing-for-humans](../writing-for-humans/SKILL.md) — prose rules for the commit body (BLUF, active voice, banned words)
-- [Original blog post](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)
