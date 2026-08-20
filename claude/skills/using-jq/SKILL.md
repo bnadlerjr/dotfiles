@@ -1,13 +1,9 @@
 ---
 name: using-jq
 description: |
-  jq command-line JSON processor expertise covering filter syntax, object/array
-  manipulation, data transformation, and CLI tool integration patterns.
+  jq command-line JSON processor expertise covering basic usage and CLI tool integration patterns.
 
-  Use when processing JSON output from CLI tools (jira, gh, curl), extracting
-  fields from API responses, transforming JSON data structures, or formatting
-  JSON for shell consumption. Also use for jq filters, JSON parsing in bash,
-  or when piping JSON through command-line tools.
+  Use when processing JSON output from CLI tools (jira, gh, curl), extracting fields from API responses, transforming JSON data structures, or formatting JSON for shell consumption.
 ---
 
 # Using jq
@@ -114,7 +110,3 @@ jq -r '.optional_field'
 jq -r '.optional_field // empty'
 jq -r '.optional_field // "default"'
 ```
-
-## Reference File IDs
-
-For programmatic access: `core-filters` · `cli-integrations` · `output-formatting`
