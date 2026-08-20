@@ -54,10 +54,9 @@ ARTIFACT_DIR: $CLAUDE_DOCS_ROOT/plans/
      - Phase 1 MUST be a tracer: the thinnest end-to-end path that proves
        the architecture connects, shipped as production code (not a
        throwaway prototype)
-     - Phases 2..N MUST follow slice-validity rules from
-       `slicing-elephant-carpaccio` (vertical, working, distinct, valuable,
-       small) — each continues to cross layers, broadening coverage or
-       replacing hard-coded values from the tracer
+     - Phases 2..N MUST be valid slices: vertical, working, distinct,
+       valuable, and small. Each continues to cross layers, broadening
+       coverage or replacing hard-coded values from the tracer
      - Non-vertical phases (data migrations, infra setup that must precede
        user-visible work) are allowed only with explicit justification
        recorded in that phase's rationale

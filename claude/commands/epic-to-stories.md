@@ -1,281 +1,220 @@
 ---
-description: Decompose an epic into an ordered backlog of vertical, sprint-sized stories, grounded in existing user-facing capabilities
-argument-hint: "<Jira ID | Linear ID | file path | inline epic text>"
-model: opus
-allowed-tools: Read, Write, Bash, Task, AskUserQuestion
+description: Decompose an epic into an ordered backlog of vertical, sprint-sized stories.
+argument-hint: "[epic description]"
 ---
 
 # Epic to Stories
 
-**Level 4 (Delegation)** — Orchestrates parallel behavior-surface research, then applies the `decomposing-epics` skill to produce an ordered backlog of 4-8 sprint-sized stories.
+Turns an epic into an ordered backlog of vertical, sprint-sized stories, each grounded in what users can already see or do. Every story is later refinable into a full BDD spec on its own.
 
-Take an epic, research existing user-facing capabilities related to it, and produce an ordered backlog of vertical, sprint-sized stories using the `decomposing-epics` methodology. Each story can later be refined into a full BDD story via `/refine-story`.
+**How review works.** This command drives no browser. It emits each draft as a bare assistant message and stops. The user reviews that message with `/annotate-last`, and the annotations come back into the session as feedback, which drives the next draft. The loop ends when the user approves. This note is for whoever opens this file. Do not repeat it to the user.
 
-Decomposition decisions are anchored in behavior, never implementation. Stories are sprint-sized coherent behaviors (~1-3 days), not minutes-to-hours slices — sub-story slicing belongs to `slicing-elephant-carpaccio` during implementation, not here. Research surfaces capabilities (what users can see or do); deep code research belongs in `/create-implementation-plan` and `/implement`, not here.
+## Rules
 
-## Variables
+1. **Story altitude is fixed.** A story is one coherent demoable behavior, about 1-3 days of work. The units above and below it are someone else's job.
 
-- **EPIC_SOURCE**: `$ARGUMENTS` — Jira ID (e.g., POPS-123), Linear ID (e.g., ENG-45), file path, or inline epic text
-- **ARTIFACT_DIR**: `$CLAUDE_DOCS_ROOT/stories/`
-- **REPOS**: Repositories to research (default: current working directory)
+| Unit | Size | Belongs to |
+|---|---|---|
+| Epic | Weeks, many behaviors | the input to this command |
+| **Story** | **One coherent demoable behavior, ~1-3 days** | **this command's output** |
+| Slice | A demo increment inside one story, minutes to hours | the developer, during the build |
+| Task | A construction step with no standalone user value | the developer, and never a backlog item |
 
-## Dependencies
+Most over-decomposition comes from confusing these. An item sized in minutes-to-hours is a slice, not a story. Merge it up.
 
-- **decomposing-epics skill**: Story-altitude decomposition methodology, INVEST + Vertical + Behavior-described validity rules, ordering principles, sprint-sized granularity
-- **thinking-patterns skill**: `atomic-thought` for research-target decomposition, `chain-of-thought` for story validation
-- **managing-jira skill** (conditional): `jira issue view` for Jira-sourced epics
-- **managing-linear skill** (conditional): Linear CLI for Linear-sourced epics
-- **docs-locator agent**: Locate product docs (PRDs, READMEs, ADRs) describing existing user-facing capabilities
-- **docs-analyzer agent**: Extract behavioral context from located product docs
-- **capability-locator agent**: Inventory existing user-facing entry points when product docs are sparse — never invokes deep-code agents
-- **Project registry**: `$CLAUDE_DOCS_ROOT/projects.yaml` (for multi-repo epics)
-- **Artifact management**: `~/.claude/guidelines/artifact-management.md` — frontmatter and naming conventions
+2. **Every story passes all eight tests.** Vertical (Cockburn), the six INVEST criteria (Wake), and a behavior check.
 
-## Phase 1: Intake
+   - **Vertical.** Cuts from a user-visible action through whatever supports it, end to end. Never one internal layer alone.
+   - **Independent.** The system could ship after this story and need no later one. The state it leaves is coherent and demoable.
+   - **Negotiable.** Can be reordered, deferred, or dropped without breaking an earlier story.
+   - **Valuable.** Delivers user-visible value or risk reduction a stakeholder can see.
+   - **Estimable and sprint-sized.** Concrete scope, one coherent behavior, roughly 1-3 days. Larger, split it. Smaller, or no standalone user value, merge it up.
+   - **Testable.** Has verifiable acceptance criteria and can be demonstrated the day it lands.
+   - **Behavior-described.** Names a change in what users see or do, not how the system is built. The verbs *cache, validate, persist, migrate, refactor, integrate, decouple, normalize* and the nouns *schema, table, endpoint, middleware, service, layer* describe construction. Re-describe.
 
-### Detect Source Type
+3. **Story 1 is always end-to-end.** When research surfaced a real capability to extend, story 1 is the thinnest extension of it. When research surfaced nothing, story 1 is a walking skeleton: the thinnest real path through every layer the behavior needs, hard-coded values allowed inside this one story. Its value is risk reduction, proving the path connects.
 
-Inspect `${EPIC_SOURCE}`:
+4. **A story keeps its essential validation.** "User exports the visible report as CSV" includes the empty report. Do not split a happy path from the validation that makes it coherent and shippable. Split an edge case out only when it is independently valuable, separately demoable, or big enough to stand alone.
 
-- Matches a Jira project key pattern (e.g., `POPS-\d+`) → fetch via Jira
-- Matches a Linear team key pattern (e.g., `ENG-\d+`) → fetch via Linear
-- Existing file path → `Read` the file
-- Otherwise → treat as inline epic text
+   Below story altitude, inside one story while building it, the opposite rules hold: hard-coding a value first and deferring polish are correct there, and an increment of a few minutes is legitimate. Across a backlog they are not. A story keeps its validation, and "replace the literal with real logic" is not its own story. Same technique, different unit.
 
-If a key matches BOTH a Jira and Linear pattern, disambiguate via AskUserQuestion before fetching.
+5. **Prefer the simpler thing that delivers value sooner.** Accept a typed-in value before building the lookup that derives it. The simpler version is a real story; the derivation is a later one.
 
-### Fetch (when sourced from a tracker)
+6. **Cross-story references use the quoted title.** Never a number, never "the previous story", never the word "slice". A story travels downstream as a standalone ticket where sibling numbering and backlog jargon are absent, and a description that leans on either stops making sense the moment it is lifted out.
 
-**Jira:**
-```bash
-jira issue view ${EPIC_SOURCE} --comments 10
-jira issue view ${EPIC_SOURCE} --raw
-```
+   - Good: *"Extends 'User exports the visible report as CSV' so the export can recur on a schedule."*
+   - Bad: *"Extends story 2."* / *"Builds on the previous story."*
 
-Then list child issues (epics typically have children):
-```bash
-jira issue list -q "parent=${EPIC_SOURCE}" --plain
-```
+   The numbering stays in the backlog for human readers. The rule governs prose inside descriptions and Value lines, which is what travels.
 
-**Linear:** use the `managing-linear` skill to fetch the issue, comments, and any sub-issues.
+7. **Never ask a naked question.** Every question, in Phase 1 or in Open Questions, carries a committed recommendation and the reasoning behind it. A bare "what should we do about X?" pushes the work back onto the user.
 
-### Build Epic Context
+8. **A draft message contains the backlog and nothing else.** First character is the `#` of the title, last character is the end of the final Open Question. No preamble, no sign-off, no explanation of the workflow.
 
-Compile a normalized block:
+## Phase 1. Read the epic
 
-```
-**Epic Source**: ${SOURCE_TYPE} — ${SOURCE_REF}
-**Title**: ${TITLE}
-**Description**: ${DESCRIPTION}
-**Children / Sub-issues**: ${CHILDREN}            # if from tracker
-**Comments / Notes**: ${COMMENT_SUMMARIES}        # if available
-```
+`$ARGUMENTS` is the epic. It is prose, not a reference to fetch: no tracker lookup, no file path routing.
 
-Present the summary to the user before proceeding.
+If it is empty, ask what the epic covers and wait. Do not research an epic you do not have.
 
----
+Otherwise read it and settle three things for yourself: the epic's title, what it changes from the user's point of view, and the vocabulary it uses for the domain. Do not emit this reading as a message. Phase 3's Grounding section is where the user sees your reading of the epic and corrects it.
 
-## Phase 2: Scope the Research
+## Phase 2. Ground in existing behavior
 
-### Pick Repositories
+A story backlog is only as good as its grasp of what already exists. Story 1 in particular cannot be "the thinnest extension of an existing capability" unless you know which capabilities exist.
 
-If `$CLAUDE_DOCS_ROOT/projects.yaml` exists, present its project list. Otherwise default to the current working directory.
+Derive 3-7 independent research questions from the epic. Each names a concrete user-facing behavior or domain concept the system might already support, framed in user-visible terms:
 
-**AskUserQuestion**:
-- Header: "Research scope"
-- Question: "Which repositories should I research for code related to this epic?"
-- Options: project entries from projects.yaml, plus "Current directory only" and "Specify paths"
+- "What can users see or do today related to `<concept>`?"
+- "What user-facing vocabulary does the product use for `<data type>`?"
 
-Record the selected `${REPOS}` list.
+Reject any question framed in implementation language, by the same behavior test the stories answer to.
 
-### Decompose into Research Targets
+### Dispatch
 
-Invoke `/thinking atomic-thought` to derive 3-7 independent research questions from the epic. Each must name a concrete user-facing behavior or domain concept that the existing system might already support. Frame questions in user-visible terms — "what can users see or do", not "how is it built". Examples:
+Where the host supports parallel agents, send each question to a general-purpose agent as a self-contained brief, all in one batch, and wait for every one to return. Where it does not, work the same briefs yourself, in order. The brief is the contract either way, and nothing in it depends on the identity of a named agent.
 
-- "What can users currently see or do related to `${concept_X}`?"
-- "What user-facing capabilities exist today for `${flow_Y}`?"
-- "What user-facing vocabulary does the product use for `${data_type_Z}`?"
-
-Present the research targets to the user. Allow editing before continuing — bad targets produce shallow research. Reject any target framed in implementation language — apply the same Implementation Leak rule the `decomposing-epics` skill uses for story descriptions.
-
----
-
-## Phase 3: Parallel Behavior-Surface Research
-
-For each `(repo, research_target)` pair, spawn behavior-surface research agents in parallel via the Task tool.
-
-### Agent Selection
-
-- **Primary**: `docs-locator` followed by `docs-analyzer` for product documentation (PRDs, READMEs, ADRs about user-facing capabilities). Docs are written in user language; the translation distance to behavior is zero.
-- **Secondary**: `capability-locator` for entry-point inventory — used when the area has sparse product documentation. The agent reads only entry points (routes, pages, CLI commands, public APIs) and reports capability statements with no implementation detail.
-- **Forbidden**: `codebase-analyzer` and any other agent that returns deep implementation context. Decomposition operates on behavior; implementation knowledge belongs in `/create-implementation-plan` and `/implement`. Mixing substrates contaminates story descriptions.
-
-### Agent Prompt Template
-
-Each agent prompt is self-contained.
+Repositories default to the working directory. Do not ask. If the scope is genuinely ambiguous, commit to the working directory and say so in Open Questions.
 
 ```markdown
-# Behavior-Surface Research for Epic Decomposition
+# Behavior-surface research
 
-You are researching `${REPO}` to surface existing user-facing capabilities related to an epic. Your job is to describe what users can currently *see* or *do* — never how it is built.
+Describe what users can currently see or do in this domain. Never describe how it is built.
 
-## Epic Context
+## Epic
 
-${EPIC_CONTEXT}
+<epic context>
 
-## Research Target
+## Question
 
-${RESEARCH_TARGET}
+<one research question>
 
-## Focus
+## How to research
 
-Document only what *exists today* at the behavioral surface. Do NOT propose changes or improvements. Do NOT include file paths, line numbers, function names, internal classes, patterns, schemas, middleware, services, or any other implementation detail in your output. If you find yourself describing how something is built, stop and re-frame to what users observe.
+Read product documentation first — PRDs, READMEs, ADRs about user-facing capabilities. Docs are
+written in user language, so the translation distance to behavior is zero. Where docs are sparse,
+inventory entry points only: routes, pages, screens, CLI commands, public APIs. Report what they
+let a user do.
 
-1. **Existing capabilities** — what users can currently see or do in this domain, expressed as "A user can [verb] [noun] [conditions]"
-2. **Domain vocabulary** — user-facing terms the product uses canonically for these concepts
-3. **Capability gaps** — what users CANNOT yet do that the epic would enable
-4. **Adjacent capabilities** — related user-facing capabilities outside the epic's scope but inside its vocabulary (useful for story ordering and vocabulary alignment)
-
-## Output Format
-
-### Existing Capabilities
-[Capability statements only — no file:line, no internals]
-
-### Domain Vocabulary
-[Canonical user-facing terms]
-
-### Capability Gaps
-[Behavioral gaps the epic should close]
-
-### Adjacent Capabilities
-[Related user-facing capabilities outside this epic's scope]
-```
-
-### Wait for All Agents
-
-Do not proceed until every spawned agent returns.
-
-### Consolidate Findings
-
-Merge per-target findings into a single research summary. Bucket explicitly:
-
-- **Capability adjacencies** — existing user-visible capabilities a story can extend or compose
-- **Net-new capabilities** — capabilities the epic introduces with no behavioral precedent (stories here will be heavier; story 1 must be a real walking skeleton rather than an extension)
-- **Domain glossary** — canonical user-facing terms to use in story descriptions
-
-Present the consolidated summary to the user.
-
----
-
-## Phase 4: Story Decomposition
-
-Load the `decomposing-epics` skill and apply it directly. Behavior context has already been established by Phases 1-3, so the skill's Step 1 is satisfied — pass BOTH the epic context AND the consolidated research as the supplied scope; the skill confirms rather than re-researches. The skill produces and validates the backlog at story altitude (sprint-sized, not minutes-to-hours); this command owns the user-confirmation gate (Phase 5).
-
-Pass the consolidated research so the skill can choose story 1's form — a brownfield extension of a surfaced capability, or a greenfield walking skeleton when research surfaces none. The skill owns that rule; the command only supplies the evidence.
-
-### Validate the Backlog
-
-Invoke `/thinking chain-of-thought` to check each story against:
-
-1. **INVEST + Vertical + Behavior-described** — every story must pass all eight validity tests from the `decomposing-epics` skill, including Estimable & Sprint-sized (one coherent ~1-3 day behavior, not a minutes-to-hours slice). If a backlog item is sub-story sized — splits a behavior from its essential validation, or hard-codes now to generalize in a separate item — merge it up.
-2. **Research grounding** — does each story description reflect what research actually found? A story claimed as "extending capability X" must cite the specific capability statement from research, not implementation detail
-3. **Cross-story references** — if a description or Value line points to another story, it must use that story's title in quotes, not its number and not the word "story" or "slice" (per the skill's Cross-Story References rule). Stories propagate downstream as standalone Jira/Linear tickets where numbering and backlog jargon lose meaning. Reword any violation before showing the user.
-
-If any story fails, re-decompose before showing the user.
-
----
-
-## Phase 5: Review
-
-Present the backlog using the `decomposing-epics` skill's output format.
-
-**AskUserQuestion**:
-- Header: "Story backlog"
-- Question: "Does this story ordering look right?"
-- Options:
-  - "Looks good"
-  - "Adjust ordering"
-  - "Stories too big — split further"
-  - "Stories too small — combine some"
-  - "Re-research a target" (loops back to Phase 3 with revised targets)
-
-Iterate until the user accepts the backlog.
-
----
-
-## Phase 6: Save Artifact
-
-Save to `${ARTIFACT_DIR}/epic--<slug>.md` per `~/.claude/guidelines/artifact-management.md` (frontmatter + slug from the epic title). Body:
-
-```markdown
-# ${TITLE}
-
-## Description
-
-${DESCRIPTION}
-
-## Research Summary
-
-${CONSOLIDATED_RESEARCH}
-
-## Story Backlog
-
-[Numbered list per decomposing-epics output format —
- each story has a name, one-line description, and a Value: line]
-
-## Domain Glossary
-
-[Canonical terms from research — what to use, what to avoid]
-
-## Open Questions
-
-[Anything research could not answer — these block specific stories]
-
-## References
-
-- **Source**: ${SOURCE_TYPE} — ${SOURCE_REF}
-- **Researched**: ${REPOS}
-```
-
----
+Never open implementation code. Never report a file path, line number, function or class name,
+schema, service, or pattern. If you find yourself describing how something is built, stop and
+re-frame to what a user observes. Document only what exists today. Do not propose changes.
 
 ## Report
 
-After saving, show the user:
-
-- Path to the saved artifact
-- Story count and story 1 (the walking skeleton)
-- Top 3 capability adjacencies (existing capabilities stories extend)
-- Top 3 net-new capabilities (introduced by the epic)
-- Suggested follow-up:
-  ```
-  To turn an individual story into a full BDD story (after creating the issue):
-  - /refine-story <issue-id> --tool jira
-  - /refine-story <issue-id> --tool linear
-  ```
-
-If the source was a Jira/Linear epic, OFFER to create child issues for each story — never create tickets without explicit user confirmation.
-
----
-
-## Error Handling
-
-### Empty EPIC_SOURCE
-
-```
-No epic source provided.
-
-Usage: /epic-to-stories <Jira ID | Linear ID | file path | inline text>
+**Existing capabilities** — one line each, as "A user can <verb> <noun> <conditions>".
+**Domain vocabulary** — the canonical user-facing terms for these concepts.
+**Capability gaps** — what users cannot yet do that this epic would let them do.
+**Adjacent capabilities** — related capabilities outside this epic but inside its vocabulary.
 ```
 
-### Tracker fetch fails
+### Consolidate
 
-Ask the user whether to retry, paste the epic content directly, or abort.
+Merge the returns into three buckets:
 
-### Research returns nothing actionable
+- **Capability adjacencies** — existing capabilities a story can extend or compose. These are the candidates for story 1.
+- **Net-new capabilities** — what the epic introduces with no behavioral precedent. Stories here are heavier, and if every bucket entry lands here, story 1 must be a real walking skeleton.
+- **Domain glossary** — the canonical terms to use in story descriptions, and the ones to avoid.
 
-If every research target comes back empty, the system has no relevant existing capabilities (no docs and no entry points found). Note this explicitly in the artifact's Research Summary and proceed — stories will be heavier and story 1 will require a real walking-skeleton build, not a thin extension of an existing capability.
+If every question comes back empty, the system has no relevant capabilities today. Say so in Grounding and carry on. That is a finding, not a failure.
 
-### Story backlog never converges
+## Phase 3. Decompose and draft
 
-If the user rejects the backlog three times in a row with conflicting feedback, stop and ask: "The decomposition keeps shifting. Is the epic itself too broad? Should we split it into multiple epics first?" Do not keep re-decomposing in a loop.
+Work in this order. Do not reorder it.
+
+1. **State the behavior delta.** What users can do after the epic that they cannot do now, in the glossary's words.
+2. **Place story 1.** A thin extension of a named adjacency, or a walking skeleton. Rule 3 decides which.
+3. **Order the rest.** Core happy-path behaviors next, highest value first. Legal and compliance work before nice-to-haves. Every core behavior before any one of them is polished. Substantial, independently valuable edge-case handling later. UI polish and optimization last.
+4. **Check the count.** Aim for 4-8 stories. Under 3 suggests the epic is really one story. Over about 12 suggests the epic is too broad and should be split into several epics first. A count outside the band is a sizing signal to surface, not a backlog to force.
+5. **Split what overflows a sprint**, then re-test every fragment against all eight tests. A fragment with no standalone user value means you split below story altitude. Merge it back.
+
+| Splitting heuristic | Strategy |
+|---|---|
+| By workflow path | One complete user flow end to end before the next |
+| By data variation | One data type or category as a coherent story, other categories later |
+| By business rule | The simplest complete rule first, materially different rules later |
+| By interface | One platform, device, or UI variant first, others later |
+| By user role | One actor's complete flow first, other roles later |
+| Simple before complex | Every core behavior shipped before any standalone edge-case story |
+
+| Anti-pattern | Why it is wrong |
+|---|---|
+| Items sized in minutes-to-hours | That is a slice or a task. Merge up. |
+| Hardcode now, generalize later, as two stories | Sub-story sequencing. Hard-coding belongs inside the walking skeleton, and replacing the literal is not its own story. |
+| Splitting a behavior from its essential validation | "Export CSV" and "handle the empty list" are one story. The most common too-small symptom. |
+| Horizontal stories | Backend-only or frontend-only chunks deliver nothing a user can see until something later integrates them. |
+| Splitting by technical layer or service boundary | "All endpoints, then all UI" is horizontal in disguise. Split on business value, not architecture. |
+| Task decomposition as stories | "Set up the database" is a step inside a story, not a backlog item. |
+| Gold-plating early stories | Polish on story 2 while core behaviors are still missing. |
+| Speculative infrastructure | Abstraction beyond what the story in hand needs. |
+| Referring to a story by number | Numbering breaks on reorder and vanishes when the story becomes a ticket. See Rule 6. |
+
+**Too small, and why.** *"User clicks Export and downloads a CSV with hard-coded columns name and email"*, followed by *"Generalize the export to include all visible columns"*. These are two slices of one behavior. As backlog items they fragment a single capability and trip both the minutes-to-hours and the hardcode-then-generalize anti-patterns.
+
+**The same work at story altitude.** *"User exports the currently visible report as a CSV containing every column shown on screen, including when the report is empty."* Vertical, independent, valuable, sprint-sized, testable, and described by behavior, with its essential validation kept inside.
+
+Then write the draft.
+
+```markdown
+# Story Backlog: <Epic Title>
+
+## Grounding
+
+<3-6 bullets. What the epic changes for users, which existing capabilities the backlog
+ extends, and what is net-new. Short. This exists so the user can correct a wrong premise
+ before arguing about ordering.>
+
+## Stories
+
+1. **<name>** — <one line: what users can now see or do>.
+   Value: <what a stakeholder can now see or benefit from>.
+
+## Domain Glossary
+
+<canonical user-facing terms, and what to use instead of what>
+
+## Open Questions
+
+- **<Topic>.** Assuming <the position this draft already commits to>. Annotate if wrong.
+```
+
+Each Open Question states a position the draft already takes, so the user attacks a claim instead of answering a survey. This is the stress test. The draft takes the risk of being wrong in public rather than interrogating the user before they have seen anything.
+
+## Phase 4. Review loop
+
+Emit the draft as the whole message, per Rule 8, and stop the turn.
+
+When feedback returns to the session, branch on it.
+
+| What returns | Action |
+|---|---|
+| Annotation feedback | Revise against it, re-emit the full backlog as a bare message, stop again. This is the loop |
+| Approved | Go to Phase 5 |
+| Dismissed | Say the session closed. Stop |
+
+There is no round cap. Every round ends the turn, so the user sets the pace and the exit.
+
+When annotations across rounds contradict each other — stories too big, then too small, then reordered back — stop absorbing it silently. The epic itself may be too broad. Put that in the next draft's Open Questions with a committed recommendation, per Rule 7.
+
+## Phase 5. Retire the scaffold
+
+`## Open Questions` is a review instrument, not part of a backlog. Approval settles the shape, and the scaffold comes off.
+
+Fold each unresolved question into the one story it blocks, as an `Unresolved:` line under that story. It then travels with the story when the story becomes a ticket, which is the only place it stays useful. Keep a backlog-wide item at the bottom only when it truly blocks the whole backlog rather than one story.
+
+Then delete the `## Open Questions` heading and emit the backlog one last time as a bare message. Stop there.
+
+## Self-check
+
+Run before emitting any draft.
+
+- Story 1 is end-to-end, and Rule 3 picked its form from what research actually found
+- No item is sized in minutes-to-hours
+- No behavior is split from its essential validation
+- Every story passes all eight tests
+- Every cross-story reference is a quoted title
+- The count is 4-8, or the deviation is stated as a sizing signal
+- Every Open Question carries a committed recommendation
+- The message contains the backlog and nothing else
+
+On the Phase 5 emit, add one more: no `## Open Questions` section remains.
