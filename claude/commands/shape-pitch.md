@@ -1,147 +1,153 @@
 ---
-description: Write a Shape Up pitch (idea / draft / notes) and save it to $CLAUDE_DOCS_ROOT
+description: Shape notes or an idea into a Shape Up pitch, review it in Plannotator.
 argument-hint: "[rough idea | path to draft | path to notes | empty for interactive]"
-model: opus
-allowed-tools: Read, Write, Edit, Grep, Bash(date), Bash(test), Bash(mkdir), Bash(git config:*), Bash(git remote:*), Bash(git rev-parse:*), AskUserQuestion, Skill, Task
 ---
 
-# Write A Shape Up Pitch
+# Shape Pitch
 
-Invokes the `writing-pitches` skill to shape and draft a pitch, then saves the result to `$CLAUDE_DOCS_ROOT/pitches/` with canonical artifact frontmatter per `~/.claude/guidelines/artifact-management.md`.
+Shapes a raw idea, an existing draft, or a pile of notes into a Shape Up pitch.
 
-## Variables
+**How review works.** This command drives no browser. It emits each draft as a bare assistant message and stops. The user reviews that message with `/plannotator-last`, and the annotations come back into the session as feedback, which drives the next draft. The loop ends when the user approves. This note is for whoever opens this file. Do not repeat it to the user.
 
-- **INPUT**: `$ARGUMENTS` — may be raw text (rough idea), a path to a draft pitch, a path to notes, or empty
-- **CLAUDE_DOCS_ROOT**: environment variable for the docs vault. Fallback: `~/claude-docs`
-- **REGISTRY**: `$CLAUDE_DOCS_ROOT/projects.yaml`
-- **OUTPUT_DIR**: `$CLAUDE_DOCS_ROOT/pitches`
-- **OUTPUT_FILENAME**: `YYYY-MM-DD-<slug>.md` — date from `date +%F`, slug derived from pitch title
+## Rules
 
-## Phase 1 — Classify Input
+1. **Appetite is fixed before the solution is shaped.** Appetite is a time budget, not an estimate. Small batch is about 2 weeks, big batch about 6. Variable scope, fixed time. A 2-week appetite and a 6-week appetite produce different solutions, not more or less of the same one.
+2. **Solutions stay at fat-marker fidelity.** Name places, affordances, and connections. No component names, no copy, no layout, no pixel values. If it looks like a spec, it is one.
+3. **Every rabbit hole carries a mitigation.** One of: decide now, spike first, or rule out. An unknown with no mitigation is logged, not addressed.
+4. **No-gos are specific.** "Not supporting bulk actions, single-item only" works. "Performance is out of scope" is a dodge.
+5. **Never ask a naked question.** Every question to the user, in the gate or in Open Questions, carries a committed recommendation and the reasoning behind it. A bare "what should we do about X?" pushes the work back onto the user.
+6. **A draft message contains the pitch and nothing else.** First character is the `#` of the title, last character is the end of the final no-go. No preamble, no sign-off, no explanation of the workflow.
 
-Inspect `$ARGUMENTS`:
+## Phase 1. Classify the input
 
-- **Empty** → invoke the skill with no input; it will ask the user what they have
-- **Starts with `/`, `~`, or `./`** → path. Use `Read` to load it. Inspect contents to decide:
-  - Has the standard pitch headers (Problem / Appetite / Solution / Rabbit Holes / No-gos) → this is a *draft to refine*
-  - Lacks the standard pitch headers (Problem / Appetite / Solution / Rabbit Holes / No-gos) → treat as *notes to distill*
-  - Ambiguous → ask via `AskUserQuestion` which it is
-- **Otherwise** → treat as a rough idea (raw text)
+Inspect `$ARGUMENTS`. It is raw text, a path to a draft, a path to notes, or empty.
 
-## Phase 2 — Invoke The Skill
+- **Empty.** Ask what the user has: a rough idea, a draft to tighten, or notes to distill. Wait.
+- **Starts with `/`, `~`, or `./`.** A path. `Read` it, then route on content.
+- **Anything else.** A rough idea.
 
-Invoke the `writing-pitches` skill via the Skill tool. Pass the classified input and the detected workflow hint if you have one. Example `args` values:
+For a path, route on whether the standard headers (Problem, Appetite, Solution, Rabbit Holes, No-gos) are present. Section headings resembling a pitch mean a draft. Transcript, bullet, or timeline form means notes. If it is still ambiguous, ask once and wait.
 
-```
-Shape this idea into a pitch: <text>                          (rough idea)
-Refine this draft pitch: <file path + contents>               (draft)
-Distill these notes into a pitch: <file path + contents>      (notes)
-```
+| Input | Route | Delta |
+|---|---|---|
+| Rough idea | Shape from scratch | Nothing extra |
+| Existing draft | Refine | Critique first against the self-check list at the bottom of this file. Present findings one line each. Preserve what already works |
+| Notes or transcript | Distill | Read in full, do not skim. Separate problems, proposed solutions, stated constraints, settled decisions, and open questions. If several pitchable threads exist, list them and ask which one. Do not invent rabbit holes or no-gos the notes do not support |
 
-**Do not save anything yet.** Wait for the skill to return the full pitch.
+## Phase 2. Gate on what is missing
 
-## Phase 3 — Confirm With User Before Saving
+One `AskUserQuestion` call, asking only for what the input does not already supply. Skip the phase entirely when the input fixes both.
 
-Once the skill returns the pitch markdown, present it and confirm via `AskUserQuestion`:
+- **Appetite.** Small batch (about 2 weeks) or big batch (about 6 weeks). Blocking. Appetite is the constraint every element is scoped against, so a draft written without it is wrong all the way down. Offer a recommended size based on how many elements the input implies.
+- **Concrete motivating case.** Ask only when the input names a category rather than an instance. A named person, a specific moment, and what broke.
 
-- Header: "Save"
-- Question: "Save this pitch to your docs vault?"
-- Options:
-  - "Save it" → proceed to Phase 4
-  - "Make edits first" → for small wording changes, apply them directly via `Edit` on the pitch markdown in-conversation; for structural changes (missing rabbit holes, wrong appetite, wrong shape), re-invoke the `writing-pitches` skill with the user's feedback as `args`. Re-present, ask again.
-  - "Don't save" → end without writing
+Everything else that is uncertain goes into the draft as an Open Question. Do not hold the draft hostage to it.
 
-## Phase 4 — Resolve Project Context
+## Phase 3. Shape and draft
 
-Resolve project context per `~/.claude/guidelines/artifact-management.md` (sections "Project Context" and "File Naming"). Use the standard procedure: detect current repo via git, match against `$CLAUDE_DOCS_ROOT/projects.yaml`, confirm with the user, offer create-new or one-off if no match.
+Shape in this order. Do not reorder it. Writing before the rabbit holes are addressed produces a document that hides them.
 
-Implementation notes specific to this command:
+1. **Set boundaries.** Problem, appetite, known constraints.
+2. **Rough out elements.** The key conceptual parts. Places, affordances, connections. If you are describing buttons or colors, stop, that is design.
+3. **Address rabbit holes.** For each element ask what could blow the appetite. Common sources: integration behavior, data-model shape, permission and tenancy boundaries, migration of existing data. Assign each one a mitigation.
+4. **Declare no-gos.** What the team will not do even if asked mid-cycle.
 
-- **Repo-detection guard**: before running `git config --get remote.origin.url`, verify the cwd is inside a git work tree via `git rev-parse --is-inside-work-tree` (nonzero exit → no repo, skip straight to the "no remote" branch of the guideline).
-- **Creating a new project**: when the guideline calls for collecting project name / area / jira_epic, gather all three in a single multi-question `AskUserQuestion` call rather than three sequential ones.
-- **One-off**: when no project applies, the output frontmatter sets `Area: One-off` and omits `Project`, `ProjectSlug`, and `JiraEpic`.
+Then write the pitch.
 
-Outputs needed for Phase 6 frontmatter: project name, slug, area, jira_epic (optional), repositories (optional).
+```markdown
+# <Pitch Title>
 
-## Phase 5 — Determine Output Path
+## Problem
 
-Resolve the target directory:
+<2-4 paragraphs. The concrete motivating case. Who feels it, when, what breaks today, and what the current workaround costs.>
 
-```bash
-TARGET_ROOT="${CLAUDE_DOCS_ROOT:-$HOME/claude-docs}"
-TARGET_DIR="$TARGET_ROOT/pitches"
-DATE=$(date +%F)
-mkdir -p "$TARGET_DIR"
-```
+## Appetite
 
-If `$CLAUDE_DOCS_ROOT` is unset, mention the fallback to the user before writing.
+<One line. "Small batch, 2 weeks." State it as a constraint, never a range.>
 
-Build the filename:
+## Solution
 
-1. Extract the pitch title from the first `# <title>` line of the returned markdown
-2. Slugify: lowercase, spaces → `-`, strip non-alphanumeric-except-hyphens, collapse repeats
-3. Filename: `$DATE-$SLUG.md` (e.g., `2026-04-24-stale-pr-visibility.md`)
-4. On collision, suffix `-2`, `-3`, etc. Never overwrite silently.
+<Fat-marker fidelity. Elements and how they connect. ASCII breadboard if it helps.>
 
-## Phase 6 — Write With Canonical Frontmatter
+## Rabbit Holes
 
-Emit canonical artifact frontmatter per `~/.claude/guidelines/artifact-management.md` (section "Required Frontmatter"). Use artifact type `pitch` (i.e., `tags: [claude-artifact, resource, pitch]`). Populate `Area`, `Project`, `ProjectSlug`, `JiraEpic` (when Work), `Repositories` (when known), and `Status: Active` from the project context resolved in Phase 4.
+<Each unknown, why it threatens the appetite, and its mitigation.>
 
-Pitch-specific notes:
+## No-gos
 
-- Artifact type tag is `pitch` — the guideline's examples show `research | plan | handoff` but the schema accommodates `pitch` identically.
-- Initial status is `Status: Active`.
-- Preserve the frontmatter asymmetry the guideline already encodes: `Created` is a quoted Obsidian wikilink (e.g., `Created: "[[2026-04-24]]"`), `Modified` is a bare ISO date (e.g., `Modified: 2026-04-24`). On first save, both reflect today.
-
-### Write
-
-Write the frontmatter + a blank line + the pitch markdown body to the target path using the `Write` tool.
-
-After writing, report the absolute path:
-
-```
-Pitch saved to: /absolute/path/to/YYYY-MM-DD-<slug>.md
+<Specific out-of-scope bullets.>
 ```
 
-If Phase 4 appended a new project to `projects.yaml`, also mention:
+**Problem, bad**
+
+> Our users want a better experience when reviewing pull requests.
+
+**Problem, good**
+
+> When Sarah, a senior engineer, has 12 PRs assigned for review, she has no way to see which ones have been waiting longest. She scans GitHub's default list, which sorts by update time and buries stale PRs behind recent commits, then checks timestamps by hand. Last sprint two PRs sat for 9 days before she noticed.
+
+**Breadboard example**
 
 ```
-Registered new project in projects.yaml: <slug>
+Inbox view
+  |- stale-first toggle (off by default)
+  `- item row --(click)--> Detail view
+                            |- approve (back to inbox, item gone)
+                            |- request changes (compose, back)
+                            `- escalate (assign picker, back)
 ```
 
-## Error Handling
+**Rabbit hole example**
 
-### Path given but file doesn't exist
+> **Cross-repo PR aggregation.** Pulling PRs across multiple GitHub orgs makes token scoping complex and turns rate-limit coordination into its own project. **Addressed by ruling out**: v1 is single-org.
 
+Then append the review scaffold. It exists only while the pitch is under review.
+
+```markdown
+## Open Questions
+
+- **Permissions.** Assuming project owner only can archive. Annotate if wrong.
+- **Cross-tenant access.** Assuming out of scope for v1.
 ```
-I couldn't find <path>. Did you mean a different file, or is this a rough
-idea I should shape from scratch?
-```
 
-### Skill returns something that isn't a pitch
+Each entry states a position the draft already commits to, so the user attacks a claim rather than answering a survey. This is the stress test. The draft takes the risk of being wrong in public instead of interrogating the user before they have seen anything.
 
-If the returned content lacks the expected sections (Problem / Appetite / Solution / Rabbit Holes / No-gos), surface this to the user rather than saving a malformed pitch. Offer to re-invoke the skill or edit manually.
+Rough proportions: Problem 2-4 paragraphs, Appetite 1 line, Solution 1-2 pages including any sketch, Rabbit Holes 3-7 items at 2-4 lines each, No-gos 3-8 bullets. Total 1-3 pages. Longer means it drifted into spec. Shorter usually means rabbit holes are hidden.
 
-### projects.yaml missing or unreadable
+## Phase 4. Review loop
 
-If `$CLAUDE_DOCS_ROOT/projects.yaml` does not exist, tell the user and offer to proceed as a One-off pitch. Do not silently skip project resolution.
+Emit the pitch as the whole message, per Rule 6, and stop the turn.
 
-### File already exists at target path
+When feedback returns to the session, branch on it.
 
-Suffix the filename with `-2`, `-3`, etc. Do not overwrite silently.
+| What returns | Action |
+|---|---|
+| Annotation feedback | Revise against it, re-emit the full pitch as a bare message, stop again. This is the loop |
+| Approved | Go to Phase 5 |
+| Dismissed | Say the session closed. Stop |
 
-## Example Invocations
+There is no round cap. Every round ends the turn, so the user sets the pace and the exit.
 
-```bash
-# Interactive — skill will ask what the user has
-/shape-pitch
+## Phase 5. Retire the scaffold
 
-# Rough idea
-/shape-pitch Engineering leads can't see which PRs are stale for >3 days
+Approval settles the shape, and one thing is left: the review scaffold has to come off, because the approved message is the deliverable and `## Open Questions` is not part of a pitch.
 
-# Draft to refine
-/shape-pitch ~/drafts/stale-pr-pitch.md
+Fold every entry the user did not answer into Rabbit Holes rather than dropping it, because an unresolved assumption is a rabbit hole by definition.
 
-# Notes to distill
-/shape-pitch ~/meetings/2026-04-22-pr-pain.md
-```
+> **Cross-tenant access.** Unclear whether archiving crosses tenant boundaries. **Addressed by deciding now**: single-tenant only in v1.
+
+Then delete the `## Open Questions` heading and emit the pitch one last time as a bare message. Stop there.
+
+## Self-check
+
+Run before emitting any draft.
+
+- Appetite is one committed size, not a range
+- The Solution names elements, not screens or components or copy
+- Every rabbit hole has decide-now, spike, or rule-out
+- No-gos are specific, not categorical
+- The Problem names a person and a moment, not a category
+- The Solution's first paragraph addresses the Problem's first paragraph
+- The elements fit the appetite. If not, cut scope or change appetite. Do not split the difference
+
+On the Phase 5 emit, add one more: no `## Open Questions` section remains.
