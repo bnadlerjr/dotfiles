@@ -11,7 +11,7 @@ allowed-tools: Read, Bash, Task, AskUserQuestion
 
 Take a Jira or Linear issue describing non-user-facing work — a refactor, test work, or a dependency/tooling change — gather context from the tracker and the codebase, then produce a well-scoped, verifiable development task with a Definition of Done. Two independent review cycles ensure quality from different engineering perspectives.
 
-This is the technical-work counterpart to `/refine-story`. `/refine-story` turns an issue into user-facing behavior (Given-When-Then, no implementation detail). `/refine-task` turns an issue into an implementation-focused task with a verifiable Definition of Done — naming modules, files, dependencies, and structure is the subject, not a leak. If the work produces observable behavior a user would notice, use `/refine-story` instead.
+This is the technical-work counterpart to `/refine-story`. `/refine-story` turns a story overview into user-facing behavior (Given-When-Then, no implementation detail). `/refine-task` turns an issue into an implementation-focused task with a verifiable Definition of Done — naming modules, files, dependencies, and structure is the subject, not a leak. If the work produces observable behavior a user would notice, use `/refine-story` instead.
 
 ## Variables
 
@@ -816,7 +816,7 @@ When the Behavior-Change Triage in Phase 1 finds the issue is about something a 
 ```
 ${ISSUE_KEY} describes user-facing behavior (a user can see or do something different).
 writing-dev-tasks is for non-user-facing work. Options:
-1. Refine this as a user story instead — /refine-story ${ISSUE_KEY}
+1. Refine this as a user story instead — /refine-story <the behavior, in prose>
 2. Split it — a behavior-preserving dev task PLUS a separate story for the user-facing change
 3. Proceed anyway (only if you're confident the behavior is genuinely non-user-facing)
 ```

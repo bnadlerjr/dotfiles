@@ -1,6 +1,6 @@
 ---
 name: writing-dev-tasks
-description: Write well-scoped, verifiable development tasks for non-user-facing work — refactors, test work, and dependency/tooling changes. Use to "write a dev task", create a "refactor task", a "tech-debt ticket", a "test task", or a "dependency upgrade task"; to capture "non-user-facing work" or a "technical task"; or to write a "definition of done for a refactor". Produces an implementation-focused task with a verifiable Definition of Done. For user-facing behavior, use writing-agile-stories instead.
+description: Write well-scoped, verifiable development tasks for non-user-facing work — refactors, test work, and dependency/tooling changes. Use to "write a dev task", create a "refactor task", a "tech-debt ticket", a "test task", or a "dependency upgrade task"; to capture "non-user-facing work" or a "technical task"; or to write a "definition of done for a refactor". Produces an implementation-focused task with a verifiable Definition of Done. For user-facing behavior, use the /refine-story command instead.
 allowed-tools:
   - Read
   - Glob
@@ -12,7 +12,7 @@ allowed-tools:
 
 Reference for well-scoped, verifiable development tasks covering non-user-facing work: refactors, test work, and dependency/tooling changes. Dev tasks describe **what changes in the code and how we verify it's done and safe** — naming modules, files, dependencies, and structure is the subject, not a leak.
 
-This is the technical-work counterpart to the `writing-agile-stories` skill. Where stories capture **user-facing behavior** (Given-When-Then, no implementation detail), dev tasks capture **non-user-facing change** (implementation-first, verifiable Definition of Done). If the work produces observable behavior a user would notice, write a story instead. If it restructures code, hardens tests, or moves dependencies without changing observable behavior, write a dev task.
+This is the technical-work counterpart to the `/refine-story` command. Where stories capture **user-facing behavior** (Given-When-Then, no implementation detail), dev tasks capture **non-user-facing change** (implementation-first, verifiable Definition of Done). If the work produces observable behavior a user would notice, write a story instead. If it restructures code, hardens tests, or moves dependencies without changing observable behavior, write a dev task.
 
 This is a **non-interactive reference skill**. Callers — direct users, orchestrator commands, and sub-agents — supply context and apply this guidance directly. Do not use `AskUserQuestion`. If context is thin, ask the user in plain prose for what's missing (see [discovery-dimensions.md](references/discovery-dimensions.md)).
 
@@ -52,7 +52,7 @@ This is an illustrative teaser. For the canonical version of this task with full
 - **Dependency & tooling changes** — dependency upgrades, build/CI/config changes, adopting a linter or formatter.
 - User asks to "write a dev task", "tech-debt ticket", "refactor task", or "definition of done for a refactor".
 
-If the request is about something a user can see or do — a feature, a flow, a screen, a public API contract changing — route to `writing-agile-stories`. Performance optimization and data/infra migrations are out of scope for this skill; the framing may generalize, but it does not have sections built for them.
+If the request is about something a user can see or do — a feature, a flow, a screen, a public API contract changing — route to `/refine-story`. Performance optimization and data/infra migrations are out of scope for this skill; the framing may generalize, but it does not have sections built for them.
 
 ## Core Principles
 
@@ -290,7 +290,7 @@ When a "task" spans too many modules or can't be verified as one change:
 
 ### Caller Frames It as a User Story
 
-If the work is genuinely non-user-facing, reframe to a dev task. If it has observable user impact, route to `writing-agile-stories` instead — that's the right tool.
+If the work is genuinely non-user-facing, reframe to a dev task. If it has observable user impact, route to `/refine-story` instead — that's the right tool.
 
 ### Unclear When the Task Is "Done"
 
