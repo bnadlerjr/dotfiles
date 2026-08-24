@@ -106,7 +106,7 @@ If you cannot form a recommendation on more than half the dimensions, the input 
 
 ### Ask About Gaps with Committed Recommendations
 
-For each GAP, ask via AskUserQuestion using the grilling-ideas turn discipline:
+For each GAP, ask via AskUserQuestion. Every question commits to a recommendation:
 
 - The recommended answer goes **first** in the options list, labeled `(Recommended)`
 - Each option's `description` carries the **rationale** — one sentence on the trade-off being made
