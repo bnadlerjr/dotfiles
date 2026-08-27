@@ -1,0 +1,40 @@
+#!/bin/bash
+set -euo pipefail
+
+# Start Claude Code with a reduced tool set and the templated system prompt
+# from claude/SYSTEM.md.
+# Usage: claude-lean [claude-args...]
+
+# Replace every occurrence of a literal placeholder with a literal value.
+# Built from prefix/suffix removal because both sed and ${var//pat/repl} read an
+# & in the replacement as "the text that matched", so a path such as /src/a&b
+# substitutes itself back in corrupted. Bash 3.2 and 5.2 disagree on that rule.
+substitute() {
+    local text="$1" placeholder="$2" value="$3" out=""
+
+    while [[ "$text" == *"$placeholder"* ]]; do
+        out="${out}${text%%"$placeholder"*}${value}"
+        text="${text#*"$placeholder"}"
+    done
+
+    printf '%s%s' "$out" "$text"
+}
+
+# Get the directory this script is stored in; assumes claude/SYSTEM.md is a
+# sibling of the bin directory that holds this file.
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SYSTEM_PROMPT_FILE="${DIR}/../claude/SYSTEM.md"
+
+if [[ ! -r "$SYSTEM_PROMPT_FILE" ]]; then
+    echo "claude-lean: error: cannot read ${SYSTEM_PROMPT_FILE}" >&2
+    exit 1
+fi
+
+system_prompt="$(< "$SYSTEM_PROMPT_FILE")"
+system_prompt="$(substitute "$system_prompt" '{{DATE}}' "$(date +%Y-%m-%d)")"
+system_prompt="$(substitute "$system_prompt" '{{CWD}}' "$PWD")"
+
+claude \
+  --tools "Bash,Read,Edit,Write,Skill" \
+  --system-prompt "$system_prompt" \
+  "$@"
