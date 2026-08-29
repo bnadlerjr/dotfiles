@@ -1,0 +1,5 @@
+# GitHub plugins to install, one per line.
+# Format: OWNER/REPO[/SUBDIR] [TAG_OR_COMMIT]
+# The tag or commit is optional. Do not use inline comments.
+
+plannotator/herdr-annotate

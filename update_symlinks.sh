@@ -48,6 +48,46 @@ rm -f ~/.config/herdr/config.toml
 ln -s ${DIR}/herdr/config.toml ~/.config/herdr/config.toml
 echo " ...herdr config re-linked"
 
+# Install managed GitHub plugins declared as "OWNER/REPO[/SUBDIR] [REF]".
+# REF is optional; omitting it lets Herdr install the repository's default
+# version, while a tag or commit pins the plugin to that version.
+HERDR_GITHUB_PLUGINS="${DIR}/herdr/github-plugins"
+if [ -f "${HERDR_GITHUB_PLUGINS}" ]; then
+    while read -r plugin_source plugin_ref extra; do
+        [ -n "${plugin_source}" ] || continue
+        [[ "${plugin_source}" = \#* ]] && continue
+        if [ -n "${extra}" ]; then
+            echo " ...invalid Herdr plugin declaration: ${plugin_source} ${plugin_ref} ${extra}" >&2
+            continue
+        fi
+
+        plugin_args=("${plugin_source}")
+        [ -n "${plugin_ref}" ] && plugin_args+=(--ref "${plugin_ref}")
+        plugin_args+=(-y)
+
+        echo " ...installing Herdr plugin ${plugin_source}${plugin_ref:+ at ${plugin_ref}}"
+        if herdr plugin install "${plugin_args[@]}" >/dev/null; then
+            echo " ...Herdr plugin installed"
+        else
+            echo " ...failed to install Herdr plugin ${plugin_source}" >&2
+        fi
+    done < "${HERDR_GITHUB_PLUGINS}"
+fi
+
+# Register each plugin from the dotfiles repository as a local Herdr plugin.
+# Use `plugin link` rather than symlinking Herdr's internal plugin state so
+# Herdr records the plugin and continues to run it directly from this checkout.
+for plugin_manifest in "${DIR}"/herdr/plugins/*/herdr-plugin.toml; do
+    [ -f "${plugin_manifest}" ] || continue
+    plugin_dir=$(dirname "${plugin_manifest}")
+    echo " ...linking Herdr plugin ${plugin_dir}"
+    if herdr plugin link "${plugin_dir}" --enabled >/dev/null; then
+        echo " ...Herdr plugin linked"
+    else
+        echo " ...failed to link Herdr plugin ${plugin_dir}" >&2
+    fi
+done
+
 # launchd is macOS only, so Linux gets no agent alert poller. Everything it
 # needs lives in this block; skipping it leaves the rest of the script intact.
 if [ "$(uname -s)" = "Darwin" ]; then
