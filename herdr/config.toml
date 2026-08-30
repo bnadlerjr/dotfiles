@@ -13,7 +13,6 @@ show_agent_labels_on_pane_borders = true
 [keys]
 prefix = "ctrl+a"
 
-# Herdr Annotate: terminal annotations
 [[keys.command]]
 key = "prefix+a"
 type = "plugin_action"
@@ -32,7 +31,6 @@ type = "plugin_action"
 command = "annotate.manage"
 description = "manage annotations"
 
-# Herdr Annotate: document and agent-reply review
 [[keys.command]]
 key = "prefix+o"
 type = "plugin_action"
@@ -44,6 +42,12 @@ key = "prefix+shift+o"
 type = "plugin_action"
 command = "annotate.last"
 description = "review the agent's last reply"
+
+[[keys.command]]
+key = "prefix+p"
+type = "plugin_action"
+command = "jt.command-palette.open"
+description = "Command palette"
 
 [terminal]
 new_cwd = "follow"
