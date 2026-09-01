@@ -3,7 +3,7 @@ description: Surface design decisions and scope before codebase research begins
 argument-hint: [ticket reference or task description]
 ---
 
-# Question Me
+# Brainstorm Research Questions
 Transform a ticket/task description into focused research questions that will guide objective codebase exploration.
 
 ## Purpose
