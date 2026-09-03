@@ -1,0 +1,8 @@
+{
+  "alfredsnippet" : {
+    "snippet" : "For the key blocking issues output:\n\n1. The filename and line number(s).\n2. A snippet of the code that has the issue.\n3. A (brief!) description of the issue along with any suggested code change snippets. Show any code changes using `diff`.",
+    "uid" : "188439E5-4FBC-4506-89F5-E193EC25D1AC",
+    "name" : "Explain key blocking issues",
+    "keyword" : ""
+  }
+}
