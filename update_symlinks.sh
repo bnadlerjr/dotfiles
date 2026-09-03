@@ -88,28 +88,6 @@ for plugin_manifest in "${DIR}"/herdr/plugins/*/herdr-plugin.toml; do
     fi
 done
 
-# launchd is macOS only, so Linux gets no agent alert poller. Everything it
-# needs lives in this block; skipping it leaves the rest of the script intact.
-if [ "$(uname -s)" = "Darwin" ]; then
-    AGENT_ALERTS_PLIST=~/Library/LaunchAgents/dev.bobnadler.herdr-agent-alerts.plist
-
-    echo " ...removing ${AGENT_ALERTS_PLIST}"
-    mkdir -p ~/Library/LaunchAgents
-    rm -f ${AGENT_ALERTS_PLIST}
-    ln -s ${DIR}/herdr/launchd/dev.bobnadler.herdr-agent-alerts.plist ${AGENT_ALERTS_PLIST}
-    echo " ...herdr agent alerts job re-linked"
-
-    # Re-linking the plist does not change the running job. launchd keeps the
-    # definition it was bootstrapped with, so an edited plist keeps running the
-    # old command until the job is torn down and loaded again.
-    #
-    # bootout exits non-zero when the job was not loaded, which is the normal
-    # case on a first run, so its failure is not worth reporting.
-    launchctl bootout "gui/$(id -u)" ${AGENT_ALERTS_PLIST} 2>/dev/null
-    launchctl bootstrap "gui/$(id -u)" ${AGENT_ALERTS_PLIST}
-    echo " ...herdr agent alerts job reloaded"
-fi
-
 echo " ...removing ~/.claude/CLAUDE.md"
 rm -r ~/.claude/CLAUDE.md
 ln -s ${DIR}/claude/CLAUDE-PERSONAL.md ~/.claude/CLAUDE.md
