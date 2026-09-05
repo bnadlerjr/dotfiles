@@ -38,11 +38,6 @@ elif [ -f /usr/share/bash-completion/bash_completion ]; then
   . /usr/share/bash-completion/bash_completion
 fi
 
-if command -v yarn >/dev/null 2>&1; then
-  # Yarn setup (must come after asdf setup since Yarn is managed by asdf)
-  export PATH="$(yarn global bin):$PATH"
-fi
-
 if command -v direnv >/dev/null 2>&1; then
   # Setup direnv
   eval "$(direnv hook bash)"
