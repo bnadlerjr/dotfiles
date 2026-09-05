@@ -1,5 +1,5 @@
 ---
-name: datadog-cli
+name: using-datadog-cli
 description: Datadog CLI for searching logs, querying metrics, tracing requests, and viewing dashboards. Use this when debugging production issues or working with Datadog observability.
 ---
 

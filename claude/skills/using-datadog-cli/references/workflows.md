@@ -83,4 +83,3 @@ npx @leoflores/datadog-cli logs multi \
   --queries "api-errors:service:api status:error,payment-errors:service:payment status:error,auth-errors:service:auth status:error" \
   --from 1h --pretty
 ```
-

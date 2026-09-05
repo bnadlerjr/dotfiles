@@ -363,7 +363,7 @@ Usage:
   /create-skill developing-elixir                     — improve an existing skill
   /create-skill audit reviewing-code                  — audit an existing skill
   /create-skill audit reviewing-code: check the refs  — audit with a specific hypothesis
-  /create-skill verify datadog-cli                    — check whether its claims still hold
+  /create-skill verify using-datadog-cli               — check whether its claims still hold
 ```
 
 ### Skill Not Found (improve/audit/verify)
@@ -420,7 +420,7 @@ Options:
 ### Verify a skill's claims
 
 ```bash
-/create-skill verify datadog-cli
+/create-skill verify using-datadog-cli
 ```
 
 1. Detects **verify**
