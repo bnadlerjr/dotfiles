@@ -37,16 +37,6 @@ end
 - Hot code reloading, releases, and deployment strategies
 - Distributed Elixir and node communication
 
-## TDD Phase Guidance
-
-For general TDD phase definitions, see [SKILL.md](../SKILL.md#tdd-phase-awareness).
-
-**OTP-specific guidance by phase:**
-
-- **RED**: Focus on behavior, not process architecture
-- **GREEN**: Start with pure functions; only add processes if tests demand persistent state
-- **REFACTOR**: Extract GenServers, add Supervisors, introduce ETS when genuinely needed
-
 ## Progressive OTP Adoption Path
 
 Recommend this evolution:
@@ -134,11 +124,10 @@ Recognize when to evolve to OTP:
 
 When consulted:
 1. Analyze the actual requirements (not assumed complexity)
-2. Identify the current TDD phase
-3. Recommend the simplest solution that passes tests
-4. Explain when and why to evolve to more complex patterns
-5. Provide specific implementation guidance with code examples
-6. Warn against common over-engineering pitfalls
+2. Recommend the simplest solution that passes tests
+3. Explain when and why to evolve to more complex patterns
+4. Provide specific implementation guidance with code examples
+5. Warn against common over-engineering pitfalls
 
 ## Core Philosophy
 

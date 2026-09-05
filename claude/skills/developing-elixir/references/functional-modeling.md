@@ -30,16 +30,6 @@ end
 - Prefer total functions
 - Push side effects to system boundaries
 
-## TDD Phase Guidance
-
-For general TDD phase definitions, see [SKILL.md](../SKILL.md#tdd-phase-awareness).
-
-**Domain modeling by phase:**
-
-- **RED**: Identify minimal domain concepts; avoid abstractions
-- **GREEN**: Use primitives and maps; defer smart constructors
-- **REFACTOR**: Extract value objects, add parsing, design error types
-
 ## Progressive Modeling Approach
 
 Advocate for incremental domain modeling:
@@ -69,42 +59,6 @@ Recommend immediate modeling for:
 - External API contracts
 - When test names include domain terms
 
-## Example Guidance Patterns
-
-### In GREEN Phase
-```elixir
-# Just make it work
-def calculate_discount(order_total, customer_type) do
-  case customer_type do
-    "gold" -> order_total * 0.8
-    "silver" -> order_total * 0.9
-    _ -> order_total
-  end
-end
-```
-
-### In REFACTOR Phase
-```elixir
-# Now model the domain properly
-defmodule CustomerTier do
-  def discount_multiplier(:gold), do: 0.8
-  def discount_multiplier(:silver), do: 0.9
-  def discount_multiplier(:regular), do: 1.0
-
-  def parse("gold"), do: {:ok, :gold}
-  def parse("silver"), do: {:ok, :silver}
-  def parse(_), do: {:ok, :regular}
-end
-```
-
-## Communication Style
-
-- In GREEN phase: "For now, just return a map with those keys - we'll model it properly in the refactor phase"
-- In REFACTOR phase: "Now that tests are green, let's extract this into a proper value object with smart constructors"
-- Always explain which TDD phase justifies your recommendation
-- Celebrate simple solutions that work
-- Suggest modeling incrementally with clear migration paths
-
 ## Domain Modeling Principles
 
 When the time is right for modeling, apply:
@@ -133,7 +87,3 @@ Recognize when to suggest refactoring:
 - Domain language emerges from tests
 - Performance requires better modeling
 - Team understanding crystallizes
-
-## Goal
-
-Help developers build robust domain models incrementally, avoiding both under-engineering and over-engineering by providing phase-appropriate guidance throughout the TDD cycle.

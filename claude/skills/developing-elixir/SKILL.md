@@ -1,9 +1,9 @@
 ---
 name: developing-elixir
 description: |
-  Comprehensive Elixir/Phoenix development expertise covering Phoenix controllers, routing, channels; LiveView components and real-time features; Ecto schemas, queries, migrations; OTP patterns (GenServer, Supervisor); functional domain modeling; GraphQL with Absinthe; and ExUnit testing.
+  Comprehensive Elixir/Phoenix development expertise covering Phoenix controllers, routing, channels; LiveView components and real-time features; Ecto schemas, queries, migrations; OTP patterns (GenServer, Supervisor); functional domain modeling; and GraphQL with Absinthe.
 
-  Use when working with .ex/.exs files, mix projects, Phoenix applications, or when the user mentions Elixir, Phoenix, Ecto, LiveView, OTP, GenServer, Supervisor, Absinthe, or ExUnit. Also use for defmodule, mix.exs, umbrella apps, or iex sessions.
+  Use when working with .ex/.exs files, mix projects, Phoenix applications, or when the user mentions Elixir, Phoenix, Ecto, LiveView, OTP, GenServer, Supervisor, or Absinthe. Also use for defmodule, mix.exs, umbrella apps, or iex sessions.
 ---
 
 # Developing Elixir
@@ -23,31 +23,7 @@ For immediate help, identify your task type and consult the relevant reference:
 | GenServer, Supervisor, processes | [otp-patterns](references/otp-patterns.md) | Fault tolerance, state management |
 | Domain modeling, value objects | [functional-modeling](references/functional-modeling.md) | Parse-don't-validate, DDD |
 | GraphQL schemas, resolvers | [graphql-absinthe](references/graphql-absinthe.md) | Subscriptions, dataloader |
-| ExUnit tests, TDD workflow | [testing-exunit](references/testing-exunit.md) | Test organization, assertions |
-
-## TDD Phase Awareness
-
-All guidance in this skill is phase-aware. Identify your current phase:
-
-### RED Phase (Writing Failing Tests)
-- Write the smallest test that captures intent
-- Use hard-coded values directly in tests
-- Skip edge cases and parameterization initially
-- Focus on what behavior the test demands
-
-### GREEN Phase (Making Tests Pass)
-- RESIST over-engineering at all costs
-- Start with pure functions and simple data structures
-- Recommend primitives and maps before structs
-- Defer abstractions, smart constructors, and validations
-- Focus only on making the current test pass
-
-### REFACTOR Phase (Improving Design)
-- NOW apply proper patterns and abstractions
-- Extract value objects from primitives
-- Add comprehensive error handling
-- Introduce OTP patterns if genuinely needed
-- Improve test structure and coverage
+| ExUnit tests, TDD workflow | `testing-elixir` skill | Delegated — ExUnit, assertions, Ecto sandbox, Phoenix test helpers |
 
 ## Cross-Cutting Principles
 
@@ -92,7 +68,7 @@ User: "Show live order status updates to the customer"
 **Refactoring to proper domain model:**
 ```
 User: "This order calculation has grown complex with many edge cases"
-→ Identify TDD phase (likely REFACTOR), consult functional-modeling.md
+→ Consult functional-modeling.md
 ```
 
 **Adding background job processing:**
@@ -121,14 +97,8 @@ User: "I need to add an index to the posts table"
 - Introducing abstractions without duplication
 - Modeling future requirements
 
-### Testing Anti-Patterns
-- Writing multiple assertions before any pass
-- Creating elaborate test fixtures prematurely
-- Testing implementation details
-- Adding error case tests too early
-
 ## Reference File IDs
 
 For programmatic access (e.g., parallel reviews), use these identifiers:
 
-`phoenix-framework` · `liveview` · `ecto-database` · `safe-ecto-migrations` · `otp-patterns` · `functional-modeling` · `graphql-absinthe` · `testing-exunit`
+`phoenix-framework` · `liveview` · `ecto-database` · `safe-ecto-migrations` · `otp-patterns` · `functional-modeling` · `graphql-absinthe`
