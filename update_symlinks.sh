@@ -13,15 +13,9 @@ do
     echo; echo "Symlinking ${file_path} to ${symlink_path}"
     if [ -f $symlink_path ];
     then
-        read -p "${symlink_path} exists, overwrite? (y/n) " -n 1 -r
-        if [[ ^[Yy]$ =~ $REPLY ]]
-        then
-            rm $symlink_path
-            ln -s $file_path $symlink_path
-            echo " ...overwrote ${symlink_path}"
-        else
-            echo " ...skipped"
-        fi
+        rm $symlink_path
+        ln -s $file_path $symlink_path
+        echo " ...overwrote ${symlink_path}"
     else
         echo " ...removing folder ${symlink_path}"
         rm -r $symlink_path
