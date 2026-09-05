@@ -3,22 +3,34 @@ Dotfile setup based on Advanced Commandline screencast from PeepCode.
 
 ## Install
 1. Clone to ~/dotfiles
-2. Create symlinks to dotfiles by running `update_symlinks`
-3. Install CtrlP C Matcher extension:
+2. Switch the login shell to Homebrew's Bash (macOS only)
+
+macOS ships Bash 3.2, released in 2006. The Brewfile installs Bash 5.x as `brew "bash"`,
+so run `brew bundle` before this step.
+
+```bash
+echo "$(brew --prefix)/bin/bash" | sudo tee -a /etc/shells
+chsh -s "$(brew --prefix)/bin/bash"
+```
+
+Quit every terminal app with Cmd-Q afterward and relaunch it.
+
+3. Create symlinks to dotfiles by running `update_symlinks`
+4. Install CtrlP C Matcher extension:
 
 ```bash
 cd ~/.vim/bundle/ctrlp-cmatcher
 ./install.sh
 ```
 
-4. Install LanguageClient-neovim
+5. Install LanguageClient-neovim
 
 ```bash
 cd ~/.vim/bundle/LanguageClient-neovim
 ./install.sh
 ```
 
-5. Install Elixir Language Server
+6. Install Elixir Language Server
 
 ```bash
 $ mkdir -p ~/dev/elixir && cd ~/dev/elixir
@@ -33,7 +45,7 @@ $ mix deps.get && mix compile
 $ mix elixir_ls.release -o rel
 ```
 
-6. Update Thesaurus for vim-lexical
+7. Update Thesaurus for vim-lexical
 ```bash
 ./update_lexical.sh
 ```
