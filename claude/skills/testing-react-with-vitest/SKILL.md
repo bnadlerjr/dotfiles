@@ -2,12 +2,13 @@
 name: testing-react-with-vitest
 description: |
   Expert guidance for writing Vitest tests for React applications using React Testing Library.
-  Covers component tests, custom hooks, utility tests, sociable testing philosophy, and the
-  RTL query priority system. Favors sociable tests over heavy mocking, stubs over mocks.
+  Covers component tests, custom hooks, utility tests, sociable testing philosophy, the
+  RTL query priority system, and HTTP boundary stubbing with MSW. Favors sociable tests
+  over heavy mocking, stubs over mocks.
 
   Use when working with .test.ts/.test.tsx files, vitest.config.ts, React Testing Library,
-  @testing-library/user-event, @testing-library/jest-dom, renderHook, or when discussing
-  React testing patterns, component testing, hook testing, or test organization.
+  @testing-library/user-event, @testing-library/jest-dom, renderHook, MSW, setupServer, or
+  when discussing React testing patterns, component testing, hook testing, or test organization.
 ---
 
 # Testing React with Vitest
@@ -25,6 +26,7 @@ Expert guidance for writing great Vitest tests for React applications using Reac
 | Custom hooks with renderHook | [custom-hooks](references/custom-hooks.md) | renderHook, act, providers, cleanup |
 | Component testing patterns | [component-patterns](references/component-patterns.md) | Forms, modals, lists, error boundaries, a11y |
 | jest-dom assertion matchers | [assertions](references/assertions.md) | toBeInTheDocument, toBeVisible, toHaveTextContent |
+| External HTTP APIs (MSW) | [external-api-testing](references/external-api-testing.md) | setupServer, http handlers, per-test overrides |
 
 ## Testing Philosophy
 
@@ -63,4 +65,4 @@ Prefer accessible queries. `getByRole('button', { name: 'Submit' })` is better t
 
 ## Reference File IDs
 
-`core-vitest` . `react-testing-library` . `user-event` . `sociable-testing` . `custom-hooks` . `component-patterns` . `assertions`
+`core-vitest` . `react-testing-library` . `user-event` . `sociable-testing` . `custom-hooks` . `component-patterns` . `assertions` . `external-api-testing`

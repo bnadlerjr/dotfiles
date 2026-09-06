@@ -513,6 +513,26 @@ it('announces status updates to screen readers', async () => {
 });
 ```
 
+### Automated Audits with jest-axe
+
+Accessible queries catch missing labels and roles as a side effect of testing behavior. `jest-axe` catches the rest -- invalid ARIA attributes, duplicate ids, heading order, landmark structure.
+
+```tsx
+import { axe, toHaveNoViolations } from 'jest-axe';
+
+expect.extend(toHaveNoViolations);
+
+it('has no accessibility violations', async () => {
+  const { container } = render(<CheckoutForm />);
+
+  const results = await axe(container);
+
+  expect(results).toHaveNoViolations();
+});
+```
+
+Add one audit per component that renders meaningful structure -- forms, dialogs, navigation, data tables. An audit passes on a form nobody can submit, so keep asserting on behavior too. Rules that need real layout, such as color contrast, do not run under jsdom; check those in a browser.
+
 ## Testing with Router
 
 ```tsx

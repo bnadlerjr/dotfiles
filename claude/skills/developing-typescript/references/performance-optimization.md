@@ -59,18 +59,6 @@ const ExpensiveList = memo(function ExpensiveList({ items, onSelect }: Props) {
 - Enable compression and minification
 - Implement caching strategies
 
-## TDD Phase Guidance
-
-For general TDD phase definitions, see [SKILL.md](../SKILL.md#tdd-phase-awareness).
-
-**Performance-specific guidance by phase:**
-
-| Phase | Focus | Avoid |
-|-------|-------|-------|
-| RED | Correct behavior, no optimization | Premature memoization |
-| GREEN | Working code, simple implementation | Performance concerns |
-| REFACTOR | Profile, then optimize bottlenecks | Optimizing without measuring |
-
 ## Measuring Before Optimizing
 
 ### React DevTools Profiler

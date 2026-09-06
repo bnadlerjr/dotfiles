@@ -146,18 +146,6 @@ function Form() {
 - Design slot patterns for layout flexibility
 - Implement controlled and uncontrolled component variants
 
-## TDD Phase Guidance
-
-For general TDD phase definitions, see [SKILL.md](../SKILL.md#tdd-phase-awareness).
-
-**React-specific guidance by phase:**
-
-| Phase | Focus | Avoid |
-|-------|-------|-------|
-| RED | Test user interactions, simple components | Complex hooks, context providers |
-| GREEN | Inline logic, direct state | Custom hooks, premature abstraction |
-| REFACTOR | Extract hooks, improve composition | Over-engineering, unnecessary context |
-
 ## Component Design Principles
 
 ### Single Responsibility
@@ -363,7 +351,7 @@ function useEventCallback<T extends (...args: any[]) => any>(fn: T): T {
 - TypeScript advanced types (see `typescript-core.md`)
 - React 19 features, Server Components (see `react-19-patterns.md`)
 - Performance optimization (see `performance-optimization.md`)
-- Testing patterns (see `testing-react.md`)
+- Testing patterns (see the `testing-react-with-vitest` skill)
 - GraphQL integration (see `graphql-integration.md`)
 
 ## Goal

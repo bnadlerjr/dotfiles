@@ -273,6 +273,19 @@ expect(screen.getByRole('alert')).toHaveTextContent('Saved');
 expect(screen.getByRole('button')).toBeEnabled();
 ```
 
+### waitFor Options
+
+`timeout` (default 1000ms) and `interval` (default 50ms) override the retry behavior.
+
+```typescript
+await waitFor(
+  () => expect(screen.getByRole('alert')).toHaveTextContent('Saved'),
+  { timeout: 3000, interval: 100 }
+);
+```
+
+Raise `timeout` only for genuinely slow operations. A test that needs a longer timeout usually has an unstubbed boundary -- stub the HTTP call (`external-api-testing.md`) or the timer (`core-vitest.md`) instead of waiting longer.
+
 ## waitForElementToBeRemoved
 
 Waits for an element to be removed from the DOM.

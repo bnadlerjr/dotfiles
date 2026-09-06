@@ -56,18 +56,6 @@ function UserProfile({ userId }: { userId: string }) {
 - Use optimistic responses for instant UI feedback
 - Configure fetch policies appropriately
 
-## TDD Phase Guidance
-
-For general TDD phase definitions, see [SKILL.md](../SKILL.md#tdd-phase-awareness).
-
-**GraphQL-specific guidance by phase:**
-
-| Phase | Focus | Avoid |
-|-------|-------|-------|
-| RED | Mock queries, test loading/error states | Complex cache scenarios |
-| GREEN | Basic queries work, types compile | Optimistic updates, pagination |
-| REFACTOR | Fragment colocation, cache optimization | Over-engineering cache policies |
-
 ## Apollo Client Configuration
 
 ### Basic Setup

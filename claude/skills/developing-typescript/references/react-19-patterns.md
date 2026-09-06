@@ -367,14 +367,6 @@ function Chat({ messages }: { messages: Message[] }) {
 }
 ```
 
-## TDD Phase Guidance
-
-| Phase | Focus | Avoid |
-|-------|-------|-------|
-| RED | Test user outcomes, mock server actions | Testing React internals |
-| GREEN | Basic action implementation | Complex streaming patterns |
-| REFACTOR | Add optimistic updates, improve types | Over-engineering caching |
-
 ## Anti-Patterns
 
 - Using `forwardRef` in new React 19 code
@@ -387,7 +379,7 @@ function Chat({ messages }: { messages: Message[] }) {
 
 - General React patterns (see `react-architecture.md`)
 - TypeScript fundamentals (see `typescript-core.md`)
-- Testing patterns (see `testing-react.md`)
+- Testing patterns (see the `testing-react-with-vitest` skill)
 
 ## Goal
 

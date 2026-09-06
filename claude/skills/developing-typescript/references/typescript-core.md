@@ -47,18 +47,6 @@ type Unwrap<T> = T extends Promise<infer U> ? U : T;
 - Resolve type conflicts between packages
 - Configure path aliases and module resolution
 
-## TDD Phase Guidance
-
-For general TDD phase definitions, see [SKILL.md](../SKILL.md#tdd-phase-awareness).
-
-**TypeScript-specific guidance by phase:**
-
-| Phase | Focus | Avoid |
-|-------|-------|-------|
-| RED | Simple types, test compiles | Complex generics, utility types |
-| GREEN | Make types work, use `any` if blocked | Type perfection, over-constraining |
-| REFACTOR | Proper generics, narrowing, inference | Over-engineering type utilities |
-
 ## Type Design Principles
 
 ### Make Illegal States Unrepresentable
@@ -173,7 +161,7 @@ Recommended tsconfig.json settings:
 
 - React-specific types (see `react-architecture.md`)
 - GraphQL type generation (see `graphql-integration.md`)
-- Test type patterns (see `testing-react.md`)
+- Test type patterns (see the `testing-react-with-vitest` skill)
 
 ## Goal
 

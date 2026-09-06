@@ -258,20 +258,34 @@ Prefer `vi.spyOn` when you want to observe calls to a real method without replac
 Replaces an entire module. **Use sparingly -- only at true system boundaries.**
 
 ```typescript
-// Stub the fetch-based API client at the HTTP boundary
-vi.mock('../api/client', () => ({
-  fetchProducts: vi.fn().mockResolvedValue([
-    { id: '1', name: 'Widget', price: 9_99 },
-    { id: '2', name: 'Gadget', price: 19_99 },
-  ]),
+// Stub a third-party SDK that has no test mode
+vi.mock('@acme/analytics', () => ({
+  track: vi.fn(),
+  identify: vi.fn(),
 }));
 ```
+
+For HTTP, do not mock your own API client -- stub the network with MSW instead, so your request building and response parsing still run. See `external-api-testing.md`.
 
 ### Auto-mocking
 
 ```typescript
 // All exports become vi.fn() that return undefined
-vi.mock('../api/client');
+vi.mock('@acme/analytics');
+```
+
+### Typed Access with vi.mocked()
+
+`vi.mocked()` is a type-only cast. It tells TypeScript that an imported function is a `MockedFunction`, so you can reach the mock API without an `as` cast. It changes nothing at runtime.
+
+```typescript
+import { track } from '@acme/analytics';
+
+vi.mock('@acme/analytics');
+
+beforeEach(() => {
+  vi.mocked(track).mockResolvedValue({ accepted: true });
+});
 ```
 
 ### Restoring Mocks
@@ -293,11 +307,10 @@ export default defineConfig({
 
 Only mock modules that cross a true system boundary:
 
-- HTTP clients (`fetch`, `axios`, custom API wrappers)
+- Third-party SDK calls (analytics, auth providers, feature flags)
 - Browser APIs that are unavailable or nondeterministic in tests
-- Third-party SDK calls (analytics, auth providers)
 
-Never mock your own components, hooks, or utility modules.
+Never mock your own components, hooks, or utility modules -- and that includes your API client. HTTP has a better tool: stub the network with MSW (`external-api-testing.md`) and let the client run.
 
 ## vi.stubGlobal() -- Global Stubs
 
