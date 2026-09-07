@@ -34,10 +34,10 @@ pr_ref="$1"
 # Validate the PR reference before launching Claude
 "${SCRIPT_DIR}/gh-pr-parse" "$pr_ref" >/dev/null || exit 1
 
-prompt="reviewing-code-perfectly ${pr_ref}"
+prompt="/review-code-perfectly ${pr_ref}"
 
 if "$dry_run"; then
-    echo "claude ${prompt}"
+    echo "claude \"${prompt}\""
     exit 0
 fi
 
