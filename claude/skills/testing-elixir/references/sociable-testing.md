@@ -175,7 +175,9 @@ end
 
 ## Functional Core / Imperative Shell
 
-The most powerful pattern for testable Elixir code. Pure business logic in the core, side effects at the boundaries.
+The most powerful pattern for testable Elixir code. Pure business logic in the core, side effects in the Lifecycle and Workers layers.
+
+For the design rules behind this split, including where tagged tuples belong, see the `developing-elixir` skill, `references/functional-modeling.md` (Layers).
 
 ```elixir
 # Functional core: pure, easy to test sociably

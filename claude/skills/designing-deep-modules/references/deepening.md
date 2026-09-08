@@ -10,6 +10,8 @@ When assessing a candidate for deepening, classify its dependencies. The categor
 
 Pure computation, in-memory state, no I/O. Always deepenable: merge the modules and test through the new interface directly. No adapter needed.
 
+In Elixir this cluster is the **functional core**, which is the Data, Functions and Tests layers of the DFTWBLW layering (see the `developing-elixir` skill, `references/functional-modeling.md`). Put the seam at **Boundary**. Boundary is the interface; Data, Functions, Tests, Lifecycle and Workers are implementation. Tests written directly against the Data and Functions layers sit on an internal seam, which [Seam discipline](#seam-discipline) allows. They are not the shallow-module tests that "replace, don't layer" tells you to delete.
+
 ### 2. Local-substitutable
 
 Dependencies that have local test stand-ins (Ecto's SQL sandbox for Postgres, an in-memory filesystem for disk). Deepenable if the stand-in exists. The deepened module is tested with the stand-in running in the test suite. The seam is internal; no port at the module's external interface.

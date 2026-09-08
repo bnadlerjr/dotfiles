@@ -72,7 +72,7 @@ Repo.all(from u in User, where: u.active, preload: [:posts])
 - Use database features appropriately (don't reinvent what the database provides)
 - Write queries that minimize N+1 problems through proper preloading
 - Consider transaction boundaries and isolation levels
-- Always validate data at the boundary (changesets) before persistence
+- Always validate data at the Boundary layer (changesets) before persistence
 
 ## Output Guidelines
 

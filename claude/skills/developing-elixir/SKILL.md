@@ -21,7 +21,7 @@ For immediate help, identify your task type and consult the relevant reference:
 | Schemas, queries, migrations | [ecto-database](references/ecto-database.md) | Associations, changesets, transactions |
 | Safe migrations, schema changes | [safe-ecto-migrations](references/safe-ecto-migrations.md) | Concurrent indexes, zero-downtime DDL |
 | GenServer, Supervisor, processes | [otp-patterns](references/otp-patterns.md) | Fault tolerance, state management |
-| Domain modeling, value objects | [functional-modeling](references/functional-modeling.md) | Parse-don't-validate, DDD |
+| Domain modeling, layering, value objects | [functional-modeling](references/functional-modeling.md) | Layers, parse-don't-validate, DDD |
 | GraphQL schemas, resolvers | [graphql-absinthe](references/graphql-absinthe.md) | Subscriptions, dataloader |
 | ExUnit tests, TDD workflow | `testing-elixir` skill | Delegated — ExUnit, assertions, Ecto sandbox, Phoenix test helpers |
 
@@ -33,7 +33,7 @@ These principles apply across all Elixir development:
 1. Prefer pure functions over stateful processes
 2. Use explicit state passing through function parameters
 3. Only introduce OTP patterns when tests require them
-4. Push side effects to system boundaries
+4. Push side effects to the Lifecycle and Workers layers
 
 ### Progressive Abstraction
 1. Start with primitives and maps
@@ -42,12 +42,15 @@ These principles apply across all Elixir development:
 4. Extract domain modules when concepts are proven
 
 ### Parse, Don't Validate
-- Transform unstructured data into guaranteed-valid types at boundaries
+- Transform unstructured data into guaranteed-valid types at the Boundary layer
 - Once data is parsed, it's always valid throughout the system
-- Prefer constructors that return `{:ok, value} | {:error, reason}`
+- Prefer constructors that return `{:ok, value} | {:error, reason}` at that layer.
+  Constructors below it take already-parsed values and stay total.
 
 ### Error Handling Philosophy
-- Use tagged tuples consistently: `{:ok, result}` or `{:error, reason}`
+- Tagged tuples belong where a question can be answered "no", which is the Boundary
+  layer. Pure computation below it returns plain values. See
+  [functional-modeling](references/functional-modeling.md#layers).
 - Implement proper error types for domain-specific errors
 - Never expose internal implementation details in errors
 

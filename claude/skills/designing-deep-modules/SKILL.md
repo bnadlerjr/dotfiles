@@ -19,7 +19,7 @@ Use these terms exactly: don't substitute "component," "service," "API," or "bou
 
 **Depth**: leverage at the interface. The amount of behaviour a caller (or test) can exercise per unit of interface they have to learn. A module is **deep** when a large amount of behaviour sits behind a small interface, **shallow** when the interface is nearly as complex as the implementation.
 
-**Seam** _(Michael Feathers)_: a place where you can alter behaviour without editing in that place; the *location* at which a module's interface lives. Where to put the seam is its own design decision, distinct from what goes behind it. _Avoid_: boundary (overloaded with DDD's bounded context).
+**Seam** _(Michael Feathers)_: a place where you can alter behaviour without editing in that place; the *location* at which a module's interface lives. Where to put the seam is its own design decision, distinct from what goes behind it. _Avoid_: boundary (overloaded with DDD's bounded context). One exception: capital-B **Boundary** is a layer name in the Elixir DFTWBLW layering, and the seam sits at its outer face. Lowercase "boundary" as a loose synonym for seam stays out.
 
 **Adapter**: a concrete thing that satisfies an interface at a seam. Describes *role* (what slot it fills), not substance (what's inside).
 
@@ -125,7 +125,7 @@ Good interfaces make testing natural:
 
 - **Depth as ratio of implementation-lines to interface-lines** (Ousterhout): rewards padding the implementation. We use depth-as-leverage instead.
 - **"Interface" as a `@behaviour`'s callbacks or a module's public functions**: too narrow: interface here includes every fact a caller must know.
-- **"Boundary"**: overloaded with DDD's bounded context. Say **seam** or **interface**.
+- **"Boundary"**: overloaded with DDD's bounded context. Say **seam** or **interface**. Capital-B **Boundary** as a DFTWBLW layer name is the one exception; see the glossary.
 
 ## Going deeper
 

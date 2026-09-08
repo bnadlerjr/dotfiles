@@ -28,7 +28,43 @@ end
 - Parse instead of validating
 - Treat errors as values
 - Prefer total functions
-- Push side effects to system boundaries
+- Push side effects to the Lifecycle and Workers layers
+
+## Layers
+
+Six layers, from *Designing Elixir Systems with OTP* (Tate and Gray). The mnemonic is
+"Do Fun Things with Big Loud Workerbees".
+
+| Layer | Holds | Purity |
+|-------|-------|--------|
+| Data | Structs and types | pure |
+| Functions | Transformations over that data | pure, total |
+| Tests | Coverage of Data and Functions | pure |
+| Boundary | Public interface, validation, contracts | pure, but answers "no" |
+| Lifecycle | Supervision, startup, child specs | effectful |
+| Workers | Processes doing concurrent work | effectful |
+
+Three rules follow from the table.
+
+- **Uncertainty and I/O are separate layers.** `{:ok, v} | {:error, r}` records a
+  question that could be answered "no". That is Boundary work, and it needs no I/O.
+  A pure function that rejects an illegal move belongs at Boundary, not in Functions
+  and not in Workers.
+- **Functions stay total and type-preserving.** A step that transforms state should be
+  `T -> T`, so it pipes: `state |> step_a() |> step_b()`. A `with {:ok, x} <- ...`
+  spine as the backbone of a Functions module means the parsing belongs one layer out,
+  at Boundary.
+- **Carry a wrapper, do not compose over it.** Threading a changeset
+  `changeset -> changeset` is fine. The indicator is data along for the ride. Forking
+  the pipeline on `valid?` is Boundary control flow that leaked inward.
+
+Two cautions.
+
+- This is a layer inventory, not a write order. Under TDD, Functions and Tests
+  interleave.
+- Most components stop at Boundary. A Phoenix context has Data, Functions, Tests and
+  Boundary, and no Lifecycle or Workers. Add those only when the requirements in
+  [otp-patterns](otp-patterns.md) justify a process.
 
 ## Progressive Modeling Approach
 
@@ -64,7 +100,7 @@ Recommend immediate modeling for:
 When the time is right for modeling, apply:
 
 ### Parse, Don't Validate
-Transform unstructured data into guaranteed-valid types at system boundaries.
+Transform unstructured data into guaranteed-valid types at the Boundary layer.
 
 ### Railway-Oriented Programming
 Chain operations that might fail using consistent error handling.
