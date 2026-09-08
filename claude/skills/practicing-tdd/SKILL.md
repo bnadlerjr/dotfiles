@@ -116,22 +116,28 @@ Vague name, tests mock not code.
 - Clear name
 - Real code (no mocks unless unavoidable)
 
-**Catchable defect check.** Before writing, ask: *what production defect would cause this test to fail?* If the only answer is "a literal got out of sync with itself," the test is tautological — re-scope the cycle to a consumer transformation. See [anti-patterns.md](../reviewing-test-design/references/anti-patterns.md). Do not write a test you can satisfy with a literal.
+**Catchable defect check.** Before writing, ask: *would deleting this test let a real bug go undetected?* If the only answer is "only if I changed one literal and forgot the matching one," or "an integration test would catch it anyway," the test is tautological — re-scope the cycle to a consumer transformation. Keep it only when the answer names a real branching or transformation defect, or when the contract is consumed outside this codebase and no higher-level test already pins it. Do not write a test you can satisfy with a literal. For the full excuse table, see [anti-patterns.md](../reviewing-test-design/references/anti-patterns.md).
+
+**The Red step's unit is a failing check, not a new test function.** When the next increment of behavior is another observable consequence of a behavior an existing test already exercises — or another row in a table-driven test — express it as a new assertion or a new case in that test rather than a new test function. Two rules bound this, without exception:
+
+1. **Additive only.** Never relax, delete, or loosen an existing assertion to produce Red. If an existing assertion is now wrong, that is a separate, deliberate change with its own justification — not a Red step.
+2. **Still verified red.** Run the modified test and confirm it fails *on the new assertion*, for the expected reason. A modified test that goes red on an *old* assertion means you broke something — stop and fix that first.
+
+One behavior per test still holds. One behavior is not one assertion. If the new assertion needs its own sentence to describe what it checks, it is a different behavior — write a new test.
 
 ### Verify RED - Watch It Fail
 
 **MANDATORY. Never skip.**
 
-```bash
-npm test path/to/test.test.ts
-```
+Run the project's test command for this file alone (`mix test path/to/file_test.exs:LINE`, `npm test path/to/test.test.ts`, `pytest path/to/test.py::test_name`).
 
 Confirm:
 - Test fails (not errors)
 - Failure message is expected
 - Fails because feature missing (not typos)
+- Added an assertion to an existing test? It fails on that assertion, not an old one
 
-**Test passes?** You're testing existing behavior. Fix test.
+**Test passes?** It is asserting behavior that already exists. Add the assertion that pins the behavior you have *not* built yet — do not weaken or remove an assertion to force a failure. If nothing you can add fails, the increment is already implemented; pick the next one.
 
 **Test errors?** Fix error, re-run until it fails correctly.
 
@@ -175,9 +181,7 @@ Don't add features, refactor other code, or "improve" beyond the test.
 
 **MANDATORY.**
 
-```bash
-npm test path/to/test.test.ts
-```
+Run the project's test command for this file alone (`mix test path/to/file_test.exs:LINE`, `npm test path/to/test.test.ts`, `pytest path/to/test.py::test_name`).
 
 Confirm:
 - Test passes
@@ -201,7 +205,7 @@ For systematic refactoring with code smell detection, see the [refactoring-code]
 
 ### Repeat
 
-Next failing test for next feature.
+Next failing check for the next increment of behavior.
 
 ## Good Tests
 
@@ -210,56 +214,6 @@ Next failing test for next feature.
 | **Minimal** | One thing. "and" in name? Split it. | `test('validates email and domain and whitespace')` |
 | **Clear** | Name describes behavior | `test('test1')` |
 | **Shows intent** | Demonstrates desired API | Obscures what code should do |
-
-## Why Order Matters
-
-**"I'll write tests after to verify it works"**
-
-Tests written after code pass immediately. Passing immediately proves nothing:
-- Might test wrong thing
-- Might test implementation, not behavior
-- Might miss edge cases you forgot
-- You never saw it catch the bug
-
-Test-first forces you to see the test fail, proving it actually tests something.
-
-**"I already manually tested all the edge cases"**
-
-Manual testing is ad-hoc. You think you tested everything but:
-- No record of what you tested
-- Can't re-run when code changes
-- Easy to forget cases under pressure
-- "It worked when I tried it" ≠ comprehensive
-
-Automated tests are systematic. They run the same way every time.
-
-**"Deleting X hours of work is wasteful"**
-
-Sunk cost fallacy. The time is already gone. Your choice now:
-- Delete and rewrite with TDD (X more hours, high confidence)
-- Keep it and add tests after (30 min, low confidence, likely bugs)
-
-The "waste" is keeping code you can't trust. Working code without real tests is technical debt.
-
-**"TDD is dogmatic, being pragmatic means adapting"**
-
-TDD IS pragmatic:
-- Finds bugs before commit (faster than debugging after)
-- Prevents regressions (tests catch breaks immediately)
-- Documents behavior (tests show how to use code)
-- Enables refactoring (change freely, tests catch breaks)
-
-"Pragmatic" shortcuts = debugging in production = slower.
-
-**"Tests after achieve the same goals - it's spirit not ritual"**
-
-No. Tests-after answer "What does this do?" Tests-first answer "What should this do?"
-
-Tests-after are biased by your implementation. You test what you built, not what's required. You verify remembered edge cases, not discovered ones.
-
-Tests-first force edge case discovery before implementing. Tests-after verify you remembered everything (you didn't).
-
-30 minutes of tests after ≠ TDD. You get coverage, lose proof tests work.
 
 ## Common Rationalizations
 
@@ -275,16 +229,25 @@ Tests-first force edge case discovery before implementing. Tests-after verify yo
 | "Test hard = design unclear" | Listen to test. Hard to test = hard to use. |
 | "TDD will slow me down" | TDD faster than debugging. Pragmatic = test-first. |
 | "Manual test faster" | Manual doesn't prove edge cases. You'll re-test every change. |
-| "Existing code has no tests" | You're improving it. Add tests for existing code. |
+| "Existing code has no tests" | Characterization tests pin current behavior first. See below. |
 | "The plan says assert this literal" | Mirror-of-source isn't a test. Re-scope the cycle to a consumer transformation. See [anti-patterns.md](../reviewing-test-design/references/anti-patterns.md). |
+
+Arguing to skip the cycle — yours or your human partner's — read [rationalizations.md](references/rationalizations.md) for the full rebuttal to each excuse.
+
+## Characterization Tests for Untested Code
+
+Characterization tests for pre-existing untested code are not a TDD cycle — they pin current behavior before you change it. Write them, watch them pass, then resume Red-Green-Refactor for the change itself.
+
+This is the one case where a passing test is the expected outcome. It applies only to code that existed before this task. Code you wrote yourself and did not test first is not legacy — delete it and start over.
 
 ## Red Flags - STOP and Start Over
 
 - Code before test
 - Test after implementation
-- Test passes immediately
+- Test — or a new assertion in an existing test — passes immediately
+- An existing assertion relaxed, loosened, or deleted to produce Red
 - Can't explain why test failed
-- Tests added "later"
+- Tests added "later" for code you just wrote
 - Rationalizing "just this once"
 - "I already manually tested it"
 - "Tests after achieve the same purpose"
@@ -310,7 +273,7 @@ test('rejects empty email', async () => {
 
 **Verify RED**
 ```bash
-$ npm test
+$ npm test src/submitForm.test.ts
 FAIL: expected 'Email required', got undefined
 ```
 
@@ -326,7 +289,7 @@ function submitForm(data: FormData) {
 
 **Verify GREEN**
 ```bash
-$ npm test
+$ npm test src/submitForm.test.ts
 PASS
 ```
 
@@ -337,7 +300,7 @@ Extract validation for multiple fields if needed.
 
 Before marking work complete:
 
-- [ ] Every new function/method has a test
+- [ ] Every new behavior has a test that would fail against a real defect, not only against an out-of-sync literal
 - [ ] Watched each test fail before implementing
 - [ ] Each test failed for expected reason (feature missing, not typo)
 - [ ] Wrote minimal code to pass each test
