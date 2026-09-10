@@ -17,6 +17,8 @@ allowed-tools: Bash, Read, Grep, Glob, Skill
 - If PR_REF is empty, STOP and ask for it.
 - Report every principle, even when it passes.
 - Every finding states the concrete problem, its impact, a `file:line` citation, and a proposed alternative. "This is bad" and "this could be better" are not findings.
+- Cite lines as they appear in the file under `$REVIEW_DIR`, never as offsets read off `gh pr diff`. That worktree is the PR head commit, which is what GitHub's Files changed view numbers against.
+- Every blocking issue also gets an entry in the report's Blocking issues section.
 - Separate blocking issues from non-blocking suggestions in every section.
 - Cap Taste at 3 items and mark them non-blocking.
 - Skip generated files (lock files, compiled output, snapshots) and binary assets.
@@ -155,9 +157,24 @@ pr-review-worktree cleanup "$REVIEW_DIR"
 | PASS | No issues found for this principle | No |
 | N/A | Not applicable (Taste only) | No |
 
+## Blocking issue detail
+
+Every FAIL and NEEDS DISCUSSION finding, plus any CONCERN you judge blocking, gets one entry in the report's Blocking issues section. Order by principle number, so Purpose failures lead, and number from 1.
+
+One entry per defect, not per site. The same defect at several call sites is one entry that cites the other sites and shows one representative diff.
+
+| Part | Rule |
+|---|---|
+| Citation | Backticked `path/to/file.ex:42`, ranges `:42-50`. Line numbers from `$REVIEW_DIR`, never from `gh pr diff`. |
+| Snippet | Copied verbatim from `$REVIEW_DIR/<path>`, at most 10 lines, in a language-tagged fence. A paraphrase is not findable on the GitHub page. Use a four-backtick fence when the copied lines contain a fence of their own. |
+| Description | One or two sentences naming the underlying concern. The reasoning is already in the principle section above — do not restate it. |
+| Diff | A fenced `diff` with `-`/`+` and only the context lines needed to place the change. No `@@` headers — invented hunk offsets mislead. |
+
+When the fix is not a localized edit — the PR solves a different problem, a test file is missing entirely, the approach needs the author — omit the diff fence, write `No localized patch`, and state in one or two sentences what has to change. Never fabricate a diff to satisfy the format.
+
 ## Report
 
-```markdown
+````markdown
 # PERFECT Review: PR #<ID> — <PR Title>
 
 **PR**: <URL>
@@ -250,9 +267,26 @@ pr-review-worktree cleanup "$REVIEW_DIR"
 
 **Recommendation**: APPROVE / REQUEST CHANGES / NEEDS DISCUSSION
 
-**Key blocking issues** (if any):
-1. <issue summary with file reference>
+### Blocking issues
 
-**Top suggestions** (non-blocking):
-1. <suggestion summary>
+<"None." when there are none, otherwise one numbered block per issue:>
+
+#### 1. <short title> — <principle>
+
+`<path>:<line>` (also `<path>:<line>`, `<path>:<line>` for the same defect elsewhere)
+
+```<language>
+<snippet copied verbatim from $REVIEW_DIR/<path>>
 ```
+
+<one or two sentences naming the concern>
+
+```diff
+- <current>
++ <replacement>
+```
+
+### Top suggestions (non-blocking)
+
+1. <suggestion summary>
+````
