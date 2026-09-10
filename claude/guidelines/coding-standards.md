@@ -1,8 +1,5 @@
 # Coding Standards
 
-Critical style and discipline rules are in the root CLAUDE.md. This file
-covers additional standards not listed there.
-
 ## Development
 
 - Make changes file by file for review opportunity

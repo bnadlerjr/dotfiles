@@ -175,14 +175,6 @@
           {
             "type": "command",
             "command": "uv run ~/dotfiles/claude/hooks/log-event-jsonl.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ~/dotfiles/claude/hooks/plan-mode-context.py"
-          },
-          {
-            "type": "command",
-            "command": "uv run ~/dotfiles/claude/hooks/save-plan-artifact.py"
           }
         ]
       }
