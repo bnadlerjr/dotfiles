@@ -119,6 +119,16 @@ echo " ...~/.claude/guidelines re-linked"
 
 mkdir -p ~/.pi/agent
 
+echo " ...removing ~/.pi/agent/skills"
+rm -r ~/.pi/agent/skills
+ln -s ${DIR}/claude/skills ~/.pi/agent/skills
+echo " ...~/.pi/agent/skills re-linked"
+
+echo " ...removing ~/.pi/agent/prompts"
+rm -r ~/.pi/agent/prompts
+ln -s ${DIR}/claude/commands ~/.pi/agent/prompts
+echo " ...~/.pi/agent/prompts re-linked"
+
 echo " ...removing ~/.pi/agent/settings.json"
 rm -r ~/.pi/agent/settings.json
 ln -s ${DIR}/pi/settings.json ~/.pi/agent/settings.json
