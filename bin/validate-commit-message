@@ -45,9 +45,15 @@ GENERATED_PREFIXES = ("Merge ", "Revert ", "fixup! ", "squash! ")
 
 
 def clean_message(text: str, comment_char: str = "#") -> str:
-    """Remove Git editor comments and surrounding blank lines."""
-    lines = [line.rstrip() for line in text.splitlines()]
-    lines = [line for line in lines if not line.startswith(comment_char)]
+    """Remove Git editor comments, verbose diff, and surrounding blank lines."""
+    lines = []
+    scissors = f"{comment_char} ------------------------ >8 ------------------------"
+    for line in text.splitlines():
+        line = line.rstrip()
+        if line == scissors:
+            break
+        if not line.startswith(comment_char):
+            lines.append(line)
     return "\n".join(lines).strip()
 
 

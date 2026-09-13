@@ -82,6 +82,19 @@ def test_comments_are_removed_before_validation(validator):
     ) == ("Fix cleanup\n\nWhy it matters.")
 
 
+def test_verbose_diff_after_scissors_is_removed_before_validation(validator):
+    text = (
+        "Add Jira snippet\n\n"
+        "# ------------------------ >8 ------------------------\n"
+        "diff --git a/alfred/snippet.json b/alfred/snippet.json\n"
+        "--- /dev/null\n"
+        "+++ b/alfred/snippet.json\n"
+    )
+
+    assert validator.clean_message(text) == "Add Jira snippet"
+    assert validator.check_format(text) == ([], [])
+
+
 def test_format_checks_and_long_subject_warning(validator):
     violations, warnings = validator.check_format("fix cleanup.\nBody without gap")
 
