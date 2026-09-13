@@ -286,7 +286,7 @@ def build_prompt(message: Message, context: Context) -> str:
 
 def invoke_claude(prompt: str) -> dict:
     """Run the isolated semantic classifier and return its structured result."""
-    model = os.environ.get("COMMIT_MESSAGE_MODEL", "sonnet")
+    model = os.environ.get("COMMIT_MESSAGE_MODEL", "haiku")
     argv = [
         "claude",
         "-p",

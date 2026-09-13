@@ -203,6 +203,30 @@ def test_binary_files_are_skipped(tmp_path, validator):
     assert "image.bin" not in context.files
 
 
+def test_claude_uses_haiku_by_default(validator, monkeypatch):
+    calls = []
+    output = {
+        "structured_output": {
+            "valid": True,
+            "body_warranted": False,
+            "sentences": [],
+            "references": [],
+            "reasons": [],
+        }
+    }
+
+    def run(argv, **kwargs):
+        calls.append(argv)
+        return subprocess.CompletedProcess(argv, 0, json.dumps(output), "")
+
+    monkeypatch.delenv("COMMIT_MESSAGE_MODEL", raising=False)
+    monkeypatch.setattr(validator.subprocess, "run", run)
+
+    validator.invoke_claude("prompt")
+
+    assert calls[0][calls[0].index("--model") + 1] == "haiku"
+
+
 def test_claude_timeout_is_an_operational_error(validator, monkeypatch):
     def timeout(*args, **kwargs):
         raise subprocess.TimeoutExpired("claude", 60)
