@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Prepares an Elixir worktree faster while keeping its build state independent.
+
+PRIMARY="${1:?usage: wt-setup-elixir <primary-checkout-path>}"
+
+if [[ ! -d "$PRIMARY" ]]; then
+  printf 'wt-setup-elixir: primary checkout not found: %s\n' "$PRIMARY" >&2
+  exit 1
+fi
+
+if [[ ! -f "$PRIMARY/mix.exs" ]]; then
+  printf 'wt-setup-elixir: primary checkout is not a Mix project: %s\n' "$PRIMARY" >&2
+  exit 1
+fi
+
+if [[ ! -f mix.exs ]]; then
+  printf 'wt-setup-elixir: current directory is not a Mix project\n' >&2
+  exit 1
+fi
+
+PRIMARY="$(cd "$PRIMARY" && pwd -P)"
+if [[ "$PRIMARY" == "$(pwd -P)" ]]; then
+  printf 'wt-setup-elixir: primary checkout and worktree must differ\n' >&2
+  exit 1
+fi
+
+clone_directory() {
+  local source_path="$1"
+  local destination_path="$2"
+
+  if [[ ! -d "$source_path" ]]; then
+    printf '  note: %s not found; Mix will build it\n' "$source_path" >&2
+    return
+  fi
+
+  if [[ -L "$destination_path" || ( -e "$destination_path" && ! -d "$destination_path" ) ]]; then
+    printf 'wt-setup-elixir: destination must be a real directory: %s\n' "$destination_path" >&2
+    exit 1
+  fi
+
+  if [[ -d "$destination_path" && -n "$(find "$destination_path" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
+    printf '  kept existing cache: %s\n' "$destination_path"
+    return
+  fi
+
+  mkdir -p "$destination_path"
+
+  case "$(uname -s)" in
+    Darwin)
+      if cp -a -c "$source_path/." "$destination_path/" 2>/dev/null; then
+        printf '  cloned cache: %s\n' "$destination_path"
+      else
+        cp -a "$source_path/." "$destination_path/"
+        printf '  copied cache: %s\n' "$destination_path"
+      fi
+
+      # Do not copy a primary cache's deletion-protection ACL into a worktree.
+      chmod -N "$destination_path"
+      ;;
+    Linux)
+      if cp -a --reflink=always "$source_path/." "$destination_path/" 2>/dev/null; then
+        printf '  reflinked cache: %s\n' "$destination_path"
+      else
+        cp -a "$source_path/." "$destination_path/"
+        printf '  copied cache: %s\n' "$destination_path"
+      fi
+      ;;
+    *)
+      cp -a "$source_path/." "$destination_path/"
+      printf '  copied cache: %s\n' "$destination_path"
+      ;;
+  esac
+}
+
+clone_directory "$PRIMARY/deps" deps
+clone_directory "$PRIMARY/_build" _build
+
+mix deps.get
+mix compile
