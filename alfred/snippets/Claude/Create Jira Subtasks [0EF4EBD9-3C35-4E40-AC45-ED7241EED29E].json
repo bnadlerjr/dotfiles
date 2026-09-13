@@ -1,6 +1,6 @@
 {
   "alfredsnippet" : {
-    "snippet" : "For each phase in the outline create a Jira subtask under {cursor}. Assign them all to me. Set their status as \"Ready for Dev\".",
+    "snippet" : "For each phase in the outline create a Jira subtask under {cursor}. Assign them all to me. Set their status as \"Ready for Dev\". Update the outline to reference the Jira subtask for each phase.",
     "uid" : "0EF4EBD9-3C35-4E40-AC45-ED7241EED29E",
     "name" : "Create Jira Subtasks",
     "keyword" : ""
