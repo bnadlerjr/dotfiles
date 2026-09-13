@@ -140,7 +140,10 @@ def check_format(text: str) -> tuple[list[str], list[str]]:
     raw_lines = clean_message(text).splitlines()
     if len(raw_lines) > 1 and raw_lines[1] != "":
         violations.append("body must be separated from subject by a blank line")
-    if any(len(line) > 72 for line in raw_lines[1:]):
+    if any(
+        len(line) > 72 and not re.fullmatch(r"https?://\S+", line)
+        for line in raw_lines[1:]
+    ):
         violations.append("body lines must not exceed 72 characters")
 
     if re.search(
@@ -249,10 +252,12 @@ Rules:
   components appear in the supplied diff or files, since that reference merely points
   back to visible implementation. For example, `Guard UserSession.refresh` is invalid
   when the diff shows class UserSession and method refresh. A symbol is allowed only
-  when it adds context that cannot be learned from the supplied material.
+  when it adds context that cannot be learned from the supplied material. External URLs
+  are allowed and must not appear in references.
 - Classify every sentence in BODY as exactly one category:
   WHY: motivation, constraint, tradeoff, rejected alternative, consequence, or
-       non-obvious behavior unavailable from the supplied diff and files.
+       non-obvious behavior unavailable from the supplied diff and files. A source
+       citation attributing the change's motivation or findings to an external URL is WHY.
   WHAT: describes a change visible in the supplied diff or files.
   DOC: restates a docstring or other documentation in the supplied files.
   NOISE: filler or a claim too vague to preserve useful context.

@@ -113,6 +113,30 @@ def test_format_checks_and_long_subject_warning(validator):
     assert "subject exceeds 72 characters" in violations
 
 
+def test_standalone_long_url_is_allowed_in_body(validator):
+    text = (
+        "Improve Elixir worktree setup\n\n"
+        "Based on findings from:\n"
+        "https://ryanzidago.com/posts/"
+        "reducing-elixir-worktree-setup-time-by-83-percent/"
+    )
+
+    assert validator.check_format(text) == ([], [])
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "A" * 73,
+        "See https://example.com/" + "long-path/" * 7,
+    ],
+)
+def test_non_url_body_lines_must_not_exceed_72_characters(validator, line):
+    violations, _warnings = validator.check_format(f"Explain constraint\n\n{line}")
+
+    assert "body lines must not exceed 72 characters" in violations
+
+
 def test_urls_are_not_treated_as_file_paths(validator):
     violations, _warnings = validator.check_format(
         "Explain external requirement\n\nSee https://example.com/issues/19."
