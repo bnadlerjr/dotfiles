@@ -64,7 +64,7 @@ def main(argv: list[str]) -> int:
         message = validator.parse_message(case["message"])
         context = validator.Context(case["diff"], case["files"])
         try:
-            actual = validator.invoke_claude(validator.build_prompt(message, context))
+            actual = validator.invoke_pi(validator.build_prompt(message, context))
             differences = compare(actual, case["expected"])
         except validator.OperationalError as error:
             differences = [str(error)]

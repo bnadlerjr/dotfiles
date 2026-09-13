@@ -227,16 +227,14 @@ def test_binary_files_are_skipped(tmp_path, validator):
     assert "image.bin" not in context.files
 
 
-def test_claude_uses_haiku_by_default(validator, monkeypatch):
+def test_pi_uses_gpt_5_6_luna_by_default(validator, monkeypatch):
     calls = []
     output = {
-        "structured_output": {
-            "valid": True,
-            "body_warranted": False,
-            "sentences": [],
-            "references": [],
-            "reasons": [],
-        }
+        "valid": True,
+        "body_warranted": False,
+        "sentences": [],
+        "references": [],
+        "reasons": [],
     }
 
     def run(argv, **kwargs):
@@ -246,22 +244,27 @@ def test_claude_uses_haiku_by_default(validator, monkeypatch):
     monkeypatch.delenv("COMMIT_MESSAGE_MODEL", raising=False)
     monkeypatch.setattr(validator.subprocess, "run", run)
 
-    validator.invoke_claude("prompt")
+    validator.invoke_pi("prompt")
 
-    assert calls[0][calls[0].index("--model") + 1] == "haiku"
+    assert calls[0][0] == "pi"
+    assert calls[0][calls[0].index("--model") + 1] == "openai-codex/gpt-5.6-luna"
+    assert "--thinking" in calls[0]
+    assert "off" in calls[0]
+    assert "--no-tools" in calls[0]
+    assert "--no-session" in calls[0]
 
 
-def test_claude_timeout_is_an_operational_error(validator, monkeypatch):
+def test_pi_timeout_is_an_operational_error(validator, monkeypatch):
     def timeout(*args, **kwargs):
-        raise subprocess.TimeoutExpired("claude", 60)
+        raise subprocess.TimeoutExpired("pi", 60)
 
     monkeypatch.setattr(validator.subprocess, "run", timeout)
 
     with pytest.raises(validator.OperationalError, match="timed out after 60 seconds"):
-        validator.invoke_claude("prompt")
+        validator.invoke_pi("prompt")
 
 
-def test_structured_claude_output_is_required(validator):
+def test_structured_pi_output_is_required(validator):
     expected = {
         "valid": True,
         "body_warranted": False,
@@ -269,13 +272,13 @@ def test_structured_claude_output_is_required(validator):
         "references": [],
         "reasons": [],
     }
-    assert (
-        validator.parse_claude_output(json.dumps({"structured_output": expected}))
-        == expected
-    )
+    assert validator.parse_pi_output(json.dumps(expected)) == expected
+    assert validator.parse_pi_output(
+        f"```json\n{json.dumps(expected)}\n```\n"
+    ) == expected
 
     with pytest.raises(validator.OperationalError, match="structured output"):
-        validator.parse_claude_output(json.dumps({"result": "looks good"}))
+        validator.parse_pi_output(json.dumps({"result": "looks good"}))
 
 
 def test_warning_free_generated_success_is_silent(tmp_path):
@@ -298,7 +301,7 @@ def test_semantic_reasons_become_violations(tmp_path, validator, monkeypatch):
     monkeypatch.setattr(validator, "collect_context", lambda cwd: context)
     monkeypatch.setattr(
         validator,
-        "invoke_claude",
+        "invoke_pi",
         lambda prompt: {
             "valid": False,
             "body_warranted": False,
@@ -343,8 +346,8 @@ def test_main_uses_distinct_exit_codes_and_stderr(
     assert "body repeats the diff" in capsys.readouterr().err
 
     def fail(*args, **kwargs):
-        raise validator.OperationalError("Claude failed")
+        raise validator.OperationalError("Pi failed")
 
     monkeypatch.setattr(validator, "validate", fail)
     assert validator.main([str(message)]) == 2
-    assert "Claude failed" in capsys.readouterr().err
+    assert "Pi failed" in capsys.readouterr().err

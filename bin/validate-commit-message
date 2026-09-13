@@ -18,7 +18,7 @@ from typing import NamedTuple
 
 MAX_FILE_CHARS = 25_000
 MAX_TOTAL_FILE_CHARS = 100_000
-CLAUDE_TIMEOUT_SECONDS = 60
+PI_TIMEOUT_SECONDS = 60
 
 
 class OperationalError(Exception):
@@ -289,22 +289,30 @@ def build_prompt(message: Message, context: Context) -> str:
     return CLASSIFIER_INSTRUCTIONS + json.dumps(payload, ensure_ascii=False)
 
 
-def invoke_claude(prompt: str) -> dict:
+def invoke_pi(prompt: str) -> dict:
     """Run the isolated semantic classifier and return its structured result."""
-    model = os.environ.get("COMMIT_MESSAGE_MODEL", "haiku")
+    model = os.environ.get("COMMIT_MESSAGE_MODEL", "openai-codex/gpt-5.6-luna")
+    system_prompt = (
+        "Return only a JSON object matching this JSON Schema, with no markdown: "
+        + json.dumps(CLASSIFIER_SCHEMA, separators=(",", ":"))
+    )
     argv = [
-        "claude",
+        "pi",
         "-p",
         "--model",
         model,
-        "--safe-mode",
-        "--tools",
-        "",
-        "--no-session-persistence",
-        "--output-format",
-        "json",
-        "--json-schema",
-        json.dumps(CLASSIFIER_SCHEMA, separators=(",", ":")),
+        "--thinking",
+        "off",
+        "--no-tools",
+        "--no-session",
+        "--no-extensions",
+        "--no-skills",
+        "--no-prompt-templates",
+        "--no-themes",
+        "--no-context-files",
+        "--offline",
+        "--system-prompt",
+        system_prompt,
         prompt,
     ]
 
@@ -313,39 +321,42 @@ def invoke_claude(prompt: str) -> dict:
             argv,
             capture_output=True,
             text=True,
-            timeout=CLAUDE_TIMEOUT_SECONDS,
+            timeout=PI_TIMEOUT_SECONDS,
             check=False,
         )
     except subprocess.TimeoutExpired as error:
         raise OperationalError(
-            f"Claude timed out after {CLAUDE_TIMEOUT_SECONDS} seconds"
+            f"Pi timed out after {PI_TIMEOUT_SECONDS} seconds"
         ) from error
     except OSError as error:
-        raise OperationalError(f"cannot run Claude: {error}") from error
+        raise OperationalError(f"cannot run Pi: {error}") from error
 
     if result.returncode != 0:
         detail = result.stderr.strip() or f"exit status {result.returncode}"
-        raise OperationalError(f"Claude failed: {detail}")
+        raise OperationalError(f"Pi failed: {detail}")
 
-    return parse_claude_output(result.stdout)
+    return parse_pi_output(result.stdout)
 
 
-def parse_claude_output(output: str) -> dict:
-    """Parse and defensively verify Claude's schema-constrained response."""
+def parse_pi_output(output: str) -> dict:
+    """Parse and defensively verify Pi's structured response."""
+    output = output.strip()
+    if output.startswith("```json\n") and output.endswith("\n```"):
+        output = output[8:-4]
+
     try:
-        envelope = json.loads(output)
-        structured = envelope["structured_output"]
-    except (json.JSONDecodeError, KeyError, TypeError) as error:
-        raise OperationalError("Claude did not return structured output") from error
+        structured = json.loads(output)
+    except (json.JSONDecodeError, TypeError) as error:
+        raise OperationalError("Pi did not return structured output") from error
 
     if not isinstance(structured, dict) or set(structured) != set(
         CLASSIFIER_SCHEMA["required"]
     ):
-        raise OperationalError("Claude returned malformed structured output")
+        raise OperationalError("Pi returned malformed structured output")
     if not isinstance(structured["valid"], bool) or not isinstance(
         structured["body_warranted"], bool
     ):
-        raise OperationalError("Claude returned malformed structured output")
+        raise OperationalError("Pi returned malformed structured output")
     if not isinstance(structured["sentences"], list) or not all(
         isinstance(item, dict)
         and set(item) == {"text", "category"}
@@ -353,12 +364,12 @@ def parse_claude_output(output: str) -> dict:
         and item["category"] in {"WHY", "WHAT", "DOC", "NOISE"}
         for item in structured["sentences"]
     ):
-        raise OperationalError("Claude returned malformed sentence classifications")
+        raise OperationalError("Pi returned malformed sentence classifications")
     if not all(
         isinstance(values, list) and all(isinstance(value, str) for value in values)
         for values in (structured["references"], structured["reasons"])
     ):
-        raise OperationalError("Claude returned malformed structured output")
+        raise OperationalError("Pi returned malformed structured output")
 
     return structured
 
@@ -381,7 +392,7 @@ def validate(
         return violations, warnings
 
     context = collect_context(cwd or Path.cwd())
-    result = invoke_claude(build_prompt(message, context))
+    result = invoke_pi(build_prompt(message, context))
     semantic_invalid = (
         not result["valid"]
         or bool(result["references"])
