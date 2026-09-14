@@ -16,8 +16,8 @@ import sys
 from pathlib import Path
 from typing import NamedTuple
 
-MAX_FILE_CHARS = 25_000
-MAX_TOTAL_FILE_CHARS = 100_000
+MAX_FILE_CHARS = 60_000
+MAX_TOTAL_FILE_CHARS = 240_000
 PI_TIMEOUT_SECONDS = 60
 
 
