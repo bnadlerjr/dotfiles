@@ -1,0 +1,172 @@
+#!/bin/sh
+#
+# Create a Git feature worktree using Worktrunk (`wt`).
+#
+# Installed as a Worktrunk custom subcommand: this file is named `wt-jira` and
+# lives on PATH, so `wt` dispatches `wt jira` here the same way git dispatches
+# `git foo` to `git-foo`.
+#
+# Prompts user for a Jira issue using the user's Jira CLI configuration and
+# creates a worktree (using the current branch as a base) on a feature branch
+# that conforms to our naming conventions. Basing the worktree on the current
+# branch lets you stack worktrees/PRs on top of in-progress work.
+#
+# USAGE:
+#   wt jira [ISSUE-KEY] [BRANCH-NAME]
+#
+# OPTIONS:
+#   Optionally set a DEBUG environment variable to enable tracing.
+#     $ DEBUG=1 wt jira
+#
+
+# -e: Exit immediately on error
+# -u: Treat unset variables as errors
+set -eu
+
+# For debugging via an environment variable
+case "${DEBUG-}" in
+  1 | yes | true) set -x ;;
+esac
+
+# Show help
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+  echo "Usage: wt jira [ISSUE-KEY] [BRANCH-NAME]"
+  echo ""
+  echo "Create a Git feature worktree (via Worktrunk) tied to a Jira issue."
+  echo "The worktree is based on the current branch so you can stack work."
+  echo ""
+  echo "Arguments:"
+  echo "  ISSUE-KEY    Optional. Jira issue key (e.g., ITP-1234)."
+  echo "               If provided, creates the worktree non-interactively."
+  echo "               If omitted, prompts for issue selection."
+  echo "  BRANCH-NAME  Optional. Custom branch name suffix."
+  echo "               If omitted, derives from issue summary."
+  echo ""
+  echo "Examples:"
+  echo "  wt jira                      # Interactive"
+  echo "  wt jira ITP-1234             # Auto branch name"
+  echo "  wt jira ITP-1234 fix-login   # Custom branch name"
+  echo ""
+  echo "Exit codes:"
+  echo "  0  Success"
+  echo "  1  General error (issue not found, branch exists, etc.)"
+  echo "  2  Invalid arguments"
+  exit 0
+fi
+
+# Capture optional arguments
+issue_key="${1:-}"
+custom_branch_name="${2:-}"
+
+# Convert the given string to kebab-case.
+#
+to_kebab_case() {
+  echo "$1" |
+    tr '[:upper:]' '[:lower:]' |
+    sed 's/[^a-z0-9]/-/g' |
+    sed 's/--*/-/g' |
+    sed 's/^-//' |
+    sed 's/-$//'
+}
+
+if [ -n "$issue_key" ]; then
+  # Non-interactive mode
+
+  # Validate issue key format (PROJECT-NUMBER)
+  if ! echo "$issue_key" | grep -qE '^[A-Z]+-[0-9]+$'; then
+    echo "Error: Invalid issue key format. Expected: PROJECT-123" >&2
+    exit 2
+  fi
+
+  # The Jira CLI scopes `issue list` to the project in its config, so a key
+  # from any other project finds nothing. Derive the project from the key
+  # itself; the format check above guarantees a PROJECT- prefix is present.
+  project_key=${issue_key%%-*}
+
+  # Fetch single issue using same columns as interactive mode. The CLI exits
+  # non-zero and prints its own message when nothing matches, so quiet it and
+  # keep going to reach the friendlier error below instead of dying on `set -e`.
+  issue_data=$(jira issue list \
+    --project "$project_key" \
+    --jql "key=$issue_key" \
+    --columns key,summary \
+    --plain \
+    --no-headers 2>/dev/null) || true
+
+  if [ -z "$issue_data" ]; then
+    echo "Error: Issue '$issue_key' not found" >&2
+    exit 1
+  fi
+
+  key=$(echo "$issue_data" | awk '{print $1}')
+
+  # Use custom branch name if provided, otherwise derive from summary
+  if [ -n "$custom_branch_name" ]; then
+    branch_name="$custom_branch_name"
+  else
+    branch_name=$(to_kebab_case "$(echo "$issue_data" | awk '{$1=""; print $0}' | sed 's/^ *//')")
+  fi
+else
+  # Interactive mode
+
+  # Grab all issues ready for dev from Jira and have user select one. The
+  # projects are named explicitly because the Jira CLI otherwise limits the
+  # list to the single project in its config.
+  issues=$(jira issue list \
+    --jql 'project IN (PF, DX) AND resolution IS EMPTY' \
+    --columns key,summary \
+    --plain \
+    --no-headers)
+
+  selected_issue=$(echo "$issues" | gum choose)
+
+  # Extract Jira issue key and summary.
+  key=$(echo "$selected_issue" | awk '{print $1}')
+  title=$(to_kebab_case "$(echo "$selected_issue" | awk '{$1=""; print $0}' | sed 's/^ *//')")
+
+  # Prompt user for branch name.
+  branch_name=$(gum input --placeholder "Enter branch name" --value "$title")
+fi
+
+# Guard against an empty branch name (e.g. a summary with no usable
+# characters, or a cleared prompt), which would yield a trailing-dash branch.
+if [ -z "$branch_name" ]; then
+  echo "Error: Could not determine a branch name from the issue" >&2
+  exit 1
+fi
+
+# Pre-flight check: ensure branch doesn't already exist
+full_branch_name="feature/$key-$branch_name"
+
+if git show-ref --verify --quiet "refs/heads/$full_branch_name"; then
+  echo "Error: Branch '$full_branch_name' already exists" >&2
+  exit 1
+fi
+
+# Base the worktree on the current branch so worktrees/PRs can be stacked.
+base_branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$base_branch" = "HEAD" ]; then
+  echo "Error: Detached HEAD; check out a branch to base the worktree on" >&2
+  exit 1
+fi
+
+# Create the worktree on the feature branch, based on the current branch.
+wt switch --create "$full_branch_name" --base "$base_branch"
+
+# The `wt switch` above already cd'd the calling shell into the new worktree
+# via the inherited CD directive. Print the manual step only when Worktrunk's
+# shell integration isn't in play.
+if [ -z "${WORKTRUNK_DIRECTIVE_CD_FILE-}" ]; then
+  echo ""
+  echo "Worktree created on '$full_branch_name' (based on '$base_branch')."
+  echo "To switch into it, run: wt switch '$full_branch_name'"
+fi
+
+# TODO: Move the Jira ticket to whatever "in progress" status that the Jira
+# board has configured. This can vary by board, so it can't be hard-coded. One
+# approach might be to parse the `~/.config/.jira/.config.yml` file to retrieve
+# the configured board, then look up the correct status names (maybe from
+# another file?).
+#
+# jira issue move "$key" 'new_status'
