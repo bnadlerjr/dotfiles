@@ -22,6 +22,7 @@
     bp = branch-picker
     cane = commit --amend --no-edit
     ci = commit -v
+    cinv = commit -v --no-verify
     co = checkout
     cob = checkout -b
     di = diff
