@@ -1,0 +1,449 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
+
+"""Run every incomplete phase of a manually processed implementation plan."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+from collections.abc import Callable
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import NamedTuple
+from uuid import uuid4
+
+
+class PlanError(ValueError):
+    """The plan does not satisfy the wt-ralph-loop contract."""
+
+
+class LoopError(RuntimeError):
+    """The loop cannot safely continue."""
+
+
+class ClaudeError(LoopError):
+    """Claude did not produce a successful phase report."""
+
+
+class Phase(NamedTuple):
+    number: int
+    title: str
+    issue: str
+    complete: bool
+
+
+PHASE_RE = re.compile(r"^### Phase (\d+):\s*(.+)$", re.MULTILINE)
+WRONG_PHASE_RE = re.compile(r"^## Phase \d+:", re.MULTILINE)
+SUBTASK_RE = re.compile(r"^\*\*Subtask\*\*:\s*([A-Z]+-\d+)\b.*$", re.MULTILINE)
+CHECKBOX_RE = re.compile(r"^- \[([ x])\]\s+.+$", re.MULTILINE)
+
+
+def section(body: str, phase_number: int, heading: str) -> str:
+    match = re.search(
+        rf"^#### {re.escape(heading)}\s*$\n(.*?)(?=^#### |\Z)",
+        body,
+        re.MULTILINE | re.DOTALL,
+    )
+    if match is None:
+        raise PlanError(f"Phase {phase_number} is missing {heading}")
+    return match.group(1)
+
+
+def checkboxes(text: str, phase_number: int, heading: str) -> list[str]:
+    malformed = [
+        line
+        for line in text.splitlines()
+        if line.startswith("- [") and CHECKBOX_RE.fullmatch(line) is None
+    ]
+    if malformed:
+        raise PlanError(
+            f"Phase {phase_number} has a malformed checkbox under {heading}: "
+            f"{malformed[0]}"
+        )
+    states = CHECKBOX_RE.findall(text)
+    if not states:
+        raise PlanError(f"Phase {phase_number} has no checkboxes under {heading}")
+    return states
+
+
+def parse_phase(match: re.Match[str], body: str) -> Phase:
+    number = int(match.group(1))
+    title = match.group(2).strip()
+    subtasks = SUBTASK_RE.findall(body)
+    if len(subtasks) != 1:
+        raise PlanError(f"Phase {number} must contain exactly one Subtask")
+
+    section(body, number, "Pull Request Description")
+    tdd = section(body, number, "TDD Cycles")
+    cycle_matches = list(re.finditer(r"^##### Cycle (\d+):\s*.+$", tdd, re.MULTILINE))
+    if not cycle_matches:
+        raise PlanError(f"Phase {number} has no cycles under TDD Cycles")
+    checkboxes(tdd, number, "TDD Cycles")
+    states = []
+    for index, cycle in enumerate(cycle_matches):
+        end = (
+            cycle_matches[index + 1].start()
+            if index + 1 < len(cycle_matches)
+            else len(tdd)
+        )
+        cycle_states = re.findall(
+            r"^- \[([ x])\] Complete\s*$",
+            tdd[cycle.end() : end],
+            re.MULTILINE,
+        )
+        if len(cycle_states) != 1:
+            raise PlanError(
+                f"Phase {number} Cycle {cycle.group(1)} must contain exactly one "
+                "completion checkbox"
+            )
+        states.extend(cycle_states)
+
+    automated = section(body, number, "Automated Testing")
+    states.extend(checkboxes(automated, number, "Automated Testing"))
+    if re.search(r"^\*\*Run:\*\*\s*\S.*$", automated, re.MULTILINE) is None:
+        raise PlanError(f"Phase {number} is missing Run under Automated Testing")
+
+    done = section(body, number, "Done When")
+    states.extend(checkboxes(done, number, "Done When"))
+
+    return Phase(number, title, subtasks[0], all(state == "x" for state in states))
+
+
+def parse_plan(text: str) -> list[Phase]:
+    if WRONG_PHASE_RE.search(text):
+        raise PlanError("invalid phase heading; expected '### Phase N:'")
+
+    matches = list(PHASE_RE.finditer(text))
+    if not matches:
+        raise PlanError("plan has no '### Phase N:' sections")
+
+    phases = []
+    for index, match in enumerate(matches):
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        phases.append(parse_phase(match, text[match.end() : end]))
+    return phases
+
+
+def next_phase(phases: list[Phase]) -> Phase | None:
+    return next((phase for phase in phases if not phase.complete), None)
+
+
+def command_output(args: list[str], cwd: Path) -> str:
+    return subprocess.run(
+        args,
+        cwd=cwd,
+        text=True,
+        stdout=subprocess.PIPE,
+        check=True,
+    ).stdout.strip()
+
+
+def current_branch(worktree: Path) -> str:
+    branch = command_output(["git", "branch", "--show-current"], worktree)
+    if not branch:
+        raise LoopError(f"detached HEAD in {worktree}")
+    return branch
+
+
+def machete_branches(worktree: Path) -> set[str]:
+    layout = Path(command_output(["git", "machete", "file"], worktree))
+    return {
+        line.strip().split()[0]
+        for line in layout.read_text().splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+
+
+def worktrees(worktree: Path) -> dict[Path, str]:
+    output = command_output(["git", "worktree", "list", "--porcelain"], worktree)
+    found: dict[Path, str] = {}
+    path: Path | None = None
+    for line in output.splitlines():
+        if line.startswith("worktree "):
+            path = Path(line.removeprefix("worktree "))
+        elif line.startswith("branch refs/heads/") and path is not None:
+            found[path] = line.removeprefix("branch refs/heads/")
+            path = None
+    return found
+
+
+def message_blocks(event: dict[str, object]) -> list[dict[str, object]]:
+    message = event.get("message")
+    if not isinstance(message, dict):
+        return []
+    content = message.get("content")
+    if not isinstance(content, list):
+        return []
+    return [block for block in content if isinstance(block, dict)]
+
+
+def run_claude(selected: Phase, worktree: Path, plan_path: Path, run_dir: Path) -> str:
+    run_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+    stem = f"phase-{selected.number}-{selected.issue}"
+    event_log = run_dir / f"{stem}.jsonl"
+    metadata_path = run_dir / f"{stem}.json"
+    session_id = str(uuid4())
+    metadata = {
+        "phase": selected.number,
+        "issue": selected.issue,
+        "sessionId": session_id,
+        "worktree": str(worktree),
+        "eventLog": str(event_log),
+        "status": "running",
+    }
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+
+    command = [
+        "claude",
+        "-p",
+        "--output-format",
+        "stream-json",
+        "--verbose",
+        "--permission-mode",
+        "auto",
+        "--session-id",
+        session_id,
+        f"/implement-next-phase {plan_path}",
+    ]
+    try:
+        process = subprocess.Popen(
+            command,
+            cwd=worktree,
+            text=True,
+            stdout=subprocess.PIPE,
+            bufsize=1,
+        )
+    except OSError as error:
+        metadata["status"] = "failed"
+        metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+        raise ClaudeError(f"Claude could not start: {error}") from error
+    assert process.stdout is not None
+
+    output: str | None = None
+    tools: dict[object, object] = {}
+    with event_log.open("w") as raw:
+        for line in process.stdout:
+            raw.write(line)
+            raw.flush()
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError as error:
+                process.terminate()
+                process.wait()
+                metadata["status"] = "failed"
+                metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+                raise ClaudeError("Claude returned invalid JSON") from error
+            if not isinstance(event, dict):
+                continue
+
+            if event.get("type") == "assistant":
+                for block in message_blocks(event):
+                    if block.get("type") != "tool_use":
+                        continue
+                    name = block.get("name", "unknown")
+                    tools[block.get("id")] = name
+                    print(f"[claude] → {name}", file=sys.stderr, flush=True)
+            elif event.get("type") == "user":
+                for block in message_blocks(event):
+                    if block.get("type") != "tool_result":
+                        continue
+                    name = tools.get(block.get("tool_use_id"), "unknown")
+                    status = "failed" if block.get("is_error") else "done"
+                    print(f"[claude] ← {name} {status}", file=sys.stderr, flush=True)
+            elif event.get("type") == "result":
+                result = event.get("result")
+                if event.get("is_error"):
+                    output = None
+                elif isinstance(result, str):
+                    output = result
+
+    return_code = process.wait()
+    if return_code != 0:
+        metadata["status"] = "failed"
+        metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+        raise ClaudeError(f"Claude exited with status {return_code}")
+    if output is None or not output.strip():
+        metadata["status"] = "failed"
+        metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+        raise ClaudeError("Claude returned no final phase report")
+
+    metadata["status"] = "succeeded"
+    metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+    return output
+
+
+def run_loop(
+    plan_path: Path,
+    *,
+    start_dir: Path,
+    run_dir: Path,
+    claude_runner: Callable[[Phase, Path, Path, Path], str] = run_claude,
+) -> list[str]:
+    plan_path = plan_path.expanduser().resolve()
+    if not plan_path.is_file():
+        raise PlanError(f"plan file does not exist: {plan_path}")
+    phases = parse_plan(plan_path.read_text())
+    if next_phase(phases) is None:
+        return []
+
+    parent_path = start_dir.resolve()
+    parent_branch = current_branch(parent_path)
+    if parent_branch not in machete_branches(parent_path):
+        raise LoopError(
+            f"starting branch {parent_branch!r} is not registered in git machete; "
+            "register it before running wt ralph-loop"
+        )
+
+    reports = []
+    while selected := next_phase(phases):
+        before = worktrees(parent_path)
+        try:
+            subprocess.run(["wt", "jira", selected.issue], cwd=parent_path, check=True)
+        except subprocess.CalledProcessError as error:
+            raise LoopError(
+                f"wt jira {selected.issue} failed with status {error.returncode}"
+            ) from error
+        added = worktrees(parent_path).items() - before.items()
+        if len(added) != 1:
+            raise LoopError(
+                f"wt jira {selected.issue} created {len(added)} worktrees, expected one"
+            )
+        child_path, child_branch = added.pop()
+        try:
+            subprocess.run(
+                [
+                    "git",
+                    "machete",
+                    "add",
+                    child_branch,
+                    f"--onto={parent_branch}",
+                    "--yes",
+                ],
+                cwd=child_path,
+                check=True,
+            )
+        except subprocess.CalledProcessError as error:
+            raise LoopError(
+                f"git machete could not register {child_branch!r} onto "
+                f"{parent_branch!r}; worktree preserved at {child_path}"
+            ) from error
+
+        report = claude_runner(selected, child_path, plan_path, run_dir)
+        reports.append(report)
+        print(report, flush=True)
+        try:
+            phases = parse_plan(plan_path.read_text())
+        except PlanError as error:
+            raise LoopError(
+                f"plan became invalid after Phase {selected.number}: {error}; "
+                f"worktree preserved at {child_path}"
+            ) from error
+        updated = next(
+            (phase for phase in phases if phase.number == selected.number), None
+        )
+        if updated is None or not updated.complete:
+            raise LoopError(
+                f"Claude exited without completing Phase {selected.number} "
+                f"({selected.issue}); worktree preserved at {child_path}"
+            )
+        parent_path = child_path
+        parent_branch = child_branch
+
+    return reports
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def write_state(path: Path, state: dict[str, object]) -> None:
+    temporary = path.with_name(f".{path.name}.tmp")
+    temporary.write_text(json.dumps(state, indent=2) + "\n")
+    temporary.replace(path)
+
+
+def create_run_dir() -> Path:
+    state_home = Path(
+        os.environ.get("XDG_STATE_HOME", Path.home() / ".local" / "state")
+    ).expanduser()
+    run_dir = state_home / "ralph-loop" / "runs" / str(uuid4())
+    run_dir.mkdir(mode=0o700, parents=True)
+    return run_dir
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="wt ralph-loop",
+        usage="wt ralph-loop PLAN-FILE",
+        description=(
+            "Implement every incomplete phase as a stack of separate Claude "
+            "Code sessions and worktrees."
+        ),
+        epilog=(
+            "PLAN-FILE must use the manually processed '### Phase N:' format. "
+            "The starting branch must already be registered in git machete. "
+            "Runs are logged below ${XDG_STATE_HOME:-~/.local/state}/ralph-loop/runs. "
+            "On failure, branches, worktrees, changes, sessions, and logs are preserved."
+        ),
+    )
+    parser.add_argument("plan_file", type=Path, metavar="PLAN-FILE")
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    run_dir = create_run_dir()
+    state_path = run_dir / "run.json"
+    state: dict[str, object] = {
+        "status": "running",
+        "createdAt": utc_now(),
+        "cwd": str(Path.cwd()),
+        "planFile": str(args.plan_file.expanduser().resolve()),
+    }
+    write_state(state_path, state)
+
+    try:
+        reports = run_loop(
+            args.plan_file,
+            start_dir=Path.cwd(),
+            run_dir=run_dir,
+        )
+    except (
+        PlanError,
+        LoopError,
+        subprocess.CalledProcessError,
+        OSError,
+        UnicodeError,
+    ) as error:
+        state["status"] = "failed"
+        state["completedAt"] = utc_now()
+        state["error"] = str(error)
+        write_state(state_path, state)
+        print(f"error: {error}", file=sys.stderr)
+        print(f"run log: {run_dir}", file=sys.stderr)
+        return 1
+
+    state["status"] = "completed"
+    state["completedAt"] = utc_now()
+    state["phasesCompleted"] = len(reports)
+    write_state(state_path, state)
+    if not reports:
+        print("Plan has no incomplete phases.")
+    print(f"run log: {run_dir}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except KeyboardInterrupt:
+        print("\nInterrupted", file=sys.stderr)
+        raise SystemExit(130) from None
