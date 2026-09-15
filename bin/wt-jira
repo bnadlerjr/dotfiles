@@ -12,7 +12,7 @@
 # branch lets you stack worktrees/PRs on top of in-progress work.
 #
 # USAGE:
-#   wt jira [ISSUE-KEY] [BRANCH-NAME]
+#   wt jira [ISSUE-KEY] [PLAN-FILE]
 #
 # OPTIONS:
 #   Optionally set a DEBUG environment variable to enable tracing.
@@ -30,7 +30,7 @@ esac
 
 # Show help
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
-  echo "Usage: wt jira [ISSUE-KEY] [BRANCH-NAME]"
+  echo "Usage: wt jira [ISSUE-KEY] [PLAN-FILE]"
   echo ""
   echo "Create a Git feature worktree (via Worktrunk) tied to a Jira issue."
   echo "The worktree is based on the current branch so you can stack work."
@@ -39,13 +39,12 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   echo "  ISSUE-KEY    Optional. Jira issue key (e.g., ITP-1234)."
   echo "               If provided, creates the worktree non-interactively."
   echo "               If omitted, prompts for issue selection."
-  echo "  BRANCH-NAME  Optional. Custom branch name suffix."
-  echo "               If omitted, derives from issue summary."
+  echo "  PLAN-FILE    Optional. Path to a plan file to implement with Claude Code."
   echo ""
   echo "Examples:"
   echo "  wt jira                      # Interactive"
   echo "  wt jira ITP-1234             # Auto branch name"
-  echo "  wt jira ITP-1234 fix-login   # Custom branch name"
+  echo "  wt jira ITP-1234 PLAN.md     # Implement a plan with Claude Code"
   echo ""
   echo "Exit codes:"
   echo "  0  Success"
@@ -56,7 +55,7 @@ fi
 
 # Capture optional arguments
 issue_key="${1:-}"
-custom_branch_name="${2:-}"
+plan_file="${2:-}"
 
 # Convert the given string to kebab-case.
 #
@@ -100,12 +99,7 @@ if [ -n "$issue_key" ]; then
 
   key=$(echo "$issue_data" | awk '{print $1}')
 
-  # Use custom branch name if provided, otherwise derive from summary
-  if [ -n "$custom_branch_name" ]; then
-    branch_name="$custom_branch_name"
-  else
-    branch_name=$(to_kebab_case "$(echo "$issue_data" | awk '{$1=""; print $0}' | sed 's/^ *//')")
-  fi
+  branch_name=$(to_kebab_case "$(echo "$issue_data" | awk '{$1=""; print $0}' | sed 's/^ *//')")
 else
   # Interactive mode
 
@@ -152,7 +146,12 @@ if [ "$base_branch" = "HEAD" ]; then
 fi
 
 # Create the worktree on the feature branch, based on the current branch.
-wt switch --create "$full_branch_name" --base "$base_branch"
+if [ -n "$plan_file" ]; then
+  wt switch --create "$full_branch_name" --base "$base_branch" \
+    --execute claude -- --permission-mode auto "/implement-next-phase $plan_file"
+else
+  wt switch --create "$full_branch_name" --base "$base_branch"
+fi
 
 # The `wt switch` above already cd'd the calling shell into the new worktree
 # via the inherited CD directive. Print the manual step only when Worktrunk's
