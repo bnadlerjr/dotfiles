@@ -4,7 +4,7 @@
 # dependencies = []
 # ///
 
-"""Run every incomplete phase of a manually processed implementation plan."""
+"""Run plan phases as interactive Claude tabs in the current Herdr workspace."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
@@ -175,109 +176,175 @@ def worktrees(worktree: Path) -> dict[Path, str]:
     return found
 
 
-def message_blocks(event: dict[str, object]) -> list[dict[str, object]]:
-    message = event.get("message")
-    if not isinstance(message, dict):
-        return []
-    content = message.get("content")
-    if not isinstance(content, list):
-        return []
-    return [block for block in content if isinstance(block, dict)]
+def herdr_json(args: list[str], cwd: Path) -> dict[str, object]:
+    command = ["herdr", *args]
+    try:
+        output = subprocess.run(
+            command,
+            cwd=cwd,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+        ).stdout
+    except subprocess.CalledProcessError as error:
+        detail = error.stderr.strip() or f"status {error.returncode}"
+        raise ClaudeError(f"{' '.join(command[:3])} failed: {detail}") from error
+    except OSError as error:
+        raise ClaudeError(f"{' '.join(command[:3])} could not start: {error}") from error
+
+    try:
+        response = json.loads(output)
+    except json.JSONDecodeError as error:
+        raise ClaudeError(f"{' '.join(command[:3])} returned invalid JSON") from error
+    if not isinstance(response, dict) or not isinstance(response.get("result"), dict):
+        raise ClaudeError(f"{' '.join(command[:3])} returned an invalid response")
+    return response
 
 
-def run_claude(selected: Phase, worktree: Path, plan_path: Path, run_dir: Path) -> str:
+def response_item(response: dict[str, object], key: str) -> dict[str, object]:
+    result = response["result"]
+    assert isinstance(result, dict)
+    item = result.get(key)
+    if not isinstance(item, dict):
+        raise ClaudeError(f"Herdr response is missing {key}")
+    return item
+
+
+def phase_complete(plan_path: Path, phase_number: int) -> bool:
+    phase = next(
+        (item for item in parse_plan(plan_path.read_text()) if item.number == phase_number),
+        None,
+    )
+    return phase is not None and phase.complete
+
+
+def agent_name(selected: Phase, session_id: str) -> str:
+    suffix = f"-{session_id[:8]}"
+    prefix = f"p{selected.number}-"
+    if len(prefix) + len(suffix) >= 32:
+        prefix = f"p{str(selected.number)[-8:]}-"
+    issue_length = 32 - len(prefix) - len(suffix)
+    return f"{prefix}{selected.issue.lower()[:issue_length]}{suffix}"
+
+
+def run_claude(
+    selected: Phase, worktree: Path, plan_path: Path, run_dir: Path
+) -> None:
     run_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
-    stem = f"phase-{selected.number}-{selected.issue}"
-    event_log = run_dir / f"{stem}.jsonl"
-    metadata_path = run_dir / f"{stem}.json"
+    metadata_path = run_dir / f"phase-{selected.number}-{selected.issue}.json"
     session_id = str(uuid4())
-    metadata = {
+    name = agent_name(selected, session_id)
+    workspace_id = os.environ["HERDR_WORKSPACE_ID"]
+    metadata: dict[str, object] = {
         "phase": selected.number,
         "issue": selected.issue,
         "sessionId": session_id,
+        "agentName": name,
+        "workspaceId": workspace_id,
         "worktree": str(worktree),
-        "eventLog": str(event_log),
         "status": "running",
+        "createdAt": utc_now(),
     }
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
 
-    command = [
-        "claude",
-        "-p",
-        "--output-format",
-        "stream-json",
-        "--verbose",
-        "--permission-mode",
-        "auto",
-        "--session-id",
-        session_id,
-        f"/implement-next-phase {plan_path}",
-    ]
     try:
-        process = subprocess.Popen(
-            command,
-            cwd=worktree,
-            text=True,
-            stdout=subprocess.PIPE,
-            bufsize=1,
+        created = herdr_json(
+            [
+                "tab",
+                "create",
+                "--workspace",
+                workspace_id,
+                "--cwd",
+                str(worktree),
+                "--label",
+                selected.issue,
+                "--focus",
+            ],
+            worktree,
         )
-    except OSError as error:
-        metadata["status"] = "failed"
+        tab = response_item(created, "tab")
+        pane = response_item(created, "root_pane")
+        tab_id = tab.get("tab_id")
+        pane_id = pane.get("pane_id")
+        if not isinstance(tab_id, str) or not isinstance(pane_id, str):
+            raise ClaudeError("Herdr tab creation returned invalid identifiers")
+        metadata.update({"tabId": tab_id, "paneId": pane_id})
         metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
-        raise ClaudeError(f"Claude could not start: {error}") from error
-    assert process.stdout is not None
 
-    output: str | None = None
-    tools: dict[object, object] = {}
-    with event_log.open("w") as raw:
-        for line in process.stdout:
-            raw.write(line)
-            raw.flush()
+        herdr_json(
+            [
+                "agent",
+                "start",
+                name,
+                "--kind",
+                "claude",
+                "--pane",
+                pane_id,
+                "--",
+                "--permission-mode",
+                "auto",
+                "--session-id",
+                session_id,
+            ],
+            worktree,
+        )
+        herdr_json(
+            [
+                "agent",
+                "prompt",
+                name,
+                f"/implement-next-phase {plan_path}",
+                "--wait",
+            ],
+            worktree,
+        )
+
+        status: str | None = None
+        correction_reported = False
+        while True:
             try:
-                event = json.loads(line)
-            except json.JSONDecodeError as error:
-                process.terminate()
-                process.wait()
-                metadata["status"] = "failed"
-                metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
-                raise ClaudeError("Claude returned invalid JSON") from error
-            if not isinstance(event, dict):
+                if status is None:
+                    response = herdr_json(["agent", "get", name], worktree)
+                else:
+                    response = herdr_json(["agent", "wait", name], worktree)
+                agent = response_item(response, "agent")
+            except ClaudeError as error:
+                raise ClaudeError(f"Claude agent {name} is unavailable: {error}") from error
+
+            status = agent.get("agent_status")
+            if not isinstance(status, str):
+                raise ClaudeError("Herdr returned Claude without an agent status")
+            complete = phase_complete(plan_path, selected.number)
+            if status in {"idle", "done"} and complete:
+                break
+            if status == "working":
+                correction_reported = False
                 continue
+            if status not in {"idle", "done", "blocked", "unknown"}:
+                raise ClaudeError(f"Claude entered unsupported state {status!r}")
 
-            if event.get("type") == "assistant":
-                for block in message_blocks(event):
-                    if block.get("type") != "tool_use":
-                        continue
-                    name = block.get("name", "unknown")
-                    tools[block.get("id")] = name
-                    print(f"[claude] → {name}", file=sys.stderr, flush=True)
-            elif event.get("type") == "user":
-                for block in message_blocks(event):
-                    if block.get("type") != "tool_result":
-                        continue
-                    name = tools.get(block.get("tool_use_id"), "unknown")
-                    status = "failed" if block.get("is_error") else "done"
-                    print(f"[claude] ← {name} {status}", file=sys.stderr, flush=True)
-            elif event.get("type") == "result":
-                result = event.get("result")
-                if event.get("is_error"):
-                    output = None
-                elif isinstance(result, str):
-                    output = result
-
-    return_code = process.wait()
-    if return_code != 0:
+            metadata["status"] = "needs-correction"
+            metadata["updatedAt"] = utc_now()
+            metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+            if not correction_reported:
+                print(
+                    f"Phase {selected.number} needs correction in Herdr tab {tab_id}.",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                correction_reported = True
+            status = None
+            time.sleep(0.5)
+    except (ClaudeError, PlanError, OSError, UnicodeError):
         metadata["status"] = "failed"
+        metadata["completedAt"] = utc_now()
         metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
-        raise ClaudeError(f"Claude exited with status {return_code}")
-    if output is None or not output.strip():
-        metadata["status"] = "failed"
-        metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
-        raise ClaudeError("Claude returned no final phase report")
+        raise
 
     metadata["status"] = "succeeded"
+    metadata["completedAt"] = utc_now()
     metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
-    return output
 
 
 def run_loop(
@@ -285,14 +352,19 @@ def run_loop(
     *,
     start_dir: Path,
     run_dir: Path,
-    claude_runner: Callable[[Phase, Path, Path, Path], str] = run_claude,
-) -> list[str]:
+    claude_runner: Callable[[Phase, Path, Path, Path], None] = run_claude,
+) -> int:
+    if os.environ.get("HERDR_ENV") != "1" or not os.environ.get(
+        "HERDR_WORKSPACE_ID"
+    ):
+        raise LoopError("wt ralph-loop must run inside Herdr")
+
     plan_path = plan_path.expanduser().resolve()
     if not plan_path.is_file():
         raise PlanError(f"plan file does not exist: {plan_path}")
     phases = parse_plan(plan_path.read_text())
     if next_phase(phases) is None:
-        return []
+        return 0
 
     parent_path = start_dir.resolve()
     parent_branch = current_branch(parent_path)
@@ -302,7 +374,7 @@ def run_loop(
             "register it before running wt ralph-loop"
         )
 
-    reports = []
+    phases_completed = 0
     while selected := next_phase(phases):
         before = worktrees(parent_path)
         try:
@@ -336,10 +408,8 @@ def run_loop(
                 f"{parent_branch!r}; worktree preserved at {child_path}"
             ) from error
 
-        report = claude_runner(selected, child_path, plan_path, run_dir)
-        reports.append(report)
-        print(report, flush=True)
         try:
+            claude_runner(selected, child_path, plan_path, run_dir)
             phases = parse_plan(plan_path.read_text())
         except PlanError as error:
             raise LoopError(
@@ -354,10 +424,11 @@ def run_loop(
                 f"Claude exited without completing Phase {selected.number} "
                 f"({selected.issue}); worktree preserved at {child_path}"
             )
+        phases_completed += 1
         parent_path = child_path
         parent_branch = child_branch
 
-    return reports
+    return phases_completed
 
 
 def utc_now() -> str:
@@ -384,14 +455,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         prog="wt ralph-loop",
         usage="wt ralph-loop PLAN-FILE",
         description=(
-            "Implement every incomplete phase as a stack of separate Claude "
-            "Code sessions and worktrees."
+            "Implement every incomplete phase as a stack of worktrees and "
+            "interactive Claude tabs in the current workspace. Run inside Herdr."
         ),
         epilog=(
             "PLAN-FILE must use the manually processed '### Phase N:' format. "
             "The starting branch must already be registered in git machete. "
-            "Runs are logged below ${XDG_STATE_HOME:-~/.local/state}/ralph-loop/runs. "
-            "On failure, branches, worktrees, changes, sessions, and logs are preserved."
+            "Each phase tab remains open after completion or failure. Run metadata "
+            "is stored below ${XDG_STATE_HOME:-~/.local/state}/ralph-loop/runs. "
+            "On failure, branches, worktrees, changes, tabs, and sessions are preserved."
         ),
     )
     parser.add_argument("plan_file", type=Path, metavar="PLAN-FILE")
@@ -411,11 +483,18 @@ def main(argv: list[str] | None = None) -> int:
     write_state(state_path, state)
 
     try:
-        reports = run_loop(
+        phases_completed = run_loop(
             args.plan_file,
             start_dir=Path.cwd(),
             run_dir=run_dir,
         )
+    except KeyboardInterrupt:
+        state["status"] = "interrupted"
+        state["completedAt"] = utc_now()
+        write_state(state_path, state)
+        print("\nInterrupted", file=sys.stderr)
+        print(f"run log: {run_dir}", file=sys.stderr)
+        return 130
     except (
         PlanError,
         LoopError,
@@ -433,9 +512,9 @@ def main(argv: list[str] | None = None) -> int:
 
     state["status"] = "completed"
     state["completedAt"] = utc_now()
-    state["phasesCompleted"] = len(reports)
+    state["phasesCompleted"] = phases_completed
     write_state(state_path, state)
-    if not reports:
+    if phases_completed == 0:
         print("Plan has no incomplete phases.")
     print(f"run log: {run_dir}", file=sys.stderr)
     return 0

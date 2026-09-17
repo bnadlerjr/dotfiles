@@ -6,6 +6,7 @@ Run with: uv run --with pytest pytest bin/wt_ralph_loop_test.py
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 from importlib.machinery import SourceFileLoader
@@ -19,6 +20,12 @@ _spec = importlib.util.spec_from_file_location(
 )
 ralph = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ralph)
+
+
+@pytest.fixture(autouse=True)
+def current_herdr_workspace(monkeypatch):
+    monkeypatch.setenv("HERDR_ENV", "1")
+    monkeypatch.setenv("HERDR_WORKSPACE_ID", "w-parent")
 
 
 def phase(number=1, issue="POPS-101", cycle="x", automated="x", done="x"):
@@ -248,7 +255,7 @@ def test_orchestration_composes_wt_jira_and_registers_the_new_worktree(
         "--yes",
     ]
     assert claude_calls[0][1:3] == (created, plan_path.resolve())
-    assert reports == ["finished"]
+    assert reports == 1
 
 
 def test_each_phase_uses_the_previous_phase_as_its_parent(tmp_path, monkeypatch):
@@ -280,117 +287,366 @@ def test_each_phase_uses_the_previous_phase_as_its_parent(tmp_path, monkeypatch)
     assert [call["cwd"] for call in wt_calls] == [str(root), str(first)]
     assert machete_calls[1]["args"][3] == "--onto=feature/POPS-101-work"
     assert claude_worktrees == [first, second]
-    assert reports == ["POPS-101", "POPS-102"]
+    assert reports == 2
 
 
-def fake_claude_command(tmp_path, monkeypatch):
-    commands = tmp_path / "claude-commands"
+def fake_herdr_command(tmp_path, monkeypatch, *, statuses=None):
+    commands = tmp_path / "herdr-commands"
     commands.mkdir()
-    arguments = tmp_path / "claude-arguments.jsonl"
+    arguments = tmp_path / "herdr-arguments.jsonl"
+    state_path = tmp_path / "herdr-state.json"
+    state_path.write_text(json.dumps({"statuses": statuses or [], "status_index": 0}))
     executable(
-        commands / "claude",
+        commands / "herdr",
         f"""#!/usr/bin/env python3
 import json
 import os
 import sys
 from pathlib import Path
 
-with Path({str(arguments)!r}).open("a") as output:
-    output.write(json.dumps(sys.argv[1:]) + "\\n")
-mode = os.environ.get("FAKE_CLAUDE_MODE", "success")
-if mode == "malformed":
-    print("not-json", flush=True)
+arguments = Path({str(arguments)!r})
+state_path = Path({str(state_path)!r})
+args = sys.argv[1:]
+with arguments.open("a") as output:
+    output.write(json.dumps(args) + "\\n")
+
+failure = os.environ.get("FAKE_HERDR_FAILURE")
+if failure and args[:len(failure.split())] == failure.split():
+    print(json.dumps({{"error": {{"message": "fake herdr failure"}}}}), file=sys.stderr)
+    raise SystemExit(1)
+malformed = os.environ.get("FAKE_HERDR_MALFORMED")
+if malformed and args[:len(malformed.split())] == malformed.split():
+    print("not-json")
     raise SystemExit(0)
-print(json.dumps({{"type": "assistant", "message": {{"content": [{{"type": "tool_use", "id": "1", "name": "Read", "input": {{"file_path": "lib/app.ex"}}}}]}}}}), flush=True)
-print(json.dumps({{"type": "user", "message": {{"content": [{{"type": "tool_result", "tool_use_id": "1"}}]}}}}), flush=True)
-print(json.dumps({{"type": "result", "result": "phase finished", "is_error": False}}), flush=True)
-raise SystemExit(7 if mode == "failure" else 0)
+
+if args[:2] == ["tab", "create"]:
+    result = {{"tab": {{"tab_id": "w1:t2"}}, "root_pane": {{"pane_id": "w1:p2"}}}}
+elif args[:2] == ["agent", "start"]:
+    result = {{"agent": {{"agent_status": "idle", "pane_id": "w1:p2"}}}}
+elif args[:2] == ["agent", "prompt"]:
+    result = {{"submitted": True}}
+elif args[:2] in (["agent", "get"], ["agent", "wait"]):
+    state = json.loads(state_path.read_text())
+    index = state["status_index"]
+    statuses = state["statuses"]
+    item = statuses[min(index, len(statuses) - 1)]
+    state["status_index"] = index + 1
+    state_path.write_text(json.dumps(state))
+    if isinstance(item, dict):
+        status = item["status"]
+        if item.get("complete"):
+            plan = Path(item["plan"])
+            plan.write_text(plan.read_text().replace("- [ ]", "- [x]"))
+        elif item.get("malformed"):
+            Path(item["plan"]).write_text("not a plan")
+    else:
+        status = item
+    if status == "missing":
+        print(json.dumps({{"error": {{"message": "agent not found"}}}}), file=sys.stderr)
+        raise SystemExit(1)
+    result = {{"agent": {{"agent_status": status, "pane_id": "w1:p2"}}}}
+else:
+    raise SystemExit(f"unexpected herdr arguments: {{args}}")
+print(json.dumps({{"id": "fake", "result": result}}))
 """,
     )
     monkeypatch.setenv("PATH", f"{commands}{os.pathsep}{os.environ['PATH']}")
-    return arguments
+    return arguments, state_path
 
 
-def test_each_phase_gets_a_new_claude_session_and_retained_stream(
-    tmp_path, monkeypatch, capsys
+def test_the_loop_requires_the_current_herdr_workspace_before_creating_worktrees(
+    tmp_path, monkeypatch
 ):
-    arguments = fake_claude_command(tmp_path, monkeypatch)
-    run_dir = tmp_path / "run"
+    root, log = command_doubles(tmp_path, monkeypatch)
+    monkeypatch.delenv("HERDR_ENV", raising=False)
+    monkeypatch.delenv("HERDR_WORKSPACE_ID", raising=False)
+
+    plan_path = incomplete_plan(tmp_path / "plan.md")
+
+    def fake_claude(selected, *_args):
+        complete_phase(plan_path, selected)
+        return "finished"
+
+    with pytest.raises(ralph.LoopError, match="inside Herdr"):
+        ralph.run_loop(
+            plan_path,
+            start_dir=root,
+            run_dir=tmp_path / "run",
+            claude_runner=fake_claude,
+        )
+
+    assert not log.exists()
+
+
+def test_each_phase_starts_interactive_claude_in_a_selected_subtask_tab(
+    tmp_path, monkeypatch
+):
+    plan_path = tmp_path / "plan.md"
+    plan_path.write_text(
+        phase(1, "POPS-101", cycle=" ") + "\n" + phase(2, "POPS-102", cycle=" ")
+    )
     worktree = tmp_path / "worktree"
     worktree.mkdir()
-    plan_path = (tmp_path / "plan.md").resolve()
-
+    arguments, _state = fake_herdr_command(
+        tmp_path,
+        monkeypatch,
+        statuses=[{"status": "done", "complete": True, "plan": str(plan_path)}],
+    )
+    monkeypatch.setenv("HERDR_ENV", "1")
+    monkeypatch.setenv("HERDR_WORKSPACE_ID", "w-parent")
     first = ralph.run_claude(
-        ralph.Phase(1, "One", "POPS-101", False), worktree, plan_path, run_dir
+        ralph.Phase(1, "One", "POPS-101", False),
+        worktree,
+        plan_path.resolve(),
+        tmp_path / "run",
     )
     second = ralph.run_claude(
-        ralph.Phase(2, "Two", "POPS-102", False), worktree, plan_path, run_dir
+        ralph.Phase(2, "Two", "POPS-102", False),
+        worktree,
+        plan_path.resolve(),
+        tmp_path / "run",
     )
 
     calls = [json.loads(line) for line in arguments.read_text().splitlines()]
-    first_session = calls[0][calls[0].index("--session-id") + 1]
-    second_session = calls[1][calls[1].index("--session-id") + 1]
-    assert first_session != second_session
-    assert all("--resume" not in call and "--continue" not in call for call in calls)
-    assert calls[0][-1] == f"/implement-next-phase {plan_path}"
-    assert first == second == "phase finished"
-    assert "[claude] → Read" in capsys.readouterr().err
-    raw_log = run_dir / "phase-1-POPS-101.jsonl"
-    assert '"type": "result"' in raw_log.read_text()
-    metadata = json.loads((run_dir / "phase-1-POPS-101.json").read_text())
-    assert metadata["sessionId"] == first_session
-    assert metadata["eventLog"] == str(raw_log)
+    tab_calls = [call for call in calls if call[:2] == ["tab", "create"]]
+    assert tab_calls == [
+        [
+            "tab",
+            "create",
+            "--workspace",
+            "w-parent",
+            "--cwd",
+            str(worktree),
+            "--label",
+            "POPS-101",
+            "--focus",
+        ],
+        [
+            "tab",
+            "create",
+            "--workspace",
+            "w-parent",
+            "--cwd",
+            str(worktree),
+            "--label",
+            "POPS-102",
+            "--focus",
+        ],
+    ]
+    start_calls = [call for call in calls if call[:2] == ["agent", "start"]]
+    names = [call[2] for call in start_calls]
+    assert re.fullmatch(r"p1-pops-101-[0-9a-f]{8}", names[0])
+    assert re.fullmatch(r"p2-pops-102-[0-9a-f]{8}", names[1])
+    assert names[0] != names[1]
+    assert all(
+        call[3:7] == ["--kind", "claude", "--pane", "w1:p2"] for call in start_calls
+    )
+    assert all(
+        call[7:11] == ["--", "--permission-mode", "auto", "--session-id"]
+        for call in start_calls
+    )
+    for phase_number, issue, start_call in zip(
+        (1, 2), ("POPS-101", "POPS-102"), start_calls, strict=True
+    ):
+        metadata = json.loads(
+            (tmp_path / "run" / f"phase-{phase_number}-{issue}.json").read_text()
+        )
+        assert metadata["sessionId"] == start_call[11]
+        assert metadata["agentName"] == start_call[2]
+        assert metadata["workspaceId"] == "w-parent"
+        assert metadata["tabId"] == "w1:t2"
+        assert metadata["paneId"] == "w1:p2"
+    assert first is None
+    assert second is None
 
 
-def test_malformed_claude_json_is_reported_and_retained(tmp_path, monkeypatch):
-    fake_claude_command(tmp_path, monkeypatch)
-    monkeypatch.setenv("FAKE_CLAUDE_MODE", "malformed")
+def test_agent_names_respect_herdrs_length_limit_for_large_phase_numbers():
+    name = ralph.agent_name(
+        ralph.Phase(
+            1234567890123456789012345678901234567890,
+            "One",
+            "VERYLONGPROJECT-123456",
+            False,
+        ),
+        "a1b2c3d4-0000-0000-0000-000000000000",
+    )
+
+    assert len(name) <= 32
+    assert re.fullmatch(r"[a-z][a-z0-9_-]{0,31}", name)
+
+
+def run_interactive_phase(tmp_path, monkeypatch, statuses):
+    plan_path = incomplete_plan(tmp_path / "plan.md")
     worktree = tmp_path / "worktree"
     worktree.mkdir()
-    run_dir = tmp_path / "run"
+    arguments, state_path = fake_herdr_command(
+        tmp_path, monkeypatch, statuses=statuses(plan_path)
+    )
+    monkeypatch.setenv("HERDR_ENV", "1")
+    monkeypatch.setenv("HERDR_WORKSPACE_ID", "w-parent")
+    result = ralph.run_claude(
+        ralph.Phase(1, "One", "POPS-101", False),
+        worktree,
+        plan_path.resolve(),
+        tmp_path / "run",
+    )
+    return result, plan_path, arguments, state_path
+
+
+def test_an_interactive_phase_completes_after_claude_settles(tmp_path, monkeypatch):
+    result, plan_path, _arguments, _state = run_interactive_phase(
+        tmp_path,
+        monkeypatch,
+        lambda plan: [{"status": "done", "complete": True, "plan": str(plan)}],
+    )
+
+    assert result is None
+    assert ralph.parse_plan(plan_path.read_text())[0].complete is True
+    metadata = json.loads((tmp_path / "run" / "phase-1-POPS-101.json").read_text())
+    assert metadata["status"] == "succeeded"
+    assert "createdAt" in metadata
+    assert "completedAt" in metadata
+    assert "eventLog" not in metadata
+    assert not list((tmp_path / "run").glob("*.jsonl"))
+
+
+def test_a_blocked_phase_continues_after_human_input(tmp_path, monkeypatch, capsys):
+    result, plan_path, arguments, state_path = run_interactive_phase(
+        tmp_path,
+        monkeypatch,
+        lambda plan: [
+            "blocked",
+            "working",
+            {"status": "done", "complete": True, "plan": str(plan)},
+        ],
+    )
+
+    calls = [json.loads(line) for line in arguments.read_text().splitlines()]
+    observations = [call[:2] for call in calls if call[1] in {"get", "wait"}]
+    assert observations == [["agent", "get"], ["agent", "get"], ["agent", "wait"]]
+    assert result is None
+    assert json.loads(state_path.read_text())["status_index"] == 3
+    assert ralph.parse_plan(plan_path.read_text())[0].complete is True
+    assert "needs correction" in capsys.readouterr().err.lower()
+
+
+def test_each_repeated_block_reports_that_the_phase_needs_correction(
+    tmp_path, monkeypatch, capsys
+):
+    run_interactive_phase(
+        tmp_path,
+        monkeypatch,
+        lambda plan: [
+            "blocked",
+            "working",
+            "blocked",
+            "working",
+            {"status": "done", "complete": True, "plan": str(plan)},
+        ],
+    )
+
+    assert capsys.readouterr().err.lower().count("needs correction") == 2
+
+
+def test_an_idle_incomplete_phase_waits_for_manual_correction(
+    tmp_path, monkeypatch, capsys
+):
+    result, plan_path, _arguments, state_path = run_interactive_phase(
+        tmp_path,
+        monkeypatch,
+        lambda plan: [
+            "idle",
+            "working",
+            {"status": "done", "complete": True, "plan": str(plan)},
+        ],
+    )
+
+    assert result is None
+    assert json.loads(state_path.read_text())["status_index"] == 3
+    assert ralph.parse_plan(plan_path.read_text())[0].complete is True
+    assert "needs correction" in capsys.readouterr().err.lower()
+
+
+def test_an_exited_agent_fails_without_removing_its_phase_metadata(
+    tmp_path, monkeypatch
+):
+    plan_path = incomplete_plan(tmp_path / "plan.md")
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    fake_herdr_command(tmp_path, monkeypatch, statuses=["missing"])
+    monkeypatch.setenv("HERDR_ENV", "1")
+    monkeypatch.setenv("HERDR_WORKSPACE_ID", "w-parent")
+
+    with pytest.raises(ralph.ClaudeError, match="agent.*unavailable"):
+        ralph.run_claude(
+            ralph.Phase(1, "One", "POPS-101", False),
+            worktree,
+            plan_path.resolve(),
+            tmp_path / "run",
+        )
+
+    metadata = json.loads((tmp_path / "run" / "phase-1-POPS-101.json").read_text())
+    assert metadata["status"] == "failed"
+    assert metadata["tabId"] == "w1:t2"
+
+
+def test_malformed_herdr_json_is_reported(tmp_path, monkeypatch):
+    plan_path = incomplete_plan(tmp_path / "plan.md")
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    fake_herdr_command(tmp_path, monkeypatch, statuses=["done"])
+    monkeypatch.setenv("HERDR_ENV", "1")
+    monkeypatch.setenv("HERDR_WORKSPACE_ID", "w-parent")
+    monkeypatch.setenv("FAKE_HERDR_MALFORMED", "tab create")
 
     with pytest.raises(ralph.ClaudeError, match="invalid JSON"):
         ralph.run_claude(
             ralph.Phase(1, "One", "POPS-101", False),
             worktree,
-            tmp_path / "plan.md",
-            run_dir,
-        )
-
-    assert (run_dir / "phase-1-POPS-101.jsonl").read_text() == "not-json\n"
-
-
-def test_a_nonzero_claude_exit_is_reported(tmp_path, monkeypatch):
-    fake_claude_command(tmp_path, monkeypatch)
-    monkeypatch.setenv("FAKE_CLAUDE_MODE", "failure")
-    worktree = tmp_path / "worktree"
-    worktree.mkdir()
-
-    with pytest.raises(ralph.ClaudeError, match="status 7"):
-        ralph.run_claude(
-            ralph.Phase(1, "One", "POPS-101", False),
-            worktree,
-            tmp_path / "plan.md",
+            plan_path.resolve(),
             tmp_path / "run",
         )
 
 
-def test_a_claude_start_failure_is_recorded(tmp_path, monkeypatch):
-    monkeypatch.setenv("PATH", str(tmp_path))
+def test_a_herdr_command_failure_is_reported(tmp_path, monkeypatch):
+    plan_path = incomplete_plan(tmp_path / "plan.md")
     worktree = tmp_path / "worktree"
     worktree.mkdir()
-    run_dir = tmp_path / "run"
+    fake_herdr_command(tmp_path, monkeypatch, statuses=["done"])
+    monkeypatch.setenv("HERDR_ENV", "1")
+    monkeypatch.setenv("HERDR_WORKSPACE_ID", "w-parent")
+    monkeypatch.setenv("FAKE_HERDR_FAILURE", "agent start")
 
-    with pytest.raises(ralph.ClaudeError, match="could not start"):
+    with pytest.raises(ralph.ClaudeError, match="herdr agent start failed"):
         ralph.run_claude(
             ralph.Phase(1, "One", "POPS-101", False),
             worktree,
-            tmp_path / "plan.md",
-            run_dir,
+            plan_path.resolve(),
+            tmp_path / "run",
         )
 
-    metadata = json.loads((run_dir / "phase-1-POPS-101.json").read_text())
-    assert metadata["status"] == "failed"
+
+def test_keyboard_interrupt_records_the_run_as_interrupted(tmp_path, monkeypatch):
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    plan_path = tmp_path / "plan.md"
+    plan_path.write_text(phase())
+    monkeypatch.setattr(ralph, "create_run_dir", lambda: run_dir)
+    monkeypatch.setattr(
+        ralph,
+        "run_loop",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(KeyboardInterrupt()),
+    )
+
+    try:
+        result = ralph.main([str(plan_path)])
+    except KeyboardInterrupt:
+        pytest.fail("main did not record the interrupted run")
+
+    assert result == 130
+    state = json.loads((run_dir / "run.json").read_text())
+    assert state["status"] == "interrupted"
+    assert "completedAt" in state
 
 
 def incomplete_plan(path):
@@ -448,6 +704,23 @@ def test_a_successful_claude_run_without_plan_progress_stops(tmp_path, monkeypat
     assert (root.parent / "feature-POPS-101-work").is_dir()
 
 
+def test_a_real_interactive_run_reports_the_preserved_worktree_for_a_malformed_plan(
+    tmp_path, monkeypatch
+):
+    root, _log = command_doubles(tmp_path, monkeypatch)
+    plan_path = incomplete_plan(tmp_path / "plan.md")
+    fake_herdr_command(
+        tmp_path,
+        monkeypatch,
+        statuses=[{"status": "done", "malformed": True, "plan": str(plan_path)}],
+    )
+
+    with pytest.raises(
+        ralph.LoopError, match="plan became invalid.*worktree preserved"
+    ):
+        ralph.run_loop(plan_path, start_dir=root, run_dir=tmp_path / "run")
+
+
 def test_a_plan_that_becomes_malformed_stops_after_the_current_phase(
     tmp_path, monkeypatch
 ):
@@ -483,7 +756,7 @@ def test_a_complete_plan_runs_no_external_commands(tmp_path, monkeypatch):
         run_dir=tmp_path / "run",
     )
 
-    assert reports == []
+    assert reports == 0
     assert not log.exists()
 
 
@@ -500,3 +773,6 @@ def test_help_documents_the_strict_stack_and_failure_contract():
     assert "stack" in result.stdout
     assert "XDG_STATE_HOME" in result.stdout
     assert "preserved" in result.stdout
+    assert "inside Herdr" in result.stdout
+    assert "current workspace" in result.stdout
+    assert "tab" in result.stdout
