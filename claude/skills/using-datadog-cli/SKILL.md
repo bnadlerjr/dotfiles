@@ -16,17 +16,6 @@ A CLI tool for AI agents to debug and triage using Datadog logs and metrics.
 - [Workflows](references/workflows.md)
 - [Dashboards](references/dashboards.md)
 
-## Setup
-
-### Environment Variables (Required)
-
-```bash
-export DD_API_KEY="your-api-key"
-export DD_APP_KEY="your-app-key"
-```
-
-Get keys from: https://app.datadoghq.com/organization-settings/api-keys
-
 ### Running the CLI
 
 ```bash
