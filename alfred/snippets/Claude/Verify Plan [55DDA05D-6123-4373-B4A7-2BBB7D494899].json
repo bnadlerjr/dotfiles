@@ -1,0 +1,8 @@
+{
+  "alfredsnippet" : {
+    "snippet" : "Read plan file @{cursor}. Verify that the plan format matches what the \"implement-next-phase\" command expects. Update the plan file accordingly.",
+    "uid" : "55DDA05D-6123-4373-B4A7-2BBB7D494899",
+    "name" : "Verify Plan",
+    "keyword" : ""
+  }
+}
