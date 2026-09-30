@@ -38,13 +38,14 @@ Complete every check before modifying the repository or plan:
 1. Run `git status --porcelain`. Stop unless it is empty. The plan is expected to be
    outside version control and therefore absent from this output.
 2. Read the current branch with `git branch --show-current`. Stop if detached.
-3. Determine `BASE` using Step 2 of the `writing-instinct-prs` skill. Stop if the
-   current branch equals `BASE`; the user must prepare the branch or worktree.
-4. Extract the last Jira key matching `[A-Z]+-[0-9]+` from the branch name. Stop if
-   none exists.
-5. Run `jira me` and `gh auth status`. Stop with the failing command's remediation
-   message if either authentication check fails.
-6. Check `gh pr list --head "$BRANCH" --state all`. Stop if a pull request already
+3. Determine `BASE` with `git machete show up`. Discard the result if it is empty,
+   does not name a valid branch, or equals the current branch. If no valid result
+   remains, use `master` when it exists, otherwise `main`. Stop if neither fallback
+   exists or if the resolved `BASE` equals the current branch; the user must prepare
+   the branch or worktree.
+4. Run `gh auth status`. Stop with the command's remediation message if the
+   authentication check fails.
+5. Check `gh pr list --head "$BRANCH" --state all`. Stop if a pull request already
    exists for the current branch.
 
 Do not create or switch branches during preflight.
@@ -127,14 +128,15 @@ Do not reuse commits that predate this invocation.
 
 ## Prepare the pull request
 
-Invoke `writing-instinct-prs` and follow its title, Context, Changes, Concerns, and
-humanization requirements. Give the selected phase's `Pull Request Description` to
-the skill as approved scope context alongside its Jira context.
+Set `TITLE` to the selected phase heading's pull request title, excluding the
+`## Phase N:` prefix. Set `BODY` to the exact contents of the selected phase's
+`### Pull Request Description`. Preserve both values verbatim; do not rewrite,
+humanize, or otherwise alter them.
 
-The commits and diff are the source of truth for what was built. If their details
-differ from the planned description, correct the pull request text to match the
-committed result without widening the approved scope. Never mention phase numbers,
-tests, plan mechanics, or AI assistance in the title or body.
+Compare the selected phase's approved pull request title and description with the
+commits and diff, which are the source of truth for what was built. If either is
+inaccurate, stop before pushing and report the discrepancy to the user. Do not edit
+or replace the approved text.
 
 Push the branch with `git push -u origin HEAD`. Then create the pull request with the
 base, title, and body established above:
