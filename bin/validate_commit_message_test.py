@@ -113,6 +113,63 @@ def test_format_checks_and_long_subject_warning(validator):
     assert "subject exceeds 72 characters" in violations
 
 
+@pytest.mark.parametrize(
+    "subject",
+    [
+        "POPS-123 Fix timeout",
+        "POPS-123: Fix timeout",
+        "[POPS-123] Fix timeout",
+        "#123 Fix timeout",
+    ],
+)
+def test_issue_id_prefix_is_allowed(validator, subject):
+    assert validator.check_format(subject) == ([], [])
+
+
+@pytest.mark.parametrize(
+    "subject",
+    [
+        "POPS-123 Fix timeout",
+        "POPS-123: Fix timeout",
+        "[POPS-123] Fix timeout",
+        "#123 Fix timeout",
+    ],
+)
+def test_issue_id_is_removed_from_semantic_subject(validator, subject):
+    message = validator.Message(subject, "", ())
+    context = validator.Context("diff", {})
+
+    prompt = validator.build_prompt(message, context)
+    payload = json.loads(prompt[len(validator.CLASSIFIER_INSTRUCTIONS) :])
+
+    assert payload["subject"] == "Fix timeout"
+
+
+@pytest.mark.parametrize(
+    "subject",
+    [
+        "POPS-123 fix timeout",
+        "POPS-123: fix timeout",
+        "[POPS-123] fix timeout",
+        "#123 fix timeout",
+        "fix timeout",
+    ],
+)
+def test_subject_text_must_start_with_a_capital_letter(validator, subject):
+    violations, _warnings = validator.check_format(subject)
+
+    assert "subject must start with a capital letter" in violations
+
+
+@pytest.mark.parametrize(
+    "subject", ["POPS-123", "POPS-123:", "[POPS-123]", "#123"]
+)
+def test_issue_id_prefix_requires_subject_text(validator, subject):
+    violations, _warnings = validator.check_format(subject)
+
+    assert "subject must include text after issue ID" in violations
+
+
 def test_standalone_long_url_is_allowed_in_body(validator):
     text = (
         "Improve Elixir worktree setup\n\n"

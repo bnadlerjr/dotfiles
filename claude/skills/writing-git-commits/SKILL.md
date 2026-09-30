@@ -64,6 +64,33 @@ Every reference to another commit, PR, or ticket must either (a) trigger automat
 - "As discussed in #234" — useless without summarizing what was discussed
 - "See also #N" — almost never load-bearing
 
+## Commit Hook Lookup (Dynamic)
+
+Before writing a commit message, inspect active, executable hooks that can
+change or validate it. Resolve hook paths through Git so `core.hooksPath` and
+worktrees are handled correctly:
+
+```bash
+for name in prepare-commit-msg commit-msg; do
+  hook=$(git rev-parse --git-path "hooks/$name")
+  if [ -f "$hook" ] && [ -x "$hook" ]; then
+    printf '\n--- %s (%s) ---\n' "$name" "$hook"
+    cat "$hook"
+  fi
+done
+```
+
+Inspect the hook source; do not execute hooks during discovery. If it is only
+a wrapper, read directly referenced repository scripts or configuration only as
+far as needed to understand the commit-message rules.
+
+- Follow formats and validation rules enforced by `commit-msg`.
+- Account for text added by `prepare-commit-msg`; do not duplicate text the hook
+  inserts automatically.
+
+Repository hook requirements override generic Tim Pope formatting when they
+conflict. They never override the Iron Law: no AI attribution.
+
 ## Template Lookup (Dynamic)
 
 Before writing a commit message, check for a project-specific template:
@@ -89,7 +116,8 @@ One commit, one logical change. If the staged diff covers multiple unrelated cha
 
 ### Step 1: Gather Context
 
-Decompose the staged changes:
+Inspect active commit-message hooks and the project template first, then
+decompose the staged changes:
 
 - What files changed?
 - What was the purpose of each change?
@@ -288,5 +316,7 @@ Before finalizing any commit message, verify:
 - [ ] Concrete over abstract — numbers, names, specifics over adjectives
 
 **Hard rules:**
+- [ ] Active `prepare-commit-msg` and `commit-msg` hooks were inspected
+- [ ] Draft satisfies hook-enforced rules without duplicating automatic edits
 - [ ] No AI attribution anywhere
 - [ ] Issue references at end of body (if applicable)

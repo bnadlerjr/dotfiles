@@ -42,18 +42,25 @@ TRAILER_RE = re.compile(
     re.IGNORECASE,
 )
 GENERATED_PREFIXES = ("Merge ", "Revert ", "fixup! ", "squash! ")
+ISSUE_PREFIX_RE = re.compile(
+    r"^(?:(?:[A-Z][A-Z0-9]*-\d+):?|\[[A-Z][A-Z0-9]*-\d+\]|#\d+)(?:\s+|$)"
+)
 
 
 def clean_message(text: str, comment_char: str = "#") -> str:
     """Remove Git editor comments, verbose diff, and surrounding blank lines."""
     lines = []
+    subject_seen = False
     scissors = f"{comment_char} ------------------------ >8 ------------------------"
     for line in text.splitlines():
         line = line.rstrip()
         if line == scissors:
             break
-        if not line.startswith(comment_char):
+        if not line.startswith(comment_char) or (
+            not subject_seen and ISSUE_PREFIX_RE.match(line)
+        ):
             lines.append(line)
+            subject_seen = subject_seen or bool(line)
     return "\n".join(lines).strip()
 
 
@@ -81,6 +88,12 @@ def parse_message(text: str) -> Message:
 
 def is_generated(subject: str) -> bool:
     return subject.startswith(GENERATED_PREFIXES)
+
+
+def subject_text(subject: str) -> str:
+    """Return the subject without a leading issue tracker ID."""
+    match = ISSUE_PREFIX_RE.match(subject)
+    return subject[match.end() :] if match else subject
 
 
 def _reference_violations(text: str) -> list[str]:
@@ -126,7 +139,10 @@ def check_format(text: str) -> tuple[list[str], list[str]]:
 
     if not message.subject:
         return ["subject must not be empty"], warnings
-    if not message.subject[0].isupper():
+    description = subject_text(message.subject)
+    if not description:
+        violations.append("subject must include text after issue ID")
+    elif not description[0].isupper():
         violations.append("subject must start with a capital letter")
     if message.subject.endswith("."):
         violations.append("subject must not end with a period")
@@ -280,7 +296,7 @@ INPUT_JSON:
 
 def build_prompt(message: Message, context: Context) -> str:
     payload = {
-        "subject": message.subject,
+        "subject": subject_text(message.subject),
         "body": message.body,
         "trailers": list(message.trailers),
         "staged_diff": context.diff,
