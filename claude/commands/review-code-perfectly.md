@@ -16,6 +16,7 @@ allowed-tools: Bash, Read, Grep, Glob, Skill
 
 - If PR_REF is empty, STOP and ask for it.
 - Report every principle, even when it passes.
+- Read the PR description and all general, review, and inline comments before judging the change. Use clarifications, constraints, and decisions as review context, but verify claims against the current PR head because comments may be stale.
 - Every finding states the concrete problem, its impact, a `file:line` citation, and a proposed alternative. "This is bad" and "this could be better" are not findings.
 - Cite lines as they appear in the file under `$REVIEW_DIR`, never as offsets read off `gh pr diff`. That worktree is the PR head commit, which is what GitHub's Files changed view numbers against.
 - Every blocking issue also gets an entry in the report's Blocking issues section.
@@ -42,7 +43,8 @@ if [ -n "$OWNER" ] && [ -n "$REPO" ]; then
     REPO_FLAG="--repo ${OWNER}/${REPO}"
 fi
 
-gh pr view $PR_NUMBER $REPO_FLAG --json title,body,files,additions,deletions,baseRefName,headRefName,url,state,reviewDecision
+gh pr view $PR_NUMBER $REPO_FLAG --json title,body,author,files,additions,deletions,baseRefName,headRefName,url,state,reviewDecision,comments,reviews
+gh api "repos/${OWNER}/${REPO}/pulls/${PR_NUMBER}/comments" --paginate
 gh pr diff $PR_NUMBER $REPO_FLAG
 gh pr view $PR_NUMBER $REPO_FLAG --json files --jq '.files[].path'
 ```
@@ -75,7 +77,7 @@ Work through all 7 in order. Priority descends with the number — 1 is critical
 
 #### 1. Purpose — the code solves the task
 
-Read the PR description and linked ticket to establish the task. If the task is unclear, flag that immediately; you cannot review code without knowing what it should do. Sketch your own approach first, then compare it against the implementation.
+Read the PR description, linked ticket, and comments to establish the task. Comments may clarify requirements, explain constraints, record decisions, or identify intentionally deferred work that changes how the diff should be judged. Resolve conflicting or stale comments in favor of the current description, code, and latest explicit decision. If the task is still unclear, flag that immediately; you cannot review code without knowing what it should do. Sketch your own approach first, then compare it against the implementation.
 
 Look for: missing requirements, partial implementation, scope creep beyond the task, a different problem solved than the one described, a refactor that changes behavior when it should not, and unstated assumptions that affect correctness.
 
