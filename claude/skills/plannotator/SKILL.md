@@ -1,6 +1,6 @@
 ---
 name: plannotator
-description: "Reference for using Plannotator (its `plannotator` tool when you have one, otherwise the CLI): plan review, code review, annotating files, URLs, folders, and running local apps, annotating the last assistant message, browsing archived plan decisions, and exporting or sharing Guided Reviews. Invoke when asked to use Plannotator for anything not covered by a more specific plannotator-* skill."
+description: "Reference for using Plannotator (its `plannotator` tool when you have one, otherwise the CLI): plan review, code review, annotating files, URLs, folders, and running local apps, annotating the last assistant message, browsing archived plan decisions, exporting or sharing Guided Reviews, and the Plannotator Inbox (messages and questions the person answers later, without blocking you). Invoke when asked to use Plannotator for anything not covered by a more specific plannotator-* skill."
 ---
 
 # Plannotator CLI Reference
@@ -33,6 +33,7 @@ Use the CLI only when you have no such tool, or for what the tool does not do: `
 | Browse past plan decisions | `plannotator archive` |
 | Export or share a Guided Review | `plannotator guide export` / `plannotator guide share` |
 | Reopen or list live sessions | `plannotator sessions` |
+| Ask the person something they can answer later, without blocking | The `plannotator_inbox` tool when you have it, else the Inbox's MCP server (`plannotator inbox mcp`) |
 
 ## Session model
 
@@ -40,7 +41,7 @@ Every review or annotate command starts a local web server, opens the browser, a
 
 Stdout is the interface, but its contract is command-specific. For `annotate` and its last-message variants:
 
-- Plaintext (default): empty output on close, `The user approved.` on approve, otherwise the feedback text. Address returned feedback in the same conversation.
+- Plaintext (default): empty output on close, `The user approved.` on approve (an approval with a note prints an "Approved with Notes" message instead; treat the notes as guidance, not a change request), otherwise the feedback text. Address returned feedback in the same conversation.
 - `--json`: one JSON record with `decision` (`approved`, `dismissed`, or `annotated`) and optional raw `feedback`. An approval may still carry notes in `feedback`; treat those as guidance, not a change request.
 - `--hook`: hook-native output for real PostToolUse/Stop hook contexts only. Approve/close emits nothing (hook passes); annotations emit `{"decision":"block","reason":"..."}`. `--hook` implies the gate UI. Never use it for a normal interactive invocation.
 
@@ -87,10 +88,11 @@ Targets:
 - URLs (`https://...`): fetched and converted via Jina Reader by default; `--no-jina` uses plain fetch plus Turndown instead.
 - Running local apps: a loopback `http://localhost:PORT/` URL whose probe returns HTML opens in live-app mode (annotate the real running page). `--app` forces live mode and fails loudly when it cannot apply; `--static` forces the classic conversion pipeline. Non-loopback URLs always use the conversion pipeline.
 - Folders: `plannotator annotate docs/` opens a file browser over the folder's supported files.
+- Several files: `plannotator annotate spec.md mock.html notes.md` opens them as one review, in the order given, with one decision. Every argument must be an existing file named by its path (no prose, URLs or folders among them). With the `plannotator` tool, pass the list as `target`.
 
 Single files are capped at 2MB. Files are read from disk at stable project paths; keep the reviewed source where it lives.
 
-Argument tolerance: extra words are fine (`plannotator annotate look at notes.md please` opens `notes.md`), but two resolvable targets is an error naming both, and an unrecognized dashed token disables the tolerance so flag typos fail loudly. When nothing resolves in a plain multi-word invocation, the CLI prints an agent-addressed handoff on stdout and exits 0: read it, work out the concrete target, and re-run with that exact path or URL.
+Argument tolerance: extra words are fine (`plannotator annotate look at notes.md please` opens `notes.md`), but two resolvable targets mixed with prose, a URL or a folder is an error naming them, and an unrecognized dashed token disables the tolerance so flag typos fail loudly. When nothing resolves in a plain multi-word invocation, the CLI prints an agent-addressed handoff on stdout and exits 0: read it, work out the concrete target, and re-run with that exact path or URL.
 
 ### Strict gates and exit codes
 
@@ -162,10 +164,26 @@ Guided Reviews are AI-generated walkthroughs of a diff, produced inside the code
 ## plannotator sessions
 
 ```bash
-plannotator sessions [--open [N]] [--clean]
+plannotator sessions [--open [N]] [--clean] [--json]
 ```
 
-Lists active Plannotator server sessions. `--open` reopens session N (default 1) in the browser, useful when a tab was closed mid-review. `--clean` drops stale entries.
+Lists active Plannotator server sessions, each with its full target (absolute path, URL, PR URL or reviewed directory) and, for a review a host opened, its `pn-` id. `--open` reopens session N (default 1) in the browser, useful when a tab was closed mid-review. `--clean` drops stale entries. `--json` prints the list as a JSON array on stdout.
+
+## plannotator inbox
+
+```bash
+plannotator inbox [--background | --no-open]
+plannotator inbox mcp
+```
+
+The Plannotator Inbox is one local window per machine where agents leave the person messages: `:::question` blocks (the syntax below) they answer with a click, files to read and annotate (`attachments`, paths inside the project), project decisions, and guided reviews of a diff. Nothing blocks: you send and keep working or end your turn, and the person answers when they can.
+
+- Use the Inbox for what can wait: a question that does not hold up everything, status to read, a file to look at later. Use a review (plan review, `annotate`, `review`) when you need a decision on this document or diff before you go on.
+- If you have a `plannotator_inbox` tool, use it; its `action` names one of the tools below. Claude Code has it with the Plannotator mod (on by default); Pi and OpenCode only when `PLANNOTATOR_INBOX_TOOL=1` or `{ "inboxTool": true }` was set before the session started. The person's reply then arrives in your session as a new message once you are idle (OpenCode 1 excepted), so end your turn if you need the answer.
+- Any other agent uses the stdio MCP server `plannotator inbox mcp` (for example `claude mcp add plannotator-inbox -- plannotator inbox mcp`). Tools: `send_message`, `read_thread`, `wait_for_reply`, `resolve_message`, `list_decisions`, `record_decision`, `get_guide_brief`, `submit_guide`. Nothing wakes you there: call `wait_for_reply`, which returns the reply as soon as it is sent, or a cursor to wait again after 50 seconds.
+- Your messages join one thread per session; pass `thread` (a name) to group related messages, or `reply_to` to answer the person's reply.
+- Calls start a stopped Inbox in the background without opening a tab, so never run `plannotator inbox` just to send. Bare `plannotator inbox` is for the person: it opens the window. `--background` starts it detached and prints the URL; `--no-open` runs it in the foreground without a browser.
+- It is local only: it binds `127.0.0.1` and ignores `PLANNOTATOR_REMOTE` and `PLANNOTATOR_PORT`.
 
 ## Other subcommands
 
