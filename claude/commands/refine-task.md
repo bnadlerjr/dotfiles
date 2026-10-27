@@ -1,125 +1,111 @@
 ---
-description: Refine a task overview into a behavior-focused technical task with BDD acceptance criteria. For work with no user-visible change — a refactor, test work, a dependency bump, or new machine-facing behavior.
+description: Refine a task overview into an implementation-focused technical task — the approach, the real code it touches, and a technical Done-when checklist. For work with no user-visible change — a refactor, test work, a dependency bump, building to a spec, or new machine-facing behavior.
 argument-hint: "[task overview | empty for interactive]"
 ---
 
 # Refine Task
 
-Turns a task overview into a technical task shaped like a story: a narrative an engineer can read cold, and Given-When-Then criteria they can write tests from without asking a follow-up question. The one thing that makes it a task and not a story is that the observable outcome faces another module, job, or service rather than a person.
+Turns a task overview into an implementation task: a narrative and approach that name the real code being changed, and a Done-when checklist an engineer can verify without asking a follow-up question. It stops at the approach. Ordering the edits belongs to downstream planning.
 
 ## Rules
 
 1. **Task altitude is fixed.** One change that lands and reverts as a unit. Work a user can see or do is a story and belongs in a different workflow. Several changes with different risk profiles are several tasks — a dependency bump and an architectural refactor fail and revert independently, so they never share a task.
 
-2. **Behavior, never implementation.** The defect that ruins tasks, and the one every other rule was failing to catch. A criterion leaks when it names:
+2. **Name the real code, and commit to an approach.** The narrative and Approach name the modules, files, schemas, tables, endpoints, queues, and symbols the change touches, as research found them. Anything the task creates is marked `(new)` where it first appears; nothing else is named unless it exists today. The Approach states the chosen shape, its constraints, and the trade-off that decided it. It is not a plan: no numbered steps, no edit order. Downstream planning owns sequencing.
 
-   | Leak | Example |
-   |---|---|
-   | Modules, classes, functions | "`OrderService.place()` is called", "add a `Crossing` schema" |
-   | Storage | "the row is inserted", a named table, column, or migration |
-   | Wire and transport | "publishes to the `orders` topic", "the `POST /v2/orders` handler" |
-   | Test code | "`refute_enqueued(worker: …)`", a named assertion, helper, or test file |
-   | Scheduling and infrastructure | "a worker on a new queue", "a crontab entry", "the cron fires" |
-   | Tooling | "typecheck and lint clean", any named lint, build, or format command |
+   - Bad: *1. Extract `verify/1` from `Legacy.Auth.SessionCheck`. 2. Point `RequireSession` at it. 3. Delete the old call.*
+   - Good: *Move `verify/1` into `Accounts.SessionToken` (new), which `RequireSession` calls directly; `SessionCheck` stays as a one-line delegate until its last caller goes.*
 
-   **Farley's substitution test.** Imagine the whole system replaced by a different implementation that fulfills the same behavior. Every scenario should still make sense. Any that would break describes construction, and the fix is to rewrite it in observable terms, not to soften the wording.
+3. **Criteria are outcomes, not edits.** Every Done-when item is something that is true afterward and can be checked: a response, an emitted event, a row, a passing test, a command's output. An item that describes a change to the code is a plan step wearing a checkbox.
 
-   Real names are not banned outright. The narrative may carry **one anchor** — the subsystem in words people say out loud, "automations", "the AR summary", "the scheduler" — so an engineer knows which corner of the system this is. Never a module path, never a symbol. On a dependency task the library and its versions are that anchor, since they are the subject. The criteria carry no technical names at all, and nothing anywhere names something that does not exist yet.
+   - Bad: *Add an `archived` clause to `AccountQuery`.*
+   - Good: *`GET /v2/accounts/:id` returns 404 for an archived account.*
 
-   - Bad: *Given no crossing has been recorded / When the balance sweep worker runs / Then an `aged_into_bucket` event is published to the automations topic*
-   - Good: *Given Dana's account has $240 unpaid for 59 days / When the debt reaches 60 days unpaid / Then automations are notified once, and the notice says the money is $240*
+4. **Concrete, never abstract.** Real amounts, counts, status codes, field values, event names. Placeholders hide the edge cases the task exists to surface, and two engineers read them two ways. "Errors are handled appropriately" and "the event is emitted correctly" are not checkable. Name what is observed, and how many times.
 
-3. **A refactor preserves behavior, and the scenarios prove it.** The headline defect is a behavior change smuggled in under the banner of cleanup: a "while I'm in here" fix, a tightened validation, a changed default, ordering, or error message folded into a restructure.
+5. **A refactor preserves behavior, and the checklist proves it.** The headline defect is a behavior change smuggled in under the banner of cleanup: a "while I'm in here" fix, a tightened validation, a changed default, ordering, or error message folded into a restructure.
 
    **Substitution test.** Revert to the old structure: every test passing now should still pass, and every test passing then should still pass now. If a test had to change to describe *new* behavior, the behavior changed. Split it out — it is its own task, and a story too if a user can see it.
 
-   Preservation is a set of scenarios, not an assertion about code. "The same requests are allowed and denied as before" is three scenarios pretending to be a bullet; written out, they become the characterization tests the refactor needs anyway. **Every task carries at least one scenario pinning what must not change**, and on a refactor that is most of the set.
+   **Every task carries a "Nothing else changes" item** naming the existing behavior that shares the touched code. On a refactor, preservation items are most of the list.
 
-   - Bad: *Refactor the date parser and, while we're in there, default the missing-offset case to UTC.*
-   - Good: *Given a timestamp with no offset / When it is parsed / Then it resolves exactly as it does today.* The missing-offset change is a separate task with its own tests.
+   - Bad: *Move the date parser into `Time.Parse` and default a missing offset to UTC.*
+   - Good: *Timestamps with no offset parse to the same value before and after the move.* The UTC default is a separate task with its own tests.
 
-4. **Concrete, never abstract.** Real amounts, real day counts, real status names, a named actor where one helps. Placeholders hide the edge cases the task exists to surface, and two engineers read them two ways.
+6. **A spec is linked, never restated.** When an API doc, wire spec, or upstream contract already defines the interface, the task links it as the source of truth and carries a Done-when item saying the implementation conforms to it. Copying its fields or rules into the task creates a second source of truth that drifts. The task adds only what the spec does not settle: where the code lives, what it reuses, and what must not change around it.
 
-   - Bad: *Given an account with [some balance] / When [time passes] / Then [an event fires]*
-   - Good: *Given Dana's account has $240 unpaid for 59 days / When the debt reaches 60 days unpaid / Then automations are notified once for her account*
+7. **One vocabulary, declared.** One code name and one domain word per concept, used the same way in the narrative, the Approach, and every item. Where they differ — the domain says "band", the code says `bucket` — record the pairing in Notes. Where the domain has competing words, pick one and record the rejected synonym. Declare only terms that were ambiguous or contested.
 
-   Vague outcomes fail the same way. "Then the system handles it appropriately" and "Then the event is published correctly" are not testable. Name what the consumer can now observe, and how many times.
+8. **Failures are criteria, and every item is checkable alone.** The list covers the change working, the alternatives that end differently, and what happens when it fails: the sweep that finds nothing, the call that times out, the retry after a crash. Each item is one somebody can write a test or a check for, without depending on another item's setup. Items with different priorities, or more than the task can hold, are a splitting signal.
 
-5. **One vocabulary, declared.** The same term for the same concept in the narrative, the Context, and every scenario. Where the domain has competing words — bucket, band, bracket; account, client, owner — pick one, use it everywhere, and record the choice and the rejected synonym in Notes. Declare only terms that were ambiguous or contested; a full dictionary is noise.
+9. **Never refactor blind.** Establish what the touched code is covered by before proposing to change it. Where coverage is thin, the Approach says what gets characterization tests first, and a Done-when item requires them to pass against the current code. The substitution test proves nothing if no test exercises the behavior.
 
-6. **Failures are scenarios, and every scenario stands alone.** The set covers the behavior working, the alternatives that end differently, and what happens when it fails. A task whose scenarios all succeed ships a gap: the sweep that finds nothing, the call that times out, the consumer that is not listening. And no scenario may depend on another having run first — each carries its own Given.
+10. **Never ask a naked question.** Every question, in Phase 1 or in Open Questions, carries a committed recommendation and the reasoning behind it. A bare "what should we do about X?" pushes the work back onto the user. An approach choice the overview leaves open is a fair question: commit to one in the draft and say why. Internals below the approach — helper names, signatures, a module's private layout — are the implementer's call. Neither ask about them nor decide them.
 
-7. **Criteria point at a test plan, they are not one.** Enough to settle what "done" means and to prompt the conversation, not every field rule and error string. Every criterion needs at least one acceptance test (Farley), and that is the check to run: not "can CI assert this fact about the codebase", but "can somebody write a test for this sentence". Criteria with different priorities, or that together overflow the task, are a splitting signal.
-
-8. **Never refactor blind.** Establish what the touched code is covered by before proposing to change it. Where coverage is thin, the scenarios pinning current behavior come first and are written to be implemented first. The substitution test proves nothing if no test exercises the behavior.
-
-9. **Never ask a naked question, and never ask a design question.** Every question, in Phase 1 or in Open Questions, carries a committed recommendation and the reasoning behind it. A bare "what should we do about X?" pushes the work back onto the user. And the question is about sequencing or a behavioral choice — the internals of something this task creates are the implementer's call, not the user's.
-
-10. **A draft message contains the task and nothing else.** First character is the `#` of the task title, last character is the end of the final Open Question. No preamble, no sign-off, no explanation of the workflow.
+11. **A draft message contains the task and nothing else.** First character is the `#` of the task title, last character is the end of the final Open Question. No preamble, no sign-off, no explanation of the workflow.
 
 ## Phase 1. Read the overview
 
-`$ARGUMENTS` is the task overview. It is prose, not a reference to fetch: no tracker lookup, no file path routing. Ticket context arrives by being pasted in.
+`$ARGUMENTS` is the task overview. It is prose, not a reference to fetch: no tracker lookup, no file path routing. Ticket context and spec links arrive by being pasted in.
 
 If it is empty, ask what the work covers and wait.
 
-Otherwise triage before drafting. The first two rows decide whether this command is the right one at all:
+Otherwise triage before drafting:
 
 | What you were handed | Action |
 |---|---|
 | A **user** can see or do something different | Say it is a story, name the user-observable behavior, and stop. Where both exist, offer the split: a behavior-preserving task plus a separate story |
-| An interface **already specified elsewhere** — an API doc, wire spec, or upstream contract — and the work is to build to it | Say it is an implementation task, point at the spec as the source of truth, and stop. This command adds nothing a spec-driven task does not already have |
-| Another **module or system** can observe something different, and **this task decides what** | Stays here, as a technical-behavior task. Do not draft it as a refactor: the observable behavior changed, so the scenarios describe something new rather than something preserved |
 | Several changes with different risk profiles, or many unrelated modules | Say it is oversized, name the split by seam, and wait |
-| Performance work or a data migration | Say these sections were not built for it, commit to the closest framing, and log the mismatch as an Open Question |
+| Performance work or a data migration | Commit to the closest type, draft it, and log the mismatch as an Open Question — the checklist rules fit, but the type table below was not built for these |
+| Anything else | Stays here |
 
-Two words separate those rows. **Observable** means visible outside the unit being changed: a user is one audience, another module, service, or job is another. Only the user-observable half leaves for a story. And **specified** decides the second row: has someone already written down what this looks like? If yes, the spec is the task, and repeating it here only invites the two to drift.
+**Observable** decides the first row: visible outside the unit being changed. A user is one audience, another module, service, or job is another. Only the user-observable half leaves.
 
-Then settle three things for yourself. The task's title. Which of the four types it is, since the type decides what the scenario set covers:
+Then settle three things for yourself. The task's title. Which type it is, since the type decides what the checklist covers:
 
 - **Refactor** — structure changes, behavior does not.
 - **Test work** — coverage or test-suite change, production code untouched.
 - **Dependency or tooling** — a version, config, or build change.
+- **Spec-driven** — build to an interface someone already wrote down.
 - **Technical behavior** — something outside the unit can observe something new, and this task decides what.
 
-And the domain vocabulary the overview uses. Do not emit this reading as a message. The draft is where the user sees your reading and corrects it.
+And whether a spec exists. Do not emit this reading as a message. The draft is where the user sees your reading and corrects it.
 
-## Phase 2. Ground the behavior
+## Phase 2. Ground the change
 
-A task is only as testable as its grasp of what the system does today. And unlike a story, this grounding cannot skip the code: the behavior that must survive comes from the callers who depend on it, and the coverage baseline decides whether characterization scenarios come first. Neither can be inferred from the overview.
+An Approach that names code is only as good as its grasp of that code. The touched modules, what depends on them, and the coverage baseline come from the repository; none can be inferred from the overview.
 
 | Dimension | What it answers | Missing it produces |
 |---|---|---|
 | **Motivation** | Why now — what debt, risk, or friction drives this | Reviewers cannot judge whether the change is worth the risk |
-| **Trigger** | What makes the behavior happen — a write, a schedule passing, a call | Whens that say "when the job runs" instead of naming the event |
-| **Observable outcome** | What another module, job, or person can see afterward, and how they know | Vague Thens: "the event is published correctly" |
-| **Behavior that must survive** | What works today that would break if this code changed | Behavior changes slip in under the banner of cleanup |
-| **Failure modes** | What goes wrong, and what happens then | Every scenario succeeds; a gap ships |
+| **Touched code** | Which modules, files, tables, endpoints, and symbols the change lands in | Invented names, or an Approach too vague to act on |
+| **Dependents** | Who calls or consumes that code, and for what | A "Nothing else changes" item that names the wrong behavior |
+| **Behavior that must survive** | What dependents observe today, including on failure | Behavior changes slip in under the banner of cleanup |
+| **Failure modes** | What goes wrong, and what happens then | A happy-path-only checklist; a gap ships |
+| **Existing patterns** | How the codebase already solves the nearest similar problem | An Approach that fights the codebase's conventions |
 | **Coverage baseline** | What is tested today, and whether characterization comes first | Refactoring blind |
-| **Domain terms** | The vocabulary the team uses, and which synonyms lose | Module names leak in for want of a domain word |
+| **Spec** | Whether an external document already defines the interface | Restating a contract that then drifts |
 
-When a draft fails the Self-check, the cause is almost always a missing dimension. This table is the diagnostic, and the last row earns its place: most leaks happen because the author had no domain word and reached for the code's name instead.
+When a draft fails the Self-check, the cause is almost always a missing dimension. This table is the diagnostic.
 
-Motivation and domain terms come from the user; the rest come from the code. Whatever neither settles becomes a committed assumption in Open Questions.
+Motivation and the spec link come from the user; the rest come from the code. Whatever neither settles becomes a committed assumption in Open Questions.
 
 ### Research contract
-
-Three limits bound the research, and all three belong in every brief:
-
-1. **Ground the behavior; do not design the fix.** Establish what happens today and what depends on it. The step-by-step *how* belongs in a downstream plan. If you catch yourself writing "we should…", stop.
-2. **Return behavior, not structure.** A finding is an observable outcome, never a signature, schema, or file inventory. This is the translation the author cannot do alone, because only the researcher saw the code.
-3. **Establish the coverage baseline.** Give a verdict: safe to change under the existing suite, or characterization scenarios first, naming the behaviors that need pinning.
 
 Where the host supports parallel agents, send each area as a self-contained brief in one batch and wait for all of them. Where it does not, work the same briefs yourself, in order. Repositories default to the working directory; do not ask, and if the scope is genuinely ambiguous, commit to the working directory and say so in Open Questions.
 
 ```markdown
-# Behavior grounding
+# Implementation grounding
 
-Establish what this code does today, in observable terms. Do not design the change.
+Map the code this task touches and what depends on it. Do not design the change.
 
 ## Task overview
 
 <the overview>
+
+## Spec
+
+<link, or "none">
 
 ## Area
 
@@ -127,193 +113,163 @@ Establish what this code does today, in observable terms. Do not design the chan
 
 ## Hard boundary
 
-Report behavior, not construction. Do not recommend a strategy, a sequence of
-edits, or a target structure, and do not return signatures, schemas, or a file
-inventory. If you cannot answer without naming a module, symbol, table, or file,
-restate it as the behavior that thing produces.
+Report what exists today. Do not recommend an approach, a target structure, or a
+sequence of edits, and do not propose code. Name only things that exist, with
+their paths.
 
 ## Report
 
-**Behavior that must survive** — what a caller, job, or person can observe today
-that would break if this code changed. State each as an outcome.
-**Trigger** — what currently makes this code run: a write, a schedule, a call.
-**Failure behavior today** — what happens when this path fails, times out, or
-finds nothing.
-**Coverage verdict** — safe under the existing suite, or characterization
-scenarios first, naming the behaviors that need pinning.
-**Domain vocabulary** — the terms people actually use for this, and any legacy
-term they replaced.
+**Touched code** — the modules, files, schemas, tables, endpoints, queues, and
+symbols this change would land in, with paths.
+**Dependents** — callers and consumers of that code, and what each relies on.
+**Behavior that must survive** — what those dependents observe today, including
+on failure, timeout, or empty input.
+**Relevant tests** — test files that exercise the touched code, and which
+behaviors they cover.
+**Patterns to follow** — how the codebase already solves the nearest similar
+problem, with one path as the example.
+**Coverage verdict** — safe under the existing suite, or characterization first,
+naming the behaviors to pin.
+**Vocabulary** — where code names and domain words differ for one concept.
 ```
 
-If research comes back thin, say so in the draft's Notes and commit to assumptions in Open Questions. That is a finding, not a failure. What comes back grounds the draft; it is not copied into it.
+If research comes back thin, say so in Notes and commit to assumptions in Open Questions. That is a finding, not a failure. What comes back grounds the draft; it is not copied into it as an inventory.
 
 ## Phase 3. Draft
 
-Work in this order. Do not reorder it — detailing scenarios before the set is outlined produces overlapping criteria and a missing failure mode.
+Work in this order. Detailing items before the list is outlined produces overlapping criteria and a missing failure mode.
 
 1. **Name the change.** A title that says what becomes true, not what gets built.
-2. **Write the narrative.** 2-4 sentences: what happens today, why that is a problem, what changes. Domain language, at most one anchor.
-3. **State the Context.** When this behavior is relevant — the preconditions.
-4. **Outline the scenario set.** One line each, per the type's guide below, before writing a single Given.
-5. **Detail each scenario** with concrete values, each independently set up.
-6. **Run the leak hunt.** Read every Given, When, and Then against Rule 2's table and the substitution test. Rewrite what leaks. Do this before emitting, every round.
+2. **Write the narrative.** 2-4 sentences: what the code does today, why that is a problem, what changes. Real names.
+3. **Write the Approach.** One paragraph: the chosen shape, what it reuses, what is `(new)`, the constraint or trade-off that decided it, and what gets characterized first if coverage is thin.
+4. **Outline the checklist.** One line each, per the type's guide below.
+5. **Detail each item** with concrete values.
+6. **Run the edit hunt.** Read every item against Rules 3 and 4, and every name against research. Rewrite any item that describes an edit; remove or mark `(new)` any name research did not find. Do this before emitting, every round.
 
-What the set covers depends on the type:
+What the checklist covers depends on the type:
 
-| Type | What the scenario set covers |
+| Type | What the checklist covers |
 |---|---|
-| **Refactor** | The behavior that must survive, written as characterization scenarios. Most of the set |
-| **Test work** | The behavior that must become covered. The scenarios *are* the deliverable — each one is a test somebody will write |
-| **Dependency or tooling** | The behavior most at risk from the change: what the library is actually used for, exercised end to end |
-| **Technical behavior** | The new observable behavior, its alternatives and its failures, plus at least one scenario pinning what did not change |
+| **Refactor** | Characterization passing before the move, the same tests passing unchanged after it, the structural goal checked by a command, and preservation. Mostly preservation |
+| **Test work** | The behaviors that become covered — each item is a test somebody will write — and production code untouched |
+| **Dependency or tooling** | The behavior most at risk: what the library is actually used for, exercised end to end |
+| **Spec-driven** | Conformance to the linked spec, the failure cases the spec leaves to the implementer, and preservation |
+| **Technical behavior** | The new observable behavior, its alternatives and failures, and preservation |
 
 ```markdown
 ## Task: <Descriptive Title — what becomes true>
 
-<2-4 sentences: what happens today, why that is a problem, what changes.
- Domain language, present tense, at most one subsystem anchor.>
+<2-4 sentences: what the code does today, why that is a problem, what changes.
+ Real names, present tense.>
 
-### Context
+### Approach
 
-<When this behavior is relevant — the preconditions.>
+<One paragraph: the chosen shape, what it reuses, what is (new), the constraint
+ or trade-off that decided it, what gets characterized first. No steps.>
 
-### Acceptance Criteria
+### Done when
 
-#### Scenario: <the new behavior, or a behavior that must survive>
-- Given <situation, concrete>
-- When <the event: a write, a schedule passing, a call>
-- Then <what another module, job, or person can now observe>
-- And <further observable outcome>
-
-#### Scenario: <alternative that ends differently>
-- Given <different situation>
-- When <event>
-- Then <different outcome>
-
-#### Scenario: <failure>
-- Given <failure situation>
-- When <event>
-- Then <what happens instead, and what the caller sees>
-
-#### Scenario: Nothing else changes
-- Given <an existing behavior that shares this code>
-- When <the change is in place>
-- Then <that behavior is exactly as it was>
+- [ ] <checkable outcome of the change>
+- [ ] <alternative that ends differently>
+- [ ] <failure case, and what the caller observes>
+- [ ] Conforms to <spec link>; where this task and the spec disagree, the spec wins
+- [ ] Nothing else changes: <named existing behavior> is exactly as before
 
 ### Notes
 
-- **<Term>** = <meaning>; not <rejected synonym>.
+- **<Domain word>** = `<code name>`; not <rejected synonym>.
 - <Ordering against other tasks, work left to another ticket, or anything
   grounding could not settle.>
 
 ## Open Questions
 
-- **<Topic>.** Assuming <the position this draft already commits to>. Annotate if wrong.
+- **<Topic>.** Assuming <the position this draft already commits to>, because <reason>. Annotate if wrong.
 ```
 
-Each Open Question states a position the draft already takes, so the user attacks a claim instead of answering a survey. This is the stress test. The draft takes the risk of being wrong in public rather than interrogating the user before they have seen anything.
+The spec item appears only when a spec exists. Each Open Question states a position the draft already takes, so the user attacks a claim instead of answering a survey. The draft takes the risk of being wrong in public rather than interrogating the user before they have seen anything.
 
 **Worked example — a refactor**
 
 ```markdown
-## Task: Stop the sign-in path depending on the legacy package
+## Task: Break the cycle between Accounts and the legacy package
 
-Session checking lives in the legacy package, and the sign-in path reaches into
-it on every request. That circular dependency is the last thing keeping legacy
-alive, so it blocks deleting the package at all. Move the checking so the
-dependency runs one way, with no change to who gets in.
+On every authenticated request, `Accounts.authenticate/1` calls
+`Legacy.Auth.SessionCheck.verify/1`, and `SessionCheck` calls back into
+`Accounts.get_user/1`. That cycle is the last thing keeping `Legacy` alive. Move
+session verification into `Accounts` so the dependency runs one way, with no
+change to who gets in.
 
-### Context
+### Approach
 
-Applies to every request carrying a session, on all sign-in paths.
+Move `verify/1` and its cookie-decoding helpers into `Accounts.SessionToken`
+(new), which `Accounts.authenticate/1` calls directly. `SessionCheck.verify/1`
+becomes a one-line delegate to it, so `Legacy.Auth.LegacySignIn` keeps working
+untouched until its own retirement task. The cookie format
+and signing salt do not change: cookies issued before deploy must keep
+verifying, so no key rotation rides along. `session_check_test.exs` covers only
+the valid and expired cases, so tampering and the `LegacySignIn` path get
+characterization tests before anything moves.
 
-### Acceptance Criteria
+### Done when
 
-#### Scenario: A valid session is accepted
-- Given Dana signed in 10 minutes ago
-- When she opens a page that needs her to be signed in
-- Then she is let through
+- [ ] Characterization tests for valid, expired, and tampered cookies and for `LegacySignIn` pass against the current code
+- [ ] The same tests pass after the move, none edited to describe new behavior
+- [ ] `mix xref graph --format cycles` no longer reports a cycle through `Accounts` and `Legacy.Auth`
+- [ ] A cookie issued by the pre-change code verifies after the change
+- [ ] A tampered cookie returns 401 and writes exactly one `session_tampered` audit event, as today
+- [ ] Nothing else changes: a request to `/invoices` with an expired cookie still redirects to `/sign-in?return_to=/invoices`, and no status code, redirect, or audit event differs from before
 
-#### Scenario: An expired session is refused
-- Given Dana's session expired an hour ago
-- When she opens a page that needs her to be signed in
-- Then she is refused and asked to sign in again
+### Notes
 
-#### Scenario: A tampered session is refused
-- Given a session whose contents have been altered since it was issued
-- When it is presented
-- Then it is refused, and the attempt is recorded as tampering
-
-#### Scenario: Nothing else changes
-- Given people who signed in before this change shipped
-- When the checking has moved
-- Then they stay signed in and are not asked for their password again
-- And accounts arriving through the legacy sign-in path get in exactly as before
+- Deleting `SessionCheck` waits on `LegacySignIn`'s retirement and is not part of this task.
 ```
 
 **Worked example — technical behavior**
 
 ```markdown
-## Task: Notify automations when an account's debt ages
+## Task: Emit `ar.band_entered` when an account's debt ages into an older band
 
-Automations fire when somebody saves a record. Nothing fires when time passes, so
-an account whose debt quietly ages past 60 days goes unnoticed until a staff
-member opens the AR summary. Age is worked out fresh each time that report is
-read and remembered nowhere, so there is no record that a boundary was crossed.
-Notify automations the first time an account's debt enters an older age band,
-changing nothing on screen.
+Automations fire on record writes through `Automations.Dispatcher.emit/2`, so
+nothing fires when time passes. `Billing.AgingReport` computes bands on read and
+stores nothing, so there is no record that a boundary was crossed. Emit an event
+to automations the first time an account's debt enters an older band, changing
+nothing in `AgingReport`'s output.
 
-### Context
+### Approach
 
-Applies to accounts carrying an unpaid balance, at practices using automations.
+A daily `Billing.BandSweep` Oban worker (new) on the existing `billing` queue
+computes each account's bands with `AgingReport.bands_for/1` and compares them
+against `account_band_crossings` (new table: `account_id`, `band`, `entered_at`,
+`cleared_at`). A band with no open crossing row records one and emits
+`ar.band_entered` through `Dispatcher.emit/2`, the path record-write events
+already use. `emit/2` inserts an Oban job, so the crossing row and the event
+commit in one transaction and a retried sweep cannot send twice. The first run
+backfills crossings without emitting, so release does not flood automations with
+historical debt. Bands stay at 30, 60, and 90 days as `AgingReport` defines them.
 
-### Acceptance Criteria
+### Done when
 
-#### Scenario: Debt ages into an older band
-- Given Dana's account has $240 unpaid for 59 days
-- When the debt reaches 60 days unpaid
-- Then automations are notified once for Dana's account
-- And the notice says which band the money entered and that it is $240
-
-#### Scenario: The debt sits in the same band
-- Given Dana's $240 was reported as entering the 60-day band yesterday
-- When the debt is still 60-plus days unpaid today
-- Then automations are not notified again
-
-#### Scenario: Debt leaves a band and later returns
-- Given Dana's $240 entered the 60-day band and was then paid off
-- When a later $100 charge on her account ages past 60 days
-- Then automations are notified for the 60-day band again
-
-#### Scenario: The first check after release
-- Given many accounts already hold debt older than 60 days
-- When the check runs for the first time
-- Then no notices are sent for debt that aged before release
-
-#### Scenario: Debt crosses two boundaries at once
-- Given Dana has $100 unpaid for 29 days and $300 unpaid for 89 days
-- When both cross a boundary before the next check
-- Then automations are notified once for the 30-day band and once for the 90-day band
-
-#### Scenario: Nothing else changes
-- Given a practice whose automations fire when an invoice is finalized
-- When the aging check runs
-- Then those automations receive nothing they would not have received before
-- And the amounts and bands on the AR summary are unchanged
+- [ ] An account with $240 unpaid for 60 days and no crossing row produces exactly one `ar.band_entered` event with `band: 60` and `amount_cents: 24000`
+- [ ] The next day's sweep, with that debt still unpaid, emits nothing
+- [ ] After the $240 is paid, a later $100 charge reaching 60 days emits `band: 60` again
+- [ ] An account with $100 at 30 days and $300 at 90 days emits two events in one sweep, `band: 30` and `band: 90`
+- [ ] The first sweep after release writes crossing rows for all existing aged debt and emits zero events
+- [ ] A sweep that crashes partway and is retried emits no event twice
+- [ ] Nothing else changes: `invoice.finalized` automations receive the same events as before, and `AgingReport.bands_for/1` returns the same result for every account
 
 ### Notes
 
-- **Band** = an aging bracket such as 30 or 60 days past due; not "bucket".
-- The consumer that acts on these notices is a separate task and does not block this one.
+- **Band** = an aging bracket (30, 60, 90 days past due), `band` in code; not "bucket".
+- The automation consumer that acts on `ar.band_entered` is a separate task and does not block this one.
 ```
 
-Both examples end on the same scenario, and that is the pattern: whatever else a task does, one scenario says what stayed the same. On the refactor it carries the on-disk session format without ever naming a format.
+Both lists end on "Nothing else changes", and that is the pattern: whatever else a task does, one item names what stayed the same. Neither Approach orders its edits.
 
-Rough proportions: narrative 2-4 sentences, Context 1-2 lines, typically 3-6 scenarios at 3-5 clauses each, at most three Open Questions of two or three sentences. More than about eight scenarios is a splitting signal, not thoroughness — say so rather than trimming quietly.
+Rough proportions: narrative 2-4 sentences, Approach one paragraph of 3-6 sentences, typically 4-8 Done-when items, at most three Open Questions of two or three sentences. More than about eight items is a splitting signal, not thoroughness — say so rather than trimming quietly.
 
 ## Phase 4. Review loop
 
-Emit the task as the whole message, per Rule 10, and stop the turn.
+Emit the task as the whole message, per Rule 11, and stop the turn.
 
 When feedback returns to the session, branch on it.
 
@@ -325,7 +281,7 @@ When feedback returns to the session, branch on it.
 
 There is no round cap. Every round ends the turn, so the user sets the pace and the exit.
 
-When annotations across rounds contradict each other — criteria too thin, then too many, then back — stop absorbing it silently. The task is probably two tasks. Put that in the next draft's Open Questions with a committed recommendation, per Rule 9.
+When annotations across rounds contradict each other — checklist too thin, then too long, then back — stop absorbing it silently. The task is probably two tasks. Put that in the next draft's Open Questions with a committed recommendation, per Rule 10.
 
 ## Phase 5. Retire the scaffold
 
@@ -333,12 +289,12 @@ When annotations across rounds contradict each other — criteria too thin, then
 
 Fold each unresolved question into `### Notes` as an `Unresolved:` line, so it travels with the task when the task becomes a ticket. An unanswered assumption that vanishes at approval is the one that resurfaces mid-implementation.
 
-Then polish the prose, and only the prose. Run the narrative paragraph and the Context line through the `writing-for-humans` skill under this contract:
+Then polish the prose, and only the prose. Run the narrative and the Approach paragraph through the `writing-for-humans` skill under this contract:
 
-- **Polish**: the narrative, the Context line.
-- **Leave untouched**: the title, every heading, every `Given / When / Then / And` clause, and Notes. The criteria are testability-critical specs and must come back byte-identical.
-- **Preserve**: the declared vocabulary. Never substitute a generic synonym for a declared term.
-- **Never introduce**: module, API, storage, or tooling language. The polish must not re-create the leak.
+- **Polish**: the narrative, the Approach paragraph.
+- **Leave untouched**: the title, every heading, every Done-when item, and Notes. They must come back byte-identical.
+- **Preserve**: every technical name exactly as written, every `(new)` marker, and the declared vocabulary. Never strip, rename, or genericize a module, path, table, endpoint, or symbol into a description of it.
+- **Never introduce**: numbered steps or an edit order.
 
 If the polish changes what a sentence means, keep the approved wording — the user approved that text, not a rewrite of it. If `writing-for-humans` is unavailable, skip the polish and say "readability polish deferred".
 
@@ -349,18 +305,18 @@ Then delete the `## Open Questions` heading and emit the task one last time as a
 Run before emitting any draft.
 
 - One change that lands and reverts as a unit
-- Narrative in domain language, carrying at most one subsystem anchor
-- Zero leaks: every clause survives the substitution test
-- No module, table, symbol, test-code, or tooling name in any criterion, and nothing named that does not exist yet
-- Concrete amounts, counts, and statuses; no placeholders, no "handled appropriately"
-- One term per concept across narrative, Context, and every scenario
-- The type's scenario set is covered, including at least one scenario pinning what must not change
-- Working, alternative, and failure scenarios all present
-- Every scenario carries its own Given and needs no other scenario first
-- Every criterion is one somebody could write a test for
-- Coverage baseline established, and pinning scenarios come first where it is thin
-- Scenario count is 3-6, or the deviation is stated as a splitting signal
-- Every Open Question carries a committed recommendation, and is about sequencing or behavior rather than internals
+- Every name in the narrative and Approach was found by research or is marked `(new)`
+- The Approach commits to one shape and its deciding trade-off, with no numbered steps or edit order
+- Every Done-when item is an outcome someone could write a test or a check for, not an edit
+- Concrete values throughout; no placeholders, no "handled appropriately"
+- One code name and one domain word per concept, used consistently
+- The type's checklist coverage is met, including a "Nothing else changes" item
+- Working, alternative, and failure cases all present
+- On a refactor: the same-tests-pass item is present, and any new behavior is split out
+- When a spec exists: it is linked, conformance is an item, and none of its content is restated
+- Coverage baseline established, and characterization is required first where it is thin
+- Item count is 4-8, or the deviation is stated as a splitting signal
+- Every Open Question carries a committed recommendation, and none is about internals below the approach
 - The message contains the task and nothing else
 
-On the Phase 5 emit, add two more: no `## Open Questions` section remains, and the acceptance criteria are byte-identical to the approved draft.
+On the Phase 5 emit, add two more: no `## Open Questions` section remains, and the Done-when items are byte-identical to the approved draft.
