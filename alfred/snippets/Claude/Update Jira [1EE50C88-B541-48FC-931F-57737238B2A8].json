@@ -1,0 +1,8 @@
+{
+  "alfredsnippet" : {
+    "snippet" : "Update the Jira issue description (and title if necessary). Keep any open questions in their own separate section after \"Notes\".",
+    "uid" : "1EE50C88-B541-48FC-931F-57737238B2A8",
+    "name" : "Update Jira",
+    "keyword" : ""
+  }
+}
