@@ -1,0 +1,105 @@
+#!/bin/bash
+
+# Create (or find) the artifact directory for a Jira or Linear issue.
+#
+# The directory is $CLAUDE_DOCS_ROOT/<ISSUE-ID>-<slug>, where the slug is a
+# short kebab-case rewording of the issue title (via `claude -p`). If a
+# directory for the issue already exists, its path is printed and nothing is
+# created. The path goes to stdout; diagnostics go to stderr.
+#
+# Usage:
+#   artifact-dir POPS-1321              # Jira (default)
+#   artifact-dir --linear BOB-18        # Linear (requires linearis on PATH)
+#   cd "$(artifact-dir POPS-1321)"
+
+set -eu
+
+CLAUDE_DOCS_ROOT="${CLAUDE_DOCS_ROOT:-$HOME/Dropbox/vimwiki/claude-artifacts}"
+
+die() { echo "error: $1" >&2; exit 1; }
+
+usage="usage: artifact-dir [--jira|--linear] <issue-id>"
+
+# Convert the given string to kebab-case.
+to_kebab_case() {
+  echo "$1" |
+    tr '[:upper:]' '[:lower:]' |
+    sed 's/[^a-z0-9]/-/g' |
+    sed 's/--*/-/g' |
+    sed 's/^-//' |
+    sed 's/-$//'
+}
+
+tracker=jira
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help) echo "$usage"; exit 0 ;;
+    --jira) tracker=jira; shift ;;
+    --linear) tracker=linear; shift ;;
+    -*) die "unknown option: $1" ;;
+    *) break ;;
+  esac
+done
+
+[ $# -eq 1 ] || die "$usage"
+
+issue_id="$1"
+
+echo "$issue_id" | grep -qE '^[A-Z]+-[0-9]+$' \
+  || die "invalid issue id '$issue_id' (expected PROJECT-123)"
+
+[ -d "$CLAUDE_DOCS_ROOT" ] || die "CLAUDE_DOCS_ROOT does not exist: $CLAUDE_DOCS_ROOT"
+
+# Reuse an existing directory for this issue rather than creating a second one
+# when the title (and so the slug) has changed.
+for existing in "$CLAUDE_DOCS_ROOT/$issue_id" "$CLAUDE_DOCS_ROOT/$issue_id"-*; do
+  if [ -d "$existing" ]; then
+    echo "$existing"
+    exit 0
+  fi
+done
+
+err_file=$(mktemp)
+trap 'rm -f "$err_file"' EXIT
+
+# The trackers' CLIs exit non-zero for both "not found" and "not configured",
+# so judge success by the title and show their stderr when it's missing.
+case "$tracker" in
+  jira)
+    title=$(jira issue view "$issue_id" --raw 2>"$err_file" \
+      | jq -r '.fields.summary // empty' 2>/dev/null) || true
+    ;;
+  linear)
+    command -v linearis >/dev/null \
+      || die "linearis not found on PATH; install a reviewed version: npm install -g linearis@<version>"
+    title=$(linearis issues read "$issue_id" 2>"$err_file" \
+      | jq -r '.title // empty' 2>/dev/null) || true
+    ;;
+esac
+
+if [ -z "$title" ]; then
+  cat "$err_file" >&2
+  die "could not fetch title for $tracker issue $issue_id"
+fi
+
+prompt="Turn this issue title into a short kebab-case slug for a directory name.
+Use 2 to 5 words. Reword freely, but keep what distinguishes this issue.
+Reply with the slug only, nothing else.
+
+Title: $title"
+
+slug=$(echo "$prompt" | claude -p --safe-mode --model haiku 2>"$err_file") || slug=""
+slug=$(to_kebab_case "$slug")
+
+if [ -z "$slug" ]; then
+  cat "$err_file" >&2
+  echo "warning: could not shorten title with claude; using the full title" >&2
+  slug=$(to_kebab_case "$title")
+fi
+
+[ -n "$slug" ] || die "title '$title' produced an empty slug"
+
+dir="$CLAUDE_DOCS_ROOT/$issue_id-$slug"
+mkdir -p "$dir"
+echo "$dir"
