@@ -77,10 +77,15 @@ Process only unchecked cycles in the selected phase, in order:
    Structural context. Inspect the named production and test code before editing.
 2. Write or extend one behavioral test, then run the narrowest command that proves
    RED. Confirm it fails for the expected reason, not from setup or syntax errors.
-3. If existing tests already establish the behavior, or no valid new check can be
-   made to fail because the behavior exists, run the scoped test to verify it. Undo
-   only a newly added passing check, mark the cycle's `Complete` checkbox, and
-   continue without an empty commit.
+3. If the test passes immediately, decide by the cycle's Expected failure category:
+   - When it states that no failure is expected (a regression guard or
+     characterization test), keep the test, skip step 4, and continue at step 5.
+     Never change production code to make such a test pass. If it fails, stop and
+     report that the plan's reading of current behavior is wrong.
+   - Otherwise, when existing tests already establish the behavior, or no valid new
+     check can be made to fail because the behavior exists, run the scoped test to
+     verify it. Undo only a newly added passing check, mark the cycle's `Complete`
+     checkbox, and continue without an empty commit.
 4. Otherwise, write the minimum production change for GREEN. Run the scoped tests
    and confirm all are green with no new warnings.
 5. Refactor only when useful, without adding behavior, and rerun the scoped tests.
