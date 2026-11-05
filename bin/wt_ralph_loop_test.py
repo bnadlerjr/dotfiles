@@ -29,29 +29,33 @@ def current_herdr_workspace(monkeypatch):
 
 
 def phase(number=1, issue="POPS-101", cycle="x", automated="x", done="x"):
-    return f"""### Phase {number}: Build thing {number}
+    return f"""## Phase {number}: {issue} Build thing {number}
 
-**Subtask**: {issue}, "Build thing {number}"
+### Pull Request Description
 
-#### Pull Request Description
+```markdown
+## {issue}
+
+### Context
 
 Build the thing.
+```
 
-#### TDD Cycles
+### TDD Cycles
 
-##### Cycle 1: It works
+#### Cycle 1: It works
 
 - [{cycle}] Complete
 
 **Behavior:** Given input, when run, then output.
 
-#### Automated Testing
+### Automated Testing
 
 - [{automated}] Unit: it works
 
 **Run:** `pytest`
 
-#### Done When
+### Done When
 
 - [{done}] The thing works
 """
@@ -73,7 +77,7 @@ def test_the_first_incomplete_phase_is_selected_in_document_order():
     assert (selected.number, selected.issue, selected.title) == (
         2,
         "POPS-102",
-        "Build thing 2",
+        "POPS-102 Build thing 2",
     )
 
 
@@ -87,21 +91,41 @@ def test_a_partially_complete_phase_remains_selected():
 
 def test_every_tdd_cycle_requires_its_own_completion_checkbox():
     second_cycle = (
-        """\n##### Cycle 2: Another behavior\n\n**Behavior:** Another behavior.\n"""
+        """\n#### Cycle 2: Another behavior\n\n**Behavior:** Another behavior.\n"""
     )
     text = phase().replace(
-        "#### Automated Testing", second_cycle + "\n#### Automated Testing"
+        "### Automated Testing", second_cycle + "\n### Automated Testing"
     )
 
     with pytest.raises(ralph.PlanError, match="Cycle 2.*completion checkbox"):
         ralph.parse_plan(text)
 
 
-def test_the_manually_processed_three_hash_nesting_is_accepted():
+def test_the_plan_feature_nesting_is_accepted():
     parsed = ralph.parse_plan("# Plan\n\n" + phase())
 
     assert len(parsed) == 1
     assert parsed[0].complete is True
+
+
+def steps_phase(step="x"):
+    return phase().replace(
+        "### TDD Cycles\n\n#### Cycle 1: It works",
+        f"### Steps\n\n#### Step 1: Change it\n\n- [{step}] Complete\n\n"
+        "#### Step 2: Change it again",
+    )
+
+
+def test_a_steps_phase_is_accepted_in_place_of_tdd_cycles():
+    parsed = ralph.parse_plan(steps_phase())
+
+    assert parsed[0].complete is True
+
+
+def test_an_incomplete_step_keeps_its_phase_incomplete():
+    parsed = ralph.parse_plan(steps_phase(step=" "))
+
+    assert parsed[0].complete is False
 
 
 def test_automated_testing_can_name_multiple_run_commands():
@@ -115,25 +139,25 @@ def test_automated_testing_can_name_multiple_run_commands():
 @pytest.mark.parametrize(
     ("text", "message"),
     [
-        (phase().replace('**Subtask**: POPS-101, "Build thing 1"\n\n', ""), "Subtask"),
         (
-            phase().replace(
-                '**Subtask**: POPS-101, "Build thing 1"',
-                "**Subtask**: POPS-101\n\n**Subtask**: POPS-102",
-            ),
-            "exactly one Subtask",
+            phase().replace("Phase 1: POPS-101 Build", "Phase 1: Build"),
+            "issue key",
         ),
         (
-            phase().replace("#### Pull Request Description", "#### Description"),
+            phase().replace("### Pull Request Description", "### Description"),
             "Pull Request Description",
         ),
-        (phase().replace("#### TDD Cycles", "#### Cycles"), "TDD Cycles"),
+        (phase().replace("### TDD Cycles", "### Cycles"), "TDD Cycles or Steps"),
         (
-            phase().replace("#### Automated Testing", "#### Tests"),
+            steps_phase().replace("### Steps", "### TDD Cycles\n\n### Steps"),
+            "exactly one of TDD Cycles or Steps",
+        ),
+        (
+            phase().replace("### Automated Testing", "### Tests"),
             "Automated Testing",
         ),
         (phase().replace("**Run:** `pytest`", ""), "Run"),
-        (phase().replace("#### Done When", "#### Finished"), "Done When"),
+        (phase().replace("### Done When", "### Finished"), "Done When"),
     ],
 )
 def test_missing_or_duplicate_contract_parts_are_rejected(text, message):
@@ -146,9 +170,9 @@ def test_a_malformed_completion_checkbox_is_rejected():
         ralph.parse_plan(phase(cycle="maybe"))
 
 
-def test_two_hash_phase_headings_are_rejected():
-    with pytest.raises(ralph.PlanError, match="expected '### Phase N:'"):
-        ralph.parse_plan(phase().replace("### Phase 1:", "## Phase 1:"))
+def test_three_hash_phase_headings_are_rejected():
+    with pytest.raises(ralph.PlanError, match="expected '## Phase N:'"):
+        ralph.parse_plan(phase().replace("## Phase 1:", "### Phase 1:"))
 
 
 def executable(path, content):
@@ -214,8 +238,8 @@ else:
 
 def complete_phase(plan_path, selected):
     text = plan_path.read_text()
-    start = text.index(f"### Phase {selected.number}:")
-    next_start = text.find("### Phase ", start + 1)
+    start = text.index(f"## Phase {selected.number}:")
+    next_start = text.find("\n## Phase ", start + 1)
     end = len(text) if next_start == -1 else next_start
     completed = text[start:end].replace("- [ ]", "- [x]")
     plan_path.write_text(text[:start] + completed + text[end:])
@@ -769,7 +793,7 @@ def test_help_documents_the_strict_stack_and_failure_contract():
     )
 
     assert "wt ralph-loop PLAN-FILE" in result.stdout
-    assert "### Phase N:" in result.stdout
+    assert "## Phase N:" in result.stdout
     assert "stack" in result.stdout
     assert "XDG_STATE_HOME" in result.stdout
     assert "preserved" in result.stdout

@@ -41,21 +41,26 @@ class Phase(NamedTuple):
     complete: bool
 
 
-PHASE_RE = re.compile(r"^### Phase (\d+):\s*(.+)$", re.MULTILINE)
-WRONG_PHASE_RE = re.compile(r"^## Phase \d+:", re.MULTILINE)
-SUBTASK_RE = re.compile(r"^\*\*Subtask\*\*:\s*([A-Z]+-\d+)\b.*$", re.MULTILINE)
+PHASE_RE = re.compile(r"^## Phase (\d+):\s*(.+)$", re.MULTILINE)
+WRONG_PHASE_RE = re.compile(r"^### Phase \d+:", re.MULTILINE)
+ISSUE_RE = re.compile(r"^([A-Z][A-Z0-9]*-\d+)\b")
 CHECKBOX_RE = re.compile(r"^- \[([ x])\]\s+.+$", re.MULTILINE)
 
 
-def section(body: str, phase_number: int, heading: str) -> str:
+def find_section(body: str, heading: str) -> str | None:
     match = re.search(
-        rf"^#### {re.escape(heading)}\s*$\n(.*?)(?=^#### |\Z)",
+        rf"^### {re.escape(heading)}\s*$\n(.*?)(?=^### |\Z)",
         body,
         re.MULTILINE | re.DOTALL,
     )
-    if match is None:
+    return None if match is None else match.group(1)
+
+
+def section(body: str, phase_number: int, heading: str) -> str:
+    text = find_section(body, heading)
+    if text is None:
         raise PlanError(f"Phase {phase_number} is missing {heading}")
-    return match.group(1)
+    return text
 
 
 def checkboxes(text: str, phase_number: int, heading: str) -> list[str]:
@@ -78,16 +83,28 @@ def checkboxes(text: str, phase_number: int, heading: str) -> list[str]:
 def parse_phase(match: re.Match[str], body: str) -> Phase:
     number = int(match.group(1))
     title = match.group(2).strip()
-    subtasks = SUBTASK_RE.findall(body)
-    if len(subtasks) != 1:
-        raise PlanError(f"Phase {number} must contain exactly one Subtask")
+    issue = ISSUE_RE.match(title)
+    if issue is None:
+        raise PlanError(f"Phase {number} title must start with an issue key")
 
     section(body, number, "Pull Request Description")
-    tdd = section(body, number, "TDD Cycles")
-    cycle_matches = list(re.finditer(r"^##### Cycle (\d+):\s*.+$", tdd, re.MULTILINE))
+    work = {
+        heading: text
+        for heading in ("TDD Cycles", "Steps")
+        if (text := find_section(body, heading)) is not None
+    }
+    if len(work) != 1:
+        found = "both" if work else "neither"
+        raise PlanError(
+            f"Phase {number} must contain exactly one of TDD Cycles or Steps; "
+            f"found {found}"
+        )
+    [(heading, tdd)] = work.items()
+    item = "Cycle" if heading == "TDD Cycles" else "Step"
+    cycle_matches = list(re.finditer(rf"^#### {item} (\d+):\s*.+$", tdd, re.MULTILINE))
     if not cycle_matches:
-        raise PlanError(f"Phase {number} has no cycles under TDD Cycles")
-    checkboxes(tdd, number, "TDD Cycles")
+        raise PlanError(f"Phase {number} has no {item.lower()}s under {heading}")
+    checkboxes(tdd, number, heading)
     states = []
     for index, cycle in enumerate(cycle_matches):
         end = (
@@ -102,7 +119,7 @@ def parse_phase(match: re.Match[str], body: str) -> Phase:
         )
         if len(cycle_states) != 1:
             raise PlanError(
-                f"Phase {number} Cycle {cycle.group(1)} must contain exactly one "
+                f"Phase {number} {item} {cycle.group(1)} must contain exactly one "
                 "completion checkbox"
             )
         states.extend(cycle_states)
@@ -115,16 +132,16 @@ def parse_phase(match: re.Match[str], body: str) -> Phase:
     done = section(body, number, "Done When")
     states.extend(checkboxes(done, number, "Done When"))
 
-    return Phase(number, title, subtasks[0], all(state == "x" for state in states))
+    return Phase(number, title, issue.group(1), all(state == "x" for state in states))
 
 
 def parse_plan(text: str) -> list[Phase]:
     if WRONG_PHASE_RE.search(text):
-        raise PlanError("invalid phase heading; expected '### Phase N:'")
+        raise PlanError("invalid phase heading; expected '## Phase N:'")
 
     matches = list(PHASE_RE.finditer(text))
     if not matches:
-        raise PlanError("plan has no '### Phase N:' sections")
+        raise PlanError("plan has no '## Phase N:' sections")
 
     phases = []
     for index, match in enumerate(matches):
@@ -459,7 +476,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "interactive Claude tabs in the current workspace. Run inside Herdr."
         ),
         epilog=(
-            "PLAN-FILE must use the manually processed '### Phase N:' format. "
+            "PLAN-FILE must use the plan-feature or plan-task '## Phase N:' "
+            "format, with each phase title starting with its issue key. "
             "The starting branch must already be registered in git machete. "
             "Each phase tab remains open after completion or failure. Run metadata "
             "is stored below ${XDG_STATE_HOME:-~/.local/state}/ralph-loop/runs. "
