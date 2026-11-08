@@ -148,7 +148,8 @@ fi
 # Create the worktree on the feature branch, based on the current branch.
 if [ -n "$plan_file" ]; then
   wt switch --create "$full_branch_name" --base "$base_branch" \
-    --execute claude -- --permission-mode auto "/implement-next-phase $plan_file"
+    --execute claude -- --permission-mode auto \
+    "Run /implement-next-phase $plan_file. If it succeeds, run /audit-tests with no arguments."
 else
   wt switch --create "$full_branch_name" --base "$base_branch"
 fi
