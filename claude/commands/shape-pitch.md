@@ -1,5 +1,5 @@
 ---
-description: Shape notes or an idea into a Shape Up pitch, review it in Plannotator.
+description: Shape notes or an idea into a Shape Up pitch, then run an interactive review loop.
 argument-hint: "[rough idea | path to draft | path to notes | empty for interactive]"
 ---
 
@@ -7,7 +7,7 @@ argument-hint: "[rough idea | path to draft | path to notes | empty for interact
 
 Shapes a raw idea, an existing draft, or a pile of notes into a Shape Up pitch.
 
-**How review works.** This command drives no browser. It emits each draft as a bare assistant message and stops. The user reviews that message with `/plannotator-last`, and the annotations come back into the session as feedback, which drives the next draft. The loop ends when the user approves. This note is for whoever opens this file. Do not repeat it to the user.
+**How review works.** Before the first user interaction, invoke the `running-human-review-loops` skill and use the transport it selects for the whole run. The command owns the shaping workflow; the skill owns Plannotator availability, fallback behavior, continuity, waiting, and feedback classification. This note is for whoever opens this file. Do not repeat it to the user.
 
 ## Rules
 
@@ -16,30 +16,32 @@ Shapes a raw idea, an existing draft, or a pile of notes into a Shape Up pitch.
 3. **Every rabbit hole carries a mitigation.** One of: decide now, spike first, or rule out. An unknown with no mitigation is logged, not addressed.
 4. **No-gos are specific.** "Not supporting bulk actions, single-item only" works. "Performance is out of scope" is a dodge.
 5. **Never ask a naked question.** Every question to the user, in the gate or in Open Questions, carries a committed recommendation and the reasoning behind it. A bare "what should we do about X?" pushes the work back onto the user.
-6. **A draft message contains the pitch and nothing else.** First character is the `#` of the title, last character is the end of the final no-go. No preamble, no sign-off, no explanation of the workflow.
+6. **A pitch message contains the pitch and nothing else.** First character is the `#` of the title. During review, the last character is the end of the final Open Question; after approval, it is the end of the final no-go. No preamble, review controls, sign-off, or workflow explanation.
+7. **The review channel is chosen once.** Follow `running-human-review-loops` for every question, draft, review round, closure, and final pitch. Do not mix its Inbox and native transports.
+8. **Review semantics stay here.** This command defines what to ask, what the choices mean, and how the pitch changes. Do not duplicate the skill's transport mechanics here.
 
 ## Phase 1. Classify the input
 
 Inspect `$ARGUMENTS`. It is raw text, a path to a draft, a path to notes, or empty.
 
-- **Empty.** Ask what the user has: a rough idea, a draft to tighten, or notes to distill. Wait.
+- **Empty.** Ask through the selected review channel what the user has: a rough idea, a draft to tighten, or notes to distill. Recommend rough idea as the lowest-commitment starting point. End the turn.
 - **Starts with `/`, `~`, or `./`.** A path. `Read` it, then route on content.
 - **Anything else.** A rough idea.
 
-For a path, route on whether the standard headers (Problem, Appetite, Solution, Rabbit Holes, No-gos) are present. Section headings resembling a pitch mean a draft. Transcript, bullet, or timeline form means notes. If it is still ambiguous, ask once and wait.
+For a path, route on whether the standard headers (Problem, Appetite, Solution, Rabbit Holes, No-gos) are present. Section headings resembling a pitch mean a draft. Transcript, bullet, or timeline form means notes. If it is still ambiguous, ask through the review channel whether it is a draft or notes, include your recommendation and reasoning, then end the turn.
 
 | Input | Route | Delta |
 |---|---|---|
 | Rough idea | Shape from scratch | Nothing extra |
-| Existing draft | Refine | Critique first against the self-check list at the bottom of this file. Present findings one line each. Preserve what already works |
-| Notes or transcript | Distill | Read in full, do not skim. Separate problems, proposed solutions, stated constraints, settled decisions, and open questions. If several pitchable threads exist, list them and ask which one. Do not invent rabbit holes or no-gos the notes do not support |
+| Existing draft | Refine | Critique first against the self-check list at the bottom of this file. Present the findings through the review channel, one line each, before the revised bare pitch. Preserve what already works |
+| Notes or transcript | Distill | Read in full, do not skim. Separate problems, proposed solutions, stated constraints, settled decisions, and open questions. If several pitchable threads exist, ask which one through the review channel, recommend the thread with the clearest concrete problem, then end the turn. Do not invent rabbit holes or no-gos the notes do not support |
 
 ## Phase 2. Gate on what is missing
 
-One `AskUserQuestion` call, asking only for what the input does not already supply. Skip the phase entirely when the input fixes both.
+Ask through the selected review channel only for what the input still requires. Skip the phase entirely when the input fixes both. End the turn after asking.
 
-- **Appetite.** Small batch (about 2 weeks) or big batch (about 6 weeks). Blocking. Appetite is the constraint every element is scoped against, so a draft written without it is wrong all the way down. Offer a recommended size based on how many elements the input implies.
-- **Concrete motivating case.** Ask only when the input names a category rather than an instance. A named person, a specific moment, and what broke.
+- **Appetite.** Offer choices in this order: small batch (about 2 weeks), big batch (about 6 weeks). Appetite is blocking because every element is scoped against it. Recommend a size based on how many elements the input implies, and explain why in 1-3 sentences.
+- **Concrete motivating case.** Ask only when the input names a category rather than an instance. Request a named person, a specific moment, and what broke. Recommend using the most recent real case the user observed, because a representative abstraction will hide the workaround and its cost.
 
 Everything else that is uncertain goes into the draft as an Open Question. Do not hold the draft hostage to it.
 
@@ -101,7 +103,7 @@ Inbox view
 
 > **Cross-repo PR aggregation.** Pulling PRs across multiple GitHub orgs makes token scoping complex and turns rate-limit coordination into its own project. **Addressed by ruling out**: v1 is single-org.
 
-Then append the review scaffold. It exists only while the pitch is under review.
+Then append the review scaffold. It exists only while the pitch is under review and remains part of the bare pitch message.
 
 ```markdown
 ## Open Questions
@@ -114,19 +116,28 @@ Each entry states a position the draft already commits to, so the user attacks a
 
 Rough proportions: Problem 2-4 paragraphs, Appetite 1 line, Solution 1-2 pages including any sketch, Rabbit Holes 3-7 items at 2-4 lines each, No-gos 3-8 bullets. Total 1-3 pages. Longer means it drifted into spec. Shorter usually means rabbit holes are hidden.
 
+Present the full draft through the selected review channel as an artifact-only draft. Add no review control or workflow commentary to the pitch itself.
+
 ## Phase 4. Review loop
 
-Emit the pitch as the whole message, per Rule 6, and stop the turn.
+Use these review dispositions. The Inbox transport renders them as a separate control after the draft; the native transport classifies the user's next response against them:
 
-When feedback returns to the session, branch on it.
+- **Revise from my feedback.** Apply the feedback and present the full pitch again.
+- **Approve the shape.** Retire the Open Questions scaffold and produce the final pitch.
+- **Stop shaping.** Close the session without another draft.
+
+Recommend **Approve the shape** only after the draft passes every self-check. If it does not pass, fix the draft before presenting it. Let `running-human-review-loops` render the choices for its selected transport and return the disposition plus all available feedback.
 
 | What returns | Action |
 |---|---|
-| Annotation feedback | Revise against it, re-emit the full pitch as a bare message, stop again. This is the loop |
-| Approved | Go to Phase 5 |
-| Dismissed | Say the session closed. Stop |
+| Revision with actionable feedback | Apply all compatible feedback, resolve conflicts explicitly in the pitch, present the full revised pitch, then request disposition again |
+| Revision without actionable feedback | Ask through the review channel what should change. State the draft's riskiest current assumption as the recommended place to focus, then end the turn |
+| Approval with no shape-changing feedback | Incorporate any compatible wording clarification, then go to Phase 5 |
+| Approval with feedback that changes scope, appetite, elements, rabbit-hole mitigation, or no-gos | Revise the pitch and run another review round, because the approved shape would otherwise differ from the final pitch |
+| Stop | Close briefly through the selected review channel and stop |
+| No answer | Wait on the selected review channel. Do not infer consent or duplicate the request elsewhere |
 
-There is no round cap. Every round ends the turn, so the user sets the pace and the exit.
+There is no round cap. Every round that waits on the user ends the turn, so the user sets the pace and the exit.
 
 ## Phase 5. Retire the scaffold
 
@@ -136,7 +147,7 @@ Fold every entry the user did not answer into Rabbit Holes rather than dropping 
 
 > **Cross-tenant access.** Unclear whether archiving crosses tenant boundaries. **Addressed by deciding now**: single-tenant only in v1.
 
-Then delete the `## Open Questions` heading and emit the pitch one last time as a bare message. Stop there.
+Then delete the `## Open Questions` heading and deliver the pitch one last time as an artifact-only message through the selected review channel. Do not request another disposition. Stop there.
 
 ## Self-check
 
@@ -149,5 +160,9 @@ Run before emitting any draft.
 - The Problem names a person and a moment, not a category
 - The Solution's first paragraph addresses the Problem's first paragraph
 - The elements fit the appetite. If not, cut scope or change appetite. Do not split the difference
+- The `running-human-review-loops` skill selected one transport before the first user interaction
+- Every user decision has context, naturally ordered choices, and a committed recommendation
+- The pitch body contains no workflow commentary
+- No decision or draft review is duplicated across transports
 
-On the Phase 5 emit, add one more: no `## Open Questions` section remains.
+On the Phase 5 delivery, add two more: no `## Open Questions` section remains, and no disposition request follows the final pitch.
