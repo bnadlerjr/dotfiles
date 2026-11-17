@@ -1,0 +1,146 @@
+#!/bin/bash
+
+# Save a document read on stdin into an artifact directory, with frontmatter
+# built from the environment so every artifact carries the same fields.
+#
+# The directory must be a ticket directory (<ISSUE-ID>-<slug>, from
+# `artifact-dir <issue-id>`) or a dated one (YYYY-MM-DD-<slug>, from
+# `artifact-dir --describe`). The file is <ISSUE-ID>-<type>.md or
+# <slug>-<type>.md, with -<qualifier> appended when given. Project, ProjectSlug
+# and Area come from the projects.yaml entry listing the current git repo;
+# pass --project when several entries list it. Re-saving replaces the body
+# and keeps Created. The path goes to stdout; diagnostics go to stderr.
+#
+# Usage:
+#   artifact-save "$(artifact-dir POPS-1321)" design < design.md
+#   artifact-save <dir> plan --qualifier kong-fu --project emr-automations < plan.md
+
+set -eu
+
+CLAUDE_DOCS_ROOT="${CLAUDE_DOCS_ROOT:-$HOME/Dropbox/vimwiki/claude-artifacts}"
+PROJECTS_FILE="$CLAUDE_DOCS_ROOT/projects.yaml"
+
+die() { echo "error: $1" >&2; exit 1; }
+
+usage="usage: artifact-save <dir> <type> [--qualifier <name>] [--project <slug>] < document"
+
+name_pattern='^[a-z0-9]+(-[a-z0-9]+)*$'
+
+qualifier=""
+project=""
+args=()
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help) echo "$usage"; exit 0 ;;
+    --qualifier) [ $# -ge 2 ] || die "$usage"; qualifier="$2"; shift 2 ;;
+    --project) [ $# -ge 2 ] || die "$usage"; project="$2"; shift 2 ;;
+    -*) die "unknown option: $1" ;;
+    *) args+=("$1"); shift ;;
+  esac
+done
+
+[ ${#args[@]} -eq 2 ] || die "$usage"
+dir="${args[0]}"
+type="${args[1]}"
+
+[ -d "$CLAUDE_DOCS_ROOT" ] || die "CLAUDE_DOCS_ROOT does not exist: $CLAUDE_DOCS_ROOT"
+[ -f "$PROJECTS_FILE" ] || die "projects file does not exist: $PROJECTS_FILE"
+[ -d "$dir" ] || die "directory does not exist: $dir"
+
+dir=$(cd "$dir" && pwd)
+root=$(cd "$CLAUDE_DOCS_ROOT" && pwd)
+[ "$(dirname "$dir")" = "$root" ] || die "$dir is not directly under $root"
+
+echo "$type" | grep -qE "$name_pattern" || die "invalid type '$type' (expected kebab-case)"
+[ -z "$qualifier" ] || echo "$qualifier" | grep -qE "$name_pattern" \
+  || die "invalid qualifier '$qualifier' (expected kebab-case)"
+
+# The directory name is the key: an issue ID, or the slug after the date.
+dir_name=$(basename "$dir")
+issue_id=$(echo "$dir_name" | sed -nE 's/^([A-Z]+-[0-9]+)(-.*)?$/\1/p')
+if [ -n "$issue_id" ]; then
+  key="$issue_id"
+else
+  key=$(echo "$dir_name" | sed -nE 's/^[0-9]{4}-[0-9]{2}-[0-9]{2}-(.+)$/\1/p')
+  [ -n "$key" ] || die "'$dir_name' is neither <ISSUE-ID>-<slug> nor YYYY-MM-DD-<slug>"
+fi
+
+file="$dir/$key-$type${qualifier:+-$qualifier}.md"
+
+remote=$(git remote get-url origin 2>/dev/null) || die "no git remote 'origin' in $(pwd)"
+repo=$(echo "$remote" | sed -E 's#\.git$##; s#^.*[:/]([^/:]+/[^/]+)$#\1#')
+echo "$repo" | grep -qE '^[^/]+/[^/]+$' || die "could not read owner/repo from remote '$remote'"
+
+# Prints "<slug>\t<name>\t<area>|<area>..." for the chosen project.
+project_line=$(ruby -ryaml -e '
+  file, repo, wanted = ARGV
+  projects = YAML.load_file(file).fetch("projects")
+  if wanted.empty?
+    matches = projects.select { |_, p| Array(p["repositories"]).include?(repo) }
+    abort "error: no project in #{file} lists #{repo}; add one or pass --project" if matches.empty?
+    abort "error: several projects list #{repo}: #{matches.keys.join(", ")}; pass --project" if matches.size > 1
+    slug, p = matches.first
+  else
+    p = projects[wanted] or abort "error: no project #{wanted} in #{file}"
+    slug = wanted
+  end
+  puts [slug, p.fetch("name"), Array(p.fetch("area")).join("|")].join("\t")
+' "$PROJECTS_FILE" "$repo" "$project") || exit 1
+
+project_slug=$(echo "$project_line" | cut -f1)
+project_name=$(echo "$project_line" | cut -f2)
+areas=$(echo "$project_line" | cut -f3)
+
+epic=""
+if [ -n "$issue_id" ]; then
+  if raw=$(jira issue view "$issue_id" --raw 2>/dev/null); then
+    epic=$(echo "$raw" | jq -r '.fields.parent.key // empty')
+  else
+    echo "warning: could not read $issue_id from jira; JiraEpic left out" >&2
+  fi
+fi
+
+body=$(cat)
+# Drop any frontmatter the document arrived with; this script owns it.
+if [ "$(printf '%s\n' "$body" | head -n 1)" = "---" ]; then
+  body=$(printf '%s\n' "$body" | awk 'done { print; next } NR > 1 && /^---$/ { done = 1 }')
+fi
+[ -n "$(printf '%s' "$body" | tr -d '[:space:]')" ] || die "document on stdin is empty"
+
+today=$(date +%F)
+created="Created: \"[[$today]]\""
+if [ -f "$file" ]; then
+  previous=$(awk 'NR == 1 && /^---$/ { in_fm = 1; next } in_fm && /^---$/ { exit } in_fm && /^Created:/ { print; exit }' "$file")
+  [ -z "$previous" ] || created="$previous"
+  echo "replaced $file" >&2
+fi
+
+tmp=$(mktemp "$dir/.artifact-save.XXXXXX")
+trap 'rm -f "$tmp"' EXIT
+
+{
+  echo "---"
+  echo "tags:"
+  echo "  - claude-artifact"
+  echo "  - resource"
+  echo "  - $type"
+  echo "Area:"
+  echo "$areas" | tr '|' '\n' | sed 's/^/  - /'
+  echo "$created"
+  echo "Modified: $today"
+  echo "AutoNoteMover: disable"
+  echo "Project: \"[[$project_name]]\""
+  echo "ProjectSlug: $project_slug"
+  [ -z "$epic" ] || echo "JiraEpic: $epic"
+  [ -z "$issue_id" ] || echo "JiraIssue: $issue_id"
+  echo "Status: Active"
+  echo "Repositories:"
+  echo "  - $repo"
+  echo "---"
+  printf '%s\n' "$body"
+} > "$tmp"
+
+chmod 644 "$tmp"
+mv "$tmp" "$file"
+echo "$file"
