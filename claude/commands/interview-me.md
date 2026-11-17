@@ -9,6 +9,8 @@ You interview a human until the two of you share one understanding of what is ab
 
 A design settled during implementation is a design nobody reviewed. This command puts every decision in front of the human before any code exists. You hold a design tree, you work it in rounds, the human answers, and the run ends with one document recording what was decided and why.
 
+**How review works.** Before the first user interaction, invoke the `running-human-review-loops` skill and use the transport it selects for the whole run. This command owns the design interview; the skill owns Plannotator availability, fallback behavior, continuity, waiting, unanswered-question persistence, and feedback classification. This note is for whoever opens this file. Do not repeat it to the user.
+
 Say what you think. Everything you believe, everything you found, and everything you are unsure about goes into the rounds, so the human can operate on your understanding while it is still cheap to change. Do not hide a doubt, and do not settle a fork on your own.
 
 ## Rules
@@ -17,7 +19,7 @@ Say what you think. Everything you believe, everything you found, and everything
 
 2. **Never ask the human for a fact.** Facts are your job. If the ticket, the research, or the repository answers it, look it up. The human is asked for intent, judgment, priorities, and undocumented context — nothing the environment can tell you.
 
-3. **Silence settles nothing.** A round that comes back with no annotations is an approval with nothing written on it. It is not agreement with your recommendations. Re-emit the round and say the answers are still needed. The same holds inside a round: a question no note touched is unanswered, and nobody but you can see what was skipped.
+3. **Silence settles nothing.** A round that returns with no answered questions settles nothing. It is not agreement with your recommendations. Keep every unanswered question open through the selected transport; the skill decides whether that means an open Inbox question or a native re-prompt. Never duplicate an Inbox question. The same holds inside a round: a question no answer touched remains unanswered.
 
 4. **Every belief is a claim on the page.** Anything you already think — from the inputs, from a file you read, from a research brief that came back — is stated where the human can cut into it. Annotations attach to lines, so a claim costs no question and is directly correctable. A belief you never state is an assumption, and completion forbids those.
 
@@ -25,11 +27,15 @@ Say what you think. Everything you believe, everything you found, and everything
 
 6. **A round message contains the round and nothing else.** First character is the `#` of the round's first heading, last character is the end of the final question or the final line of the document. No preamble, no sign-off, no explanation of the workflow.
 
+7. **The review channel is chosen once.** Follow `running-human-review-loops` for every question round, document review, closure, and final design. Do not mix its Inbox and native transports.
+
+8. **Review semantics stay here.** This command defines the design tree, question meaning, completion gates, and approval effects. Do not duplicate the skill's transport mechanics here.
+
 ## Phase 1. Classify the input
 
 Inspect `$ARGUMENTS`. It is a rough idea, a ticket pasted as prose, one or more paths, or empty.
 
-- **Empty.** Ask what the work is: a ticket, an idea, or research already done. Wait.
+- **Empty.** Ask through the selected review channel what the work is: a ticket, an idea, or research already done. Recommend the least interpreted source available, because it preserves the most original context. End the turn.
 - **Starts with `/`, `~`, or `./`.** One or more paths. `Read` all of them in full, then route on content.
 - **Anything else.** The ticket or idea itself, as data.
 
@@ -135,18 +141,19 @@ The `❓` and `➡️` markers are functional, not decorative — they make the 
 
 ## Phase 4. Later rounds
 
-Emit the round as the whole message, per Rule 6, and stop the turn.
+Present the round through the selected review channel. Keep the round payload pure, per Rule 6; let the skill adapt its questions to the selected transport. End the turn.
 
 When feedback returns to the session, branch on it.
 
 | What returns | Action |
 |---|---|
-| Annotations on a question round | Match every note to the question or claim it quotes. Then read your round again and re-ask every question no note touched. Recompute the frontier, emit the next round, stop |
-| Approved with nothing written on it | Nothing is settled. Re-emit the same round unchanged, with one line saying those answers are still needed. Do not read the silence as agreement with your recommendations, and do not advance the frontier |
-| A request to re-emit the current round | A resumed session. Send the round you were on again. Ask nothing new and settle nothing |
-| Approved, on the design document | Write the document's Glossary terms to `GLOSSARY.md` and every ADR the human accepted, then the run is done. Stop |
-| Annotations on the design document | See Phase 5 |
-| Dismissed | Say the session closed. Stop |
+| Feedback on a question round | Match every note and answer to the question or claim it quotes. Keep every untouched question open through the selected transport, recompute the frontier from settled answers, present the next round when one exists, and stop |
+| No answered questions | Nothing is settled. Leave the questions open through the selected transport and wait. Do not read silence as agreement with your recommendations or duplicate Inbox questions |
+| A request to re-present the current round | A resumed session. Present the round you were on again through the selected review channel. Ask nothing new and settle nothing |
+| Approval, on the design document | Write the document's Glossary terms to `GLOSSARY.md` and every ADR the human accepted, then the run is done. Stop |
+| Revision feedback on the design document | See Phase 5 |
+| Stop | Close briefly through the selected review channel and stop |
+| No answer | Wait on the selected review channel. Do not infer consent or duplicate the request elsewhere |
 
 There is no round cap. Every round ends the turn, so the user sets the pace and the exit.
 
@@ -169,7 +176,15 @@ Before you emit the document, all four of these must hold:
 
 If any one of them fails, you are still asking. Do not emit the document to end a long interview. It ends when the tree is exhausted, not when you are.
 
-When all four hold, emit the document as the whole message and stop. About 200 lines. It records decisions, not a plan — phases, file-by-file changes, and test code belong to the step that follows this one.
+When all four hold, present the document through the selected review channel as an artifact-only draft. About 200 lines. It records decisions, not a plan — phases, file-by-file changes, and test code belong to the step that follows this one.
+
+Use these review dispositions. The Inbox transport renders them as a separate control after the document; the native transport classifies the user's next response against them:
+
+- **Revise from my feedback.** Apply feedback that records settled decisions more accurately, or return to question rounds when it reopens a fork.
+- **Approve the design.** Complete the run and perform the approved glossary and ADR writes.
+- **Stop the interview.** Close the session without changing files.
+
+Recommend **Approve the design** only after all completion gates and document self-checks pass. Let `running-human-review-loops` render the choices for its selected transport and return the disposition plus all available feedback.
 
 ```markdown
 # Design: <feature name>
@@ -221,10 +236,12 @@ When all four hold, emit the document as the whole message and stop. About 200 l
 
 Record every decision the interview settled, the ones the human took against your recommendation included. A decision missing from this list was not settled — it was assumed.
 
-**After the document goes out.** The human approves it, annotates it, or dismisses the run.
+**After the document goes out.** Process the disposition returned by the selected review channel.
 
-- If a note can be settled by changing the document — a wrong reference, a decision recorded loosely, a missing risk — apply it and emit the document again.
-- If a note opens a decision, the frontier was not empty after all. Return to asking, put the new question to the human per the Phase 3 format, and say which part of the document is now provisional.
+- If feedback can be settled by changing the document — a wrong reference, a decision recorded loosely, a missing risk — apply it and present the complete document again, then request disposition again.
+- If feedback opens a decision, the frontier was not empty after all. Return to asking through the selected review channel, put the new question to the human per the Phase 3 format, and say which part of the document is now provisional.
+- If approval includes design-changing feedback, revise and request approval again.
+- If the user stops, close briefly through the selected review channel and stop.
 
 ## Self-check
 
@@ -234,13 +251,15 @@ Run before emitting any round.
 - Every question carries a committed recommendation, and a close call says it is close
 - Nothing in the round asks for a fact the ticket, the research, or the repository answers
 - Every question whose prerequisites are unsettled was held back for a later round
-- Every question from the last round is either settled by a note or re-asked here
+- Every question from the last round is either settled or remains open through the selected transport
 - No settled question is re-emitted
 - Every belief formed this round is stated as a claim, not carried silently
 - Every term that conflicts with the glossary, or could mean two things, is a question, and every term settled since the last round is stated as a claim
 - No file was written during the round
 - Questions are numbered continuously, and no number was reused
 - One question per block, with a blank line between them
-- The message contains the round and nothing else
+- The `running-human-review-loops` skill selected one transport before the first user interaction
+- The round contains no workflow commentary
+- No decision or document review is duplicated across transports
 
-Before emitting the design document, add: all four completion gates hold, every settled decision appears in Design decisions with its rejected alternative, every settled term appears in Glossary terms, and no implementation phases, file-by-file changes, or test code are in it.
+Before presenting the design document, add: all four completion gates hold, every settled decision appears in Design decisions with its rejected alternative, every settled term appears in Glossary terms, no implementation phases, file-by-file changes, or test code are in it, and the disposition request is separate from the document.

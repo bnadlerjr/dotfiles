@@ -7,7 +7,7 @@ argument-hint: "[epic description]"
 
 Turns an epic into an ordered backlog of vertical, sprint-sized stories, each grounded in what users can already see or do. Every story is later refinable into a full BDD spec on its own.
 
-**How review works.** This command drives no browser. It emits each draft as a bare assistant message and stops. The user reviews that message with `/annotate-last`, and the annotations come back into the session as feedback, which drives the next draft. The loop ends when the user approves. This note is for whoever opens this file. Do not repeat it to the user.
+**How review works.** Before the first user interaction, invoke the `running-human-review-loops` skill and use the transport it selects for the whole run. This command owns epic decomposition; the skill owns Plannotator availability, fallback behavior, continuity, waiting, and feedback classification. This note is for whoever opens this file. Do not repeat it to the user.
 
 ## Rules
 
@@ -51,11 +51,15 @@ Most over-decomposition comes from confusing these. An item sized in minutes-to-
 
 8. **A draft message contains the backlog and nothing else.** First character is the `#` of the title, last character is the end of the final Open Question. No preamble, no sign-off, no explanation of the workflow.
 
+9. **The review channel is chosen once.** Follow `running-human-review-loops` for every question, draft, review round, closure, and final backlog. Do not mix its Inbox and native transports.
+
+10. **Review semantics stay here.** This command defines what to ask, what approval means, and how the backlog changes. Do not duplicate the skill's transport mechanics here.
+
 ## Phase 1. Read the epic
 
 `$ARGUMENTS` is the epic. It is prose, not a reference to fetch: no tracker lookup, no file path routing.
 
-If it is empty, ask what the epic covers and wait. Do not research an epic you do not have.
+If it is empty, ask through the selected review channel what the epic covers. Recommend describing the user-visible behavior that spans several sprint-sized stories. End the turn. Do not research an epic you do not have.
 
 Otherwise read it and settle three things for yourself: the epic's title, what it changes from the user's point of view, and the vocabulary it uses for the domain. Do not emit this reading as a message. Phase 3's Grounding section is where the user sees your reading of the epic and corrects it.
 
@@ -182,17 +186,26 @@ Each Open Question states a position the draft already takes, so the user attack
 
 ## Phase 4. Review loop
 
-Emit the draft as the whole message, per Rule 8, and stop the turn.
+Present the full backlog through the selected review channel as an artifact-only draft. Add no review control or workflow commentary to the backlog itself.
 
-When feedback returns to the session, branch on it.
+Use these review dispositions. The Inbox transport renders them as a separate control after the draft; the native transport classifies the user's next response against them:
+
+- **Revise from my feedback.** Apply the feedback and present the full backlog again.
+- **Approve the backlog.** Retire the Open Questions scaffold and produce the final backlog.
+- **Stop decomposing.** Close the session without another draft.
+
+Recommend **Approve the backlog** only after the draft passes every self-check. Let `running-human-review-loops` render the choices for its selected transport and return the disposition plus all available feedback.
 
 | What returns | Action |
 |---|---|
-| Annotation feedback | Revise against it, re-emit the full backlog as a bare message, stop again. This is the loop |
-| Approved | Go to Phase 5 |
-| Dismissed | Say the session closed. Stop |
+| Revision with actionable feedback | Revise against it, present the full backlog again through the selected review channel, then request disposition again |
+| Revision without actionable feedback | Ask through the review channel what should change. State the backlog's riskiest current assumption as the recommended place to focus, then end the turn |
+| Approval with no backlog-changing feedback | Go to Phase 5 |
+| Approval with feedback that changes story boundaries, ordering, vocabulary, or scope | Revise the backlog and run another review round |
+| Stop | Close briefly through the selected review channel and stop |
+| No answer | Wait on the selected review channel. Do not infer consent or duplicate the request elsewhere |
 
-There is no round cap. Every round ends the turn, so the user sets the pace and the exit.
+There is no round cap. Every round that waits on the user ends the turn, so the user sets the pace and the exit.
 
 When annotations across rounds contradict each other — stories too big, then too small, then reordered back — stop absorbing it silently. The epic itself may be too broad. Put that in the next draft's Open Questions with a committed recommendation, per Rule 7.
 
@@ -202,7 +215,7 @@ When annotations across rounds contradict each other — stories too big, then t
 
 Fold each unresolved question into the one story it blocks, as an `Unresolved:` line under that story. It then travels with the story when the story becomes a ticket, which is the only place it stays useful. Keep a backlog-wide item at the bottom only when it truly blocks the whole backlog rather than one story.
 
-Then delete the `## Open Questions` heading and emit the backlog one last time as a bare message. Stop there.
+Then delete the `## Open Questions` heading and deliver the backlog one last time as an artifact-only message through the selected review channel. Do not request another disposition. Stop there.
 
 ## Self-check
 
@@ -215,6 +228,8 @@ Run before emitting any draft.
 - Every cross-story reference is a quoted title
 - The count is 4-8, or the deviation is stated as a sizing signal
 - Every Open Question carries a committed recommendation
-- The message contains the backlog and nothing else
+- The `running-human-review-loops` skill selected one transport before the first user interaction
+- The backlog body contains no workflow commentary
+- No decision or draft review is duplicated across transports
 
-On the Phase 5 emit, add one more: no `## Open Questions` section remains.
+On the Phase 5 delivery, add two more: no `## Open Questions` section remains, and no disposition request follows the final backlog.

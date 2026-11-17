@@ -7,6 +7,8 @@ argument-hint: "[story overview | empty for interactive]"
 
 Turns a story overview into a full behavior-focused story: a narrative a stakeholder can read, and Given-When-Then criteria a developer can write tests from without asking a follow-up question.
 
+**How review works.** Before the first user interaction, invoke the `running-human-review-loops` skill and use the transport it selects for the whole run. This command owns story refinement; the skill owns Plannotator availability, fallback behavior, continuity, waiting, and feedback classification. This note is for whoever opens this file. Do not repeat it to the user.
+
 ## Rules
 
 1. **Story altitude is fixed.** One coherent demoable behavior, roughly 1-3 days of work, described by what a user can see or do. The units either side belong elsewhere: several behaviors at once is an epic, which is a higher-altitude unit, and work with no user-visible change is a technical task. This command refines exactly one story.
@@ -48,19 +50,23 @@ Turns a story overview into a full behavior-focused story: a narrative a stakeho
 
 9. **A draft message contains the story and nothing else.** First character is the `#` of the story title, last character is the end of the final Open Question. No preamble, no sign-off, no explanation of the workflow.
 
+10. **The review channel is chosen once.** Follow `running-human-review-loops` for every question, draft, review round, closure, and final story. Do not mix its Inbox and native transports.
+
+11. **Review semantics stay here.** This command defines what to ask, what approval means, and how the story changes. Do not duplicate the skill's transport mechanics here.
+
 ## Phase 1. Read the overview
 
 `$ARGUMENTS` is the story overview. It is prose, not a reference to fetch: no tracker lookup, no file path routing. Issue context arrives by being pasted in.
 
-If it is empty, ask what the story covers and wait.
+If it is empty, ask through the selected review channel what the story covers. Recommend starting with one coherent user-visible behavior, because broader input belongs in an epic. End the turn.
 
 Otherwise check altitude before anything else, because two of these produce the wrong artifact entirely rather than a weaker one:
 
 | What you were handed | Action |
 |---|---|
-| Several behaviors, weeks of work | Say it is epic-sized, name the behaviors you can see, and stop. Do not draft |
-| No user-visible change — a refactor, migration, dependency bump, test work | Apply Farley once: "inside every technical story there is a user value trying to escape." If a user value surfaces, draft that story instead. If none does, stop |
-| Sized in minutes-to-hours, or one increment of a larger behavior | Say it merges up, name the behavior it belongs inside, and wait |
+| Several behaviors, weeks of work | Say through the selected review channel that it is epic-sized, name the behaviors you can see, and stop. Do not draft |
+| No user-visible change — a refactor, migration, dependency bump, test work | Apply Farley once: "inside every technical story there is a user value trying to escape." If a user value surfaces, draft that story instead. If none does, close briefly through the selected review channel and stop |
+| Sized in minutes-to-hours, or one increment of a larger behavior | Say through the selected review channel that it merges up, name the behavior it belongs inside, and wait for a revised overview |
 
 Then settle three things for yourself: the story's title, the actor and the situation they are in, and the vocabulary the overview uses. Do not emit this reading as a message. The draft is where the user sees your reading and corrects it.
 
@@ -204,17 +210,26 @@ Rough proportions: narrative 2-4 sentences, Context 1-2 lines, typically 3-6 sce
 
 ## Phase 4. Review loop
 
-Emit the story as the whole message, per Rule 9, and stop the turn.
+Present the full story through the selected review channel as an artifact-only draft. Add no review control or workflow commentary to the story itself.
 
-When feedback returns to the session, branch on it.
+Use these review dispositions. The Inbox transport renders them as a separate control after the draft; the native transport classifies the user's next response against them:
+
+- **Revise from my feedback.** Apply the feedback and present the full story again.
+- **Approve the story.** Retire the Open Questions scaffold and produce the final story.
+- **Stop refining.** Close the session without another draft.
+
+Recommend **Approve the story** only after the draft passes every self-check. Let `running-human-review-loops` render the choices for its selected transport and return the disposition plus all available feedback.
 
 | What returns | Action |
 |---|---|
-| Annotation feedback | Revise against it, re-emit the full story as a bare message, stop again. This is the loop |
-| Approved | Go to Phase 5 |
-| Dismissed | Say the session closed. Stop |
+| Revision with actionable feedback | Revise against it, present the full story again through the selected review channel, then request disposition again |
+| Revision without actionable feedback | Ask through the review channel what should change. State the story's riskiest current assumption as the recommended place to focus, then end the turn |
+| Approval with no story-changing feedback | Go to Phase 5 |
+| Approval with feedback that changes the narrative, criteria, vocabulary, or scope | Revise the story and run another review round |
+| Stop | Close briefly through the selected review channel and stop |
+| No answer | Wait on the selected review channel. Do not infer consent or duplicate the request elsewhere |
 
-There is no round cap. Every round ends the turn, so the user sets the pace and the exit.
+There is no round cap. Every round that waits on the user ends the turn, so the user sets the pace and the exit.
 
 When annotations across rounds contradict each other — criteria too thin, then too many, then back — stop absorbing it silently. The story is probably two stories. Put that in the next draft's Open Questions with a committed recommendation, per Rule 8.
 
@@ -233,7 +248,7 @@ Then polish the prose, and only the prose. Run the narrative paragraph and the C
 
 If the polish changes what a sentence means, keep the approved wording — the user approved that text, not a rewrite of it. If `writing-for-humans` is unavailable, skip the polish and say "readability polish deferred".
 
-Then delete the `## Open Questions` heading and emit the story one last time as a bare message. Stop there.
+Then delete the `## Open Questions` heading and deliver the story one last time as an artifact-only message through the selected review channel. Do not request another disposition. Stop there.
 
 ## Self-check
 
@@ -248,6 +263,8 @@ Run before emitting any draft.
 - Every scenario carries its own Given and needs no other scenario first
 - Scenario count is 3-6, or the deviation is stated as a splitting signal
 - Every Open Question carries a committed recommendation
-- The message contains the story and nothing else
+- The `running-human-review-loops` skill selected one transport before the first user interaction
+- The story body contains no workflow commentary
+- No decision or draft review is duplicated across transports
 
-On the Phase 5 emit, add two more: no `## Open Questions` section remains, and the acceptance criteria are byte-identical to the approved draft.
+On the Phase 5 delivery, add three more: no `## Open Questions` section remains, the acceptance criteria are byte-identical to the approved draft, and no disposition request follows the final story.

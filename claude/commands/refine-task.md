@@ -7,6 +7,8 @@ argument-hint: "[task overview | empty for interactive]"
 
 Turns a task overview into an implementation task: a narrative and approach that name the real code being changed, and a Done-when checklist an engineer can verify without asking a follow-up question. It stops at the approach. Ordering the edits belongs to downstream planning.
 
+**How review works.** Before the first user interaction, invoke the `running-human-review-loops` skill and use the transport it selects for the whole run. This command owns task refinement; the skill owns Plannotator availability, fallback behavior, continuity, waiting, and feedback classification. This note is for whoever opens this file. Do not repeat it to the user.
+
 ## Rules
 
 1. **Task altitude is fixed.** One change that lands and reverts as a unit. Work a user can see or do is a story and belongs in a different workflow. Several changes with different risk profiles are several tasks — a dependency bump and an architectural refactor fail and revert independently, so they never share a task.
@@ -44,18 +46,22 @@ Turns a task overview into an implementation task: a narrative and approach that
 
 11. **A draft message contains the task and nothing else.** First character is the `#` of the task title, last character is the end of the final Open Question. No preamble, no sign-off, no explanation of the workflow.
 
+12. **The review channel is chosen once.** Follow `running-human-review-loops` for every question, draft, review round, closure, and final task. Do not mix its Inbox and native transports.
+
+13. **Review semantics stay here.** This command defines what to ask, what approval means, and how the task changes. Do not duplicate the skill's transport mechanics here.
+
 ## Phase 1. Read the overview
 
 `$ARGUMENTS` is the task overview. It is prose, not a reference to fetch: no tracker lookup, no file path routing. Ticket context and spec links arrive by being pasted in.
 
-If it is empty, ask what the work covers and wait.
+If it is empty, ask through the selected review channel what the work covers. Recommend starting with one technical change that lands and reverts as a unit. End the turn.
 
 Otherwise triage before drafting:
 
 | What you were handed | Action |
 |---|---|
-| A **user** can see or do something different | Say it is a story, name the user-observable behavior, and stop. Where both exist, offer the split: a behavior-preserving task plus a separate story |
-| Several changes with different risk profiles, or many unrelated modules | Say it is oversized, name the split by seam, and wait |
+| A **user** can see or do something different | Say through the selected review channel that it is a story, name the user-observable behavior, and stop. Where both exist, offer the split: a behavior-preserving task plus a separate story |
+| Several changes with different risk profiles, or many unrelated modules | Say through the selected review channel that it is oversized, name the split by seam, and wait for a narrower overview |
 | Performance work or a data migration | Commit to the closest type, draft it, and log the mismatch as an Open Question — the checklist rules fit, but the type table below was not built for these |
 | Anything else | Stays here |
 
@@ -269,17 +275,26 @@ Rough proportions: narrative 2-4 sentences, Approach one paragraph of 3-6 senten
 
 ## Phase 4. Review loop
 
-Emit the task as the whole message, per Rule 11, and stop the turn.
+Present the full task through the selected review channel as an artifact-only draft. Add no review control or workflow commentary to the task itself.
 
-When feedback returns to the session, branch on it.
+Use these review dispositions. The Inbox transport renders them as a separate control after the draft; the native transport classifies the user's next response against them:
+
+- **Revise from my feedback.** Apply the feedback and present the full task again.
+- **Approve the task.** Retire the Open Questions scaffold and produce the final task.
+- **Stop refining.** Close the session without another draft.
+
+Recommend **Approve the task** only after the draft passes every self-check. Let `running-human-review-loops` render the choices for its selected transport and return the disposition plus all available feedback.
 
 | What returns | Action |
 |---|---|
-| Annotation feedback | Revise against it, re-emit the full task as a bare message, stop again. This is the loop |
-| Approved | Go to Phase 5 |
-| Dismissed | Say the session closed. Stop |
+| Revision with actionable feedback | Revise against it, present the full task again through the selected review channel, then request disposition again |
+| Revision without actionable feedback | Ask through the review channel what should change. State the task's riskiest current assumption as the recommended place to focus, then end the turn |
+| Approval with no task-changing feedback | Go to Phase 5 |
+| Approval with feedback that changes the approach, checklist, vocabulary, or scope | Revise the task and run another review round |
+| Stop | Close briefly through the selected review channel and stop |
+| No answer | Wait on the selected review channel. Do not infer consent or duplicate the request elsewhere |
 
-There is no round cap. Every round ends the turn, so the user sets the pace and the exit.
+There is no round cap. Every round that waits on the user ends the turn, so the user sets the pace and the exit.
 
 When annotations across rounds contradict each other — checklist too thin, then too long, then back — stop absorbing it silently. The task is probably two tasks. Put that in the next draft's Open Questions with a committed recommendation, per Rule 10.
 
@@ -298,7 +313,7 @@ Then polish the prose, and only the prose. Run the narrative and the Approach pa
 
 If the polish changes what a sentence means, keep the approved wording — the user approved that text, not a rewrite of it. If `writing-for-humans` is unavailable, skip the polish and say "readability polish deferred".
 
-Then delete the `## Open Questions` heading and emit the task one last time as a bare message. Stop there.
+Then delete the `## Open Questions` heading and deliver the task one last time as an artifact-only message through the selected review channel. Do not request another disposition. Stop there.
 
 ## Self-check
 
@@ -317,6 +332,8 @@ Run before emitting any draft.
 - Coverage baseline established, and characterization is required first where it is thin
 - Item count is 4-8, or the deviation is stated as a splitting signal
 - Every Open Question carries a committed recommendation, and none is about internals below the approach
-- The message contains the task and nothing else
+- The `running-human-review-loops` skill selected one transport before the first user interaction
+- The task body contains no workflow commentary
+- No decision or draft review is duplicated across transports
 
-On the Phase 5 emit, add two more: no `## Open Questions` section remains, and the Done-when items are byte-identical to the approved draft.
+On the Phase 5 delivery, add three more: no `## Open Questions` section remains, the Done-when items are byte-identical to the approved draft, and no disposition request follows the final task.

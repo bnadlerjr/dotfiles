@@ -12,6 +12,13 @@ ordering, and verification strategy are settled, then emit the complete outline.
 This is a skeleton, not an implementation plan. Target approximately two pages
 maximum.
 
+**How review works.** Before the first user interaction, invoke the
+`running-human-review-loops` skill and use the transport it selects for the whole
+run. This command owns pull request decomposition; the skill owns Plannotator
+availability, fallback behavior, continuity, waiting, unanswered-question
+persistence, and feedback classification. This note is for whoever opens this
+file. Do not repeat it to the user.
+
 ## Rules
 
 1. **Read both inputs completely.** The design defines intent and scope; the
@@ -55,14 +62,24 @@ maximum.
    vertical slice only when a horizontal boundary cannot produce a coherent,
    independently verifiable, safe pull request.
 
-7. **Silence settles nothing.** Approval without answers does not answer an open
-   question. Re-emit every unanswered question.
+7. **Silence settles nothing.** A round with no answered questions settles nothing.
+   Keep every unanswered question open through the selected transport; the skill
+   decides whether that means an open Inbox question or a native re-prompt. Never
+   duplicate an Inbox question.
 
 8. **Question numbers are permanent.** Number questions continuously across the
    session. Never reuse a number or repeat a settled question.
 
 9. **A round contains only the round.** Its first character is the `#` in the round
    heading. Include no preamble, sign-off, or workflow commentary.
+
+10. **The review channel is chosen once.** Follow `running-human-review-loops` for
+    every question round, outline review, closure, and final outline. Do not mix its
+    Inbox and native transports.
+
+11. **Review semantics stay here.** This command defines phase decisions,
+    completion gates, and approval meaning. Do not duplicate the skill's transport
+    mechanics here.
 
 ## Phase 1. Load and validate inputs
 
@@ -158,28 +175,36 @@ Later rounds begin with `# Round N` and contain:
 - `## Since last round` with changed phases, corrected facts, and newly enabled
   claims; omit it if empty;
 - `## Proposed pull request sequence` when the proposal changed;
-- `## Questions` with new questions and every unanswered prior question.
+- `## Questions` with new questions. Unanswered prior questions remain open through
+  the selected transport and are not duplicated in Inbox.
 
 Ask all currently answerable questions together. Hold back questions that depend on
 an unresolved answer. Each question must be a genuine fork, not a request to ratify
-the proposal or provide a repository fact. Emit the round as the whole response and
-stop.
+the proposal or provide a repository fact. Present the round through the selected
+review channel. Keep the round payload pure, per Rule 9; let the skill adapt its
+questions to the selected transport. End the turn.
 
 ## Phase 5. Process feedback
 
 - Apply requested splits, merges, reordering, scope corrections, and verification
-  changes, then emit the next round.
-- Re-ask every untouched question.
+  changes, then present the next round through the selected review channel.
+- Keep every untouched question open through the selected transport. Do not
+  duplicate unanswered Inbox questions.
 - If an answer contradicts an earlier answer, identify the reopened decision and
   every phase made provisional by it.
 - If feedback reveals a design or structure conflict, pause decomposition and ask
   for resolution rather than changing the source decision yourself.
-- If the user asks to re-emit a round, reproduce it unchanged.
-- If the session is dismissed, state that it closed and stop.
+- If the user asks to re-present a round, reproduce it unchanged through the
+  selected review channel.
+- If no question is answered, leave the questions open and wait. Silence settles
+  nothing.
+- If the user stops, close briefly through the selected review channel and stop.
+- If there is no answer, wait on the selected review channel. Do not infer consent
+  or duplicate the request elsewhere.
 
 ## Phase 6. Emit the final outline
 
-Emit the final outline only when:
+Present the final outline through the selected review channel only when:
 
 1. every question has an answer;
 2. design and structure inputs agree, or conflicts have been resolved;
@@ -189,7 +214,7 @@ Emit the final outline only when:
 5. every required behavior belongs to a phase;
 6. the whole outline remains approximately two pages or less.
 
-The final response contains only this document:
+The outline is an artifact-only message and contains only this document:
 
 ```markdown
 # Pull Request Outline: <feature name>
@@ -229,9 +254,23 @@ Use multiple automated or manual verification bullets only when necessary. Omit
 manual verification when automated checks fully establish the phase outcome. Do not
 write, create, or modify an artifact file; the outline is the response.
 
-After annotations on the final outline, apply corrections and emit the complete
-outline again. If an annotation opens a fork, return to numbered rounds and emit the
-outline again only after the fork is settled.
+After presenting the final outline, use these review dispositions. The Inbox
+transport renders them as a separate control after the outline; the native transport
+classifies the user's next response against them:
+
+- **Revise from my feedback.** Apply corrections and present the complete outline
+  again.
+- **Approve the outline.** Complete the run.
+- **Stop outlining.** Close the session without another outline.
+
+Recommend **Approve the outline** only after every final self-check passes. Let
+`running-human-review-loops` render the choices for its selected transport and
+return the disposition plus all available feedback.
+
+If feedback opens a fork, return to numbered rounds through the selected review
+channel and present the outline again only after the fork is settled. If approval
+includes outline-changing feedback, revise and request approval again. If the user
+stops, close briefly through the selected review channel and stop.
 
 ## Self-check
 
@@ -239,9 +278,14 @@ Before every round:
 
 - Every question is a live fork and includes a recommendation.
 - No question asks for a discoverable fact.
-- Every unanswered question is repeated; settled questions are not.
+- Every unanswered question remains open through the selected transport; settled
+  questions are not repeated.
 - The proposed sequence reflects all settled feedback.
 - No candidate phase exceeds one session or leaves a broken stopping point.
+- The `running-human-review-loops` skill selected one transport before the first
+  user interaction.
+- The round contains no workflow commentary.
+- No decision or outline review is duplicated across transports.
 
 Before the final outline:
 
@@ -254,3 +298,4 @@ Before the final outline:
 - Dependencies are explicit and every required behavior is covered once.
 - The sequence favors types/data, business logic, integrations, composition, then
   edge cases, except where safety or independent verification requires otherwise.
+- The disposition request is separate from the final outline.
