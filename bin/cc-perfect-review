@@ -1,44 +1,216 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# Start a Claude Code conversation that reviews a PR using the
-# PERFECT code review methodology.
+# Review a GitHub PR with the PERFECT code review methodology in its own
+# herdr tab.
+#
+# Opens a tab named <repo>#<N> in the herdr space "pr-reviews", creating the
+# space when it is missing. In that tab it checks the PR out with worktrunk,
+# warms the worktree with the copy and sync pre-start hooks, and starts an
+# interactive Claude session running /review-code-perfectly, which posts the
+# review to the Plannotator Inbox. Quitting Claude removes the worktree (and
+# branch) this run created, then closes the tab. If cleanup fails, the tab
+# stays open showing the error. If the tab already exists, it is shown and
+# nothing starts.
+#
+# Run it from a clone of the PR's repository: worktrunk needs one.
 #
 # USAGE:
 #   cc-perfect-review <PR-URL>
-#   cc-perfect-review <PR-ID>          # must be in the target repo
-#   cc-perfect-review --dry-run <arg>  # print the command without running it
+#   cc-perfect-review <PR-ID>
+#   cc-perfect-review --dry-run <arg>  # print the herdr and claude commands
 #
 # EXAMPLES:
 #   cc-perfect-review https://github.com/org/repo/pull/42
 #   cc-perfect-review 42
+#
+# Requires: herdr-app (with the Herdr window open), wt, gh, jq, claude.
 
-set -eu
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_PATH="${SCRIPT_DIR}/$(basename "$0")"
+readonly SCRIPT_DIR SCRIPT_PATH
+readonly SPACE_NAME="pr-reviews"
+# Cleanup output goes here once the tab is closed and the terminal is gone.
+readonly HANGUP_LOG="${TMPDIR:-/tmp}/cc-perfect-review.log"
 
 die() {
     echo "error: $1" >&2
     exit 1
 }
 
-dry_run=false
-if [ "${1:-}" = "--dry-run" ]; then
-    dry_run=true
+lowercase() {
+    printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+# owner/repo of this clone's origin, or nothing when origin isn't GitHub.
+origin_slug() {
+    local url
+    url=$(git remote get-url origin 2>/dev/null) || return 0
+    url="${url%.git}"
+    case "$url" in
+        git@github.com:*) echo "${url#git@github.com:}" ;;
+        ssh://git@github.com/*) echo "${url#ssh://git@github.com/}" ;;
+        https://github.com/*) echo "${url#https://github.com/}" ;;
+    esac
+}
+
+# --- Launcher: runs in your terminal and opens the tab -----------------------
+
+launch() {
+    local dry_run=false
+    if [[ "${1:-}" == "--dry-run" ]]; then
+        dry_run=true
+        shift
+    fi
+    [[ $# -ge 1 ]] || die "usage: cc-perfect-review [--dry-run] <PR-URL-or-ID>"
+
+    local pr_ref="$1" parsed OWNER="" REPO="" PR_NUMBER=""
+    # Validate the PR reference before doing anything slow
+    parsed=$("${SCRIPT_DIR}/gh-pr-parse" "$pr_ref") || exit 1
+    eval "$parsed"
+
+    local clone slug
+    clone=$(git rev-parse --show-toplevel 2>/dev/null) \
+        || die "run this from a clone of the PR's repository"
+    slug=$(origin_slug)
+    if [[ -z "$OWNER" ]]; then
+        [[ -n "$slug" ]] || die "origin is not a GitHub repository"
+        OWNER="${slug%%/*}"
+        REPO="${slug#*/}"
+    fi
+    [[ "$(lowercase "$slug")" == "$(lowercase "${OWNER}/${REPO}")" ]] \
+        || die "run this from a clone of ${OWNER}/${REPO}"
+
+    local pr_url="https://github.com/${OWNER}/${REPO}/pull/${PR_NUMBER}"
+    local tab_name="${REPO}#${PR_NUMBER}"
+    local argv
+    argv=$(jq -nc --arg script "$SCRIPT_PATH" --arg url "$pr_url" '[$script, "--in-tab", $url]')
+
+    if "$dry_run"; then
+        echo "herdr-app do tab.new --space ${SPACE_NAME} --name '${tab_name}' --folder '${clone}' --argv '${argv}'"
+        echo "claude \"/review-code-perfectly ${pr_url}\""
+        exit 0
+    fi
+
+    local layout space_id tab_id result
+    layout=$(herdr-app ls 2>/dev/null) \
+        || die "Herdr isn't reachable; open the Herdr app and try again"
+    space_id=$(jq -r --arg space "$SPACE_NAME" \
+        'first(.spaces[] | select(.name == $space) | .id) // empty' <<<"$layout")
+
+    if [[ -z "$space_id" ]]; then
+        result=$(herdr-app "do" space.new --name "$SPACE_NAME" --folder "$clone" \
+            --tab "$tab_name" --argv "$argv") || die "herdr: $result"
+        exit 0
+    fi
+
+    tab_id=$(jq -r --arg space "$SPACE_NAME" --arg tab "$tab_name" \
+        'first(.spaces[] | select(.name == $space) | .tabs[] | select(.name == $tab) | .id) // empty' \
+        <<<"$layout")
+    if [[ -n "$tab_id" ]]; then
+        echo "${tab_name} is already under review; showing its tab"
+        result=$(herdr-app "do" space.select --id "$space_id") || die "herdr: $result"
+        result=$(herdr-app "do" tab.select --id "$tab_id") || die "herdr: $result"
+        exit 0
+    fi
+
+    result=$(herdr-app "do" tab.new --space "$space_id" --name "$tab_name" \
+        --folder "$clone" --argv "$argv") || die "herdr: $result"
+}
+
+# --- Tab: runs inside the herdr tab, from the clone ---------------------------
+
+clone=""
+branch=""
+had_branch=false
+created_worktree=false
+
+# Remove only what this run created: the worktree, and the branch too unless it
+# was already there.
+remove_worktree() {
+    "$created_worktree" || return 0
+    created_worktree=false
+    echo "Removing the review worktree for ${branch}..."
+    if "$had_branch"; then
+        wt -C "$clone" remove --foreground --no-hooks --no-delete-branch "$branch"
+    else
+        wt -C "$clone" remove --foreground --no-hooks -D "$branch"
+    fi
+}
+
+# The tab is the one holding this terminal.
+close_own_tab() {
+    local tab_id
+    tab_id=$(herdr-app ls | jq -r --arg terminal "${HC_TERMINAL_ID:-}" \
+        'first(.spaces[].tabs[] | select(any(.terminals[]; .terminal == $terminal)) | .id) // empty')
+    [[ -n "$tab_id" ]] || return 0
+    # Closing the tab hangs up this terminal; nothing is left to do.
+    trap '' HUP
+    herdr-app "do" tab.close --id "$tab_id" --confirmed true >/dev/null
+}
+
+on_exit() {
+    local status=$?
+    if ! remove_worktree; then
+        echo "error: could not remove the review worktree; run: wt -C '${clone}' remove ${branch}" >&2
+        exit 1
+    fi
+    # A failed run keeps its tab, so the error stays on screen.
+    if [[ "$status" -eq 0 ]]; then
+        close_own_tab
+    fi
+}
+
+review_in_tab() {
+    local pr_url="$1" OWNER="" REPO="" PR_NUMBER=""
+    eval "$("${SCRIPT_DIR}/gh-pr-parse" "$pr_url")"
+    [[ -n "$OWNER" ]] || die "--in-tab expects a PR URL, got: $pr_url"
+    clone="$PWD"
+
+    trap on_exit EXIT
+    # The tab was closed: the terminal is gone, so log instead of printing.
+    trap 'exec >>"$HANGUP_LOG" 2>&1; exit 129' HUP
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+
+    local head head_oid
+    head=$(gh pr view "$pr_url" --json headRefName,headRefOid \
+        --jq '"\(.headRefName) \(.headRefOid)"') || die "could not read ${pr_url}"
+    read -r branch head_oid <<<"$head"
+    [[ -n "$branch" && -n "$head_oid" ]] || die "could not read the head of ${pr_url}"
+
+    git show-ref --verify --quiet "refs/heads/${branch}" && had_branch=true
+    local had_worktree=false
+    git worktree list --porcelain | grep -qxF "branch refs/heads/${branch}" && had_worktree=true
+
+    local worktree
+    worktree=$(wt switch "pr:${PR_NUMBER}" --no-hooks --no-cd --format json | jq -r '.path')
+    [[ -d "$worktree" ]] || die "worktrunk did not report a worktree for PR #${PR_NUMBER}"
+    "$had_worktree" || created_worktree=true
+
+    local actual_oid
+    actual_oid=$(git -C "$worktree" rev-parse HEAD)
+    [[ "$actual_oid" == "$head_oid" ]] \
+        || die "${worktree} is at ${actual_oid}, not the PR head ${head_oid}; update or delete the local branch ${branch} and run again"
+
+    # Your own worktree keeps its state; only a fresh one gets warmed.
+    if "$created_worktree"; then
+        (cd "$worktree" && wt hook pre-start copy sync)
+    fi
+
+    cd "$worktree"
+    # Ctrl+C belongs to Claude now. With a trap set, bash would act on it
+    # after Claude exits and turn a clean Ctrl+D into a failure.
+    trap - INT
+    claude "/review-code-perfectly ${pr_url}"
+    cd "$clone"
+}
+
+if [[ "${1:-}" == "--in-tab" ]]; then
     shift
+    [[ $# -eq 1 ]] || die "usage: cc-perfect-review --in-tab <PR-URL>"
+    review_in_tab "$1"
+else
+    launch "$@"
 fi
-
-[ $# -ge 1 ] || die "usage: cc-perfect-review [--dry-run] <PR-URL-or-ID>"
-
-pr_ref="$1"
-
-# Validate the PR reference before launching Claude
-"${SCRIPT_DIR}/gh-pr-parse" "$pr_ref" >/dev/null || exit 1
-
-prompt="/review-code-perfectly ${pr_ref}"
-
-if "$dry_run"; then
-    echo "claude \"${prompt}\""
-    exit 0
-fi
-
-exec claude "$prompt"

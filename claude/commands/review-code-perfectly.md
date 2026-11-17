@@ -1,16 +1,16 @@
 ---
 description: Review a pull request with the PERFECT methodology — 7 principles applied in strict priority order
 argument-hint: <PR-ID or PR-URL>
-allowed-tools: Bash, Read, Grep, Glob, Skill
+allowed-tools: Bash, Read, Write, Grep, Glob, Skill, mcp__plannotator__plannotator_inbox
 ---
 
 # Review Code Perfectly
 
-**Level 3 (Control Flow)** — Checks a PR out into an isolated worktree, loads the language skills its changed files call for, judges the diff against 7 principles in strict priority order, and reports a verdict per principle. Based on Daniil Bastrich's PERFECT methodology.
+**Level 3 (Control Flow)** — Reviews a PR already checked out in the working directory, loads the language skills its changed files call for, judges the diff against 7 principles in strict priority order, and sends a guided review plus the full report to the Plannotator Inbox. Based on Daniil Bastrich's PERFECT methodology.
 
 ## Variables
 
-- **PR_REF**: `$ARGUMENTS` — a PR number (`42`, requires the working directory to be the target repo) or a PR URL (`https://github.com/org/repo/pull/42`, works from anywhere).
+- **PR_REF**: `$ARGUMENTS` — a PR URL (`https://github.com/org/repo/pull/42`) or a PR number (`42`). `cc-perfect-review` checks the PR out with worktrunk and starts this command in that worktree.
 
 ## Instructions
 
@@ -25,23 +25,25 @@ allowed-tools: Bash, Read, Grep, Glob, Skill
 - Skip generated files (lock files, compiled output, snapshots) and binary assets.
 - Review the code, not the author, and not team process.
 - Never approve on "LGTM" alone — demonstrate that you understood the change.
-- Clean up the worktree even when the review stops early.
+- Never remove the worktree. Follow-up replies from the Inbox need the code; `cc-perfect-review` removes it when the session ends.
 
 ## Workflow
 
-### Step 1: Check out the PR
+### Step 1: Confirm the checkout and read the PR
 
 ```bash
-# Parses PR_REF and checks the code out into an isolated worktree.
-# Outputs REVIEW_DIR, OWNER, REPO, PR_NUMBER. For URLs, creates a bare clone
-# when the working directory is not the target repo.
-eval "$(pr-review-worktree setup <PR_REF>)"
-
-# Build the --repo flag for cross-repo gh commands
-REPO_FLAG=""
-if [ -n "$OWNER" ] && [ -n "$REPO" ]; then
-    REPO_FLAG="--repo ${OWNER}/${REPO}"
+# Parses PR_REF into PR_NUMBER, plus OWNER and REPO for a URL.
+eval "$(gh-pr-parse <PR_REF>)"
+if [ -z "${OWNER:-}" ]; then
+    OWNER=$(gh repo view --json owner --jq .owner.login)
+    REPO=$(gh repo view --json name --jq .name)
 fi
+REPO_FLAG="--repo ${OWNER}/${REPO}"
+REVIEW_DIR=$(git rev-parse --show-toplevel)
+
+# The working directory must be the PR head. STOP and say so if these differ.
+git -C "$REVIEW_DIR" rev-parse HEAD
+gh pr view $PR_NUMBER $REPO_FLAG --json headRefOid --jq .headRefOid
 
 gh pr view $PR_NUMBER $REPO_FLAG --json title,body,author,files,additions,deletions,baseRefName,headRefName,url,state,reviewDecision,comments,reviews
 gh api "repos/${OWNER}/${REPO}/pulls/${PR_NUMBER}/comments" --paginate
@@ -139,15 +141,25 @@ gh pr checks $PR_NUMBER $REPO_FLAG
 
 Identify the project test command from its config and run the relevant tests from `$REVIEW_DIR` when they can run locally.
 
-### Step 6: Produce the review
+### Step 6: Write the report
 
-Emit the report below.
+Write the full report below to `${TMPDIR:-/tmp}/perfect-review-<REPO>-<PR_NUMBER>.md` with the Write tool.
 
-### Step 7: Clean up
+If the `plannotator_inbox` tool is not available in this session (load it with tool search first if it is deferred), print the full report in the chat instead and stop. Skip Step 7.
 
-```bash
-pr-review-worktree cleanup "$REVIEW_DIR"
-```
+### Step 7: Send the review to the Plannotator Inbox
+
+1. Call `plannotator_inbox` with `action: "get_guide_brief"` and follow its method to write a guide of the PR diff: chapters by logical change, ordered by importance. Use `gh pr diff $PR_NUMBER $REPO_FLAG` as the patch, unchanged, and copy file paths from it exactly. Put generated files in `unplacedFiles`.
+2. End the overview of each chapter whose code has findings with one callout line naming them by their number in the report, for example `> [!WARNING]` followed by "Blocking issue 2 is in this part." Name non-blocking findings by principle ("Edge Cases and Clarity findings are in this part.") and suggestions by their Top suggestions number. Chapters with no findings get no callout.
+3. Call `submit_guide` with:
+   - `guide` and `patch` from steps 1 and 2.
+   - `thread`: `<REPO>#<PR_NUMBER> PERFECT review`.
+   - `project_path`: the main clone, `dirname "$(git rev-parse --path-format=absolute --git-common-dir)"`. The worktree is deleted when the session ends.
+   - `body`: the Summary verdict table and the Recommendation line from the report.
+4. Reply in the same thread (`send_message` with `reply_to` set to the guide's message id) with the report file in `attachments` and one line: the full PERFECT report, with line comments welcome.
+5. Show the chat the Summary verdict table, the Recommendation, and the thread link. Do not print the full report in the chat.
+
+Replies in that thread arrive in this session. Act on what they ask, for example posting a finding as a PR comment, and answer in the same thread.
 
 ## Severity
 
