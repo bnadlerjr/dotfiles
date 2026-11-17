@@ -2,5 +2,7 @@
 # Format: OWNER/REPO[/SUBDIR] [TAG_OR_COMMIT]
 # The tag or commit is optional. Do not use inline comments.
 
+ChmaraX/herdr-nvim
 JanTvrdik/herdr-command-palette
+MattJColes/herdr-web-browser
 plannotator/herdr-annotate
