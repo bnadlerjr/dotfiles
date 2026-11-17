@@ -77,6 +77,18 @@ Three limits bound this, and all three are load-bearing:
 
 Where a brief could not answer, that is a finding. Say so as a claim in the round, and record it in the document's Open Risks.
 
+### Domain language
+
+Before round one, invoke the `domain-modeling` skill with the Skill tool, and read `GLOSSARY.md` (or `GLOSSARY-MAP.md`) if the repository has one. Its practices run inside the rounds, not beside them:
+
+- A term in the inputs or a note that conflicts with the glossary, or a fuzzy term that could mean two things, is a numbered question. Which meaning holds is the human's call, so it carries your recommended meaning like any other fork.
+- An edge-case scenario that tests a concept boundary goes in the body of the question it tests.
+- A contradiction between what the human said and what the code does is a claim, with `path:line`.
+- When an answer settles a term, state its definition as a claim under `## Since last round`. If a later answer reopens the term, restate it.
+- When a decision meets all three of the skill's ADR criteria, ask whether to record it as an ADR. That is a numbered question too.
+
+Write no files during the interview. Until the human approves the design document, any decision can be reopened, so settled terms and accepted ADRs are written only then.
+
 ## Phase 3. Round one
 
 The first round opens with your understanding, then the frontier. Keep the understanding under about forty lines — it is a shared starting point, not the document. Write it as claims for the human to cut into.
@@ -132,7 +144,7 @@ When feedback returns to the session, branch on it.
 | Annotations on a question round | Match every note to the question or claim it quotes. Then read your round again and re-ask every question no note touched. Recompute the frontier, emit the next round, stop |
 | Approved with nothing written on it | Nothing is settled. Re-emit the same round unchanged, with one line saying those answers are still needed. Do not read the silence as agreement with your recommendations, and do not advance the frontier |
 | A request to re-emit the current round | A resumed session. Send the round you were on again. Ask nothing new and settle nothing |
-| Approved, on the design document | The run is done. Stop |
+| Approved, on the design document | Write the document's Glossary terms to `GLOSSARY.md` and every ADR the human accepted, then the run is done. Stop |
 | Annotations on the design document | See Phase 5 |
 | Dismissed | Say the session closed. Stop |
 
@@ -194,6 +206,10 @@ When all four hold, emit the document as the whole message and stop. About 200 l
 
 ...
 
+## Glossary terms
+
+- **<Term>**: <the definition settled in the interview, in the skill's glossary format>
+
 ## Constraints
 
 - <From the ticket, the research, or the environment>
@@ -221,8 +237,10 @@ Run before emitting any round.
 - Every question from the last round is either settled by a note or re-asked here
 - No settled question is re-emitted
 - Every belief formed this round is stated as a claim, not carried silently
+- Every term that conflicts with the glossary, or could mean two things, is a question, and every term settled since the last round is stated as a claim
+- No file was written during the round
 - Questions are numbered continuously, and no number was reused
 - One question per block, with a blank line between them
 - The message contains the round and nothing else
 
-Before emitting the design document, add: all four completion gates hold, every settled decision appears in Design decisions with its rejected alternative, and no implementation phases, file-by-file changes, or test code are in it.
+Before emitting the design document, add: all four completion gates hold, every settled decision appears in Design decisions with its rejected alternative, every settled term appears in Glossary terms, and no implementation phases, file-by-file changes, or test code are in it.
