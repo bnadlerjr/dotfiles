@@ -339,6 +339,8 @@ def invoke_pi(prompt: str) -> dict:
             text=True,
             timeout=PI_TIMEOUT_SECONDS,
             check=False,
+            # Repos can pin a Node older than pi supports via .tool-versions.
+            env={**os.environ, "ASDF_NODEJS_VERSION": "22.19.0"},
         )
     except subprocess.TimeoutExpired as error:
         raise OperationalError(
