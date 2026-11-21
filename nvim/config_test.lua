@@ -20,6 +20,36 @@ end
 assert_soft_pencil('markdown')
 assert_soft_pencil('text')
 
+vim.lsp.enable('solargraph', false)
+local ruby_fixture = '/tmp/nvim-config-check-rails'
+vim.fn.delete(ruby_fixture, 'rf')
+vim.fn.mkdir(ruby_fixture .. '/app', 'p')
+vim.fn.mkdir(ruby_fixture .. '/config', 'p')
+vim.fn.writefile({}, ruby_fixture .. '/config/environment.rb')
+vim.fn.writefile({}, ruby_fixture .. '/Gemfile')
+vim.fn.writefile({}, ruby_fixture .. '/Gemfile.lock')
+vim.cmd('edit ' .. vim.fn.fnameescape(ruby_fixture .. '/config/environment.rb'))
+assert(vim.b.rails_root, 'Rails projects should be detected')
+assert(vim.b.bundler_lock, 'Bundler projects should be detected')
+assert(vim.fn.exists(':A') == 2, 'Projectionist navigation should be available in Ruby projects')
+assert(vim.fn.exists(':Rails') == 2, 'Rails commands should be available in Rails projects')
+assert(vim.fn.exists(':Bundle') == 2, 'Bundler commands should be available in Ruby projects')
+
+local rake_fixture = '/tmp/nvim-config-check-rake'
+vim.fn.delete(rake_fixture, 'rf')
+vim.fn.mkdir(rake_fixture .. '/lib', 'p')
+vim.fn.writefile({}, rake_fixture .. '/lib/check.rb')
+vim.fn.writefile({}, rake_fixture .. '/Rakefile')
+vim.cmd('edit ' .. vim.fn.fnameescape(rake_fixture .. '/lib/check.rb'))
+assert(vim.b.rake_root, 'Rake projects should be detected')
+assert(vim.fn.exists(':A') == 2, 'Projectionist navigation should be available in Rake projects')
+assert(vim.fn.exists(':Rake') == 2, 'Rake commands should be available in Rake projects')
+
+vim.cmd('edit /tmp/nvim-config-check.tf')
+assert(vim.bo.filetype == 'terraform', 'Terraform files should use the plugin filetype')
+assert(vim.fn.exists(':Terraform') == 2, 'Terraform commands should be available')
+assert(vim.fn.exists(':TerraformFmt') == 2, 'Terraform formatting should be available')
+
 vim.lsp.enable('elixirls', false)
 vim.cmd('enew')
 local elixir_ok, elixir_error = pcall(vim.cmd, 'setfiletype elixir')

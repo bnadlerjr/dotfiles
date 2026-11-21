@@ -37,6 +37,7 @@ Plug 'OliverChao/telescope-picker-list.nvim'                      " A plugin tha
 Plug 'tpope/vim-endwise'                                          " Wisely add 'end' in Ruby, Lua, Vimscript, etc. (nvim-treesitter-endwise needs the archived master branch)
 Plug 'YounesElhjouji/nvim-copy'                                   " Copy the content of files—from visible buffers, Git-modified files, etc. to clipboard
 Plug 'gbprod/yanky.nvim'                                          " Improved Yank and Put functionalities for Neovim
+Plug 'hashivim/vim-terraform'                                     " Terraform commands, formatting, syntax, and indentation
 Plug 'kylechui/nvim-surround'                                     " Add/change/delete surrounding delimiter pairs with ease.
 Plug 'lewis6991/gitsigns.nvim'                                    " Adds git related signs to the gutter, as well as utilities for managing changes
 Plug 'mason-org/mason-lspconfig.nvim', { 'tag': 'v2.3.0' }        " Install and enable configured LSP servers
@@ -58,9 +59,12 @@ Plug 'preservim/vim-pencil'                                       " Rethinking V
 Plug 'reedes/vim-lexical'                                         " Build on Vim’s spell/thes/dict completion
 Plug 'sindrets/diffview.nvim'                                     " Single tabpage interface for easily cycling through diffs for all modified files for any git rev
 Plug 'tpope/vim-abolish'                                          " easily search for, substitute, and abbreviate multiple variants of a word
+Plug 'tpope/vim-bundler'                                          " Bundler commands and gem-aware navigation
 Plug 'tpope/vim-dispatch'                                         " Asynchronous build and test dispatcher
 Plug 'tpope/vim-fugitive'                                         " Git plugin
 Plug 'tpope/vim-projectionist'                                    " project configuration
+Plug 'tpope/vim-rails'                                            " Rails-aware navigation and commands
+Plug 'tpope/vim-rake'                                             " Rake and Ruby project navigation
 Plug 'tpope/vim-repeat'                                           " Enable repeating supported plugin maps with '.'
 Plug 'tpope/vim-rhubarb'                                          " GitHub extension for fugitive.vim
 Plug 'vim-test/vim-test'                                          " Run your tests at the speed of thought
