@@ -381,7 +381,6 @@ null_ls.setup({
     null_ls.builtins.diagnostics.credo,
     null_ls.builtins.diagnostics.djlint,
     null_ls.builtins.diagnostics.rubocop,
-    null_ls.builtins.formatting.cljstyle,
     null_ls.builtins.formatting.djlint,
     null_ls.builtins.formatting.mix,
     null_ls.builtins.formatting.prettierd.with({
