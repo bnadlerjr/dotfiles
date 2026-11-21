@@ -32,31 +32,14 @@ Plug 'AndrewRadev/splitjoin.vim'                                  " Switch betwe
 Plug 'AndrewRadev/writable_search.vim'                            " Grep for something, then write the original files directly through the search results
 Plug 'DataWraith/auto_mkdir'                                      " Allows you to save files into directories that do not exist yet
 Plug 'EdenEast/nightfox.nvim'                                     " 🦊A highly customizable theme for vim and neovim with support for lsp, treesitter and a variety of plugins
-Plug 'Glench/Vim-Jinja2-Syntax'                                   " Jinja2 syntax highlighting
-Plug 'L3MON4D3/LuaSnip'                                           " Snippet Engine for Neovim written in Lua.
-Plug 'Olical/conjure'                                             " Interactive evaluation for Neovim.
 Plug 'OliverChao/telescope-picker-list.nvim'                      " A plugin that helps you use any pickers in telescope
-Plug 'PaterJason/cmp-conjure'                                     " nvim-cmp source for conjure.
 Plug 'tpope/vim-endwise'                                          " Wisely add 'end' in Ruby, Lua, Vimscript, etc. (nvim-treesitter-endwise needs the archived master branch)
 Plug 'YounesElhjouji/nvim-copy'                                   " Copy the content of files—from visible buffers, Git-modified files, etc. to clipboard
-Plug 'elixir-editors/vim-elixir'                                  " Vim configuration files for Elixir
-Plug 'folke/neodev.nvim'                                          " Neovim setup for init.lua and plugin development with full signature help, docs and completion for the nvim lua API
 Plug 'gbprod/yanky.nvim'                                          " Improved Yank and Put functionalities for Neovim
-Plug 'guns/vim-clojure-static'                                    " Clojure syntax highlighting and indentation
-Plug 'guns/vim-sexp'                                              " Precision editing for s-expressions
-Plug 'hashivim/vim-terraform'                                     " basic vim/terraform integration
-Plug 'honza/vim-snippets'                                         " Default snippets'
-Plug 'hrsh7th/cmp-buffer'                                         " nvim-cmp source for buffer words
-Plug 'hrsh7th/cmp-cmdline'                                        " nvim-cmp source for vim's cmdline
-Plug 'hrsh7th/cmp-nvim-lsp'                                       " nvim-cmp source for neovim builtin LSP client
-Plug 'hrsh7th/cmp-nvim-lua'                                       " nvim-cmp source for nvim lua
-Plug 'hrsh7th/cmp-path'                                           " nvim-cmp source for path
-Plug 'hrsh7th/nvim-cmp'                                           " A completion plugin for neovim coded in Lua
-Plug 'j-hui/fidget.nvim'                                          " Extensible UI for Neovim notifications and LSP progress messages
 Plug 'kylechui/nvim-surround'                                     " Add/change/delete surrounding delimiter pairs with ease.
 Plug 'lewis6991/gitsigns.nvim'                                    " Adds git related signs to the gutter, as well as utilities for managing changes
-Plug 'mason-org/mason-lspconfig.nvim', { 'tag': 'v1.32.0' }       " Extension to mason.nvim that makes it easier to use lspconfig
-Plug 'mason-org/mason.nvim', { 'tag': 'v1.11.0' }                 " Easily install and manage LSP servers, DAP servers, linters, and formatters
+Plug 'mason-org/mason-lspconfig.nvim', { 'tag': 'v2.3.0' }        " Install and enable configured LSP servers
+Plug 'mason-org/mason.nvim', { 'tag': 'v2.3.1' }                  " Install and manage LSP servers, linters, and formatters
 Plug 'mhinz/vim-grepper'                                          " 👾 Helps you win at grep
 Plug 'neovim/nvim-lspconfig'                                      " Quickstart configs for Nvim LSP
 Plug 'catgoose/nvim-colorizer.lua'                                " The fastest Neovim colorizer (maintained fork of norcalli; deprecated APIs removed).
@@ -70,30 +53,15 @@ Plug 'nvim-tree/nvim-web-devicons'                                " Provides Ner
 Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate' } " Nvim Treesitter (main/rewrite): installs parsers + queries
 Plug 'nvim-treesitter/nvim-treesitter-textobjects', { 'branch': 'main' }        " Syntax aware text-objects (main branch)
 Plug 'nvimtools/none-ls.nvim'                                     " Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua
-Plug 'olimorris/codecompanion.nvim'                               " ✨ AI-powered coding, seamlessly in Neovim
-Plug 'petertriho/cmp-git'                                         " Git source for nvim-cmp
 Plug 'preservim/vim-pencil'                                       " Rethinking Vim as a tool for writing
-Plug 'rebelot/kanagawa.nvim'                                      " NeoVim dark colorscheme inspired by the colors of the famous painting by Katsushika Hokusai
 Plug 'reedes/vim-lexical'                                         " Build on Vim’s spell/thes/dict completion
-Plug 'saadparwaiz1/cmp_luasnip'                                   " luasnip completion source for nvim-cmp
-Plug 'scrooloose/nerdcommenter'                                   " quickly (un)comment lines
 Plug 'sindrets/diffview.nvim'                                     " Single tabpage interface for easily cycling through diffs for all modified files for any git rev
-Plug 'sjl/vitality.vim'                                           " Make Vim play nicely with iTerm 2 and tmux
-Plug 'slim-template/vim-slim'                                     " Syntax highlighting for slim
 Plug 'tpope/vim-abolish'                                          " easily search for, substitute, and abbreviate multiple variants of a word
-Plug 'tpope/vim-bundler'                                          " makes source navigation of bundled gems easier
-Plug 'tpope/vim-cucumber'                                         " provides syntax highlighting, indenting, and a filetype plugin
 Plug 'tpope/vim-dispatch'                                         " Asynchronous build and test dispatcher
-Plug 'tpope/vim-endwise'                                          " wisely add 'end' in ruby, endfunction/endif/more in vim script, etc
 Plug 'tpope/vim-fugitive'                                         " Git plugin
-Plug 'tpope/vim-leiningen'                                        " static support for Leiningen
 Plug 'tpope/vim-projectionist'                                    " project configuration
-Plug 'tpope/vim-rails'                                            " Rails helpers
-Plug 'tpope/vim-rake'                                             " makes Ruby project navigation easier for non-Rails projects
 Plug 'tpope/vim-repeat'                                           " Enable repeating supported plugin maps with '.'
 Plug 'tpope/vim-rhubarb'                                          " GitHub extension for fugitive.vim
-Plug 'tpope/vim-sexp-mappings-for-regular-people'                 " vim-sexp mappings rely on meta key; these don't
-Plug 'vim-ruby/vim-ruby'                                          " packaged w/ vim but this is latest and greatest
 Plug 'vim-test/vim-test'                                          " Run your tests at the speed of thought
 Plug 'windwp/nvim-autopairs'                                      " autopairs for neovim written by lua
 call plug#end()
@@ -103,7 +71,7 @@ call plug#end()
 -- Settings
 -- ###########################################################################
 vim.o.colorcolumn = "79"               -- Show vertical column
-vim.o.completeopt = 'menuone,noselect' -- Set completeopt to have a better completion experience
+vim.o.completeopt = 'menuone,noselect,popup' -- Show native completion details in a popup
 vim.o.cursorline = true                -- Highlight current line
 vim.o.expandtab = true                 -- Expand tabs to spaces
 vim.o.ignorecase = true                -- Ignore case when searching
@@ -122,8 +90,7 @@ vim.wo.signcolumn = 'yes'              -- Always show signcolumn
 -- Use system clipboard for all yank and paste operations
 vim.opt.clipboard:append("unnamedplus")
 
-local colorscheme = vim.env.NVIM_COLORSCHEME or 'nightfox'
-vim.cmd('colorscheme ' .. colorscheme)
+vim.cmd('colorscheme nightfox')
 
 -- ###########################################################################
 -- Plugin Configuration
@@ -136,8 +103,6 @@ require('nvim-autopairs').setup({ check_ts = true })
 require("nvim_copy").setup()
 require("yanky").setup()
 
-vim.cmd "let g:NERDDefaultAlign = 'left'"
-vim.cmd "let NERDSpaceDelims = 1"
 vim.cmd "let test#strategy = 'spawn'"
 
 -- diffview
@@ -192,18 +157,6 @@ require('gitsigns').setup({
     map('n', '<leader>hp', gitsigns.preview_hunk)
     map('n', '<leader>hi', gitsigns.preview_hunk_inline)
   end
-})
-
--- codecompanion
-require("codecompanion").setup({
-  strategies = {
-    chat = {
-      adapter = vim.env.NVIM_AI_CHAT_PROVIDER or "anthropic",
-    },
-    inline = {
-      adapter = vim.env.NVIM_AI_COMPLETION_PROVIDER or "anthropic",
-    },
-  },
 })
 
 -- nvim-tree
@@ -312,7 +265,7 @@ pcall(require("telescope").load_extension, "picker_list")
 -- tree-sitter CLI; run :TSUpdate after a fresh install completes.
 require('nvim-treesitter').install({
   'bash', 'clojure', 'elixir', 'go', 'graphql', 'heex', 'html',
-  'javascript', 'lua', 'markdown', 'python', 'ruby', 'toml',
+  'javascript', 'lua', 'markdown', 'python', 'ruby', 'slim', 'toml',
   'typescript', 'vim', 'vimdoc', 'yaml',
 })
 
@@ -359,92 +312,7 @@ for fn, maps in pairs({
   end
 end
 
--- Incremental selection: the `main` branch dropped this feature, so it is
--- reimplemented on Neovim's core treesitter API. <c-space> starts/expands the
--- selection, <M-space> shrinks it; <c-s> expands like <c-space> (the upstream
--- `scope_incremental` has no core equivalent).
-local incremental = { history = {} }
-
-local function ts_visual_select(range)
-  local srow, scol, erow, ecol = range[1], range[2], range[3], range[4]
-  -- node:range() end col is exclusive; convert to the last included byte
-  -- (0-indexed), rolling back a line when the node ends at column 0.
-  local lrow, lcol
-  if ecol > 0 then
-    lrow, lcol = erow, ecol - 1
-  else
-    lrow = math.max(erow - 1, srow)
-    lcol = math.max(vim.fn.col({ lrow + 1, '$' }) - 2, 0)
-  end
-  -- Leave any active visual selection first, otherwise `normal! v` toggles
-  -- visual mode off instead of starting a fresh charwise selection.
-  if vim.fn.mode():find('[vV\22]') then
-    vim.cmd('normal! \27')
-  end
-  vim.api.nvim_win_set_cursor(0, { srow + 1, scol })
-  vim.cmd('normal! v')
-  vim.api.nvim_win_set_cursor(0, { lrow + 1, lcol })
-end
-
-local function ts_covers(node_range, sel)
-  local starts_before = node_range[1] < sel[1]
-    or (node_range[1] == sel[1] and node_range[2] <= sel[2])
-  local ends_after = node_range[3] > sel[3]
-    or (node_range[3] == sel[3] and node_range[4] >= sel[4])
-  return starts_before and ends_after
-end
-
-local function ts_expand(sel)
-  -- Anchor on the node that spans the whole current selection (the start-corner
-  -- leaf may be smaller than `sel` after earlier growth), then climb to the
-  -- first strictly larger ancestor.
-  local node = vim.treesitter.get_node({ pos = { sel[1], sel[2] } })
-  while node and not ts_covers({ node:range() }, sel) do
-    node = node:parent()
-  end
-  while node do
-    local range = { node:range() }
-    if range[1] ~= sel[1] or range[2] ~= sel[2]
-      or range[3] ~= sel[3] or range[4] ~= sel[4] then
-      return range
-    end
-    node = node:parent()
-  end
-  return sel
-end
-
-local function ts_grow()
-  local current = incremental.history[#incremental.history]
-  if not current then return end
-  local next_range = ts_expand(current)
-  table.insert(incremental.history, next_range)
-  ts_visual_select(next_range)
-end
-
-vim.keymap.set('n', '<c-space>', function()
-  local node = vim.treesitter.get_node()
-  if not node then return end
-  local range = { node:range() }
-  incremental.history = { range }
-  ts_visual_select(range)
-end)
-
-vim.keymap.set('x', '<c-space>', ts_grow)
-vim.keymap.set('x', '<c-s>', ts_grow)
-vim.keymap.set('x', '<M-space>', function()
-  if #incremental.history > 1 then
-    table.remove(incremental.history)
-  end
-  local range = incremental.history[#incremental.history]
-  if range then ts_visual_select(range) end
-end)
-
 -- LSP
--- mason-lspconfig requires that these setup functions are called in this order
--- before setting up the servers.
-require('mason').setup()
-require('mason-lspconfig').setup()
-
 local servers = {
   bashls = {},
   clojure_lsp = {},
@@ -456,11 +324,14 @@ local servers = {
   lua_ls = {
     settings = {
       Lua = {
-        workspace = { checkThirdParty = false },
+        workspace = {
+          checkThirdParty = false,
+          library = { vim.env.VIMRUNTIME },
+        },
         telemetry = { enable = false },
-        diagnostics = { disable = { 'missing-fields' }, globals = { "vim" } }
-      }
-    }
+        diagnostics = { disable = { 'missing-fields' }, globals = { 'vim' } },
+      },
+    },
   },
 
   solargraph = {},
@@ -486,34 +357,15 @@ local servers = {
   }
 }
 
--- Setup neovim lua configuration
-require('neodev').setup()
+for server_name, config in pairs(servers) do
+  vim.lsp.config(server_name, config)
+end
 
-vim.lsp.config("*", {
-  capabilities = vim.lsp.protocol.make_client_capabilities()
-})
-
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
-
--- Ensure the servers above are installed
-local mason_lspconfig = require 'mason-lspconfig'
-mason_lspconfig.setup {
+require('mason').setup()
+require('mason-lspconfig').setup({
   ensure_installed = vim.tbl_keys(servers),
-}
-
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    local cfg = vim.tbl_deep_extend(
-      'force',
-      { capabilities = capabilities },
-      servers[server_name] or {}
-    )
-    vim.lsp.config(server_name, cfg)
-    vim.lsp.enable(server_name)
-  end,
-}
+  automatic_enable = vim.tbl_keys(servers),
+})
 
 -- null-ls
 local null_ls = require('null-ls')
@@ -537,84 +389,6 @@ null_ls.setup({
   }
 })
 
--- nvim-cmp
-local cmp = require 'cmp'
-local luasnip = require 'luasnip'
-require('luasnip.loaders.from_snipmate').lazy_load()
-luasnip.config.setup {}
-
-cmp.setup {
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end,
-  },
-  completion = {
-    completeopt = 'menu,menuone,noinsert',
-  },
-  mapping = cmp.mapping.preset.insert {
-    ['<C-Space>'] = cmp.mapping.complete {},
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-n>'] = cmp.mapping.select_next_item(),
-    ['<C-p>'] = cmp.mapping.select_prev_item(),
-    ['<C-e>'] = cmp.mapping(function()
-      if cmp.visible() then
-        cmp.close()
-      else
-        cmp.complete()
-      end
-    end),
-    ['<C-y>'] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
-    },
-    ['<C-j>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-    ['<C-k>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.locally_jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
-  },
-  sources = {
-    { name = 'nvim_lua' },
-    { name = 'nvim_lsp' },
-    { name = 'luasnip' },
-    { name = 'path' },
-    { name = 'git' },
-  },
-}
-
-cmp.setup.cmdline({ '/', '?' }, {
-  mapping = cmp.mapping.preset.cmdline(),
-  sources = {
-    { name = 'buffer' }
-  }
-})
-
-cmp.setup.cmdline(':', {
-  mapping = cmp.mapping.preset.cmdline(),
-  sources = cmp.config.sources({
-    { name = 'path' }
-  }, {
-    { name = 'cmdline' }
-  })
-})
-
-require("cmp_git").setup()
-
 -- ###########################################################################
 -- Keymaps
 -- ###########################################################################
@@ -635,9 +409,14 @@ vim.keymap.set("n", "<C-p>", require('telescope.builtin').find_files, { noremap 
 vim.keymap.set('n', 'Q', "@q", { desc = 'Apply macro under cursor' })
 vim.keymap.set('v', 'Q', "@q", { desc = 'Apply macro on selection' })
 
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
+vim.keymap.set('n', '[d', function()
+  vim.diagnostic.jump({ count = -1, float = true })
+end, { desc = 'Go to previous diagnostic message' })
+vim.keymap.set('n', ']d', function()
+  vim.diagnostic.jump({ count = 1, float = true })
+end, { desc = 'Go to next diagnostic message' })
 vim.keymap.set('n', '<C-i>', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
+vim.keymap.set('i', '<C-Space>', vim.lsp.completion.get, { desc = 'Trigger LSP completion' })
 
 vim.keymap.set('n', 'qo', ":copen<CR>", { noremap = true, desc = 'Open quickfix window' })
 vim.keymap.set('n', 'qc', ":cclose<CR>", { noremap = true, desc = 'Close quickfix window' })
@@ -690,12 +469,6 @@ vim.keymap.set({ "n", "x" }, "gP", "<Plug>(YankyGPutBefore)")
 -- vim.keymap.set("n", "<c-n>", "<Plug>(YankyNextEntry)")
 vim.keymap.set("n", "<c-n>", "<Plug>(YankyPreviousEntry)")
 
--- codecompanion
-vim.keymap.set({ "n", "v" }, "<LocalLeader>ca", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<LocalLeader>a", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
-vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
-vim.cmd([[cab cc CodeCompanion]]) -- Expand 'cc' into 'CodeCompanion' in the command line
-
 -- diffview
 vim.keymap.set({ "n", "v" }, "<LocalLeader>do", "<cmd>DiffviewOpen<cr>", { noremap = true, silent = true })
 vim.keymap.set({ "n", "v" }, "<LocalLeader>dc", "<cmd>DiffviewClose<cr>", { noremap = true, silent = true })
@@ -708,6 +481,11 @@ vim.keymap.set({ "n", "v" }, "<LocalLeader>dc", "<cmd>DiffviewClose<cr>", { nore
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('UserLspConfig', { clear = true }),
   callback = function(ev)
+    local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
+    if client:supports_method('textDocument/completion') then
+      vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+    end
+
     local nmap = function(keys, func, desc)
       if desc then
         desc = 'LSP: ' .. desc
@@ -785,10 +563,17 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   command = "set bufhidden=delete"
 })
 
--- Word wrap with line breaks for text files
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-  pattern = "*.txt,*.md,*.markdown,*.rdoc",
-  command = "set wrap linebreak nolist textwidth=79 wrapmargin=0"
+-- Use visual wrapping and prose-friendly editing for Markdown and text.
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'markdown', 'text' },
+  callback = function()
+    vim.fn['pencil#init']({ wrap = 'soft', conceallevel = 0 })
+  end,
+})
+
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
+  pattern = '*.rdoc',
+  command = 'set wrap linebreak nolist textwidth=79 wrapmargin=0',
 })
 
 -- vim-lexical setup
@@ -819,8 +604,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end
 })
 
--- Fix known issue with slim plugin
--- https://github.com/slim-template/vim-slim?tab=readme-ov-file#known-issues
+-- Detect Slim templates without the removed vim-slim plugin.
 vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
   pattern = "*.slim",
   command = "setlocal filetype=slim"
