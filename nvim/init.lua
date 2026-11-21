@@ -32,6 +32,7 @@ Plug 'AndrewRadev/splitjoin.vim'                                  " Switch betwe
 Plug 'AndrewRadev/writable_search.vim'                            " Grep for something, then write the original files directly through the search results
 Plug 'DataWraith/auto_mkdir'                                      " Allows you to save files into directories that do not exist yet
 Plug 'EdenEast/nightfox.nvim'                                     " 🦊A highly customizable theme for vim and neovim with support for lsp, treesitter and a variety of plugins
+Plug 'elixir-editors/vim-elixir'                                  " Elixir filetypes, indentation, navigation, and compiler support
 Plug 'OliverChao/telescope-picker-list.nvim'                      " A plugin that helps you use any pickers in telescope
 Plug 'tpope/vim-endwise'                                          " Wisely add 'end' in Ruby, Lua, Vimscript, etc. (nvim-treesitter-endwise needs the archived master branch)
 Plug 'YounesElhjouji/nvim-copy'                                   " Copy the content of files—from visible buffers, Git-modified files, etc. to clipboard
@@ -549,6 +550,11 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "make",
   command = "setlocal noexpandtab"
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'elixir',
+  command = 'compiler mix',
 })
 
 -- Add spell checking and autowrap for Git commit messages

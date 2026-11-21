@@ -20,9 +20,19 @@ end
 assert_soft_pencil('markdown')
 assert_soft_pencil('text')
 
+vim.lsp.enable('elixirls', false)
 vim.cmd('enew')
 local elixir_ok, elixir_error = pcall(vim.cmd, 'setfiletype elixir')
 assert(elixir_ok, elixir_error)
+assert(vim.bo.makeprg == 'mix compile', 'Elixir buffers should use the Mix compiler')
+
+vim.cmd('edit /tmp/nvim-config-check.lexs')
+assert(vim.bo.filetype == 'elixir', 'Temple .lexs files should be detected as Elixir')
+
+vim.cmd('edit /tmp/nvim-config-check.eex')
+assert(vim.bo.filetype == 'eelixir', 'EEx files should use the embedded Elixir filetype')
+assert(vim.bo.syntax == 'eelixir', 'EEx files should load embedded Elixir syntax')
+assert(vim.bo.indentexpr ~= '', 'EEx files should load embedded Elixir indentation')
 
 vim.cmd('edit nvim/init.lua')
 local attached = vim.wait(10000, function()
