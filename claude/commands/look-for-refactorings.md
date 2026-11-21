@@ -1,6 +1,6 @@
 ---
 description: Look for refactoring opportunities in code changes between two refs
-argument-hint: [start] [end]
+argument-hint: "[start] [end]"
 allowed-tools: Bash, Read, Grep, Glob, Skill
 ---
 

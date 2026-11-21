@@ -1,6 +1,6 @@
 ---
 description: Audit test changes between two refs against Farley's 8 properties
-argument-hint: [start] [end]
+argument-hint: "[start] [end]"
 allowed-tools: Bash, Read, Grep, Glob, Skill
 ---
 
