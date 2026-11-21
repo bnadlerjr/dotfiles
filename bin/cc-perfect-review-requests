@@ -1,0 +1,199 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
+
+"""Launch PERFECT reviews for newly observed direct GitHub review requests."""
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+from urllib.parse import urlparse
+
+PROJECT_ROOTS = (
+    "dev/cyrus",
+    "dev/flatiron",
+    "dev/gust",
+    "dev/instinct",
+    "dev/personal",
+    "dev/spikes",
+)
+
+
+class CoordinatorError(Exception):
+    """The coordinator could not safely complete its run."""
+
+
+def state_path() -> Path:
+    state_home = Path(
+        os.environ.get("XDG_STATE_HOME", Path.home() / ".local" / "state")
+    ).expanduser()
+    return state_home / "cc-perfect-review-requests" / "state.json"
+
+
+def run(
+    command: list[str], cwd: Path | None = None
+) -> subprocess.CompletedProcess[str]:
+    try:
+        result = subprocess.run(
+            command, cwd=cwd, capture_output=True, check=False, text=True
+        )
+    except OSError as error:
+        raise CoordinatorError(f"could not run {command[0]}: {error}") from error
+    return result
+
+
+def discover_requests() -> list[dict[str, str]]:
+    result = run(["prs-to-review.py"])
+    if result.returncode != 0:
+        detail = result.stderr.strip() or f"exited with status {result.returncode}"
+        raise CoordinatorError(f"prs-to-review.py: {detail}")
+
+    requests = []
+    for line in result.stdout.splitlines():
+        fields = line.split("\t")
+        if len(fields) != 5:
+            raise CoordinatorError("prs-to-review.py returned malformed TSV")
+        repository, number, author, title, url = fields
+        requests.append(
+            {
+                "repository": repository,
+                "number": number,
+                "author": author,
+                "title": title,
+                "url": url,
+            }
+        )
+    return requests
+
+
+def github_slug(remote: str) -> str | None:
+    remote = remote.removesuffix(".git")
+    if remote.startswith("git@github.com:"):
+        return remote.removeprefix("git@github.com:")
+    if remote.startswith("ssh://git@github.com/"):
+        return remote.removeprefix("ssh://git@github.com/")
+    parsed = urlparse(remote)
+    if parsed.hostname == "github.com":
+        return parsed.path.lstrip("/")
+    return None
+
+
+def matching_clones(repository: str) -> list[Path]:
+    matches = []
+    for relative_root in PROJECT_ROOTS:
+        root = Path.home() / relative_root
+        if not root.is_dir():
+            continue
+        for candidate in root.iterdir():
+            if not candidate.is_dir():
+                continue
+            result = run(["git", "remote", "get-url", "origin"], cwd=candidate)
+            if (
+                result.returncode == 0
+                and github_slug(result.stdout.strip()) == repository
+            ):
+                matches.append(candidate)
+    return matches
+
+
+def launch(request: dict[str, str]) -> None:
+    clones = matching_clones(request["repository"])
+    if len(clones) != 1:
+        raise CoordinatorError(
+            f"expected one clone for {request['repository']}, found {len(clones)}"
+        )
+    result = run(["cc-perfect-review", request["url"]], cwd=clones[0])
+    if result.returncode != 0:
+        detail = result.stderr.strip() or f"exited with status {result.returncode}"
+        raise CoordinatorError(f"cc-perfect-review: {detail}")
+
+
+def load_state() -> set[str]:
+    path = state_path()
+    if not path.exists():
+        return set()
+    try:
+        data = json.loads(path.read_text())
+        requests = data["requests"]
+        if not isinstance(requests, list) or not all(
+            isinstance(url, str) for url in requests
+        ):
+            raise TypeError
+    except (json.JSONDecodeError, KeyError, OSError, TypeError) as error:
+        raise CoordinatorError(f"invalid state at {path}; run --reset") from error
+    return set(requests)
+
+
+def save_state(urls: set[str]) -> None:
+    path = state_path()
+    temporary = path.with_suffix(".tmp")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary.write_text(json.dumps({"requests": sorted(urls)}) + "\n")
+        os.replace(temporary, path)
+    except OSError as error:
+        raise CoordinatorError(f"could not save state at {path}: {error}") from error
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Launch PERFECT reviews for newly observed direct requests."
+    )
+    parser.add_argument(
+        "--reset", action="store_true", help="clear remembered queue state and exit"
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    if args.reset:
+        path = state_path()
+        path.unlink(missing_ok=True)
+        print(f"reset state: {path}")
+        return 0
+
+    try:
+        previous = load_state()
+        requests = discover_requests()
+    except CoordinatorError as error:
+        print(f"cc-perfect-review-requests: {error}", file=sys.stderr)
+        return 1
+
+    current = {request["url"] for request in requests}
+    new_requests = [request for request in requests if request["url"] not in previous]
+    launched = set()
+    failures = []
+
+    for request in new_requests:
+        try:
+            launch(request)
+        except CoordinatorError as error:
+            failures.append(request["url"])
+            print(f"failed {request['url']}: {error}", file=sys.stderr)
+        else:
+            launched.add(request["url"])
+            print(f"launched {request['url']}")
+
+    try:
+        save_state((previous & current) | launched)
+    except CoordinatorError as error:
+        print(f"cc-perfect-review-requests: {error}", file=sys.stderr)
+        return 1
+
+    timestamp = datetime.now().astimezone().isoformat(timespec="seconds")
+    print(
+        f"{timestamp} current={len(requests)} new={len(new_requests)} "
+        f"launched={len(launched)} failed={len(failures)}"
+    )
+    return 1 if failures else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
