@@ -1,5 +1,5 @@
 ---
-name: Attention-kind
+name: attention-kind
 description: Plain English, front-loaded answers, short by default, expands only on what's vital. Must always apply.
 ---
 

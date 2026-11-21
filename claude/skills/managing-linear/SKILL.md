@@ -1,8 +1,7 @@
 ---
 name: managing-linear
 description: Manages Linear issues via CLI using linearis (czottmann/linearis). Use when the user mentions Linear issue identifiers (e.g., 'ENG-123'), teams, cycles, projects, labels, issue management, or workflow automation. Handles issue CRUD, comments, cycle/project/label/team/user listing, document management, file embeds, search, and GitHub/GitLab PR linking via issue identifiers.
-allowed-tools:
-  - Bash
+allowed-tools: Bash
 ---
 
 # Managing Linear
