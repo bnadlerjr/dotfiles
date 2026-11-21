@@ -2,41 +2,13 @@
 Dotfile setup based on Advanced Commandline screencast from PeepCode.
 
 ## Install
-1. Clone to ~/dotfiles
-2. Create symlinks to dotfiles by running `update_symlinks`
-3. Install CtrlP C Matcher extension:
 
-```bash
-cd ~/.vim/bundle/ctrlp-cmatcher
-./install.sh
-```
-
-4. Install LanguageClient-neovim
-
-```bash
-cd ~/.vim/bundle/LanguageClient-neovim
-./install.sh
-```
-
-5. Install Elixir Language Server
-
-```bash
-$ mkdir -p ~/dev/elixir && cd ~/dev/elixir
-$ git clone git@github.com:elixir-lsp/elixir-ls.git
-$ cd elixir-ls && mkdir rel
-
-# checkout the latest release
-$ git checkout tags/v0.4.0
-
-$ mix deps.get && mix compile
-
-$ mix elixir_ls.release -o rel
-```
-
-6. Update Thesaurus for vim-lexical
-```bash
-./update_lexical.sh
-```
+1. Clone the repository to `~/dotfiles`.
+2. Install system packages with `brew bundle`.
+3. Create the configured symlinks with `./update_symlinks.sh`.
+4. Start Neovim. vim-plug installs plugins on the first run, and Mason installs
+   the configured language servers and formatting tools.
+5. Update the vim-lexical thesaurus with `./update_lexical.sh`.
 
 ## License
 (The MIT License)
