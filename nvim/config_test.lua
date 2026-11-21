@@ -20,6 +20,10 @@ end
 assert_soft_pencil('markdown')
 assert_soft_pencil('text')
 
+vim.cmd('enew')
+local elixir_ok, elixir_error = pcall(vim.cmd, 'setfiletype elixir')
+assert(elixir_ok, elixir_error)
+
 vim.cmd('edit nvim/init.lua')
 local attached = vim.wait(10000, function()
   return #vim.lsp.get_clients({ bufnr = 0 }) > 0

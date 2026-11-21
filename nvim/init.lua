@@ -582,12 +582,6 @@ vim.api.nvim_create_autocmd("FileType", {
   command = "call lexical#init()"
 })
 
--- Set compilers based on file types
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "elixir",
-  command = "compiler mix"
-})
-
 -- Autoformat files using LSP before saving; only doing this for languages
 -- that have "official" formatters
 vim.api.nvim_create_autocmd("BufWritePre", {
