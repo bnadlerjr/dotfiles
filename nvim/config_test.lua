@@ -6,6 +6,9 @@ absent('CmpStatus')
 absent('CodeCompanion')
 absent('ConjureEval')
 
+assert(vim.g.plugs['mason.nvim'].tag == 'v2.*', 'Mason should track v2 releases')
+assert(vim.g.plugs['mason-lspconfig.nvim'].tag == 'v2.*', 'mason-lspconfig should track v2 releases')
+
 assert(vim.fn.maparg('<C-Space>', 'x') == '', 'custom Tree-sitter selection should be removed')
 assert(vim.fn.maparg('an', 'x') ~= '', 'native Tree-sitter selection should be available')
 assert(vim.fn.maparg('<C-Space>', 'i') ~= '', 'manual LSP completion should be mapped')

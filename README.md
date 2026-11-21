@@ -10,6 +10,18 @@ Dotfile setup based on Advanced Commandline screencast from PeepCode.
    the configured language servers and formatting tools.
 5. Update the vim-lexical thesaurus with `./update_lexical.sh`.
 
+## Update Neovim tooling
+
+1. Run `:PlugUpdate` to update plugins. The Mason plugins are constrained to
+   v2; most other plugins track their configured branch.
+2. Run `:MasonUpdate`, open `:Mason`, and press `U` to update all installed
+   language servers and Mason-managed tools.
+3. Run `:TSUpdate` to update Tree-sitter parsers and queries.
+4. Restart Neovim and run `:checkhealth`.
+
+Mason's `ensure_installed` setting installs missing language servers but does
+not upgrade existing installations.
+
 ## License
 (The MIT License)
 

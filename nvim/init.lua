@@ -40,8 +40,8 @@ Plug 'gbprod/yanky.nvim'                                          " Improved Yan
 Plug 'hashivim/vim-terraform'                                     " Terraform commands, formatting, syntax, and indentation
 Plug 'kylechui/nvim-surround'                                     " Add/change/delete surrounding delimiter pairs with ease.
 Plug 'lewis6991/gitsigns.nvim'                                    " Adds git related signs to the gutter, as well as utilities for managing changes
-Plug 'mason-org/mason-lspconfig.nvim', { 'tag': 'v2.3.0' }        " Install and enable configured LSP servers
-Plug 'mason-org/mason.nvim', { 'tag': 'v2.3.1' }                  " Install and manage LSP servers, linters, and formatters
+Plug 'mason-org/mason-lspconfig.nvim', { 'tag': 'v2.*' }         " Install and enable configured LSP servers
+Plug 'mason-org/mason.nvim', { 'tag': 'v2.*' }                   " Install and manage LSP servers, linters, and formatters
 Plug 'mhinz/vim-grepper'                                          " 👾 Helps you win at grep
 Plug 'neovim/nvim-lspconfig'                                      " Quickstart configs for Nvim LSP
 Plug 'catgoose/nvim-colorizer.lua'                                " The fastest Neovim colorizer (maintained fork of norcalli; deprecated APIs removed).
