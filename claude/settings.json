@@ -342,6 +342,7 @@
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
+  "syncClaudeAiSkills": false,
   "skipAutoPermissionPrompt": true,
   "voiceEnabled": false,
   "feedbackSurveyState": {
