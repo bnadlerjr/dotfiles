@@ -10,9 +10,21 @@ assert(vim.fn.maparg('<C-Space>', 'x') == '', 'custom Tree-sitter selection shou
 assert(vim.fn.maparg('an', 'x') ~= '', 'native Tree-sitter selection should be available')
 assert(vim.fn.maparg('<C-Space>', 'i') ~= '', 'manual LSP completion should be mapped')
 
-vim.cmd('new test.md')
-vim.cmd('setfiletype markdown')
-assert(vim.bo.textwidth == 0, 'Soft Pencil should use visual wrapping')
-assert(vim.wo.conceallevel == 0, 'Soft Pencil should not conceal Markdown')
+local function assert_soft_pencil(filetype)
+  vim.cmd('enew')
+  vim.cmd('setfiletype ' .. filetype)
+  assert(vim.bo.textwidth == 0, 'Soft Pencil should use visual wrapping for ' .. filetype)
+  assert(vim.wo.conceallevel == 0, 'Soft Pencil should not conceal ' .. filetype)
+end
+
+assert_soft_pencil('markdown')
+assert_soft_pencil('text')
+
+vim.cmd('edit nvim/init.lua')
+local attached = vim.wait(10000, function()
+  return #vim.lsp.get_clients({ bufnr = 0 }) > 0
+end, 100)
+assert(attached, 'lua_ls should attach to the Neovim config')
+assert(vim.fn.exists(':Format') == 2, 'LspAttach should create the Format command')
 
 print('Neovim config checks passed')
