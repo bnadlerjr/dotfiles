@@ -19,6 +19,11 @@ gnupg/*.gpg
 gnupg/random_seed
 lein/repl-history
 node_modules/
+
+# Plannotator manages and updates these skills.
+/claude/skills/plannotator/
+/claude/skills/plannotator-*/
+
 vim/.netrwhist
 vim/bundle
 vim/plugged

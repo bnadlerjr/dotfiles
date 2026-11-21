@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euo pipefail
+
+source_dir=${1:?source skill directory required}
+target_dir=${2:?target skill directory required}
+
+[ -d "$source_dir" ] || { echo "Skill directory not found: $source_dir" >&2; exit 1; }
+source_dir=$(cd "$source_dir" && pwd)
+case "$target_dir" in
+    */.pi/agent/skills) ;;
+    *) echo "Refusing unsafe target directory: $target_dir" >&2; exit 1 ;;
+esac
+
+rm -rf -- "$target_dir"
+mkdir -p -- "$target_dir"
+
+for skill_dir in "$source_dir"/*; do
+    [ -d "$skill_dir" ] || continue
+    skill_name=$(basename "$skill_dir")
+    case "$skill_name" in
+        plannotator|plannotator-*) continue ;;
+    esac
+    ln -s "$skill_dir" "$target_dir/$skill_name"
+done

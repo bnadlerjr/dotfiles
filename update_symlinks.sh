@@ -119,9 +119,8 @@ echo " ...~/.claude/guidelines re-linked"
 
 mkdir -p ~/.pi/agent
 
-echo " ...removing ~/.pi/agent/skills"
-rm -r ~/.pi/agent/skills
-ln -s ${DIR}/claude/skills ~/.pi/agent/skills
+echo " ...linking non-Plannotator skills into ~/.pi/agent/skills"
+"${DIR}/bin/link-pi-skills" "${DIR}/claude/skills" "${HOME}/.pi/agent/skills"
 echo " ...~/.pi/agent/skills re-linked"
 
 echo " ...removing ~/.pi/agent/prompts"
