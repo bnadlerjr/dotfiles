@@ -5,10 +5,18 @@ Dotfile setup based on Advanced Commandline screencast from PeepCode.
 
 1. Clone the repository to `~/dotfiles`.
 2. Install system packages with `brew bundle`.
-3. Create the configured symlinks with `./update_symlinks.sh`.
-4. Start Neovim. vim-plug installs plugins on the first run, and Mason installs
+3. On macOS, switch the login shell to Homebrew Bash:
+
+   ```bash
+   echo "$(brew --prefix)/bin/bash" | sudo tee -a /etc/shells
+   chsh -s "$(brew --prefix)/bin/bash"
+   ```
+
+   Quit every terminal app with Cmd-Q afterward and relaunch it.
+4. Create the configured symlinks with `./update_symlinks.sh`.
+5. Start Neovim. vim-plug installs plugins on the first run, and Mason installs
    the configured language servers and formatting tools.
-5. Update the vim-lexical thesaurus with `./update_lexical.sh`.
+6. Update the vim-lexical thesaurus with `./update_lexical.sh`.
 
 ## Update Neovim tooling
 
