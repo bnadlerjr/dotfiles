@@ -42,6 +42,13 @@ rm -f ~/.config/herdr/config.toml
 ln -s ${DIR}/herdr/config.toml ~/.config/herdr/config.toml
 echo " ...herdr config re-linked"
 
+# herdr-core keeps its own machine-local state beside this config file.
+echo " ...removing ~/.config/herdr-core/config.toml"
+mkdir -p ~/.config/herdr-core
+rm -f ~/.config/herdr-core/config.toml
+ln -s ${DIR}/herdr-core/config.toml ~/.config/herdr-core/config.toml
+echo " ...herdr-core config re-linked"
+
 # Install managed GitHub plugins declared as "OWNER/REPO[/SUBDIR] [REF]".
 # REF is optional; omitting it lets Herdr install the repository's default
 # version, while a tag or commit pins the plugin to that version.
