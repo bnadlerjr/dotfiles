@@ -20,3 +20,5 @@ coverage
 cscope.out
 tags
 tmate*.log
+
+**/.claude/settings.local.json
