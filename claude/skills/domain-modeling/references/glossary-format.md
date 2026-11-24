@@ -1,4 +1,4 @@
-# GLOSSARY.md Format
+# Domain language file format
 
 ## Structure
 
@@ -29,11 +29,20 @@ _Avoid_: Client, buyer, account
 - **Only include terms specific to this project's context.** General programming concepts (timeouts, error types, utility patterns) don't belong even if the project uses them extensively. Before adding a term, ask: is this a concept unique to this context, or a general programming concept? Only the former belongs.
 - **Group terms under subheadings** when natural clusters emerge. If all terms belong to a single cohesive area, a flat list is fine.
 
+## File naming
+
+Repos may use either naming convention:
+
+- `GLOSSARY.md` and `GLOSSARY-MAP.md`
+- `CONTEXT.md` and `CONTEXT-MAP.md`
+
+Use the existing convention. If both versions exist at the same level, prefer `GLOSSARY`. If neither exists, create `GLOSSARY.md` when the first term is resolved. Do not create a parallel `GLOSSARY` file merely to rename an established `CONTEXT` convention.
+
 ## Single vs multi-context repos
 
-**Single context (most repos):** One `GLOSSARY.md` at the repo root.
+**Single context, most repos:** One `GLOSSARY.md` or `CONTEXT.md` at the repo root.
 
-**Multiple contexts:** A `GLOSSARY-MAP.md` at the repo root lists the contexts, where they live, and how they relate to each other:
+**Multiple contexts:** A `GLOSSARY-MAP.md` or `CONTEXT-MAP.md` at the repo root lists the contexts, where they live, and how they relate to each other. This example uses the preferred `GLOSSARY` naming:
 
 ```md
 # Glossary Map
@@ -51,10 +60,12 @@ _Avoid_: Client, buyer, account
 - **Ordering ↔ Billing**: Shared types for `CustomerId` and `Money`
 ```
 
-The skill infers which structure applies:
+Resolve the structure in this order:
 
-- If `GLOSSARY-MAP.md` exists, read it to find contexts
-- If only a root `GLOSSARY.md` exists, single context
-- If neither exists, create a root `GLOSSARY.md` lazily when the first term is resolved
+1. `GLOSSARY-MAP.md`
+2. `CONTEXT-MAP.md`
+3. Root `GLOSSARY.md`
+4. Root `CONTEXT.md`
+5. No existing file: create a root `GLOSSARY.md` lazily when the first term is resolved
 
-When multiple contexts exist, infer which one the current topic relates to. If unclear, ask.
+A map is authoritative for the paths and filenames of its contexts, including a map that names a mix of `GLOSSARY.md` and `CONTEXT.md` files. When multiple contexts exist, infer which one the current topic relates to. If unclear, ask.
