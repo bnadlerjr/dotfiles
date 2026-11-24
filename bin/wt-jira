@@ -12,7 +12,7 @@
 # branch lets you stack worktrees/PRs on top of in-progress work.
 #
 # USAGE:
-#   wt jira [ISSUE-KEY] [PLAN-FILE]
+#   wt jira [ISSUE-KEY] [PLAN-FILE] [SYNC-TARGET]
 #
 # OPTIONS:
 #   Optionally set a DEBUG environment variable to enable tracing.
@@ -30,7 +30,7 @@ esac
 
 # Show help
 if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
-  echo "Usage: wt jira [ISSUE-KEY] [PLAN-FILE]"
+  echo "Usage: wt jira [ISSUE-KEY] [PLAN-FILE] [SYNC-TARGET]"
   echo ""
   echo "Create a Git feature worktree (via Worktrunk) tied to a Jira issue."
   echo "The worktree is based on the current branch so you can stack work."
@@ -40,11 +40,14 @@ if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
   echo "               If provided, creates the worktree non-interactively."
   echo "               If omitted, prompts for issue selection."
   echo "  PLAN-FILE    Optional. Path to a plan file to implement with Claude Code."
+  echo "  SYNC-TARGET  Optional. Use 'local' to run 'just sync local' in the"
+  echo "               Worktrunk pre-start hook instead of 'just sync'."
   echo ""
   echo "Examples:"
-  echo "  wt jira                      # Interactive"
-  echo "  wt jira ITP-1234             # Auto branch name"
-  echo "  wt jira ITP-1234 PLAN.md     # Implement a plan with Claude Code"
+  echo "  wt jira                            # Interactive"
+  echo "  wt jira ITP-1234                   # Auto branch name"
+  echo "  wt jira ITP-1234 PLAN.md           # Implement a plan with Claude Code"
+  echo "  wt jira ITP-1234 PLAN.md local     # Sync local services first"
   echo ""
   echo "Exit codes:"
   echo "  0  Success"
@@ -56,6 +59,15 @@ fi
 # Capture optional arguments
 issue_key="${1:-}"
 plan_file="${2:-}"
+sync_target="${3:-}"
+
+if [ -n "$sync_target" ] && [ "$sync_target" != "local" ]; then
+  echo "Error: Invalid sync target. Expected: local" >&2
+  exit 2
+fi
+
+# The Worktrunk pre-start hook reads this to choose `just sync local`.
+export WT_JIRA_SYNC_TARGET="$sync_target"
 
 # Convert the given string to kebab-case.
 #
