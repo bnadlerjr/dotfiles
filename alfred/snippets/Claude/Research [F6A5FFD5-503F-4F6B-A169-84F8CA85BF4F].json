@@ -1,0 +1,8 @@
+{
+  "alfredsnippet" : {
+    "snippet" : "\/brainstorm-research-questions for the item listed below. Pass the list of generated questions to a fresh subagent and have it run the \/explore-codebase command. Use \/save-artifact for\n  the research results.\n\n",
+    "uid" : "F6A5FFD5-503F-4F6B-A169-84F8CA85BF4F",
+    "name" : "Research",
+    "keyword" : ""
+  }
+}
