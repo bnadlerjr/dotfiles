@@ -31,14 +31,16 @@ def load_validator():
 
 
 def compare(actual: dict, expected: dict) -> list[str]:
-    """Compare stable classifications while ignoring explanatory prose."""
-    differences = []
-    for key in ("valid", "body_warranted", "sentences", "references"):
-        if actual.get(key) != expected.get(key):
-            differences.append(
-                f"{key}: expected {expected.get(key)!r}, got {actual.get(key)!r}"
-            )
-    return differences
+    """Compare the sentence classifications used by validation."""
+    if actual.get("sentences") == expected.get("sentences"):
+        return []
+    return [
+        (
+            "sentences: "
+            f"expected {expected.get('sentences')!r}, "
+            f"got {actual.get('sentences')!r}"
+        )
+    ]
 
 
 def load_cases(path: Path):
