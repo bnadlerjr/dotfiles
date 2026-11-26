@@ -3,6 +3,7 @@
   "theme": "dark",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
+  "defaultTools": ["+codemode"],
   "packages": [
     "npm:@plannotator/pi-extension"
   ]
